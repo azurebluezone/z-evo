@@ -1,0 +1,48 @@
+/* ==========================================================================
+   FreshMart runtime hardening (linked by build_hi.py)
+   Derived from runtime_audit.py measurements at 360/768/1280/1440/1920 px.
+   ========================================================================== */
+
+/* no page may ever scroll sideways */
+html,body{overflow-x:hidden;max-width:100%}
+
+/* every image stays inside its column, at every breakpoint */
+img{max-width:100%!important;height:auto}
+img.fm-fixed{max-width:100%!important;height:auto}
+
+/* images never collapse to zero height before load */
+img[src]{background:var(--fm-cream,#fbfcf8)}
+
+/* long unbroken strings must wrap, not push the layout */
+h1,h2,h3,h4,h5,h6,p,span,a,li,td,th,label,button,input,select{
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+/* inline <style> blocks set by the original templates can pin px widths */
+.fm-fixed-container{max-width:100%;margin-inline:auto}
+
+/* single-line .truncate titles cut card text mid-word (audit code C1) ->
+   wrap up to two lines instead; scrollWidth then equals clientWidth */
+main h4.truncate,main h5.truncate,
+footer h4.truncate,footer h5.truncate{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  white-space:normal;
+  overflow:hidden;
+}
+
+@media(max-width:575.98px){
+  .container,.container-fluid{max-width:100%;padding-inline:.75rem}
+  .row{margin-inline:-.5rem}
+  .table{font-size:.8125rem}
+  .modal-dialog{margin:.5rem}
+  .offcanvas{width:100%!important}
+  .display-6{font-size:1.75rem!important}
+  .display-5{font-size:2rem!important}
+}
+
+@media(min-width:992px){.container{max-width:960px}}
+@media(min-width:1200px){.container{max-width:1140px}}
+@media(min-width:1400px){.container{max-width:1320px}}

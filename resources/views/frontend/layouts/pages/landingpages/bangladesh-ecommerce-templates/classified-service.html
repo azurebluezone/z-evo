@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classified & Services - Bikroy Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .listing-details {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .listing-header {
+            background: #ff6b35;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .listing-header img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        
+        .listing-content {
+            padding: 25px;
+        }
+        
+        .contact-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .seller-info {
+            background: #ff6b35;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .seller-avatar {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #ff6b35;
+        }
+        
+        .contact-details {
+            padding: 20px;
+        }
+        
+        .price-tag {
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .old-price {
+            color: #e74c3c;
+            text-decoration: line-through;
+            font-size: 1rem;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .contact-btn {
+            background: #ff6b35;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin: 8px 0;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .contact-btn:hover {
+            background: #e55a2b;
+            transform: translateY(-1px);
+        }
+        
+        .contact-btn.secondary {
+            background: #3498db;
+        }
+        
+        .contact-btn.secondary:hover {
+            background: #2980b9;
+        }
+        
+        .contact-btn.whatsapp {
+            background: #25d366;
+        }
+        
+        .contact-btn.whatsapp:hover {
+            background: #20b954;
+        }
+        
+        .section-title {
+            color: #ff6b35;
+            font-size: 1.8rem;
+            margin: 25px 0 15px 0;
+            font-weight: 600;
+            border-bottom: 2px solid #ff6b35;
+            padding-bottom: 8px;
+        }
+        
+        .listing-meta {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ff6b35;
+        }
+        
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .meta-item:last-child {
+            border-bottom: none;
+        }
+        
+        .meta-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .meta-value {
+            color: #6c757d;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .gallery-item {
+            height: 150px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 2px solid #dee2e6;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+            border-color: #ff6b35;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .location-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border: 1px solid #bbdefb;
+        }
+        
+        .safety-tips {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border: 1px solid #ffeaa7;
+            font-size: 0.9rem;
+        }
+        
+        .video-container {
+            margin: 20px 0;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .ad-posted {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="campaign-title">Buy & Sell Marketplace</h1>
+            <p id="banner-title">Find Great Deals • Sell Fast • Connect Locally</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="listing-details">
+                <div class="listing-header">
+                    <img src="/placeholder.svg?height=250&width=600" alt="Listing Image">
+                </div>
+                
+                <div class="listing-content">
+                    <h2 class="section-title">Description</h2>
+                    <div id="description">
+                        <p>Looking for quality products at great prices? You've come to the right place! Our marketplace connects buyers and sellers across Bangladesh, making it easy to find what you need or sell what you don't.</p>
+                    </div>
+                    
+                    <div class="listing-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Condition:</span>
+                            <span class="meta-value">Excellent</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Category:</span>
+                            <span class="meta-value">General</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Posted:</span>
+                            <span class="meta-value">Today</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Views:</span>
+                            <span class="meta-value">156</span>
+                        </div>
+                    </div>
+                    
+                    <h2 class="section-title">Additional Details</h2>
+                    <div id="short-description">
+                        <p>This listing offers great value for money. The item is in excellent condition and ready for immediate pickup or delivery. Serious buyers only, please contact for more information.</p>
+                    </div>
+                    
+                    <div class="location-info">
+                        <strong>📍 Location:</strong> Dhaka, Bangladesh<br>
+                        <small>Exact location will be shared after contact</small>
+                    </div>
+                    
+                    <h2 class="section-title">Photos</h2>
+                    <div class="gallery" id="gallery">
+                        <div class="gallery-item">
+                            <img src="/placeholder.svg?height=150&width=150" alt="Photo 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/placeholder.svg?height=150&width=150" alt="Photo 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/placeholder.svg?height=150&width=150" alt="Photo 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/placeholder.svg?height=150&width=150" alt="Photo 4">
+                        </div>
+                    </div>
+                    
+                    <div class="video-container" id="video-section" style="display: none;">
+                        <h2 class="section-title">Video</h2>
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                            <iframe id="video-frame" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+                        </div>
+                    </div>
+                    
+                    <div class="safety-tips">
+                        <strong>🛡️ Safety Tips:</strong><br>
+                        • Meet in public places<br>
+                        • Check the item before payment<br>
+                        • Avoid advance payments<br>
+                        • Report suspicious activities
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-card">
+                <div class="seller-info">
+                    <div class="seller-avatar">👤</div>
+                    <h3 id="seller-name">Verified Seller</h3>
+                    <p>Member since 2020</p>
+                </div>
+                
+                <div class="contact-details">
+                    <div class="price-tag">
+                        ৳<span id="new-price">5,000</span>
+                        <span class="old-price">৳<span id="old-price">6,000</span></span>
+                    </div>
+                    
+                    <h4 id="product-name">Quality Product for Sale</h4>
+                    
+                    <a href="#" class="contact-btn">📞 Call Now</a>
+                    <a href="#" class="contact-btn secondary">💬 Send Message</a>
+                    <a href="#" class="contact-btn whatsapp">📱 WhatsApp</a>
+                    
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                        <small style="color: #6c757d;">
+                            <strong>Safety First:</strong><br>
+                            Always meet in safe, public places
+                        </small>
+                    </div>
+                    
+                    <div class="ad-posted">
+                        Ad ID: #BK12345<br>
+                        Posted: 2 hours ago
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function populateCampaignData(campaign) {
+            if (campaign.name) document.getElementById('campaign-title').textContent = campaign.name;
+            if (campaign.banner_title) document.getElementById('banner-title').textContent = campaign.banner_title;
+            if (campaign.description) document.getElementById('description').innerHTML = campaign.description;
+            if (campaign.short_description) document.getElementById('short-description').innerHTML = campaign.short_description;
+            
+            if (campaign.product) {
+                if (campaign.product.name) document.getElementById('product-name').textContent = campaign.product.name;
+                if (campaign.product.new_price) document.getElementById('new-price').textContent = campaign.product.new_price;
+                if (campaign.product.old_price) document.getElementById('old-price').textContent = campaign.product.old_price;
+            }
+            
+            if (campaign.video) {
+                document.getElementById('video-section').style.display = 'block';
+                document.getElementById('video-frame').src = campaign.video;
+            }
+        }
+        
+        // Gallery lightbox functionality
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Add lightbox functionality here
+                console.log('Gallery item clicked');
+            });
+        });
+    </script>
+</body>
+</html>

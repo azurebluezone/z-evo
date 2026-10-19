@@ -1,0 +1,235 @@
+/*!
+ * admin-responsive.css
+ * Central responsive rules for every backEnd/* admin screen.
+ *
+ * WHY THIS FILE EXISTS
+ * The admin template (Materio vertical-menu + Bootstrap 5.3.8) is already fully
+ * responsive. What is not responsive is the markup our own views put inside it:
+ * card-header toolbars written as `d-flex gap-2` without `flex-wrap`, and search
+ * inputs pinned with an inline `min-width: 320px`. Those rows refuse to shrink,
+ * so on a 375px screen the whole page gains a horizontal scrollbar and the right
+ * hand side of every toolbar (Search / Export / Reset buttons) is cut off.
+ *
+ * There were 117 blade files with the non-wrapping toolbar pattern. Fixing them
+ * one file at a time would regress the next time a view is added, so the rule
+ * lives here, in the layout's stylesheet, and applies to all current and future
+ * admin views at once.
+ *
+ * Breakpoints intentionally match Bootstrap 5 defaults (576 / 768 / 992 / 1200),
+ * which are also the breakpoints used by the frontend `fm` theme, so admin and
+ * storefront share one responsive rhythm.
+ *
+ * Order matters: load this file AFTER core.css / demo.css.
+ */
+
+/* ==========================================================================
+   1. Page title + breadcrumb must wrap, never clip
+   ========================================================================== */
+.page-title-box {
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+
+.page-title-right {
+  min-width: 0;
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+
+.page-title-right .breadcrumb {
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   2. Card header toolbars
+   The main offender: action rows that must be allowed to wrap.
+   ========================================================================== */
+.card-header.d-flex {
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+}
+
+/* The inner action cluster (the div holding the buttons/forms). */
+.card-header.d-flex > .d-flex,
+.card-header.d-flex > .d-flex > form,
+.card-header.d-flex > form,
+.card-header .input-group {
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   3. Form controls inside toolbars must be fluid
+   `min-width: 0` lets a flex item shrink below its content width, which is the
+   actual fix for inputs pinned with an inline `min-width`. The `!important` is
+   deliberate: it has to beat the inline `style="min-width:320px"` attributes
+   that legacy views still carry. Those attributes are removed view by view;
+   this rule keeps any not-yet-migrated view from breaking in the meantime.
+   ========================================================================== */
+.layout-page [style*="min-width"] {
+  min-width: 0 !important;
+}
+
+.card-header input.form-control,
+.card-header select.form-select,
+.card-header textarea.form-control,
+.card-header .input-group {
+  min-width: 0;
+  flex: 1 1 10rem;
+  max-width: 100%;
+}
+
+/* Buttons keep their natural size and never stretch oddly. */
+.card-header .btn {
+  flex: 0 0 auto;
+}
+
+/* ==========================================================================
+   4. Toolbars that live in the card *body*
+   (filter strips, search + export rows, bulk-action rows)
+
+   These are matched by *pattern* rather than by DOM depth, because the same
+   toolbar pattern is written at different nesting levels across the views:
+     <div class="card-body p-0">
+       <div class="bg-light px-3 py-2 d-flex flex-wrap ...">
+         <div class="d-flex gap-2"> Bulk Actions | Filters </div>
+         <form class="d-flex align-items-center gap-2">
+           <input style="min-width:220px"> <button>Search</button> <div class="dropdown">Export
+   A depth-based selector only fixed the first level and left the rest broken.
+   ========================================================================== */
+.layout-page form.d-flex,
+.layout-page .card-body .d-flex.gap-2 {
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+  min-width: 0;
+}
+
+.layout-page form.d-flex > input.form-control,
+.layout-page form.d-flex > .input-group {
+  min-width: 0;
+  flex: 1 1 8rem;
+  max-width: 100%;
+}
+
+/* ==========================================================================
+   5. Flex children must be allowed to shrink
+   Without `min-width: 0` a flex item refuses to go below its content width,
+   which is how a wide table or a long label pushes the page sideways.
+   ========================================================================== */
+.layout-page,
+.content-wrapper,
+.layout-page .card {
+  min-width: 0;
+}
+
+/* ==========================================================================
+   6. Mobile (<576px): stack the card header, give actions the full width
+   ========================================================================== */
+@media (max-width: 575.98px) {
+  .card-header.d-flex {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .card-header.d-flex > h1,
+  .card-header.d-flex > h2,
+  .card-header.d-flex > h3,
+  .card-header.d-flex > h4,
+  .card-header.d-flex > h5,
+  .card-header.d-flex > h6 {
+    width: 100%;
+  }
+
+  .card-header.d-flex > .d-flex,
+  .card-header.d-flex > form {
+    width: 100%;
+  }
+
+  /* A search form keeps its input on the first row and its buttons on the
+     next one, instead of squeezing "Search" / "Export" into unreadable slivers. */
+  .card-header > form.d-flex,
+  .card-header > .d-flex > form.d-flex,
+  .layout-page form.d-flex {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .card-header .btn,
+  .layout-page form.d-flex > .btn,
+  .layout-page form.d-flex > .dropdown {
+    flex: 0 0 auto;
+  }
+
+  .layout-page form.d-flex > input.form-control,
+  .layout-page form.d-flex > .input-group {
+    flex: 1 0 100%;
+  }
+
+  /* Long option labels stop forcing the row wider than the screen. */
+  .card-header select.form-select,
+  .card-header .dropdown-menu {
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
+   7. Small tablet (576-767px): keep toolbars wrapping, avoid full-width buttons
+   ========================================================================== */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .card-header input.form-control {
+    flex: 1 1 8rem;
+  }
+}
+
+/* ==========================================================================
+   8. Tables
+   The admin tables already use `.table-responsive`, which scrolls inside its
+   own container instead of moving the page. This only guards the few views
+   that declare a bare <table> and gives long cells a sane wrap behaviour.
+   ========================================================================== */
+.table-responsive {
+  -webkit-overflow-scrolling: touch;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+/* ==========================================================================
+   9. Modals and offcanvas must never exceed the viewport
+   ========================================================================== */
+@media (max-width: 575.98px) {
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+
+  .offcanvas-start,
+  .offcanvas-end {
+    max-width: 92vw;
+  }
+}
+
+/* ==========================================================================
+   10. Admin navbar: the user avatar must not be squeezed to a broken image
+   ========================================================================== */
+.layout-navbar .dropdown-user .dropdown-toggle {
+  min-width: 0;
+}
+
+.layout-navbar .dropdown-user img {
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 575.98px) {
+  .layout-navbar .dropdown-user .dropdown-toggle .pro-user-name {
+    display: none;
+  }
+}

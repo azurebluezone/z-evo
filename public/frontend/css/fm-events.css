@@ -1,0 +1,108 @@
+/* --------------------------------------------------------------------------
+   FM:SECTION events (Social Events)
+   Mobile-first event cards for the grocery storefront.
+   Colours follow the fm tokens: --primary-color #1b5e20 etc.
+   -------------------------------------------------------------------------- */
+
+.fm-event-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.fm-event-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(76, 175, 80, 0.4);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.09);
+}
+
+.fm-event-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background-color: #f4f6f0;
+}
+
+.fm-event-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+}
+
+.fm-event-card:hover .fm-event-img {
+    transform: scale(1.04);
+}
+
+.fm-event-date {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    padding: 0.3rem 0.55rem;
+    border-radius: 10px;
+    background-color: var(--primary-color, #1b5e20);
+    color: #fff;
+    line-height: 1.1;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+}
+
+.fm-event-date span {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.fm-event-date small {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.92;
+}
+
+.fm-event-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0.9rem 1rem 1.05rem;
+}
+
+.fm-event-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--text-dark, #192a1e);
+    margin: 0 0 0.35rem;
+}
+
+.fm-event-text {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--text-muted, #5e6d62);
+    margin: 0 0 0.75rem;
+    flex: 1;
+}
+
+.fm-event-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary-color, #1b5e20);
+    text-decoration: none;
+    transition: gap 0.2s ease, color 0.2s ease;
+}
+
+.fm-event-link:hover {
+    gap: 0.55rem;
+    color: var(--primary-light, #2e7d32);
+}

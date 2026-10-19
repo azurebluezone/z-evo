@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Pages - Our Collection</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .landing-page-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 30px;
+        }
+        
+        .landing-page-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .template-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .view-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h1 class="hero-title">Our Landing Pages Collection</h1>
+                    <p class="hero-subtitle">Discover our beautiful and effective landing page templates</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Landing Pages Grid -->
+    <section class="py-5">
+        <div class="container">
+            @if($landingPages->count() > 0)
+                <div class="row">
+                    @foreach($landingPages as $landingPage)
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card landing-page-card">
+                            @if($landingPage->image_url)
+                                <img src="{{ asset($landingPage->image_url) }}" class="card-img-top" alt="{{ $landingPage->title }}">
+                            @else
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-image fa-3x text-muted"></i>
+                                </div>
+                            @endif
+                            <div class="template-badge">{{ $landingPage->template->name }}</div>
+                            
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $landingPage->title }}</h5>
+                                @if($landingPage->subtitle)
+                                    <p class="card-text text-muted">{{ $landingPage->subtitle }}</p>
+                                @endif
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ $landingPage->created_at->format('M d, Y') }}
+                                    </small>
+                                    <a href="{{ route('landing.show', $landingPage->slug) }}" 
+                                       class="view-btn" target="_blank">
+                                        <i class="fas fa-external-link-alt me-2"></i>View Page
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-5">
+                    <i class="fas fa-file-alt fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted">No Landing Pages Available</h3>
+                    <p class="text-muted">Check back later for new landing pages.</p>
+                </div>
+            @endif
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

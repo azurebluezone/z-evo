@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional AI Image Prompt Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #3498db;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        select:hover, input:hover, textarea:hover {
+            border-color: #3498db;
+        }
+
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .size-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .quality-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-group:hover {
+            background: #e9ecef;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d 0%, #6c7a7a 100%);
+        }
+
+        .result-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            border-left: 5px solid #3498db;
+            position: relative;
+        }
+
+        #generatedPrompt {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #2c3e50;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .size-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            body {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <h1>🎨 Professional AI Image Prompt Generator</h1>
+            <p class="subtitle">Generate industry-standard prompts with authentic dimensions and optimal quality settings</p>
+        </header>
+
+        <main class="container">
+            <section class="card">
+                <h2 class="card-title">📐 Image Specifications</h2>
+                <div class="form-group">
+                    <label for="imageType">Select Image Type</label>
+                    <select id="imageType">
+                        <option value="">-- Choose Image Type --</option>
+                        <optgroup label="🎯 Banner & Hero Sections">
+                            <option value="Hero Slider Banner" data-width="1920" data-height="600">Hero Slider Banner (1920x600)</option>
+                            <option value="Banner Background Image" data-width="1200" data-height="400">Banner Background Image (1200x400)</option>
+                            <option value="Hero Video Background" data-width="1920" data-height="1080">Hero Video Background (1920x1080 - 16:9)</option>
+                        </optgroup>
+                        <optgroup label="📢 Promo Banners">
+                            <option value="Promo Banner Left" data-width="600" data-height="300">Promo Banner Left (600x300)</option>
+                            <option value="Promo Banner Right" data-width="600" data-height="300">Promo Banner Right (600x300)</option>
+                        </optgroup>
+                        <optgroup label="🏷️ Product Categories">
+                            <option value="Category Banner Icon" data-width="150" data-height="150">Category Banner Icon (150x150)</option>
+                            <option value="Category Card Image" data-width="300" data-height="200">Category Card Image (300x200)</option>
+                            <option value="Collection Banner" data-width="800" data-height="400">Collection Banner (800x400)</option>
+                        </optgroup>
+                        <optgroup label="🛍️ Products & Collections">
+                            <option value="Product Main Image" data-width="800" data-height="800">Product Main Image (800x800)</option>
+                            <option value="Product Thumbnail" data-width="300" data-height="300">Product Thumbnail (300x300)</option>
+                            <option value="Product Gallery Image" data-width="1200" data-height="1200">Product Gallery Image (1200x1200)</option>
+                            <option value="Featured Product Banner" data-width="800" data-height="400">Featured Product Banner (800x400)</option>
+                            <option value="Flash Sale Banner" data-width="1200" data-height="300">Flash Sale Banner (1200x300)</option>
+                        </optgroup>
+                        <optgroup label="🎥 Product Videos">
+                            <option value="Product Video Thumbnail" data-width="1280" data-height="720">Product Video Thumbnail (1280x720 - 16:9)</option>
+                            <option value="Product Demo Video" data-width="1920" data-height="1080">Product Demo Video (1920x1080 - 16:9)</option>
+                            <option value="Campaign Hero Video" data-width="1920" data-height="1080">Campaign Hero Video (1920x1080 - 16:9)</option>
+                        </optgroup>
+                        <optgroup label="ℹ️ About & Company">
+                            <option value="About Background Image" data-width="1200" data-height="600">About Background Image (1200x600)</option>
+                            <option value="Team Member Image" data-width="150" data-height="150">Team Member Image (150x150)</option>
+                            <option value="Company Logo" data-width="300" data-height="150">Company Logo (300x150)</option>
+                            <option value="Brand Logo" data-width="200" data-height="100">Brand Logo (200x100)</option>
+                        </optgroup>
+                        <optgroup label="💼 Plans & Pricing">
+                            <option value="Plan Background Image" data-width="800" data-height="400">Plan Background Image (800x400)</option>
+                        </optgroup>
+                        <optgroup label="📊 Statistics & Counters">
+                            <option value="Counter Background Image" data-width="1200" data-height="300">Counter Background Image (1200x300)</option>
+                            <option value="Achievement Badge" data-width="200" data-height="200">Achievement Badge (200x200)</option>
+                        </optgroup>
+                        <optgroup label="💬 Testimonials & Reviews">
+                            <option value="Testimonial Image" data-width="80" data-height="80">Testimonial Image (80x80)</option>
+                            <option value="Customer Review Avatar" data-width="100" data-height="100">Customer Review Avatar (100x100)</option>
+                            <option value="Trust Badge Icon" data-width="120" data-height="120">Trust Badge Icon (120x120)</option>
+                        </optgroup>
+                        <optgroup label="⭐ Featured Collections">
+                            <option value="Featured Collection Banner" data-width="1200" data-height="400">Featured Collection Banner (1200x400)</option>
+                            <option value="Best Seller Badge" data-width="150" data-height="150">Best Seller Badge (150x150)</option>
+                        </optgroup>
+                        <optgroup label="📧 Newsletter & Subscribe">
+                            <option value="Subscribe Background Image" data-width="1200" data-height="400">Subscribe Background Image (1200x400)</option>
+                            <option value="Newsletter Popup Banner" data-width="800" data-height="600">Newsletter Popup Banner (800x600)</option>
+                        </optgroup>
+                        <optgroup label="🎁 Coupons & Offers">
+                            <option value="Coupon Banner" data-width="800" data-height="300">Coupon Banner (800x300)</option>
+                            <option value="Offer Badge" data-width="200" data-height="200">Offer Badge (200x200)</option>
+                        </optgroup>
+                        <optgroup label="📝 Blog & Content">
+                            <option value="Blog Image" data-width="850" data-height="450">Blog Image (850x450)</option>
+                            <option value="Blog Thumbnail Image" data-width="300" data-height="200">Blog Thumbnail Image (300x200)</option>
+                            <option value="Blog Detail Image" data-width="770" data-height="450">Blog Detail Image (770x450)</option>
+                            <option value="Blog Detail Thumbnail" data-width="150" data-height="150">Blog Detail Thumbnail (150x150)</option>
+                            <option value="Article Featured Image" data-width="1200" data-height="630">Article Featured Image (1200x630)</option>
+                        </optgroup>
+                        <optgroup label="📰 News & Updates">
+                            <option value="News Banner" data-width="1200" data-height="400">News Banner (1200x400)</option>
+                            <option value="Update Announcement" data-width="800" data-height="400">Update Announcement (800x400)</option>
+                        </optgroup>
+                        <optgroup label="📞 Contact & Support">
+                            <option value="Contact Background Image" data-width="1200" data-height="600">Contact Background Image (1200x600)</option>
+                            <option value="Support Agent Avatar" data-width="150" data-height="150">Support Agent Avatar (150x150)</option>
+                            <option value="FAQ Icon" data-width="100" data-height="100">FAQ Icon (100x100)</option>
+                        </optgroup>
+                        <optgroup label="🔗 Navigation">
+                            <option value="Breadcrumb Background Image" data-width="1200" data-height="200">Breadcrumb Background Image (1200x200)</option>
+                            <option value="Menu Icon" data-width="48" data-height="48">Menu Icon (48x48)</option>
+                        </optgroup>
+                        <optgroup label="🔐 Authentication">
+                            <option value="Login Background Image" data-width="600" data-height="500">Login Background Image (600x500)</option>
+                            <option value="Register Background Image" data-width="500" data-height="700">Register Background Image (500x700)</option>
+                        </optgroup>
+                        <optgroup label="👤 User Profiles">
+                            <option value="User Profile Image" data-width="200" data-height="200">User Profile Image (200x200)</option>
+                            <option value="Admin Profile Image" data-width="300" data-height="300">Admin Profile Image (300x300)</option>
+                            <option value="Customer Avatar" data-width="150" data-height="150">Customer Avatar (150x150)</option>
+                        </optgroup>
+                        <optgroup label="💳 Financial">
+                            <option value="Withdraw Method Image" data-width="600" data-height="600">Withdraw Method Image (600x600)</option>
+                            <option value="Payment Gateway Logo" data-width="200" data-height="100">Payment Gateway Logo (200x100)</option>
+                            <option value="Currency Icon" data-width="64" data-height="64">Currency Icon (64x64)</option>
+                        </optgroup>
+                        <optgroup label="🚚 Shipping & Delivery">
+                            <option value="Shipping Method Icon" data-width="120" data-height="120">Shipping Method Icon (120x120)</option>
+                            <option value="Delivery Truck Illustration" data-width="400" data-height="300">Delivery Truck Illustration (400x300)</option>
+                        </optgroup>
+                        <optgroup label="🔒 Security & Trust">
+                            <option value="Security Badge" data-width="150" data-height="150">Security Badge (150x150)</option>
+                            <option value="Guarantee Icon" data-width="120" data-height="120">Guarantee Icon (120x120)</option>
+                            <option value="SSL Certificate Seal" data-width="100" data-height="100">SSL Certificate Seal (100x100)</option>
+                        </optgroup>
+                        <optgroup label="🔧 System & Technical">
+                            <option value="Extension Image" data-width="32" data-height="32">Extension Image (32x32)</option>
+                            <option value="SEO Image" data-width="1200" data-height="630">SEO Image (1200x630)</option>
+                            <option value="Favicon Image" data-width="32" data-height="32">Favicon Image (32x32)</option>
+                            <option value="Maintenance Image" data-width="500" data-height="300">Maintenance Image (500x300)</option>
+                        </optgroup>
+                        <optgroup label="🦶 Footer Sections">
+                            <option value="Footer Logo" data-width="200" data-height="80">Footer Logo (200x80)</option>
+                            <option value="Footer Background Pattern" data-width="1920" data-height="400">Footer Background Pattern (1920x400)</option>
+                            <option value="Social Media Icon" data-width="48" data-height="48">Social Media Icon (48x48)</option>
+                            <option value="Payment Method Footer" data-width="100" data-height="60">Payment Method Footer (100x60)</option>
+                            <option value="App Download QR Code" data-width="300" data-height="300">App Download QR Code (300x300)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Image Dimensions</label>
+                    <div class="size-inputs">
+                        <div>
+                            <label for="width">Width (px)</label>
+                            <input type="number" id="width" placeholder="1920" min="1">
+                        </div>
+                        <div>
+                            <label for="height">Height (px)</label>
+                            <input type="number" id="height" placeholder="1080" min="1">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="card-title">✨ Quality & Style Settings</h2>
+                
+                <div class="form-group">
+                    <label>Quality Enhancement Options</label>
+                    <div class="quality-options">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="highRes" checked>
+                            <label for="highRes">High Resolution</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="professionalLighting" checked>
+                            <label for="professionalLighting">Professional Lighting</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="sharpDetails" checked>
+                            <label for="sharpDetails">Sharp Details</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="colorGrading" checked>
+                            <label for="colorGrading">Color Grading</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="webOptimized" checked>
+                            <label for="webOptimized">Web Optimized</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="modernDesign" checked>
+                            <label for="modernDesign">Modern Design</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stylePreset">Style Preset</label>
+                    <select id="stylePreset">
+                        <option value="professional">Professional & Corporate</option>
+                        <option value="modern">Modern & Minimalist</option>
+                        <option value="vibrant">Vibrant & Colorful</option>
+                        <option value="elegant">Elegant & Sophisticated</option>
+                        <option value="tech">Tech & Futuristic</option>
+                        <option value="natural">Natural & Organic</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="card-title">📝 Image Description</h2>
+                <div class="form-group">
+                    <label for="promptDescription">Describe Your Image (Be Specific)</label>
+                    <textarea id="promptDescription" placeholder="Example: A modern corporate banner featuring abstract geometric shapes in blue and white, with a subtle gradient background, clean professional look, and copy space for text overlay..."></textarea>
+                    <div class="info-box">
+                        💡 <strong>Tip:</strong> Be specific about colors, composition, mood, and any text or elements you want included. The more detail you provide, the better the result.
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <button id="generateBtn" class="btn">🚀 Generate Professional Prompt</button>
+                <button id="clearBtn" class="btn btn-secondary">🔄 Clear All Fields</button>
+                
+                <div class="form-group" style="margin-top: 25px;">
+                    <label>Generated Prompt (Copy & Use)</label>
+                    <div class="result-container">
+                        <button class="copy-btn" id="copyBtn">📋 Copy</button>
+                        <div id="generatedPrompt">Your professional AI prompt will appear here...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p><strong>Professional AI Image Prompt Generator</strong></p>
+            <p>© 2025 | Industry-Standard Dimensions & Best Practices</p>
+        </footer>
+    </div>
+
+    <script>
+        const state = {
+            imageType: null,
+            width: null,
+            height: null,
+            description: '',
+            location: '',
+            qualityOptions: {},
+            stylePreset: 'professional'
+        };
+
+        const predefinedPrompts = {
+            'Hero Slider Banner': 'Professional hero slider banner with modern gradient design, featuring dynamic composition and eye-catching visuals, ample copy space for text overlay, high-end e-commerce aesthetic, engaging call-to-action area',
+            'Banner Background Image': 'A stunning hero banner background with modern gradient design, featuring abstract flowing shapes and dynamic composition, professional color palette with blue and white tones, ample negative space for text overlay, high-end corporate aesthetic',
+            'Hero Video Background': 'Cinematic hero section video background with smooth motion graphics, professional color grading, seamless loop capability, brand storytelling elements, captivating visual narrative, 16:9 aspect ratio optimized for web display',
+            'Promo Banner Left': 'Eye-catching promotional banner with bold typography space, vibrant color scheme, product showcase area, conversion-optimized layout, modern e-commerce design',
+            'Promo Banner Right': 'Complementary promotional banner design with balanced composition, clear message hierarchy, attention-grabbing visuals, sale or offer highlight area, contemporary retail aesthetic',
+            'Category Banner Icon': 'Clean and recognizable category icon with minimalist design, brand-consistent color palette, scalable vector style, easily identifiable symbol, modern e-commerce navigation aesthetic',
+            'Category Card Image': 'Professional category showcase card with product arrangement, lifestyle context visualization, appealing color harmony, category-representative imagery, optimized for grid layouts',
+            'Collection Banner': 'Elegant collection showcase banner with curated product display, sophisticated composition, premium feel, seasonal or thematic elements, luxury retail aesthetic',
+            'Product Main Image': 'High-quality product photography with clean white or neutral background, professional studio lighting, sharp focus on product details, e-commerce optimized, multiple angle consideration',
+            'Product Thumbnail': 'Compact product preview thumbnail with clear subject focus, readable at small sizes, consistent brand style, optimized for quick loading and recognition',
+            'Product Gallery Image': 'Detailed product gallery shot with zoom-ready quality, consistent lighting across all angles, professional retouching, comprehensive product feature showcase',
+            'Featured Product Banner': 'Standout featured product banner with spotlight effect, premium presentation, comparison-friendly layout, key benefits highlight area, conversion-focused design',
+            'Flash Sale Banner': 'Urgent and exciting flash sale banner with countdown timer space, bold discount percentage display, attention-grabbing colors, limited-time offer emphasis, action-driven design',
+            'Product Video Thumbnail': 'Engaging product video thumbnail with play button overlay, compelling frame selection, preview of product in action, click-inducing composition, 16:9 video format',
+            'Product Demo Video': 'Professional product demonstration video with clear step-by-step visuals, benefit-focused storytelling, high production quality, customer pain point resolution, 16:9 cinematic format',
+            'Campaign Hero Video': 'Impactful campaign launch video with emotional hook, brand narrative visualization, call-to-action integration, multi-platform compatibility, 16:9 widescreen optimization',
+            'About Background Image': 'Clean and professional about us section background with subtle geometric patterns, soft lighting, corporate color scheme, company values visualization, team culture representation, modern business aesthetic',
+            'Team Member Image': 'Professional corporate headshot with studio lighting, neutral gray or white background, business professional attire, confident pose, natural smile, high-quality portrait photography, sharp focus on face',
+            'Company Logo': 'Professional company logo design with memorable brand mark, versatile application across platforms, scalable vector format, brand identity embodiment, modern corporate aesthetic',
+            'Brand Logo': 'Distinctive brand logo with unique visual identity, color psychology application, typography excellence, market differentiation, timeless design principles',
+            'Plan Background Image': 'Modern pricing plan background with elegant card-style layout, subtle gradients, clear hierarchy, professional typography space, comparison table friendly design, trust-building visual elements',
+            'Counter Background Image': 'Eye-catching statistics display background with dynamic data visualization elements, modern infographic style, bold numbers showcase area, achievement milestone theme, engaging corporate design',
+            'Achievement Badge': 'Prestigious achievement badge design with honor-conveying elements, metallic or embossed effect, milestone celebration theme, gamification aesthetic, recognition-worthy appearance',
+            'Testimonial Image': 'Professional circular testimonial profile photo with clean background, friendly and approachable expression, high-quality headshot, customer-focused aesthetic',
+            'Customer Review Avatar': 'Friendly customer avatar placeholder with approachable design, neutral background, diverse representation, user-generated content aesthetic, community-building visual',
+            'Trust Badge Icon': 'Reassuring trust badge with security symbols, credibility indicators, professional certification marks, confidence-inspiring design, purchase-decision support',
+            'Featured Collection Banner': 'Premium featured collection showcase with curated arrangement, editorial-style presentation, lifestyle integration, aspirational messaging space, luxury merchandising aesthetic',
+            'Best Seller Badge': 'Eye-catching best seller badge with standout design, ribbon or seal format, social proof emphasis, sales achievement celebration, attention-drawing placement',
+            'Subscribe Background Image': 'Engaging newsletter subscription banner with email icon graphics, modern call-to-action design, vibrant yet professional color scheme, attention-grabbing layout, conversion-optimized visual elements',
+            'Newsletter Popup Banner': 'Strategic newsletter popup design with value proposition highlight, non-intrusive appearance, incentive display area (discount code), easy close option, mobile-responsive layout',
+            'Coupon Banner': 'Attractive coupon banner with prominent discount display, code reveal area, urgency elements, savings visualization, redemption clarity, deal-seeking appeal',
+            'Offer Badge': 'Compelling special offer badge with value communication, percentage or amount display, limited-time indicator, scarcity element, purchase-motivating design',
+            'Blog Image': 'High-impact blog featured image with compelling visual storytelling, relevant topic illustration, professional photography quality, engaging composition, SEO-optimized design, shareworthy aesthetic',
+            'Blog Thumbnail Image': 'Compact blog preview thumbnail with clear subject focus, readable text area, attention-grabbing colors, consistent brand style, optimized for small display sizes',
+            'Shipping Method Icon': 'Recognizable shipping and delivery icon with logistics symbolism (truck, package, box), fast delivery indication, reliable service visualization, supply chain representation',
+            'Delivery Truck Illustration': 'Friendly delivery truck illustration with motion lines suggesting speed, brand colors, driver character optional, last-mile logistics theme, customer satisfaction guarantee',
+            'Security Badge': 'Trust-inspiring security badge with shield or lock motif, SSL/TLS encryption indicator, data protection symbolism, safe checkout assurance, cyber security certification',
+            'Guarantee Icon': 'Satisfaction guarantee badge with money-back symbol, risk-free trial indicator, warranty coverage representation, confidence-building purchase assurance, quality promise',
+            'SSL Certificate Seal': 'Official SSL certificate seal with verification marks, trusted CA (Certificate Authority) branding, HTTPS encryption indicator, browser bar security display, compliance certification',
+            'Extension Image': 'Minimal extension icon with clear recognizable symbol, brand color integration, scalable vector style, platform-appropriate icon design',
+            'SEO Image': 'Optimized social media sharing image with brand logo placement, key message area, engaging visual hook, platform-compliant dimensions, shareworthy design',
+            'Favicon Image': 'Simple recognizable favicon with brand identity elements, clean icon design, scalable vector style, memorable symbol, all-size compatible',
+            'Maintenance Image': 'Professional maintenance mode graphic with system status theme, estimated time display area, reassuring messaging space, technical aesthetic, user-friendly design',
+            'Footer Logo': 'Optimized footer logo variant with appropriate sizing for footer placement, monochrome or simplified version, brand consistency, contact info pairing, footer navigation anchor',
+            'Footer Background Pattern': 'Subtle footer background pattern or texture with brand motif, non-distracting design, section separation clarity, professional finish, dark or light theme compatibility',
+            'Social Media Icon': 'Platform-accurate social media icon with official brand guidelines compliance, consistent stroke weight, recognizable silhouette, click-friendly sizing, hover state consideration',
+            'Payment Method Footer': 'Comprehensive payment method display with all accepted cards and wallets, trust-building arrangement, checkout reassurance, global payment options, security emphasis',
+            'App Download QR Code': 'Scannable QR code for mobile app download with clear call-to-action, app store redirect, branded center logo optional, print and digital compatibility, tracking-enabled',
+            'Article Featured Image': 'SEO-optimized article featured image with social sharing compliance (1200x630), headline overlay space, brand watermark area, platform-algorithm friendly design',
+            'News Banner': 'Professional news announcement banner with timely update theme, breaking news aesthetic, information hierarchy, press release style, corporate communication design',
+            'Update Announcement': 'Clear update notification graphic with change highlight area, version or date display, improvement showcase, user-impact communication, transparent messaging style',
+            'Contact Background Image': 'Professional contact page background with communication theme elements, welcoming atmosphere, location map integration space, customer service aesthetic, trust-building design',
+            'Support Agent Avatar': 'Friendly support team member photo with approachable expression, professional yet casual attire, helpful demeanor, customer service excellence representation',
+            'FAQ Icon': 'Clear FAQ section icon with question mark or help theme, accessible design, knowledge base symbolism, user assistance visualization, intuitive understanding',
+            'Breadcrumb Background Image': 'Subtle navigation breadcrumb banner with clean minimal design, clear hierarchy visualization, professional grey tones, non-distracting background pattern',
+            'Menu Icon': 'Intuitive navigation menu icon with universally recognized hamburger or alternative design, accessibility-compliant size, clear tap target, mobile-first consideration',
+            'Login Background Image': 'Secure and welcoming login page background with trust-building elements, professional security theme, calming color palette, user-friendly aesthetic, modern authentication design',
+            'Register Background Image': 'Inviting registration page background with onboarding theme, welcoming colors, new user journey visualization, trust signals, professional signup flow design',
+            'User Profile Image': 'Professional user avatar placeholder with neutral background, friendly default profile aesthetic, circular format, platform-appropriate design',
+            'Admin Profile Image': 'Formal administrative profile image with authority-conveying design, professional background, business executive aesthetic, high-quality headshot standards',
+            'Customer Avatar': 'Diverse customer avatar representation with inclusive design, friendly appearance, e-commerce shopper visualization, community membership indicator',
+            'Withdraw Method Image': 'Clear financial withdrawal method icon with recognizable payment symbols, security badges, professional banking aesthetic, trustworthy design elements, high-quality financial graphics',
+            'Payment Gateway Logo': 'Professional payment gateway logo with trust-inducing design, security certification display, brand recognition, checkout confidence builder, financial institution credibility',
+            'Currency Icon': 'Clear currency symbol icon with accurate monetary representation, localized design for target market, financial transaction clarity, e-commerce checkout optimization',
+        };
+
+        const locationMap = {
+            'Hero Slider Banner': 'uploads/slider',
+            'Banner Background Image': 'assets/images/frontend/banner',
+            'Hero Video Background': 'uploads/videos/hero',
+            'Promo Banner Left': 'uploads/promo',
+            'Promo Banner Right': 'uploads/promo',
+            'Category Banner Icon': 'uploads/category',
+            'Category Card Image': 'uploads/category',
+            'Collection Banner': 'uploads/collection',
+            'Product Main Image': 'uploads/product',
+            'Product Thumbnail': 'uploads/product/thumbnail',
+            'Product Gallery Image': 'uploads/product/gallery',
+            'Featured Product Banner': 'uploads/featured',
+            'Flash Sale Banner': 'uploads/flash-sale',
+            'Product Video Thumbnail': 'uploads/videos/products',
+            'Product Demo Video': 'uploads/videos/products',
+            'Campaign Hero Video': 'uploads/videos/campaigns',
+            'About Background Image': 'assets/images/frontend/about',
+            'Team Member Image': 'assets/images/frontend/team',
+            'Company Logo': 'logoIcon/',
+            'Brand Logo': 'uploads/brand',
+            'Plan Background Image': 'assets/images/frontend/plan',
+            'Counter Background Image': 'assets/images/frontend/counter',
+            'Achievement Badge': 'uploads/badges',
+            'Testimonial Image': 'assets/images/frontend/testimonial',
+            'Customer Review Avatar': 'uploads/reviews',
+            'Trust Badge Icon': 'uploads/trust-badges',
+            'Featured Collection Banner': 'uploads/featured-collection',
+            'Best Seller Badge': 'uploads/badges',
+            'Subscribe Background Image': 'assets/images/frontend/subscribe',
+            'Newsletter Popup Banner': 'uploads/newsletter',
+            'Coupon Banner': 'uploads/coupons',
+            'Offer Badge': 'uploads/offers',
+            'Blog Image': 'assets/images/frontend/blog',
+            'Blog Thumbnail Image': 'assets/images/frontend/blog',
+            'Contact Background Image': 'assets/images/frontend/contact_us',
+            'Support Agent Avatar': 'uploads/support',
+            'FAQ Icon': 'uploads/faq',
+            'Breadcrumb Background Image': 'assets/images/frontend/breadcrumb',
+            'Menu Icon': 'uploads/navigation',
+            'Login Background Image': 'assets/images/frontend/login',
+            'Register Background Image': 'assets/images/frontend/register',
+            'Withdraw Method Image': 'assets/images/withdraw/method',
+            'User Profile Image': 'assets/images/user/profile',
+            'Admin Profile Image': 'assets/admin/images/profile',
+            'Customer Avatar': 'uploads/customer',
+            'Payment Gateway Logo': 'uploads/payment-gateway',
+            'Currency Icon': 'uploads/currency',
+            'Shipping Method Icon': 'uploads/shipping',
+            'Delivery Truck Illustration': 'uploads/delivery',
+            'Security Badge': 'uploads/security',
+            'Guarantee Icon': 'uploads/guarantee',
+            'SSL Certificate Seal': 'uploads/ssl',
+            'Extension Image': 'assets/images/extensions',
+            'SEO Image': 'assets/images/seo',
+            'Favicon Image': 'logoIcon/favicon.png',
+            'Maintenance Image': 'assets/images/maintenance',
+            'Footer Logo': 'logoIcon/',
+            'Footer Background Pattern': 'uploads/footer',
+            'Social Media Icon': 'uploads/social',
+            'Payment Method Footer': 'uploads/payment-methods',
+            'App Download QR Code': 'uploads/qr-codes',
+            'Article Featured Image': 'uploads/articles',
+            'News Banner': 'uploads/news',
+            'Update Announcement': 'uploads/announcements'
+        };
+
+        document.getElementById('imageType').addEventListener('change', function(e) {
+            const selected = e.target.options[e.target.selectedIndex];
+            if (selected.value) {
+                state.imageType = selected.value;
+                state.width = selected.getAttribute('data-width');
+                state.height = selected.getAttribute('data-height');
+                state.location = locationMap[selected.value];
+                
+                document.getElementById('width').value = state.width;
+                document.getElementById('height').value = state.height;
+                
+                if (!document.getElementById('promptDescription').value.trim()) {
+                    document.getElementById('promptDescription').value = predefinedPrompts[selected.value] || '';
+                }
+            }
+        });
+
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            const imageType = document.getElementById('imageType').value;
+            const width = document.getElementById('width').value;
+            const height = document.getElementById('height').value;
+            const description = document.getElementById('promptDescription').value.trim();
+            const stylePreset = document.getElementById('stylePreset').value;
+
+            if (!imageType || !width || !height || !description) {
+                alert('⚠️ Please fill in all required fields: Image Type, Dimensions, and Description');
+                return;
+            }
+
+            const qualityEnhancements = [];
+            if (document.getElementById('highRes').checked) qualityEnhancements.push('ultra high resolution');
+            if (document.getElementById('professionalLighting').checked) qualityEnhancements.push('professional studio lighting');
+            if (document.getElementById('sharpDetails').checked) qualityEnhancements.push('razor-sharp details');
+            if (document.getElementById('colorGrading').checked) qualityEnhancements.push('professional color grading');
+            if (document.getElementById('webOptimized').checked) qualityEnhancements.push('web-optimized quality');
+            if (document.getElementById('modernDesign').checked) qualityEnhancements.push('contemporary modern design');
+
+            const styleDescriptions = {
+                'professional': 'professional corporate aesthetic, clean business design, trustworthy appearance',
+                'modern': 'modern minimalist style, clean lines, contemporary design language',
+                'vibrant': 'vibrant energetic colors, dynamic visual impact, bold design choices',
+                'elegant': 'elegant sophisticated look, refined aesthetic, premium quality feel',
+                'tech': 'futuristic tech aesthetic, cutting-edge design, innovative visual language',
+                'natural': 'natural organic style, warm authentic feel, earth-tone palette'
+            };
+
+            const prompt = `Create a ${imageType.toLowerCase()} with the following specifications:
+
+DESCRIPTION: ${description}
+
+TECHNICAL SPECS:
+- Dimensions: ${width}x${height} pixels (exact aspect ratio required)
+- File Location: ${state.location}
+- Format: High-quality web-ready image
+- DPI: 72 (web standard) or 300 (print quality)
+
+STYLE & AESTHETIC:
+- Style Preset: ${styleDescriptions[stylePreset]}
+- Design Approach: ${imageType} optimized for modern web applications
+
+QUALITY REQUIREMENTS:
+${qualityEnhancements.map(q => `- ${q}`).join('\n')}
+- No artifacts, noise, or compression issues
+- Perfect composition and framing
+- Optimal contrast and saturation
+- Professional post-processing applied
+
+BEST PRACTICES:
+- Follow modern UI/UX design principles
+- Ensure accessibility (WCAG compliant colors)
+- Maintain brand consistency
+- Optimized for fast web loading
+- Responsive design consideration
+- Cross-browser compatible appearance
+
+OUTPUT: Professional, production-ready image suitable for immediate deployment in a commercial web application.`;
+
+            document.getElementById('generatedPrompt').textContent = prompt;
+        });
+
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const promptText = document.getElementById('generatedPrompt').textContent;
+            navigator.clipboard.writeText(promptText).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy';
+                }, 2000);
+            });
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            document.getElementById('imageType').value = '';
+            document.getElementById('width').value = '';
+            document.getElementById('height').value = '';
+            document.getElementById('promptDescription').value = '';
+            document.getElementById('stylePreset').value = 'professional';
+            document.getElementById('generatedPrompt').textContent = 'Your professional AI prompt will appear here...';
+        });
+    </script>
+</body>
+</html>

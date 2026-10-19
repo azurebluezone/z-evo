@@ -1,0 +1,961 @@
+/* --------------------------------------------------------------------------
+   FM:SECTION footer
+   Copied same-to-same from work/index.html "Footer Component" rules
+   (#app-footer #122e15 dark green, muted slate text, white h6).
+   Mobile responsiveness is handled by the Bootstrap grid copied with the
+   markup: col-12 col-lg-4 (brand, centred below lg) / col-6 col-lg-2 /
+   col-6 col-lg-2 / col-6 col-lg-4 - two-up below lg (Categories + Company,
+   then Support) and the reference 4 + 2 + 2 + 4 grid at lg.
+
+   BELOW lg (the design reference's two-up): Categories and Company share the
+   first row (col-6 each) and Customer Support takes the next row at half
+   width; nothing is hidden. The bottom bar hides its footer menu and uses the
+   payment strip as a copyright disclosure trigger; the phone tab bar
+   (menu / shop / home / cart / account) sits fixed at the bottom.
+   -------------------------------------------------------------------------- */
+
+.app-footer {
+    background-color: #122e15;
+    color: #94a3b8;
+    font-size: 0.82rem;
+    padding-top: 50px;
+    padding-bottom: 25px;
+    border-top: 1px solid #091a0b;
+}
+
+.app-footer h6 {
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+}
+
+.app-footer a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.app-footer a:hover {
+    color: #ffffff;
+}
+
+/* Social circles: keep the outline visible on the dark green footer. */
+.app-footer .btn-outline-secondary {
+    border-color: rgba(255, 255, 255, 0.28);
+    --bs-btn-hover-border-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: transparent;
+}
+
+.app-footer .btn-outline-secondary:hover {
+    color: #fff;
+    border-color: #fff;
+}
+
+/* ==========================================================================
+   SOCIAL CIRCLES: 44 x 44 hit box, unchanged 32 px painted circle
+   --------------------------------------------------------------------------
+   The design draws a 32 px circle (work/index.html uses w-8 h-8, and the
+   btn-sm markup rendered ~32 px). A 32 px target is below the 44 px touch
+   floor, so the <a> itself becomes a transparent 44 x 44 box and the ring is
+   painted by ::after at exactly 32 x 32 inside it. getBoundingClientRect()
+   therefore reports 44 x 44 (what the tap audit measures) while the visible
+   circle keeps its original 32 px size and the original ring/icon colours.
+
+   margin-inline:-6px cancels the extra 6 px the bigger box adds on each side,
+   so the 32 px circles stay 8 px apart (the design's gap-2 rhythm). The
+   neighbouring hit boxes consequently share a 4 px edge, not the painted
+   circles.
+   ========================================================================== */
+.app-footer .fm-footer-brand__social .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    margin-inline: -6px;
+    color: #ffffff;
+}
+
+.app-footer .fm-footer-brand__social .btn::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.app-footer .fm-footer-brand__social .btn:hover::after {
+    border-color: #ffffff;
+}
+
+.app-footer .fm-footer-brand__social .btn i {
+    position: relative;
+    z-index: 1;
+}
+
+/* Contact icons: same success green the reference uses. */
+.app-footer .text-success {
+    color: #4caf50 !important;
+}
+
+/* ==========================================================================
+   WHITE COPY (shop request)
+   --------------------------------------------------------------------------
+   The reference prints the story paragraph and the support rows in muted
+   slate (#94a3b8). The shop asked for those four blocks in white; the
+   headings were already white. These rules carry the change, so the markup
+   stays a same-to-same copy of the reference and no Bootstrap utility has to
+   be fought with inline styles.
+   ========================================================================== */
+.app-footer .fm-footer-brand__text {
+    color: #ffffff;
+}
+
+.app-footer .fm-footer-support__list,
+.app-footer .fm-footer-support__list li {
+    color: #ffffff;
+}
+
+/* An email address or a long street has no break opportunity in a narrow
+   phone column; without this it overflows instead of wrapping. */
+.app-footer .fm-footer-support__list span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   PHONE / TABLET: the link columns go TWO-UP (the design reference)
+   --------------------------------------------------------------------------
+   Categories and Company share the first row (col-6 each) and Customer
+   Support takes the next row at half width (col-6), so below lg the sums are
+   12 + 6 + 6 + 6 -> brand / (Categories + Company) / (Support). At lg the
+   reference grid (4 + 2 + 2 + 4) takes over untouched.
+
+   Every footer link is a 44 x 44 target (the list gap is folded into that
+   height, so a five-link column reads as five 44 px touch rows).
+   ========================================================================== */
+.app-footer .fm-footer-linkcol a,
+.app-footer .fm-footer-menu__list a,
+.app-footer .fm-footer-bottom__policy a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    min-width: 44px;
+    max-width: 100%;
+}
+
+.app-footer .fm-footer-linkcol ul {
+    gap: 0 !important;                /* 44 px rows supply the rhythm */
+}
+
+/* --------------------------------------------------------------------------
+   FOOTER TEXT FLOOR — every width
+   --------------------------------------------------------------------------
+   The link columns carry Bootstrap's `.small`, which is `.875em`, and the
+   footer root is 0.82rem (13.12px). 13.12 x .875 = 11.48px. Measured in the
+   browser on the live footer (768px): the category links, the brand sentence
+   and the support rows (address / phone / email) all rendered at 11.48px and
+   the support spans at 10.5px — under the 12px floor — while every stylesheet
+   looked clean, because the size came from an `em` cascade rather than from a
+   declared px/rem value. These selectors pin the size in rem so no ancestor
+   `em` can shrink them again. The h6 headings keep their own larger size. */
+.app-footer .small,
+.app-footer small,
+.app-footer .fm-footer-brand__text,
+.app-footer .fm-footer-linkcol ul,
+.app-footer .fm-footer-linkcol li,
+.app-footer .fm-footer-linkcol a,
+.app-footer .fm-footer-support__list,
+.app-footer .fm-footer-support__list li,
+.app-footer .fm-footer-support__list span {
+    font-size: 0.75rem;
+}
+
+.app-footer .fm-footer-bottom__pay-toggle {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+@media (max-width: 575.98px) {
+    .app-footer .container { padding-inline: 1rem; }
+
+    .app-footer .fm-footer-linkcol {
+        padding-inline: 0.35rem;
+        font-size: 0.75rem;
+    }
+
+    .app-footer .fm-footer-linkcol h6 {
+        font-size: 0.78rem;
+        margin-bottom: 10px;
+    }
+
+    .app-footer .fm-footer-linkcol a {
+        font-size: 0.75rem;
+        overflow-wrap: anywhere;
+    }
+
+    /* The SSL line is a reassurance badge, not body copy: let it sit under
+       the contact rows at the size the reference gives it. */
+    .app-footer .fm-footer-support > div:last-child {
+        margin-top: 10px !important;
+    }
+
+    /* The support column is only half of a 360px row, so the icon must not
+       steal 20px from the address/email. The reference stacks it inline:
+       display:block on the row, the icon inline before the text. !important
+       because the markup carries Bootstrap's .d-flex (which is !important). */
+    .app-footer .fm-footer-support__list li {
+        display: block !important;
+        margin-bottom: 6px;
+    }
+
+    .app-footer .fm-footer-support__list li i {
+        display: inline-block;
+        margin-top: 0 !important;
+        margin-right: 3px !important;
+    }
+}
+
+/* ==========================================================================
+   MOBILE FOOTER MENU (khaasfood pattern)
+   ==========================================================================
+   Above lg every column is an always-open list and the heading is just a
+   heading. Below lg each column is an accordion: the heading is a full-width
+   button and the links are behind a collapsed panel.
+
+   THE MARKUP IS ONE LIST PER COLUMN. The breakpoint decides whether the panel
+   is open, and NOTHING else - no second mobile-only copy of the links.
+
+   WHY NOT BOOTSTRAP'S .collapse HERE
+   Bootstrap's Collapse plugin initialised on these panels and wrote inline
+   `visibility: collapse` on the closed ones. Forcing `display:block` on a
+   desktop media query beat the plugin's `display:none` but could not beat an
+   inline `visibility`, so the columns rendered their headings and none of
+   their links - 22 dead links across four columns. The plugin is not used on
+   the footer at all; fm-app.js owns the open/closed class instead.
+
+   THE PANELS SHIP OPEN (is-open in the markup)
+   fm-app.js CLOSES them below lg at boot. Open-by-default means a script
+   failure or a JS-off visitor sees a long but perfectly usable footer rather
+   than an empty one.
+   ========================================================================== */
+
+/* --- Column heading = accordion trigger (phone only) -------------------- */
+.app-footer .fm-footer-col__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;                 /* WCAG tap target on a phone */
+    padding: 10px 2px;
+    margin-bottom: 2px;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-align: left;
+    border-radius: 0;
+}
+
+.app-footer .fm-footer-col__head:active {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* The title is a span so a long heading wraps inside itself instead of
+   pushing the chevron out of the button. */
+.app-footer .fm-footer-col__title {
+    min-width: 0;
+}
+
+/* Chevron points down when closed, up when open. aria-expanded is the single
+   source of truth and fm-app.js keeps it in step with the panel. */
+.app-footer .fm-footer-col__chev {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    transition: transform 0.25s ease;
+}
+
+.app-footer .fm-footer-col__head[aria-expanded="true"] .fm-footer-col__chev {
+    transform: rotate(180deg);
+}
+
+/* --- Panel -------------------------------------------------------------
+   Open by default (see the note at the top). Only .is-open shows it, and
+   only below lg - the lg block further down opens it unconditionally.
+   ----------------------------------------------------------------------- */
+.app-footer .fm-footer-col__body {
+    display: none;
+}
+
+.app-footer .fm-footer-col__body.is-open {
+    display: block;
+}
+
+/* --- Link list ---------------------------------------------------------- */
+.app-footer .fm-footer-col__list {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0 4px;
+}
+
+.app-footer .fm-footer-col__list a {
+    display: block;
+    padding: 7px 2px;
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+/* The page you are on. */
+.app-footer .fm-footer-col__list a.active {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Touch screens get a bigger target than a mouse pointer needs. */
+@media (hover: none) {
+    .app-footer .fm-footer-col__list a {
+        padding: 10px 2px;
+    }
+}
+
+/* --- Support column -----------------------------------------------------
+   It is a plain reference column now (h6 + list + the SSL strip), not the
+   two-cell grid it used to be when it owned its own block under the
+   accordions. Only the heading rule survives, and the white list colour
+   lives in the WHITE COPY section above.
+   ----------------------------------------------------------------------- */
+.app-footer .fm-footer-support h6 {
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+/* ==========================================================================
+   BRAND COLUMN
+   --------------------------------------------------------------------------
+   The footer logo rendered at 296px wide instead of its intended 36px tall,
+   which ate the whole first column and left the shop name a 21px-wide box -
+   "Zevo E-commerce" then wrapped one CHARACTER per line over 504px and
+   dragged the entire footer down with it.
+
+   Cause: the layout's own #fm-audit-fix block declares
+
+       img { max-width: 100% !important; height: auto !important; }
+
+   An `!important` declaration in a stylesheet outranks even an inline style,
+   so that rule beat `.h-9 { height: 2.25rem }` (the utility on the <img>) and
+   the logo was laid out at 100% of whatever width the flex row left it.
+
+   The size therefore has to be restored here, with !important, or the audit
+   rule wins again. max-width is kept as a second guard so a very wide logo
+   still cannot overflow the column.
+   ========================================================================== */
+.app-footer .fm-footer-brand__row {
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.app-footer .fm-footer-brand__logo {
+    flex: 0 0 auto;                   /* the logo must never be squeezed */
+    display: flex;
+    align-items: center;
+}
+
+.app-footer .fm-footer-brand__logo img {
+    width: auto !important;
+    height: 36px !important;
+    max-width: 100% !important;
+    max-height: 36px !important;
+    object-fit: contain;
+    object-position: left center;
+}
+
+/* nowrap + ellipsis: if the name still does not fit, it truncates. It can
+   never again wrap one character per line and blow the column's height up. */
+.app-footer .fm-footer-brand__name {
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* --- Desktop: the old accordion columns (partials/footer/footer-column) --
+   The footer's link columns are plain reference columns now and the
+   accordion lives only in the bottom bar's footer menu (see FOOTER MENU IN
+   THE BAR below). The rules stay because the partial itself stays on disk
+   until the shop confirms nothing else needs it.
+   ----------------------------------------------------------------------- */
+@media (min-width: 992px) {
+    .app-footer .fm-footer-col__head {
+        pointer-events: none;
+        min-height: 0;
+        padding: 0 0 16px;
+        margin-bottom: 0;
+        border-bottom: 0;
+        cursor: default;
+    }
+
+    .app-footer .fm-footer-col__chev {
+        display: none;
+    }
+
+    .app-footer .fm-footer-col__body {
+        display: block !important;
+    }
+
+    .app-footer .fm-footer-col__list {
+        padding: 0;
+    }
+}
+
+/* ==========================================================================
+   PHONE / TABLET: THE BRAND BLOCK CENTRES
+   --------------------------------------------------------------------------
+   The phone spec: logo (or shop name), story and the social circles sit
+   CENTRED at the top of the footer, above the grid of three link columns.
+   At lg the reference row takes over and everything is left-aligned again.
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .app-footer .fm-footer-brand__row,
+    .app-footer .fm-footer-brand__social {
+        justify-content: center;
+    }
+
+    .app-footer .fm-footer-brand__text {
+        max-width: 34rem;
+        margin-inline: auto;
+        text-align: center;
+    }
+}
+
+/* ==========================================================================
+   FOOTER MENU IN THE BAR (khaasfood style)
+   --------------------------------------------------------------------------
+   Phone: the heading is a full-width button with a chevron, the links are
+   behind a collapsed panel - the accordion khaasfood's footer uses. fm-app.js
+   owns the open/closed state through data-fm-footer-toggle; the panel ships
+   open so a script failure still leaves a usable menu.
+   ========================================================================== */
+.app-footer .fm-footer-menu__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;                 /* WCAG tap target on a phone */
+    padding: 10px 2px;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-align: left;
+    border-radius: 0;
+}
+
+.app-footer .fm-footer-menu__head:active {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.app-footer .fm-footer-menu__title {
+    min-width: 0;
+}
+
+.app-footer .fm-footer-menu__chev {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    transition: transform 0.25s ease;
+}
+
+.app-footer .fm-footer-menu__head[aria-expanded="true"] .fm-footer-menu__chev {
+    transform: rotate(180deg);
+}
+
+.app-footer .fm-footer-menu__body {
+    display: none;
+}
+
+.app-footer .fm-footer-menu__body.is-open {
+    display: block;
+}
+
+.app-footer .fm-footer-menu__list {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0 4px;
+}
+
+.app-footer .fm-footer-menu__list a {
+    display: block;
+    padding: 7px 2px;
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+.app-footer .fm-footer-menu__list a.active {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Touch screens get a bigger target than a mouse pointer needs. */
+@media (hover: none) {
+    .app-footer .fm-footer-menu__list a {
+        padding: 10px 2px;
+    }
+}
+
+/* ==========================================================================
+   BOTTOM BAR  |  menu  |  payment methods  |  copyright
+   --------------------------------------------------------------------------
+   A 3-cell grid rather than a flex row: the payment image is centred on the
+   BAR itself, so a long menu on the left can never push it off centre.
+
+   Below lg it is one centred stack (menu, logo, copyright); at lg it is the
+   three-cell row.
+   ========================================================================== */
+.app-footer .fm-footer-bottom {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: center;
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.app-footer .fm-footer-bottom__pay {
+    display: flex;
+    justify-content: center;
+    max-width: 100%;
+}
+
+.app-footer .fm-footer-bottom__legal {
+    text-align: center;
+}
+
+.app-footer .fm-footer-bottom__copy {
+    color: #94a3b8;
+}
+
+.app-footer .fm-footer-bottom__policy {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 14px;
+    margin-top: 4px;
+}
+
+/* THE PAYMENT IMAGE CANNOT GROW THE BAR.
+   The merchant can upload any size of image, so the rendered size is capped
+   here and the bar's height is set by this cap, never by the file: a 2000px
+   wide strip still lays out at max-height and object-fit:contain keeps its
+   proportions. #fm-audit-fix forces `height:auto` on every img, which is
+   exactly why the cap is max-height and not height. */
+.app-footer .fm-footer-bottom__pay-img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 32px;
+    object-fit: contain;
+    object-position: center;
+}
+
+.app-footer .fm-footer-bottom__policy a {
+    font-size: 0.78rem;
+}
+
+/* --- lg: the reference row above, the three-cell bar below ---------------- */
+@media (min-width: 992px) {
+    .app-footer .fm-footer-bottom {
+        grid-template-columns: 1fr auto 1fr;
+        gap: 24px;
+    }
+
+    .app-footer .fm-footer-bottom__pay-img {
+        max-height: 40px;
+    }
+
+    .app-footer .fm-footer-bottom__legal {
+        justify-self: end;
+        text-align: right;
+    }
+
+    .app-footer .fm-footer-bottom__policy {
+        justify-content: flex-end;
+    }
+
+    /* The menu is one horizontal row of links on a desktop. The head is not
+       a button any more: pointer-events off so it cannot swallow a click
+       meant for the links beside it, and the chevron is hidden. */
+    .app-footer .fm-footer-menu {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px 16px;
+    }
+
+    .app-footer .fm-footer-menu__head {
+        width: auto;
+        min-height: 0;
+        padding: 0;
+        border-bottom: 0;
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .app-footer .fm-footer-menu__chev {
+        display: none;
+    }
+
+    /* Always open on a desktop, whatever fm-app.js decided at boot. */
+    .app-footer .fm-footer-menu__body {
+        display: block !important;
+    }
+
+    .app-footer .fm-footer-menu__list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px 16px;
+        padding: 0;
+    }
+
+    .app-footer .fm-footer-menu__list a {
+        display: inline-block;
+        padding: 2px 0;
+    }
+}
+
+/* ==========================================================================
+   MOBILE BOTTOM NAVIGATION (the phone tab bar)
+   ==========================================================================
+   menu / shop / (home) / cart / account.
+
+   It is fixed to the bottom and hidden at lg and up: the markup carries
+   .d-lg-none, and the guard at the end of this file repeats it so a missing
+   Bootstrap utility cannot leave a desktop with a phone tab bar.
+
+   The centre Home button is raised out of the bar (top: -16px) exactly like
+   the reference. The bar keeps five equal slots underneath, so raising one
+   button never changes the rhythm of the other four.
+   ========================================================================== */
+.app-mobile-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1040;
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.app-mobile-nav-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.app-mobile-nav-item {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 44px;                 /* WCAG tap target on a phone */
+    margin: 0;
+    padding: 2px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #64748b;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.1;
+    text-align: center;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease;
+}
+
+.app-mobile-nav-item i {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+/* A long label truncates inside its fifth of the bar instead of pushing the
+   neighbouring item sideways. The raised Home button also matches this
+   selector, so it is explicitly re-declared as flex below. */
+.app-mobile-nav-item > span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-mobile-nav-item:hover,
+.app-mobile-nav-item:focus-visible,
+.app-mobile-nav-item.active {
+    color: #122e15;
+}
+
+.app-mobile-nav-item:focus-visible {
+    outline: 2px solid #122e15;
+    outline-offset: 2px;
+}
+
+/* --- The raised centre Home button --------------------------------------- */
+.app-mobile-nav-home-wrap {
+    position: relative;
+    top: -16px;
+    justify-content: flex-end;
+}
+
+.app-mobile-nav-home-wrap .app-mobile-nav-home-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 2px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    background-color: #122e15;
+    box-shadow: 0 4px 12px rgba(18, 46, 21, 0.35);
+    transition: transform 0.2s ease;
+}
+
+.app-mobile-nav-home-wrap .app-mobile-nav-home-btn i {
+    font-size: 1.35rem;
+    color: #ffffff;
+}
+
+.app-mobile-nav-home-wrap:hover .app-mobile-nav-home-btn,
+.app-mobile-nav-home-wrap.active .app-mobile-nav-home-btn {
+    transform: scale(1.05);
+}
+
+.app-mobile-nav-home-wrap .app-mobile-nav-home-label {
+    color: #122e15;
+    font-weight: 700;
+}
+
+/* --- Cart count -----------------------------------------------------------
+   The same data-fm-cart-count contract fm-cart.js repaints on the header
+   badge, so the two numbers can never disagree. Amber on dark ink matches
+   the header badge. ------------------------------------------------------- */
+.app-mobile-nav-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-mobile-nav-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background-color: #fbbf24;
+    color: #0f172a;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* ==========================================================================
+   GEOMETRY GUARD AGAINST #fm-audit-fix
+   --------------------------------------------------------------------------
+   The layout's auto-injected audit block carries
+
+       [class*="p-"] { padding-left: .75rem !important;
+                       padding-right: .75rem !important; }
+
+   which is far too broad: every class that starts with "app-" also contains
+   the substring "p-" ("app-mobile-nav" -> "p-"), so the rule was inflating
+   this bar's horizontal padding, capping the raised Home button at the width
+   left inside it, and stretching the cart badge. These declarations restore
+   the component's own geometry. !important is required because the audit
+   declarations are !important too; this sheet loads later, so it wins.
+   ========================================================================== */
+.app-mobile-nav {
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.app-mobile-nav-container,
+.app-mobile-nav-home-wrap,
+.app-mobile-nav-home-label,
+.app-mobile-nav-home-btn,
+.app-mobile-nav-icon {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.app-mobile-nav-item {
+    padding: 2px 0 !important;
+}
+
+.app-mobile-nav-badge {
+    padding: 0 3px !important;
+}
+
+/* The direct-child span rule clips long labels; the badge hangs outside the
+   icon, so this wrapper must not clip it. Higher specificity than
+   ".app-mobile-nav-item > span". */
+.app-mobile-nav-item .app-mobile-nav-icon {
+    overflow: visible;
+}
+
+/* --- Payment disclosure trigger (base) -----------------------------------
+   The image sits inside a real <button> so the phone disclosure is keyboard
+   and screen-reader reachable. On a desktop the legal block is already
+   visible, so the trigger is inert and the chevron is hidden (the phone
+   overrides live in the max-width block below).
+   ------------------------------------------------------------------------ */
+.app-footer .fm-footer-bottom__pay-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    cursor: default;
+}
+
+.app-footer .fm-footer-bottom__pay-chev {
+    display: none;
+}
+
+/* ==========================================================================
+   BELOW lg: ROOM FOR THE BAR + THE TWO-COLUMN GRID
+   --------------------------------------------------------------------------
+   The tab bar is fixed, so the last thing on the page (the footer) reserves
+   its height. 100px covers the bar (about 82px), the raised Home button that
+   sticks above it, and a breathing gap; the env() term keeps the bar clear of
+   the iPhone home indicator.
+
+   Below lg the design reference's two-up grid is the rule: Categories and
+   Company share the first row and Customer Support takes the next row at
+   half width. The col-* classes in the markup do this; the 50% rules below
+   only keep the fallback if the Bootstrap grid sheet fails to load.
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .app-footer {
+        padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Two-up below lg, exactly like the reference: Categories + Company on
+       one row, Support on the next. Each is half the row, so the support copy
+       (address / phone / email) is never squeezed into a narrow third. */
+    .app-footer .fm-footer-company-col,
+    .app-footer .fm-footer-support {
+        flex: 0 0 50%;
+        width: 50%;
+        max-width: 50%;
+    }
+
+    /* The bar's khaasfood accordion is a desktop strip now; on a phone the
+       tab bar is the navigation, so this second "Menu" is noise. */
+    .app-footer .fm-footer-menu {
+        display: none !important;
+    }
+
+    /* The payment strip is the disclosure trigger. The bar ships thin: the
+       strip alone, with a chevron. Tapping it reveals the copyright + policy
+       block; fm-app.js owns the state through aria-expanded. */
+    .app-footer .fm-footer-bottom__pay-toggle {
+        min-height: 44px;             /* WCAG tap target */
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+
+    .app-footer .fm-footer-bottom__pay-chev {
+        display: inline-block;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        transition: transform 0.25s ease;
+    }
+
+    .app-footer .fm-footer-bottom__pay-toggle[aria-expanded="true"] .fm-footer-bottom__pay-chev {
+        transform: rotate(180deg);
+    }
+
+    /* Ship-open fallback: only hide the block once fm-app.js has marked the
+       bar as enhanced. With JavaScript off there is no --js class, so the
+       copyright stays visible instead of becoming unreachable. */
+    .app-footer .fm-footer-bottom--js .fm-footer-bottom__legal {
+        display: none;
+    }
+
+    .app-footer .fm-footer-bottom--js .fm-footer-bottom__legal.is-open {
+        display: block;
+    }
+
+    /* Back-to-top is a fixed 40px circle at bottom:25px. Above the tab bar it
+       would float over the copyright/policy rows, and the tab bar's Home link
+       already covers the "back to the top of the site" job. Hide it below lg
+       rather than leave two floating controls fighting for the same corner. */
+    #backToTopBtn {
+        display: none !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .app-footer .fm-footer-bottom__legal {
+        display: block;
+    }
+}
+
+/* Guard: no tab bar on a desktop, whatever the markup does. */
+@media (min-width: 992px) {
+    .app-mobile-nav {
+        display: none !important;
+    }
+}

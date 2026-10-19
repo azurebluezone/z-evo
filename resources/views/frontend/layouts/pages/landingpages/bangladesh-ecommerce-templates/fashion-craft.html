@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion & Craft - Aarong Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: #faf8f5;
+            color: #3a3a3a;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: #fff;
+            padding: 50px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23pattern)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            margin: 40px 0;
+        }
+        
+        .product-showcase {
+            background: white;
+            border-radius: 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .showcase-image {
+            height: 400px;
+            background: #f5f5f5;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .showcase-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .showcase-content {
+            padding: 30px;
+        }
+        
+        .product-sidebar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        
+        .product-image {
+            height: 300px;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 3px solid #8b4513;
+        }
+        
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .product-info {
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .product-name {
+            font-size: 1.5rem;
+            color: #8b4513;
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+        
+        .price {
+            font-size: 2.2rem;
+            color: #d2691e;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .old-price {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 1.3rem;
+            margin-left: 10px;
+        }
+        
+        .btn {
+            background: #8b4513;
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            background: #a0522d;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #8b4513;
+            border: 2px solid #8b4513;
+        }
+        
+        .btn-secondary:hover {
+            background: #8b4513;
+            color: white;
+        }
+        
+        .section-title {
+            color: #8b4513;
+            font-size: 2rem;
+            margin: 30px 0 20px 0;
+            font-weight: 300;
+            border-bottom: 2px solid #d2691e;
+            padding-bottom: 10px;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .gallery-item {
+            height: 300px;
+            background: #f8f8f8;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.02);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .craft-details {
+            background: #f9f7f4;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #8b4513;
+        }
+        
+        .video-container {
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1 id="campaign-title">Handcrafted Fashion Collection</h1>
+                <p id="banner-title">Traditional Elegance Meets Modern Style</p>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="product-showcase">
+                <div class="showcase-image">
+                    <img src="/placeholder.svg?height=400&width=600" alt="Fashion Showcase">
+                </div>
+                
+                <div class="showcase-content">
+                    <h2 class="section-title">Artisan Craftsmanship</h2>
+                    <div class="craft-details">
+                        <div id="description">
+                            <p>Discover the beauty of traditional Bangladeshi craftsmanship with our exclusive collection. Each piece is carefully handcrafted by skilled artisans, preserving centuries-old techniques while embracing contemporary design sensibilities.</p>
+                        </div>
+                    </div>
+                    
+                    <h2 class="section-title">Collection Highlights</h2>
+                    <div id="short-description">
+                        <p>Our fashion collection celebrates the rich textile heritage of Bangladesh, featuring intricate embroidery, vibrant colors, and premium fabrics that tell a story of cultural pride and artistic excellence.</p>
+                    </div>
+                    
+                    <h2 class="section-title">Product Gallery</h2>
+                    <div class="gallery" id="gallery">
+                        <div class="gallery-item">
+                            <img src="/placeholder.svg?height=300&width=250" alt="Fashion Item 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/placeholder.svg?height=300&width=250" alt="Fashion Item 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/placeholder.svg?height=300&width=250" alt="Fashion Item 3">
+                        </div>
+                    </div>
+                    
+                    <div class="video-container" id="video-section" style="display: none;">
+                        <h2 class="section-title">Behind the Craft</h2>
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                            <iframe id="video-frame" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="product-sidebar">
+                <div class="product-image">
+                    <img id="product-image" src="/placeholder.svg?height=300&width=300" alt="Product">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name" id="product-name">Handwoven Traditional Wear</h3>
+                    <div class="price">
+                        ৳<span id="new-price">3,500</span>
+                        <span class="old-price">৳<span id="old-price">4,200</span></span>
+                    </div>
+                    <a href="#" class="btn">অর্ডার করুন</a>
+                    <a href="#" class="btn btn-secondary">কার্টে রাখুন</a>
+                    <div style="margin-top: 20px; font-size: 0.9rem; color: #666;">
+                        <p>✓ হস্তনির্মিত পণ্য</p>
+                        <p>✓ প্রিমিয়াম কোয়ালিটি</p>
+                        <p>✓ ঐতিহ্যবাহী ডিজাইন</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function populateCampaignData(campaign) {
+            if (campaign.name) document.getElementById('campaign-title').textContent = campaign.name;
+            if (campaign.banner_title) document.getElementById('banner-title').textContent = campaign.banner_title;
+            if (campaign.description) document.getElementById('description').innerHTML = campaign.description;
+            if (campaign.short_description) document.getElementById('short-description').innerHTML = campaign.short_description;
+            
+            if (campaign.product) {
+                if (campaign.product.name) document.getElementById('product-name').textContent = campaign.product.name;
+                if (campaign.product.new_price) document.getElementById('new-price').textContent = campaign.product.new_price;
+                if (campaign.product.old_price) document.getElementById('old-price').textContent = campaign.product.old_price;
+                if (campaign.product.image) document.getElementById('product-image').src = campaign.product.image;
+            }
+            
+            if (campaign.video) {
+                document.getElementById('video-section').style.display = 'block';
+                document.getElementById('video-frame').src = campaign.video;
+            }
+        }
+    </script>
+</body>
+</html>

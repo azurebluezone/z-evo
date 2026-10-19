@@ -1,0 +1,169 @@
+/* ==========================================================================
+   FreshMart tap-target fix
+   Generated from runtime_audit.py measurements:
+     header nav links        36x18 px, 115x20 px, 102x18 px  -> 15 links
+     mega-menu dropdown      112x15 px (x6)                 -> too short to hit
+     footer links            79x16, 93x16, 114x16 px       -> too short to hit
+     language dropdown btn   104x16 px                     -> too short to hit
+   All below the 24x24 minimum (WCAG 2.5.8 target size).
+   Desktop: padding-block only, so horizontal layout is untouched.
+   ========================================================================== */
+
+/* ---- header primary nav links ---- */
+header[data-purpose="primary-header"] nav li > a,
+header[data-purpose="primary-header"] .navbar-nav > li > a{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding-block:.25rem;
+}
+
+/* ---- mega-menu dropdown items ---- */
+header[data-purpose="primary-header"] .dropdown-menu a,
+.mega-menu a,
+.dropdown-menu .dropdown-item{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding-block:.3rem;
+}
+
+/* ---- footer link lists (inline links: use line-height room, not height) ---- */
+footer li > a,
+footer .footer-links a{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding-block:.1rem;
+}
+
+/* ---- announcement bar dropdown toggle ---- */
+[data-purpose="announcement-banner"] .dropdown-toggle{
+  min-height:26px;
+  padding-block:.2rem;
+  display:inline-flex;
+  align-items:center;
+}
+
+/* ==========================================================================
+   Mobile (<576px): full 44px touch targets, WCAG 2.5.5 AAA comfort
+   ========================================================================== */
+@media(max-width:575.98px){
+  header[data-purpose="primary-header"] nav li > a,
+  header[data-purpose="primary-header"] .navbar-nav > li > a,
+  header[data-purpose="primary-header"] .dropdown-menu a,
+  .dropdown-menu .dropdown-item,
+  footer li > a,
+  footer .footer-links a,
+  [data-purpose="announcement-banner"] .dropdown-toggle{
+    min-height:44px;
+    padding-block:.5rem;
+  }
+  footer li{margin-bottom:.1rem}
+}
+
+@media(min-width:576px) and (max-width:991.98px){
+  header[data-purpose="primary-header"] .dropdown-menu a,
+  .dropdown-menu .dropdown-item,
+  footer li > a,
+  footer .footer-links a{
+    min-height:36px;
+    padding-block:.35rem;
+  }
+}
+
+/* keep the vertical rhythm of the footer list unchanged on desktop */
+@media(min-width:992px){
+  footer li{margin-bottom:.15rem}
+}
+
+/* ==========================================================================
+   Pass 2 — offenders measured by runtime_audit.py @1440 across all 15 pages
+   that pass 1 missed because they sit OUTSIDE header/footer <li> lists:
+
+     · secondary nav bar  <nav data-purpose="primary-navigation"> (sibling of
+       <header>, so header[data-purpose] selectors never match it)
+     · breadcrumb <nav> links (account / product-details / search)
+     · footer legal row  (Privacy / Terms / Delivery in a plain div.d-flex)
+     · in-content links  (account cards, "PDF Receipt", "Clear all", review
+       counts) and icon/stepper buttons (offcanvas +/- , blog close chip)
+
+   min-height / min-width fix block & flex-item links; inline links inside
+   running text get padding-block (vertical padding is part of the hit box).
+   ========================================================================== */
+
+/* 1. secondary navigation bar (index/account/blog/cart/... top link row) */
+[data-purpose="primary-navigation"] li > a{
+  min-height:24px;
+  padding-block:.3rem;
+}
+
+/* 2. every <nav> context: breadcrumbs, category nav, navbar links */
+nav a[href],
+nav button{
+  min-height:24px;
+  padding-block:.3rem;
+}
+nav button{min-width:24px}
+
+/* 3. footer links that are NOT in <li> (legal row, brand row) */
+footer a[href],
+footer button{
+  min-height:24px;
+  padding-block:.3rem;
+}
+footer button{min-width:24px}
+
+/* 4. main content: cards, chips, icon buttons, small text links
+      (they are flex items / blockified, so min-* applies directly) */
+main a[href],
+main button{
+  min-height:24px;
+  min-width:24px;
+}
+
+/* 5. inline links sitting inside a sentence (confirmation dashboard link) —
+      inline boxes ignore min-height, so blockify + pad instead */
+main p a[href],
+main small a[href],
+footer p a[href]{
+  display:inline-block;
+  min-height:24px;
+  padding-block:.3rem;
+}
+
+/* 6. cart offcanvas steppers (+ / - are 19x21 / 20x21 px) */
+.offcanvas a[href],
+.offcanvas button{
+  min-height:24px;
+  min-width:24px;
+}
+
+/* ==========================================================================
+   Pass 3 — native form controls and content that lives OUTSIDE <main>
+   (filter-tag x buttons sit before <main>; audit flagged):
+
+     · input.w-4.h-4  /  input.w-5.h-5  checkboxes  16x16 / 20x20  (x62)
+     · input#priceRange type=range                      258x16
+     · filter-tag close buttons  button (14x20), pre-<main> sidebar
+
+   type-attribute selectors (0,1,1) outrank Tailwind .w-4/.h-4 (0,1,0),
+   so the native controls really do grow to the 24px WCAG 2.5.8 floor.
+   ========================================================================== */
+
+input[type="checkbox"],
+input[type="radio"]{
+  min-width:24px;
+  min-height:24px;
+}
+input[type="range"]{
+  min-height:24px;
+}
+
+/* every button / block-level link in the document, not just inside <main>
+   (inline links ignore min-*; they are padded by rules 1-5 above) */
+body button,
+body a[href]{
+  min-height:24px;
+  min-width:24px;
+}

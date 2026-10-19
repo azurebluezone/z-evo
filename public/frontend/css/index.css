@@ -1,0 +1,121 @@
+:root {
+      --primary-color: #1b5e20;
+      --primary-light: #2e7d32;
+      --accent-color: #4caf50;
+      --bg-cream: #fbfcf8;
+      --surface-light: #f4f6f0;
+      --text-dark: #192a1e;
+      --text-muted: #5e6d62;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-cream);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    .btn-brand-primary {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      font-weight: 600;
+      border: 1px solid var(--primary-color);
+      transition: all 0.25s ease-in-out;
+    }
+    .btn-brand-primary:hover {
+      background-color: #144618;
+      border-color: #144618;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
+    }
+
+    .btn-brand-outline {
+      background-color: transparent;
+      color: var(--primary-color);
+      border: 1.5px solid var(--primary-color);
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+    .btn-brand-outline:hover {
+      background-color: var(--primary-color);
+      color: #ffffff;
+    }
+
+    .card-product {
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .card-product:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
+      border-color: rgba(76, 175, 80, 0.35);
+    }
+
+    .heart-btn {
+      transition: all 0.2s ease;
+    }
+    .heart-btn.active i {
+      color: #dc2626 !important;
+    }
+
+    .badge-organic {
+      background-color: #e8f5e9;
+      color: #1b5e20;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+    .badge-discount {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+.category-chip {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .category-chip:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    }
+    .category-chip.active {
+      background-color: #1b5e20 !important;
+      color: #ffffff !important;
+    }
+    .category-chip.active p, .category-chip.active span {
+      color: #ffffff !important;
+    }
+
+    #backToTopBtn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 1040;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    #backToTopBtn.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+/* FreshMart custom responsive fixes */
+  html, body { overflow-x: hidden; max-width: 100%; }
+  img, video, iframe { max-width: 100%; height: auto; }
+  .fm-responsive-container { width: 100%; max-width: 1320px; margin-inline: auto; padding-inline: 12px; }
+  .fm-responsive-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem; }
+  @media (max-width: 576px) {
+    .fm-responsive-grid { grid-template-columns: repeat(1, 1fr); }
+    .fm-hide-mobile { display: none !important; }
+  }
+  @media (min-width: 577px) and (max-width: 992px) {
+    .fm-responsive-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 993px) {
+    .fm-responsive-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  .fm-responsive-img { width: 100%; height: auto; object-fit: cover; }
+  .fm-responsive-nav { display: flex; flex-wrap: wrap; gap: .5rem; }

@@ -1,0 +1,1052 @@
+<div
+  class="export-wrapper"
+  style="
+    width: 1440px;
+    min-height: 812px;
+    position: relative;
+    font-family: var(--font-family-body);
+    background-color: var(--background);
+  "
+>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&family=Geist:wght@100;200;300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@100;200;300;400;500;600;700&family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Nunito:wght@200;300;400;500;600;700;800;900&family=PT+Serif:wght@400;700&family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&family=Shantell+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <html>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Product Landing Page</title>
+      <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+      <style id="base-styles">
+        :root {
+          --primary: #1ba228;
+          --danger: #ff0000;
+          --accent: #f05a2b;
+          --bg: #ffffff;
+          --text: #333333;
+          --muted: #f8fafc;
+          --border: #e2e8f0;
+          --font-family-body: system-ui, -apple-system, sans-serif;
+        }
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        .export-wrapper {
+          font-family: var(--font-family-body);
+          background-color: var(--bg);
+          color: var(--text);
+          line-height: 1.6;
+        }
+        .container {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 0 20px;
+        }
+        .fw-bold {
+          font-weight: 700;
+        }
+        .fw-semibold {
+          font-weight: 600;
+        }
+        .fw-medium {
+          font-weight: 500;
+        }
+        .text-primary {
+          color: var(--primary);
+        }
+        .text-danger {
+          color: var(--danger);
+        }
+        .text-center {
+          text-align: center;
+        }
+        .bg-primary {
+          background-color: var(--primary);
+          color: white;
+        }
+
+        .section-title-banner {
+          background-color: var(--primary);
+          color: white;
+          text-align: center;
+          padding: 24px 20px;
+          font-size: 28px;
+          font-weight: 700;
+          margin: 64px 0 48px;
+        }
+      </style>
+
+      <style id="hero-styles">
+        .hero-wrapper {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 48px;
+          padding: 64px 0 24px;
+        }
+        .hero-content {
+          flex: 1;
+          min-width: 320px;
+        }
+        .hero-image {
+          flex: 1;
+          min-width: 320px;
+        }
+        .hero-image img {
+          width: 100%;
+          border: 4px solid var(--primary);
+          padding: 8px;
+          border-radius: 12px;
+          background: white;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+          display: block;
+        }
+        .hero-title {
+          font-size: 42px;
+          line-height: 1.2;
+          margin-bottom: 24px;
+        }
+        .price-row {
+          font-size: 24px;
+          margin-bottom: 32px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+        .price-strike {
+          position: relative;
+          display: inline-block;
+        }
+        .price-strike::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: -5%;
+          width: 110%;
+          height: 3px;
+          background-color: var(--danger);
+          transform: rotate(-10deg);
+        }
+        .price-highlight {
+          color: var(--danger);
+          border: 2px solid var(--danger);
+          border-radius: 50px;
+          padding: 6px 20px;
+          display: inline-block;
+        }
+        .countdown-group {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 40px;
+        }
+        .cd-box {
+          background-color: var(--primary);
+          color: white;
+          width: 70px;
+          height: 80px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+        }
+        .cd-val {
+          font-size: 32px;
+          font-weight: 700;
+          line-height: 1;
+        }
+        .cd-lbl {
+          font-size: 13px;
+          margin-top: 4px;
+          opacity: 0.9;
+        }
+        .btn-main {
+          background-color: var(--danger);
+          color: white;
+          font-size: 20px;
+          border: none;
+          padding: 16px 36px;
+          border-radius: 8px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          cursor: pointer;
+          text-decoration: none;
+          box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
+        }
+      </style>
+
+      <style id="features-styles">
+        .intro-text {
+          font-size: 18px;
+          max-width: 900px;
+          margin: 0 auto 48px;
+          line-height: 1.6;
+          text-align: center;
+        }
+        .features-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 24px;
+          margin-bottom: 56px;
+        }
+        .feature-card {
+          background: var(--muted);
+          border: 1px solid var(--border);
+          padding: 24px;
+          border-radius: 12px;
+          display: flex;
+          gap: 16px;
+          align-items: flex-start;
+        }
+        .feature-icon-wrapper {
+          background: white;
+          border-radius: 50%;
+          width: 48px;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          border: 1px solid var(--border);
+        }
+        .feature-text {
+          font-size: 15px;
+          color: var(--text);
+          line-height: 1.6;
+        }
+      </style>
+
+      <style id="why-us-styles">
+        .why-us-wrapper {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 64px;
+          margin: 48px 0;
+        }
+        .why-us-image {
+          flex: 1;
+          min-width: 320px;
+        }
+        .why-us-image img {
+          width: 100%;
+          border-radius: 16px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+          display: block;
+        }
+        .why-us-list {
+          flex: 1;
+          min-width: 320px;
+          list-style: none;
+        }
+        .why-us-list li {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 16px 0;
+          border-bottom: 1px dashed var(--border);
+          font-size: 16px;
+        }
+        .why-us-list li:last-child {
+          border-bottom: none;
+        }
+        .check-circle {
+          background-color: var(--primary);
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+      </style>
+
+      <style id="form-styles">
+        .checkout-section {
+          background-color: var(--muted);
+          padding: 80px 0;
+          margin-top: 64px;
+          border-top: 1px solid var(--border);
+        }
+        .form-container {
+          background: white;
+          border: 1px solid var(--border);
+          border-radius: 16px;
+          padding: 48px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+        }
+        .section-heading {
+          font-size: 20px;
+          margin-bottom: 24px;
+          border-bottom: 2px solid var(--primary);
+          padding-bottom: 12px;
+          display: inline-block;
+        }
+        .input-group {
+          margin-bottom: 20px;
+        }
+        .input-label {
+          display: block;
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: 8px;
+          color: #475569;
+        }
+        .mock-input {
+          width: 100%;
+          height: 48px;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+          background: white;
+          display: flex;
+          align-items: center;
+          padding: 0 16px;
+          color: #94a3b8;
+          font-size: 15px;
+        }
+        .mock-input.select {
+          justify-content: space-between;
+          color: var(--text);
+          cursor: pointer;
+        }
+        .mini-product {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px;
+          background: var(--muted);
+          border-radius: 8px;
+          border: 1px solid var(--border);
+          margin-top: 24px;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+        .qty-selector {
+          display: flex;
+          align-items: center;
+          background: white;
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          overflow: hidden;
+        }
+        .qty-btn {
+          padding: 8px 14px;
+          background: #f1f5f9;
+          color: #64748b;
+          font-weight: bold;
+          cursor: pointer;
+        }
+        .qty-num {
+          padding: 8px 16px;
+          border-left: 1px solid #cbd5e1;
+          border-right: 1px solid #cbd5e1;
+          font-weight: 600;
+        }
+        .order-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 32px;
+        }
+        .order-table th,
+        .order-table td {
+          padding: 16px 0;
+          border-bottom: 1px solid var(--border);
+          text-align: left;
+        }
+        .order-table th:last-child,
+        .order-table td:last-child {
+          text-align: right;
+        }
+        .payment-methods {
+          background: var(--muted);
+          border-radius: 12px;
+          padding: 24px;
+          margin-bottom: 24px;
+          border: 1px solid var(--border);
+        }
+        .pay-option {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 16px;
+          font-size: 15px;
+          font-weight: 500;
+          cursor: pointer;
+        }
+        .pay-radio {
+          width: 20px;
+          height: 20px;
+          border: 2px solid #cbd5e1;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: white;
+        }
+        .pay-radio.active {
+          border-color: var(--accent);
+        }
+        .pay-radio.active::after {
+          content: "";
+          width: 10px;
+          height: 10px;
+          background: var(--accent);
+          border-radius: 50%;
+        }
+        .pay-desc {
+          background: white;
+          padding: 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          color: #64748b;
+          margin-left: 32px;
+          margin-bottom: 20px;
+          border: 1px solid var(--border);
+        }
+        .btn-submit {
+          width: 100%;
+          background: var(--accent);
+          color: white;
+          border: none;
+          padding: 18px;
+          font-size: 18px;
+          font-weight: 700;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          cursor: pointer;
+        }
+        .privacy-text {
+          font-size: 13px;
+          color: #64748b;
+          margin-bottom: 24px;
+          line-height: 1.6;
+        }
+      </style>
+
+      <style id="footer-styles">
+        .site-footer {
+          text-align: center;
+          padding: 32px 20px;
+          color: #64748b;
+          font-size: 14px;
+          background: white;
+        }
+      </style>
+    </head>
+    <body>
+      <!-- Hero Section -->
+      <div class="container">
+        <div class="hero-wrapper">
+          <div class="hero-content">
+            <h1 class="hero-title text-primary fw-bold">
+              বিচি মুক্ত সিডলেস খেজুর
+            </h1>
+
+            <div class="price-row fw-bold">
+              <span style="color: #64748b"
+                >রেগুলার মূল্য <span class="price-strike">১২০০</span></span
+              >
+              <span class="text-primary"
+                >বর্তমান মূল্য
+                <span class="price-highlight">৯০০</span> টাকা</span
+              >
+            </div>
+
+            <div class="countdown-group">
+              <div class="cd-box">
+                <span class="cd-val">00</span>
+                <span class="cd-lbl">Days</span>
+              </div>
+              <div class="cd-box">
+                <span class="cd-val">00</span>
+                <span class="cd-lbl">Hours</span>
+              </div>
+              <div class="cd-box">
+                <span class="cd-val">00</span>
+                <span class="cd-lbl">Mins</span>
+              </div>
+              <div class="cd-box">
+                <span class="cd-val">00</span>
+                <span class="cd-lbl">Secs</span>
+              </div>
+            </div>
+
+            <div class="btn-main fw-bold" data-media-type="banani-button">
+              <div
+                style="
+                  width: 24px;
+                  height: 24px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:shopping-cart"
+                  style="font-size: 24px; color: white"
+                ></iconify-icon>
+              </div>
+              অর্ডার করতে চাই
+            </div>
+          </div>
+          <div class="hero-image">
+            <img
+              src="https://seedlesskhejur.ruposhibd.xyz/wp-content/uploads/2024/07/WhatsApp-Image-2024-01-21-at-1.07.30-AM.jpeg"
+              alt="Seedless Dates"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Features Section -->
+      <div class="section-title-banner">বিচি মুক্ত সিডলেস খেজুর কেন খাবেন?</div>
+
+      <div class="container">
+        <p class="intro-text text-danger fw-bold">
+          এই খেজুরে রয়েছে প্রচুর পরিমাণে ফাইবার, আয়রন, ভিটামিন এবং
+          ম্যাগনেসিয়ামসহ নানান পুষ্টিগুণ। এসব খাদ্য উপাদান শরীরে অতীব প্রয়োজনীয়
+          হয়ে ওঠে যখন আপনার বয়স পৌঁছাবে ৩০-এর কোঠায়।
+        </p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:heart-pulse"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              বিচি মুক্ত সিডলেস খেজুরে রয়েছে অ্যান্টিঅক্সিডেন্ট যা হার্টের ক্ষতি
+              থেকে রক্ষা করতে সাহায্য করে। এগুলোতে পটাসিয়ামও রয়েছে, যা রক্তচাপ
+              কমাতে সাহায্য করতে পারে।
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:droplet"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              রক্তস্বল্পতায় ভোগা রোগীরা প্রতিদিন এই খেজুর খেতে পারেন। একজন সুস্থ
+              মানুষের শরীরে যতটুকু আয়রন প্রয়োজন, তার প্রায় ১১ ভাগ পূরণ করে এই
+              খেজুর।
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:shield-check"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              এই খেজুরে রয়েছে প্রচুর ভিটামিন, খনিজ, ক্যালসিয়াম ও পটাসিয়াম।
+              খেজুরে থাকা অ্যান্টিঅক্সিডেন্ট শরীরে রোগ প্রতিরোধের ক্ষমতা বাড়ায়।
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:activity"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              বিচি মুক্ত সিডলেস খেজুরের উচ্চ ফাইবার উপাদান হজমশক্তি উন্নত করতে
+              এবং কোষ্ঠকাঠিন্য প্রতিরোধ করতে সহায়তা করে।
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:zap"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              বিচি মুক্ত সিডলেস খেজুর প্রাকৃতিক শর্করার একটি ভালো উৎস, যা দ্রুত
+              শক্তি বৃদ্ধি করতে পারে।
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:gauge"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              প্রতিটি খেজুরে রয়েছে ২০ থেকে ২৫ মিলিগ্রাম ম্যাগনেসিয়াম, যা উচ্চ
+              রক্তচাপ কমাতে সাহায্য করে।
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:glass-water"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              কোষ্ঠকাঠিন্যের সমস্যায় রাতে পানিতে খেজুর ভিজিয়ে রাখুন। পর দিন
+              সকালে খেজুর ভেজানো পানি পান করুন। দূর হবে কোষ্ঠকাঠিন্য।
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:smile"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              এগুলি ফাইবারের একটি ভাল উৎস, যা আপনাকে খাওয়ার পরে পূর্ণ এবং তৃপ্ত
+              বোধ করতে সহায়তা করতে পারে।
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <iconify-icon
+                icon="lucide:bone"
+                style="font-size: 24px; color: var(--primary)"
+              ></iconify-icon>
+            </div>
+            <div class="feature-text fw-semibold">
+              বিচি মুক্ত সিডলেস খেজুরে ক্যালসিয়াম ও ম্যাগনেসিয়াম থাকে যা হাড় ও
+              দাঁতের স্বাস্থ্যের জন্য গুরুত্বপূর্ণ।
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <div
+            class="fw-bold text-primary"
+            style="font-size: 36px; margin-bottom: 32px"
+          >
+            ১ কেজি ৯০০ টাকা মাত্র
+          </div>
+          <div class="btn-main fw-bold" data-media-type="banani-button">
+            <div
+              style="
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <iconify-icon
+                icon="lucide:shopping-cart"
+                style="font-size: 24px; color: white"
+              ></iconify-icon>
+            </div>
+            অর্ডার করতে চাই
+          </div>
+        </div>
+      </div>
+
+      <!-- Why Buy From Us Section -->
+      <div class="section-title-banner" style="margin-top: 80px">
+        আমাদের কাছে কেনো কিনবেন?
+      </div>
+
+      <div class="container">
+        <div class="why-us-wrapper">
+          <div class="why-us-image">
+            <img
+              src="https://seedlesskhejur.ruposhibd.xyz/wp-content/uploads/2024/07/WhatsApp-Image-2024-01-21-at-1.07.30-AM.jpeg"
+              alt="Quality Dates"
+            />
+          </div>
+          <ul class="why-us-list fw-bold">
+            <li>
+              <div class="check-circle">
+                <iconify-icon
+                  icon="lucide:check"
+                  style="font-size: 16px; color: white"
+                ></iconify-icon>
+              </div>
+              <span>আমরাই দিচ্ছি এই সীজনের ফ্রেশ গাছপাকা সিডলেস খেজুর</span>
+            </li>
+            <li>
+              <div class="check-circle">
+                <iconify-icon
+                  icon="lucide:check"
+                  style="font-size: 16px; color: white"
+                ></iconify-icon>
+              </div>
+              <span>আমাদের খেজুর এ কোনো পোকা পাবেন না ইনশাআল্লাহ</span>
+            </li>
+            <li>
+              <div class="check-circle">
+                <iconify-icon
+                  icon="lucide:check"
+                  style="font-size: 16px; color: white"
+                ></iconify-icon>
+              </div>
+              <span
+                >অর্ডার করতে আপনাকে অগ্রিম ১ টাকাও পেমেন্ট করতে হবে না।</span
+              >
+            </li>
+            <li>
+              <div class="check-circle">
+                <iconify-icon
+                  icon="lucide:check"
+                  style="font-size: 16px; color: white"
+                ></iconify-icon>
+              </div>
+              <span>সারা বাংলাদেশে ক্যাশ অন হোম ডেলিভারী পাবেন।</span>
+            </li>
+            <li>
+              <div class="check-circle">
+                <iconify-icon
+                  icon="lucide:check"
+                  style="font-size: 16px; color: white"
+                ></iconify-icon>
+              </div>
+              <span>পণ্য হাতে পাওয়ার পর প্রয়োজনে খেয়ে রিসিভ করতে পারবেন।</span>
+            </li>
+            <li>
+              <div class="check-circle">
+                <iconify-icon
+                  icon="lucide:check"
+                  style="font-size: 16px; color: white"
+                ></iconify-icon>
+              </div>
+              <span
+                >আমাদের কথা মত প্রোডাক্ট না পেলে সাথে সাথে রিটার্ন সুবিধা
+                থাকছে।</span
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Contact Banner -->
+      <div class="section-title-banner" style="margin-bottom: 0">
+        যে কোন প্রয়োজনে যোগাযোগ করুন 09638339900
+      </div>
+
+      <!-- Checkout Section -->
+      <div class="checkout-section">
+        <div class="container">
+          <div class="text-center" style="margin-bottom: 48px">
+            <h2 class="text-primary fw-bold" style="font-size: 32px">
+              অর্ডার করতে নিচের ফর্মটি পূরণ করুন
+            </h2>
+          </div>
+
+          <div class="form-container">
+            <div style="display: flex; gap: 64px; flex-wrap: wrap">
+              <!-- Billing Details -->
+              <div style="flex: 1; min-width: 320px">
+                <div class="section-heading fw-bold">Billing details</div>
+
+                <div class="input-group">
+                  <label class="input-label"
+                    >আপনার নাম <span class="text-danger">*</span></label
+                  >
+                  <div class="mock-input"></div>
+                </div>
+
+                <div class="input-group">
+                  <label class="input-label"
+                    >Country / Region <span class="text-danger">*</span></label
+                  >
+                  <div
+                    class="mock-input select"
+                    data-media-type="banani-button"
+                  >
+                    <span>Bangladesh</span>
+                    <iconify-icon
+                      icon="lucide:chevron-down"
+                      style="font-size: 18px; color: #94a3b8"
+                    ></iconify-icon>
+                  </div>
+                </div>
+
+                <div class="input-group">
+                  <label class="input-label"
+                    >আপনার সম্পূর্ণ ঠিকানা
+                    <span class="text-danger">*</span></label
+                  >
+                  <div class="mock-input">House number and street name</div>
+                </div>
+
+                <div class="input-group">
+                  <label class="input-label"
+                    >আপনার ফোন নাম্বারটি লেখুন
+                    <span class="text-danger">*</span></label
+                  >
+                  <div class="mock-input"></div>
+                </div>
+
+                <div class="section-heading fw-bold" style="margin-top: 40px">
+                  Your Products
+                </div>
+                <div class="mini-product">
+                  <div style="display: flex; align-items: center; gap: 16px">
+                    <div
+                      style="
+                        width: 22px;
+                        height: 22px;
+                        border: 2px solid var(--danger);
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: white;
+                      "
+                    >
+                      <iconify-icon
+                        icon="lucide:check"
+                        style="font-size: 14px; color: var(--danger)"
+                      ></iconify-icon>
+                    </div>
+                    <img
+                      src="https://seedlesskhejur.ruposhibd.xyz/wp-content/uploads/2024/07/WhatsApp-Image-2024-01-21-at-1.07.30-AM-300x300.jpeg"
+                      style="
+                        width: 56px;
+                        height: 56px;
+                        border-radius: 8px;
+                        border: 1px solid var(--border);
+                      "
+                    />
+                    <div class="fw-semibold" style="font-size: 15px">
+                      বিচি মুক্ত সিডলেস খেজুর
+                    </div>
+                  </div>
+                  <div class="qty-selector">
+                    <div class="qty-btn" data-media-type="banani-button">-</div>
+                    <div class="qty-num">1</div>
+                    <div class="qty-btn" data-media-type="banani-button">+</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Order Summary -->
+              <div style="flex: 1; min-width: 320px">
+                <div class="section-heading fw-bold">Your order</div>
+
+                <table class="order-table">
+                  <thead>
+                    <tr>
+                      <th class="fw-bold">Product</th>
+                      <th class="fw-bold">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div
+                          style="display: flex; align-items: center; gap: 16px"
+                        >
+                          <img
+                            src="https://seedlesskhejur.ruposhibd.xyz/wp-content/uploads/2024/07/WhatsApp-Image-2024-01-21-at-1.07.30-AM-300x300.jpeg"
+                            style="
+                              width: 48px;
+                              height: 48px;
+                              border-radius: 6px;
+                              border: 1px solid var(--border);
+                            "
+                          />
+                          <span class="fw-medium"
+                            >বিচি মুক্ত সিডলেস খেজুর
+                            <span
+                              style="
+                                color: #64748b;
+                                font-size: 13px;
+                                margin-left: 8px;
+                              "
+                              >x 1</span
+                            ></span
+                          >
+                        </div>
+                      </td>
+                      <td class="fw-semibold">৳ 750.00</td>
+                    </tr>
+                    <tr>
+                      <td class="fw-semibold" style="padding-top: 24px">
+                        Subtotal
+                      </td>
+                      <td class="fw-semibold" style="padding-top: 24px">
+                        ৳ 750.00
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="fw-bold text-primary"
+                        style="font-size: 20px; border-bottom: none"
+                      >
+                        Total
+                      </td>
+                      <td
+                        class="fw-bold text-primary"
+                        style="font-size: 20px; border-bottom: none"
+                      >
+                        ৳ 750.00
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="payment-methods">
+                  <div class="pay-option" data-media-type="banani-button">
+                    <div class="pay-radio active"></div>
+                    <span class="fw-semibold">Cash on delivery</span>
+                  </div>
+                  <div class="pay-desc">Pay with cash upon delivery.</div>
+
+                  <div class="pay-option" data-media-type="banani-button">
+                    <div class="pay-radio"></div>
+                    <span class="fw-semibold">bKash</span>
+                    <span
+                      style="
+                        background: white;
+                        border: 1px solid #e2136e;
+                        color: #e2136e;
+                        font-size: 12px;
+                        font-weight: 700;
+                        padding: 2px 8px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        margin-left: auto;
+                      "
+                    >
+                      <iconify-icon
+                        icon="lucide:bird"
+                        style="font-size: 12px"
+                      ></iconify-icon>
+                      bKash
+                    </span>
+                  </div>
+
+                  <div class="pay-option" data-media-type="banani-button">
+                    <div class="pay-radio"></div>
+                    <span class="fw-semibold">Rocket</span>
+                    <span
+                      style="
+                        background: #8c1596;
+                        color: white;
+                        font-size: 12px;
+                        font-weight: 700;
+                        padding: 2px 8px;
+                        border-radius: 12px;
+                        margin-left: auto;
+                      "
+                    >
+                      Rocket
+                    </span>
+                  </div>
+
+                  <div
+                    class="pay-option"
+                    data-media-type="banani-button"
+                    style="margin-bottom: 0"
+                  >
+                    <div class="pay-radio"></div>
+                    <span class="fw-semibold">Nagad</span>
+                    <span
+                      style="
+                        background: #ed1c24;
+                        color: white;
+                        font-size: 12px;
+                        font-weight: 700;
+                        padding: 2px 8px;
+                        border-radius: 12px;
+                        margin-left: auto;
+                      "
+                    >
+                      Nagad
+                    </span>
+                  </div>
+                </div>
+
+                <p class="privacy-text">
+                  Your personal data will be used to process your order, support
+                  your experience throughout this website, and for other
+                  purposes described in our
+                  <span class="text-danger fw-semibold">privacy policy</span>.
+                </p>
+
+                <button class="btn-submit" data-media-type="banani-button">
+                  <iconify-icon
+                    icon="lucide:lock"
+                    style="font-size: 20px"
+                  ></iconify-icon>
+                  Place Order ৳ 750.00
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-footer">
+        Copyright © 2024 Your Business Name | This website made with
+        <span class="text-danger">♥</span> by
+        <span class="text-danger fw-bold">Diana Host Ltd</span>
+      </div>
+    </body>
+  </html>
+  <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #0b6623;
+      --border: #00000014;
+      --input: #ffffff;
+      --primary: #12a80a;
+      --primary-foreground: #ffffff;
+      --secondary: #e9f8ed;
+      --secondary-foreground: #0b6623;
+      --muted: #f3f3f3;
+      --muted-foreground: #9aa0a6;
+      --success: #28a745;
+      --success-foreground: #ffffff;
+      --accent: #ff4d4f;
+      --accent-foreground: #ffffff;
+      --destructive: #d93025;
+      --destructive-foreground: #ffffff;
+      --warning: #ffc107;
+      --warning-foreground: #222222;
+      --card: #ffffff;
+      --card-foreground: #0b6623;
+      --sidebar: #0b6623;
+      --sidebar-foreground: #ffffff;
+      --sidebar-primary: #12a80a;
+      --sidebar-primary-foreground: #ffffff;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --radius-xl: 12px;
+      --font-family-body: Inter;
+    }
+  </style>
+</div>

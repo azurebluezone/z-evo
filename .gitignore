@@ -1,0 +1,81 @@
+# ==========================================================================
+# .gitignore — z-evo-commerce
+# ==========================================================================
+# Rewritten 2026-10-19. The previous file was a 516-line copy-paste blob whose
+# root-level patterns (/cache, /temp, /uploads, /storage, a 70-line /tests family)
+# mostly matched nothing in a Laravel 10 tree, while the one directory that must
+# never be committed — /work, 1.2GB of throwaway session material — was missing
+# entirely. Every rule the old file actually enforced is kept below, grouped and
+# with its reason. Old copy: work/Narayana Takbeer/gitignore.old
+# --------------------------------------------------------------------------
+
+
+# ---------- secrets ----------
+# Never commit, and never "force add" around this.
+.env
+.env.*
+!.env.example
+
+
+# ---------- dependencies (composer install / npm install rebuild these) ----------
+/vendor
+/node_modules
+/tests/e2e/node_modules
+/public/hot
+
+
+# ---------- framework runtime ----------
+/bootstrap/cache/*.php
+/storage/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/storage/debugbar/*
+*.log
+.phpunit.result.cache
+
+
+# ---------- user uploads ----------
+# Product photos, banners, campaign art and customer-uploaded documents belong
+# on the server, not in git: the repo stays ~20MB instead of ~200MB, and no
+# uploaded file ends up in public history. A clone needs its own
+# public/uploads, so the directory itself survives through the exception.
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+
+# ---------- machine-local / agent tooling ----------
+/work/
+/.zombiecoder/
+/.opencode/
+/.mcp.json
+/.vscode/
+/.idea/
+
+
+# ---------- files that are simply junk ----------
+# Nested duplicate of public/uploads (52 files, 16MB) left behind by a bad copy.
+# Nothing in the code, the views or the database points at a /public/... URL,
+# so it is ignored rather than deleted — removal is a separate decision.
+/public/public/
+# 2.9MB archive of the admin theme, already unpacked beside it
+/public/admin/assets.zip
+# Downloadable APK in the webroot; no view and no database row mentions it
+/public/adorazstyle.apk
+# Playwright output and a stray npm cache directory
+/tests/e2e/test-results/
+/tests/e2e/%CD%/
+
+
+# ---------- backups / editor leftovers ----------
+*.bak
+*.orig
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Another agent toolkit's scratch screenshots (2.6MB), not tests
+/tests/e2e/work/

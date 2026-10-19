@@ -1,0 +1,731 @@
+/* ==========================================================================
+   FM:SECTION checkout --------------------------------------------------------
+   Page level styles for /customer/checkout
+   (resources/views/frontend/fm/pages/customer/checkout.blade.php).
+
+   Design source: hi/checkout.html - step rail, recipient form on the left,
+   sticky order summary on the right, with the summary collapsing behind a
+   "Show summary" toggle below 992px (the Shopify/Stripe checkout pattern the
+   classic page was already imitating with .bd-ck-summary-toggle-btn).
+
+   The classic stylesheet used the bd-ck- prefix. That prefix is gone: it only
+   ever styled this one page, and a prefix that survives a full template
+   migration is misleading to the next reader. Everything is fm-co- here.
+
+   Contract preserved 1:1 from the classic page - the same field names, the
+   same POST target, the same four AJAX endpoints, the same InitiateCheckout
+   pixel event. Only the presentation changed.
+
+   Scope: every selector is prefixed fm-co- so nothing here can reach the
+   header, footer, product cards, basket or the account rail.
+
+   Tokens match fm-account.css / fm-cart.css:
+       accent #047857   brand dark #1b5e20   surface #f4f7f2
+       tint   #eaf5ee   hairline #e5e9e0     muted   #6b7a70
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Page frame
+   -------------------------------------------------------------------------- */
+
+.fm-co {
+    padding: 1.5rem 0 3rem;
+    background: var(--bg-cream, #fbfcf8);
+}
+
+.fm-co__container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   2. Step rail
+   -------------------------------------------------------------------------- */
+
+.fm-co-steps {
+    background: #fff;
+    border: 1px solid #e5e9e0;
+    border-radius: .875rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.fm-co-steps__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+    font-size: .8125rem;
+    color: #6b7a70;
+}
+
+.fm-co-steps__crumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: #047857;
+    text-decoration: none;
+}
+
+.fm-co-steps__crumbs a:hover { text-decoration: underline; }
+
+.fm-co-steps__crumbs [aria-current="page"] {
+    color: #1b5e20;
+    font-weight: 700;
+}
+
+.fm-co-steps__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Steps before the active one link back: Cart -> cart.show. The rest are
+   plain markers, exactly like the cart page does. */
+.fm-co-steps__item {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-width: 0;
+    padding: .7rem .8rem;
+    background: #f4f7f2;
+    border: 1px solid #e5e9e0;
+    border-radius: .875rem;
+}
+
+.fm-co-steps__item--done { background: #f2faf5; border-color: #d3e9dc; }
+
+.fm-co-steps__item--active {
+    background: #eaf5ee;
+    border-color: #047857;
+}
+
+.fm-co-steps__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    font-size: .9375rem;
+    color: #4b5f54;
+    background: #fff;
+    border: 1px solid #e0e5df;
+    border-radius: 9999px;
+}
+
+.fm-co-steps__item--done .fm-co-steps__icon {
+    color: #fff;
+    background: #047857;
+    border-color: #047857;
+}
+
+.fm-co-steps__item--active .fm-co-steps__icon {
+    color: #fff;
+    background: #047857;
+    border-color: #047857;
+}
+
+.fm-co-steps__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.fm-co-steps__no {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #8a978e;
+}
+
+.fm-co-steps__title {
+    font-size: .875rem;
+    font-weight: 700;
+    color: #6b7a70;
+    overflow-wrap: anywhere;
+}
+
+.fm-co-steps__item--active .fm-co-steps__title { color: #1b5e20; }
+.fm-co-steps__item--done .fm-co-steps__title   { color: #192a1e; }
+
+/* --------------------------------------------------------------------------
+   3. Two column grid
+   -------------------------------------------------------------------------- */
+
+.fm-co__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.fm-co__col { min-width: 0; }
+
+.fm-co__card {
+    background: #fff;
+    border: 1px solid #e5e9e0;
+    border-radius: .875rem;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.fm-co__card:last-child { margin-bottom: 0; }
+
+.fm-co__card-head { margin: 0 0 1.25rem; }
+
+.fm-co__eyebrow {
+    margin: 0 0 .2rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: #047857;
+}
+
+.fm-co__card-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1b5e20;
+}
+
+.fm-co__card-sub {
+    margin: .35rem 0 0;
+    font-size: .8125rem;
+    color: #6b7a70;
+}
+
+/* --------------------------------------------------------------------------
+   4. Form
+   -------------------------------------------------------------------------- */
+
+.fm-co__grid-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.fm-co__field { min-width: 0; }
+.fm-co__field--wide { grid-column: 1 / -1; }
+
+.fm-co__label {
+    display: block;
+    margin: 0 0 .35rem;
+    font-size: .8125rem;
+    font-weight: 700;
+    color: #4b5f54;
+}
+
+.fm-co__label .req { color: #dc2626; margin-left: .1rem; }
+
+.fm-co__input,
+.fm-co__select {
+    width: 100%;
+    min-height: 48px;
+    padding: .7rem .9rem;
+    font-family: inherit;
+    font-size: .9375rem;
+    color: #192a1e;
+    background: #fff;
+    border: 1.5px solid #e0e5df;
+    border-radius: .625rem;
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+    /* The audit-fix sheet forces max-width:100% on inputs; this keeps the
+       100%-of-the-grid-column width from becoming 100%-of-the-viewport. */
+    min-width: 0;
+}
+
+.fm-co__input::placeholder { color: #a8b3ab; }
+
+.fm-co__input:focus,
+.fm-co__select:focus {
+    border-color: #047857;
+    box-shadow: 0 0 0 3px rgba(4, 120, 87, .12);
+}
+
+.fm-co__input.is-invalid,
+.fm-co__select.is-invalid { border-color: #dc2626; }
+
+.fm-co__error {
+    margin: .3rem 0 0;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #dc2626;
+}
+
+.fm-co__error:empty { display: none; }
+
+/* --------------------------------------------------------------------------
+   5. Payment methods
+   -------------------------------------------------------------------------- */
+
+.fm-co__pay-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin: 0 0 1.25rem;
+    padding: 0;
+}
+
+.fm-co__pay {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex: 1 1 12rem;
+    min-height: 56px;
+    padding: .75rem 1rem;
+    background: #fff;
+    border: 1.5px solid #e0e5df;
+    border-radius: .75rem;
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+.fm-co__pay:hover { border-color: #9fc9b2; }
+
+.fm-co__pay input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: #047857;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.fm-co__pay-text { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+
+.fm-co__pay-name { font-size: .9375rem; font-weight: 700; color: #192a1e; }
+.fm-co__pay-note { font-size: .75rem; color: #8a978e; }
+
+.fm-co__pay.is-selected {
+    border-color: #047857;
+    background: #eaf5ee;
+    box-shadow: 0 0 0 1px #047857 inset;
+}
+
+.fm-co__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+}
+
+.fm-co__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 48px;
+    padding: .75rem 1.5rem;
+    font-family: inherit;
+    font-size: .9375rem;
+    font-weight: 800;
+    border-radius: .75rem;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .2s ease;
+}
+
+.fm-co__btn--primary {
+    background: #047857;
+    color: #fff;
+    border-color: #047857;
+}
+
+.fm-co__btn--primary:hover {
+    background: #065f46;
+    border-color: #065f46;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(4, 120, 87, .22);
+}
+
+.fm-co__btn--ghost {
+    background: #fff;
+    color: #4b5f54;
+    border-color: #e0e5df;
+}
+
+.fm-co__btn--ghost:hover { background: #f4f7f2; color: #1b5e20; border-color: #c9d3cb; }
+
+/* --------------------------------------------------------------------------
+   6. Summary
+   -------------------------------------------------------------------------- */
+
+.fm-co__summary {
+    background: #fff;
+    border: 1px solid #e5e9e0;
+    border-radius: .875rem;
+    overflow: hidden;
+}
+
+.fm-co__summary-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #eef1ee;
+}
+
+.fm-co__summary-head .fm-co__card-head { margin: 0; }
+
+.fm-co__summary-mini {
+    display: none;
+    font-size: .875rem;
+    font-weight: 600;
+    color: #6b7a70;
+}
+
+.fm-co__summary-toggle {
+    display: none;
+    align-items: center;
+    gap: .4rem;
+    min-height: 40px;
+    padding: .4rem .8rem;
+    font-family: inherit;
+    font-size: .8125rem;
+    font-weight: 700;
+    color: #1b5e20;
+    background: #fff;
+    border: 1px solid #e0e5df;
+    border-radius: .625rem;
+    cursor: pointer;
+}
+
+.fm-co__summary-body { padding: 1.25rem 1.5rem; }
+
+/* Desktop only: the summary follows the (often tall) form down the page. */
+@media (min-width: 992px) {
+    .fm-co__summary { position: sticky; top: 110px; }
+}
+
+/* --------------------------------------------------------------------------
+   7. Summary lines
+   -------------------------------------------------------------------------- */
+
+.fm-co__lines {
+    max-height: 340px;
+    overflow-y: auto;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.fm-co__line {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .8rem 0;
+    border-bottom: 1px solid #f2f5f1;
+}
+
+.fm-co__line:last-child { border-bottom: 0; }
+
+.fm-co__line-thumb {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    background: #f4f7f2;
+    border: 1px solid #eef1ee;
+    border-radius: .5rem;
+}
+
+.fm-co__line-info { flex: 1 1 auto; min-width: 0; }
+
+.fm-co__line-name {
+    margin: 0;
+    font-size: .875rem;
+    font-weight: 700;
+    color: #192a1e;
+    overflow-wrap: anywhere;
+}
+
+.fm-co__line-meta {
+    margin: .1rem 0 0;
+    font-size: .75rem;
+    color: #8a978e;
+}
+
+.fm-co__line-meta:empty { display: none; }
+
+.fm-co__line-side {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .35rem;
+}
+
+.fm-co__line-price {
+    font-size: .875rem;
+    font-weight: 800;
+    color: #192a1e;
+    white-space: nowrap;
+}
+
+.fm-co__qty {
+    display: inline-flex;
+    align-items: center;
+    gap: .15rem;
+    padding: .15rem;
+    background: #f4f7f2;
+    border: 1px solid #e5e9e0;
+    border-radius: .5rem;
+}
+
+.fm-co__qty-btn {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .875rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #1b5e20;
+    background: #fff;
+    border: 1px solid #e0e5df;
+    border-radius: .375rem;
+    cursor: pointer;
+}
+
+.fm-co__qty-btn:hover:not(:disabled) { background: #eaf5ee; border-color: #047857; }
+.fm-co__qty-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.fm-co__qty-num {
+    min-width: 26px;
+    text-align: center;
+    font-size: .8125rem;
+    font-weight: 800;
+    color: #192a1e;
+}
+
+.fm-co__line-remove {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .875rem;
+    color: #b91c1c;
+    background: none;
+    border: 0;
+    border-radius: .375rem;
+    cursor: pointer;
+}
+
+.fm-co__line-remove:hover:not(:disabled) { background: #fdecec; }
+.fm-co__line-remove:disabled { opacity: .45; cursor: not-allowed; }
+
+/* In-flight row: dimmed and locked so a second click cannot race the POST. */
+.fm-co__line.is-pending { opacity: .55; }
+
+.fm-co__totals { margin: 0; }
+
+.fm-co__total-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .5rem 0;
+    font-size: .875rem;
+    color: #4b5f54;
+}
+
+.fm-co__total-row dd {
+    margin: 0;
+    font-weight: 700;
+    color: #192a1e;
+    white-space: nowrap;
+}
+
+.fm-co__total-row--discount dd { color: #b45309; }
+
+.fm-co__total-row--grand {
+    margin-top: .35rem;
+    padding-top: .85rem;
+    border-top: 2px dashed #dfe4de;
+    font-size: 1.0625rem;
+    font-weight: 800;
+    color: #1b5e20;
+}
+
+.fm-co__total-row--grand dd { color: #047857; font-size: 1.125rem; }
+
+/* --------------------------------------------------------------------------
+   8. Coupon
+   -------------------------------------------------------------------------- */
+
+.fm-co__coupon {
+    display: flex;
+    gap: .5rem;
+    margin: 0 0 1rem;
+}
+
+.fm-co__coupon-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 44px;
+    padding: .55rem .85rem;
+    font-family: inherit;
+    font-size: .875rem;
+    border: 1.5px solid #e0e5df;
+    border-radius: .625rem;
+    outline: none;
+}
+
+.fm-co__coupon-input:focus {
+    border-color: #047857;
+    box-shadow: 0 0 0 3px rgba(4, 120, 87, .12);
+}
+
+.fm-co__coupon-btn {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 1.1rem;
+    font-family: inherit;
+    font-size: .875rem;
+    font-weight: 700;
+    color: #fff;
+    background: #047857;
+    border: 1px solid #047857;
+    border-radius: .625rem;
+    cursor: pointer;
+}
+
+.fm-co__coupon-btn:hover { background: #065f46; border-color: #065f46; }
+
+.fm-co__coupon-status {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .6rem .8rem;
+    margin-bottom: 1rem;
+    border-radius: .625rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    background: #eaf5ee;
+    color: #065f46;
+}
+
+.fm-co__coupon-status[hidden] { display: none; }
+.fm-co__coupon-status.is-error { background: #fdecec; color: #991b1b; }
+
+/* --------------------------------------------------------------------------
+   9. Empty cart
+   -------------------------------------------------------------------------- */
+
+.fm-co__empty {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.fm-co__empty i {
+    display: block;
+    font-size: 2.25rem;
+    color: #c9d3cb;
+    margin-bottom: .6rem;
+}
+
+.fm-co__empty p { margin: 0 0 1rem; color: #6b7a70; font-size: .9375rem; }
+
+/* --------------------------------------------------------------------------
+   10. Reassurance strip
+   -------------------------------------------------------------------------- */
+
+.fm-co__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f2f5f1;
+}
+
+.fm-co__trust span {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #6b7a70;
+}
+
+.fm-co__trust i { color: #047857; }
+
+/* --------------------------------------------------------------------------
+   11. Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+    .fm-co__grid { grid-template-columns: minmax(0, 1fr); }
+
+    /* Summary becomes the collapsed bar Shopify/Stripe use. It comes FIRST in
+       the DOM on purpose: the customer needs the total before the form, and
+       with JS off the body is still open because the toggle is display:none
+       here and [data-open] only exists once JS has run. */
+    .fm-co__summary { order: -1; }
+
+    .fm-co__summary-toggle { display: inline-flex; }
+    .fm-co__summary-mini   { display: inline; }
+
+    /* Default collapsed, but only after JS has taken control. Without JS the
+       panel must stay open or the customer cannot see what they are paying. */
+    .fm-co__summary-body { display: none; }
+    .fm-co__summary.is-open .fm-co__summary-body { display: block; }
+}
+
+@media (max-width: 575.98px) {
+    .fm-co { padding: 1rem 0 2rem; }
+
+    .fm-co__container { padding: 0 .75rem; }
+
+    .fm-co__steps { padding: 1rem; }
+
+    /* Four steps across a 360px screen is 90px each: the "Step N" eyebrow and
+       the label cannot both fit, so the rail becomes two rows of two. */
+    .fm-co-steps__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fm-co-steps__no   { display: none; }
+
+    .fm-co__card        { padding: 1.15rem; }
+    .fm-co__summary-head,
+    .fm-co__summary-body { padding-left: 1.15rem; padding-right: 1.15rem; }
+
+    .fm-co__grid-fields { grid-template-columns: minmax(0, 1fr); }
+    .fm-co__field--wide { grid-column: auto; }
+
+    .fm-co__actions { flex-direction: column-reverse; align-items: stretch; }
+    .fm-co__actions .fm-co__btn { width: 100%; }
+
+    .fm-co__pay { flex: 1 1 100%; }
+}
+
+/* --------------------------------------------------------------------------
+   12. Print
+   -------------------------------------------------------------------------- */
+
+@media print {
+    .fm-co__actions,
+    .fm-co__coupon,
+    .fm-co__qty,
+    .fm-co__line-remove,
+    .fm-co__summary-toggle { display: none !important; }
+
+    .fm-co__summary-body { display: block !important; }
+    .fm-co { background: #fff; padding: 0; }
+}

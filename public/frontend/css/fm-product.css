@@ -1,0 +1,364 @@
+/* ==========================================================================
+   fm-product.css — product detail page (modern design)
+   --------------------------------------------------------------------------
+   Every class the product detail page owns lives in this one file. The
+   Tailwind utility markup inside sections/detail-*.blade.php stays verbatim
+   from the hi design; anything JavaScript toggles (thumb active, tab active,
+   pill active, stock pill state) is styled here so a class is only ever
+   defined in one place.
+
+   Load order: this sheet is pushed on the page's own 'css' stack, so it
+   loads after the shared chain documented in fm/layouts.blade.php:
+
+     index.css -> fm-sections.css -> fm-sections-home.css -> fm-tap-target.css
+     -> fm-runtime-fix.css -> fm-interaction.css -> fm-ai.css -> fm-product.css
+
+   No !important anywhere — the shared sheets above and the utilities in the
+   markup never fight these rules.
+   ========================================================================== */
+
+/* Thumbnail strip ---------------------------------------------------------
+   Base look (white card, gray border, dimmed) comes from utilities in
+   detail-gallery.blade.php; only the selected state is owned here. The
+   emerald border matches the design's border-emerald-800 on the active
+   thumbnail.
+   ------------------------------------------------------------------------ */
+.fm-detail-thumb.is-active {
+    border-color: #065f46; /* emerald-800 */
+    opacity: 1;
+}
+
+/* Tab strip ----------------------------------------------------------------
+   Replaces the design's long utility lists on .spec-tab-btn so the script
+   only has to toggle .is-active. Sizes and colours follow the design:
+   px-5 py-2.5 rounded-xl text-sm, emerald-800 pill when active.
+   ------------------------------------------------------------------------ */
+.fm-detail-tab {
+    flex-shrink: 0;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: #4b5563; /* text-gray-600 */
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb; /* border-gray-200 */
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.fm-detail-tab:hover {
+    color: #065f46;
+    background-color: #f9fafb;
+}
+
+.fm-detail-tab.is-active {
+    color: #ffffff;
+    background-color: #065f46; /* bg-emerald-800 */
+    border-color: #065f46;
+    font-weight: 700;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Variant pill groups ------------------------------------------------------
+   First attribute uses the design's weight grid (1 column on phones, 3 from
+   sm); further attributes switch to the inline "thickness" row. The pill
+   itself copies the design: white card that turns into an emerald block
+   with a ring and a check icon when selected.
+   ------------------------------------------------------------------------ */
+.fm-pill-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.625rem; /* gap-2.5 */
+}
+
+@media (min-width: 640px) {
+    .fm-pill-group {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.fm-pill-group--row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.fm-attr-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    padding: 0.75rem; /* p-3 */
+    border-radius: 0.75rem; /* rounded-xl */
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #111827;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease,
+        background-color 0.2s ease, color 0.2s ease;
+}
+
+.fm-attr-pill:hover {
+    border-color: #047857; /* hover:border-emerald-700 */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.fm-attr-pill.is-active {
+    background-color: #065f46;
+    border: 2px solid #065f46;
+    color: #ffffff;
+    box-shadow: 0 0 0 2px #d1fae5, /* ring-2 ring-emerald-100 */
+        0 1px 2px rgba(0, 0, 0, 0.1); /* shadow-sm */
+}
+
+.fm-pill-check {
+    display: none;
+    color: #a7f3d0; /* emerald-200 on the emerald block */
+}
+
+.fm-attr-pill.is-active .fm-pill-check {
+    display: block;
+}
+
+.fm-attr-pill.is-active .fm-pill-price {
+    color: #ffffff;
+}
+
+/* Secondary attribute rows keep the pill look but sit horizontally. */
+.fm-pill-group--row .fm-attr-pill {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Stock pill ----------------------------------------------------------------
+   Server markup carries no colour utilities; both states and the pulsing
+   dot colour live here. .is-out is toggled by the check-stock response.
+   ------------------------------------------------------------------------ */
+.fm-stock-pill {
+    color: #064e3b; /* text-emerald-900 */
+    background-color: #d1fae5; /* bg-emerald-100 */
+}
+
+.fm-stock-dot {
+    background-color: #059669; /* bg-emerald-600 */
+}
+
+.fm-stock-pill.is-out {
+    color: #991b1b; /* text-red-800 */
+    background-color: #fee2e2; /* bg-red-100 */
+}
+
+.fm-stock-pill.is-out .fm-stock-dot {
+    background-color: #dc2626; /* bg-red-500 */
+    animation: none;
+}
+
+/* Star rating input (review form) ------------------------------------------
+   Five radios rendered in descending order so :checked can light its own
+   label and every label below it — the classic CSS-only star widget.
+   ------------------------------------------------------------------------ */
+.fm-rate-stars {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    min-height: 1.75rem;
+}
+
+.fm-rate-stars input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fm-rate-stars label {
+    color: #d1d5db; /* unfilled star */
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 0.15rem 0;
+    transition: color 0.15s ease;
+}
+
+.fm-rate-stars label:hover {
+    color: #fbbf24; /* amber-400 preview */
+}
+
+.fm-rate-stars input:checked + label,
+.fm-rate-stars input:checked ~ label {
+    color: #f59e0b; /* text-amber-500 */
+}
+
+/* Rich product description --------------------------------------------------
+   The description column stores whatever the admin typed, images and all.
+   This scopes that HTML: readable measure, rounded images, scrollable
+   tables — without leaking styles into the rest of the page.
+   ------------------------------------------------------------------------ */
+.fm-detail-desc {
+    overflow-x: auto;
+    color: #4b5563;
+    font-size: 0.875rem;
+    line-height: 1.7;
+}
+
+.fm-detail-desc p {
+    margin: 0 0 0.9rem;
+}
+
+.fm-detail-desc p:last-child {
+    margin-bottom: 0;
+}
+
+.fm-detail-desc h1,
+.fm-detail-desc h2,
+.fm-detail-desc h3,
+.fm-detail-desc h4,
+.fm-detail-desc h5,
+.fm-detail-desc h6 {
+    margin: 1.25rem 0 0.75rem;
+    color: #111827;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.fm-detail-desc img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    margin: 0.5rem 0;
+}
+
+.fm-detail-desc a {
+    color: #065f46;
+    text-decoration: underline;
+}
+
+.fm-detail-desc ul,
+.fm-detail-desc ol {
+    margin: 0 0 0.9rem;
+    padding-left: 1.25rem;
+}
+
+.fm-detail-desc li {
+    margin-bottom: 0.25rem;
+}
+
+.fm-detail-desc table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0 1rem;
+    font-size: 0.8rem;
+}
+
+.fm-detail-desc th,
+.fm-detail-desc td {
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+
+.fm-detail-desc blockquote {
+    margin: 0 0 0.9rem;
+    padding-left: 1rem;
+    border-left: 3px solid #065f46;
+    color: #6b7280;
+}
+
+/* ==========================================================================
+   Colour swatches on variant pills
+   --------------------------------------------------------------------------
+   Rendered only when the shopkeeper stored a real hex in attribute_values.code
+   for that value. No colour means no swatch, so the page can never show a
+   shade that is not for sale.
+   ========================================================================== */
+.fm-attr-pill--colour {
+    position: relative;
+}
+
+/* A colour row is laid out horizontally (.fm-pill-group--row), so the chip
+   sits to the LEFT of the label as its own flex item. It is a plain in-flow
+   sibling, not an overlay, so it can never cover the text no matter how long
+   the colour name is. align-self keeps it centred against the label baseline. */
+.fm-colour-chip {
+    order: -1;
+    display: block;
+    flex: 0 0 auto;
+    align-self: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 9999px;
+    background-color: var(--fm-chip, #d1d5db);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fm-attr-pill--colour.is-active .fm-colour-chip {
+    /* On the dark active background a plain ring would disappear. */
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35),
+        0 0 0 2px rgba(255, 255, 255, 0.85);
+    transform: scale(1.08);
+}
+
+/* ==========================================================================
+   Pending state: the effect lasts exactly as long as the request
+   --------------------------------------------------------------------------
+   A shopper clicking a colour should read the wait as the page working, not
+   as the page being stuck. The shimmer therefore covers the request itself and
+   is released the moment the answer lands; the JS also holds it for a short
+   minimum so a very fast answer does not flash and look like a glitch.
+   ========================================================================== */
+.fm-detail-pending .fm-detail-media,
+.fm-detail-pending .fm-detail-pricebox {
+    position: relative;
+    overflow: hidden;
+}
+
+.fm-detail-pending .fm-detail-media::after,
+.fm-detail-pending .fm-detail-pricebox::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 20%,
+        rgba(255, 255, 255, 0.55) 45%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    background-size: 220% 100%;
+    animation: fmDetailShimmer 900ms linear infinite;
+    pointer-events: none;
+}
+
+@keyframes fmDetailShimmer {
+    from { background-position: 180% 0; }
+    to   { background-position: -80% 0; }
+}
+
+/* The photo holds its place so the layout cannot jump while it refreshes. */
+.fm-detail-media {
+    transition: opacity 220ms ease;
+}
+
+.fm-detail-media[data-fm-swapping="1"] {
+    opacity: 0.45;
+}
+
+/* Respect the shopper's system setting: no shimmer for anyone who asked for
+   reduced motion, the state change still happens, it just does not animate. */
+@media (prefers-reduced-motion: reduce) {
+    .fm-detail-pending .fm-detail-media::after,
+    .fm-detail-pending .fm-detail-pricebox::after {
+        animation: none;
+        background: rgba(255, 255, 255, 0.35);
+    }
+    .fm-detail-media,
+    .fm-colour-chip {
+        transition: none;
+    }
+}

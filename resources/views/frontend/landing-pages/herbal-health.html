@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>প্রাকৃতিক আয়ুর্বেদিক সাপ্লিমেন্ট | হেলদি হার্বস</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- AOS Animation -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Google Font (Hind Siliguri) -->
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #27ae60;
+      --secondary-color: #2ecc71;
+      --accent-color: #f39c12;
+      --text-color: #2c3e50;
+      --light-bg: #e8f5e8;
+      --dark-bg: #1e3a2e;
+    }
+    
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      overflow-x: hidden;
+      color: var(--text-color);
+    }
+    
+    .hero-section {
+      position: relative;
+      background-image: linear-gradient(rgba(39, 174, 96, 0.85), rgba(46, 204, 113, 0.85)), url('https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 0;
+      color: white;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+    
+    .hero-title {
+      font-weight: 700;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .hero-subtitle {
+      font-size: 1.3rem;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    .cta-button {
+      background: linear-gradient(135deg, var(--accent-color), #e67e22);
+      color: white;
+      padding: 15px 40px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(243, 156, 18, 0.4);
+      color: white;
+    }
+    
+    .product-section {
+      padding: 80px 0;
+      background: var(--light-bg);
+    }
+    
+    .product-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-10px);
+    }
+    
+    .product-image {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin: 0 auto 30px;
+      border: 5px solid var(--primary-color);
+    }
+    
+    .price-tag {
+      background: var(--primary-color);
+      color: white;
+      padding: 10px 30px;
+      border-radius: 25px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: inline-block;
+      margin: 20px 0;
+    }
+    
+    .old-price {
+      text-decoration: line-through;
+      color: rgba(255,255,255,0.7);
+      font-size: 1rem;
+      margin-right: 8px;
+    }
+    
+    .benefits-section {
+      padding: 80px 0;
+      background: white;
+    }
+    
+    .benefit-item {
+      background: var(--light-bg);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border-left: 5px solid var(--primary-color);
+      height: 100%;
+    }
+    
+    .benefit-icon {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+    
+    .testimonials-section {
+      padding: 80px 0;
+      background: var(--light-bg);
+    }
+    
+    .testimonial-card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      margin-bottom: 30px;
+      height: 100%;
+    }
+    
+    .testimonial-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      background: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2rem;
+    }
+    
+    .order-section {
+      padding: 80px 0;
+      background: var(--dark-bg);
+      color: white;
+    }
+    
+    .order-form {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .form-control {
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .form-control:focus {
+      background: white;
+      box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+    }
+    
+    /* Video Section */
+    .video-section {
+      padding: 80px 0;
+      background: white;
+    }
+    
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      height: 0;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    
+    .footer {
+      background: var(--dark-bg);
+      color: white;
+      padding: 40px 0;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      
+      .cta-button {
+        padding: 12px 30px;
+        font-size: 1rem;
+      }
+      
+      .product-card {
+        padding: 25px;
+      }
+      
+      .order-form {
+        padding: 25px;
+      }
+      
+      .hero-section {
+        min-height: auto;
+        padding: 100px 0;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .hero-title {
+        font-size: 1.8rem;
+      }
+      
+      .product-image {
+        width: 150px;
+        height: 150px;
+      }
+      
+      .price-tag {
+        font-size: 1rem;
+        padding: 8px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <div class="hero-content" data-aos="fade-right">
+            <h1 class="hero-title">প্রাকৃতিক আয়ুর্বেদিক সাপ্লিমেন্ট</h1>
+            <p class="hero-subtitle">স্বাস্থ্য ও সুস্থতার জন্য ১০০% প্রাকৃতিক উপাদান। পার্শ্বপ্রতিক্রিয়ামুক্ত ও বিজ্ঞানসম্মতভাবে প্রমাণিত।</p>
+            <a href="#order" class="cta-button">
+              <i class="fas fa-shopping-cart me-2"></i>এখনই অর্ডার করুন
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="text-center" data-aos="fade-left">
+            <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Herbal Product" class="img-fluid rounded" style="max-height: 400px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Section -->
+  <section class="product-section" id="product">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="product-card" data-aos="zoom-in">
+            <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Ayurvedic Supplement" class="product-image">
+            <h2 class="mb-3">হেলদি হার্বস আয়ুর্বেদিক সাপ্লিমেন্ট</h2>
+            <p class="mb-4">প্রাকৃতিক উপাদান দিয়ে তৈরি, কোন পার্শ্বপ্রতিক্রিয়া নেই। রোগ প্রতিরোধ ক্ষমতা বাড়াতে এবং সুস্থ থাকতে দৈনিক এই সাপ্লিমেন্টটি গ্রহণ করুন।</p>
+            
+            <div class="price-tag">
+              <span class="old-price">৳২৫০০</span>
+              <span>৳১৯৯০</span>
+            </div>
+            
+            <a href="#order" class="cta-button">
+              <i class="fas fa-heart me-2"></i>স্বাস্থ্য বাড়ান
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video Section (Added Static Public URL) -->
+  <section class="video-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center mb-5">
+          <h2 class="fw-bold">দেখুন কীভাবে কাজ করে</h2>
+          <p class="text-muted">আমাদের বিশেষজ্ঞদের কাছ থেকে জানুন</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="video-wrapper" data-aos="zoom-in">
+            <!-- Public YouTube Video URL (Example) -->
+            <iframe src="https://www.youtube.com/embed/5qap5aO4i9A?si=K2dTlhI6ZR4qGxMh" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="benefits-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center mb-5">
+          <h2 class="fw-bold">কেন এই প্রোডাক্ট ব্যবহার করবেন?</h2>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="benefit-item" data-aos="fade-up">
+            <div class="benefit-icon">
+              <i class="fas fa-leaf"></i>
+            </div>
+            <h4>১০০% প্রাকৃতিক</h4>
+            <p class="mb-0">কোন কেমিক্যাল নেই, শুধু প্রাকৃতিক উপাদান। আয়ুর্বেদিক পদ্ধতিতে তৈরি।</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="benefit-item" data-aos="fade-up" data-aos-delay="100">
+            <div class="benefit-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h4>নিরাপদ ও কার্যকর</h4>
+            <p class="mb-0">বিজ্ঞানসম্মতভাবে পরীক্ষিত এবং নিরাপদ। দীর্ঘমেয়াদি ব্যবহারে উপযোগী।</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="benefit-item" data-aos="fade-up" data-aos-delay="200">
+            <div class="benefit-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <h4>দ্রুত ফলাফল</h4>
+            <p class="mb-0">নিয়মিত ব্যবহারে কয়েক সপ্তাহের মধ্যে ফলাফল দেখতে পাবেন।</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="benefit-item" data-aos="fade-up">
+            <div class="benefit-icon">
+              <i class="fas fa-certificate"></i>
+            </div>
+            <h4>জিএমপি সার্টিফাইড</h4>
+            <p class="mb-0">আন্তর্জাতিক মানের উৎপাদন প্রক্রিয়া।</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="benefit-item" data-aos="fade-up">
+            <div class="benefit-icon">
+              <i class="fas fa-truck"></i>
+            </div>
+            <h4>সারা দেশে ডেলিভারি</h4>
+            <p class="mb-0">ঢাকার বাইরেও হোম ডেলিভারি সুবিধা।</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="benefit-item" data-aos="fade-up">
+            <div class="benefit-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <h4>১০ হাজারের বেশি সন্তুষ্ট গ্রাহক</h4>
+            <p class="mb-0">আমাদের মানের প্রমাণ আমাদের গ্রাহকরা।</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center mb-5">
+          <h2 class="fw-bold">গ্রাহকদের মতামত</h2>
+          <p class="text-muted">যারা ইতিমধ্যে উপকার পেয়েছেন</p>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="testimonial-card" data-aos="fade-up">
+            <div class="testimonial-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <p class="mb-3">"অসাধারণ প্রোডাক্ট! ১ মাস ব্যবহার করার পরই এনার্জি লেভেল অনেক বেড়েছে। ধন্যবাদ টিমকে।"</p>
+            <h6 class="fw-bold">রফিকুল ইসলাম</h6>
+            <div class="text-warning">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="testimonial-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <p class="mb-3">"আমার বয়স ৫৫, কিন্তু এই সাপ্লিমেন্ট নেওয়ার পর শরীর অনেক চনমনে লাগে। সবার জন্য রেকমেন্ড করব।"</p>
+            <h6 class="fw-bold">নাসরিন আক্তার</h6>
+            <div class="text-warning">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="testimonial-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <p class="mb-3">"প্রথমে সন্দেহ ছিল, কিন্তু প্রোডাক্ট ইউজ করার পর সন্তুষ্ট। ডেলিভারিও ছিল সময়মতো।"</p>
+            <h6 class="fw-bold">সুমন চৌধুরী</h6>
+            <div class="text-warning">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Order Section -->
+  <section class="order-section" id="order">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="order-form" data-aos="zoom-in">
+            <h3 class="text-center mb-4">এখনই অর্ডার করুন</h3>
+            <form action="#" method="POST">
+              <!-- No action, static form -->
+              <div class="row">
+                <div class="col-md-6">
+                  <input type="text" class="form-control" name="name" placeholder="আপনার নাম" required>
+                </div>
+                <div class="col-md-6">
+                  <input type="tel" class="form-control" name="phone" placeholder="মোবাইল নম্বর" required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <input type="email" class="form-control" name="email" placeholder="ইমেইল (ঐচ্ছিক)">
+                </div>
+                <div class="col-md-6">
+                  <input type="number" class="form-control" name="quantity" value="1" min="1" placeholder="পরিমাণ">
+                </div>
+              </div>
+              <textarea class="form-control" name="address" rows="3" placeholder="ঠিকানা (বাড়ি, রোড, এলাকা, জেলা)" required></textarea>
+              <div class="text-center mt-3">
+                <button type="submit" class="cta-button" onclick="alert('অর্ডার কনফার্মেশন ফিচারটি ডেমো মোডে আছে। আমাদের কল সেন্টার ০১৩১২-৫৬৭৮৯০')">
+                  <i class="fas fa-shopping-cart me-2"></i>অর্ডার কনফার্ম করুন
+                </button>
+              </div>
+            </form>
+            <p class="text-center mt-4 mb-0 small">* অর্ডার করার পর আমাদের প্রতিনিধি ফোন দিয়ে কনফার্ম করবেন।</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <p class="mb-0">&copy; ২০২৫ হেলদি হার্বস। সর্বস্বত্ব সংরক্ষিত।</p>
+          <p class="mt-2 small">১০০% প্রাকৃতিক | নিরাপদ ও কার্যকর | সারা দেশে ডেলিভারি</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- AOS Animation -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  
+  <script>
+    // Initialize AOS
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 100
+    });
+  </script>
+</body>
+</html>

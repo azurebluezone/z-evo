@@ -1,0 +1,578 @@
+/* ==========================================================================
+   FM:SECTION account ---------------------------------------------------------
+   Shell + shared primitives for every signed-in customer page.
+
+   Pages: resources/views/frontend/fm/pages/customer/*.blade.php, rendered
+   through resources/views/frontend/fm/layouts/account.blade.php.
+
+   Design source: hi/account.html - left rail (avatar + menu) beside a single
+   raised panel, plus the detail table, form rows, status pill and empty state
+   those panels are built from. The checkout page deliberately does NOT use
+   this file; it has its own sheet (fm-checkout.css) because its two column
+   grid and its mobile summary collapse are page specific.
+
+   Scope: every selector is prefixed fm-acct- (or targets .fm-form, which
+   fm-sections.css already owns). Nothing here can reach the header, footer,
+   product cards, basket or the mini-cart drawer.
+
+   Tokens are copied from fm-cart.css rather than invented, so an account panel
+   and a basket card read as the same product:
+       accent / active   #047857        brand dark      #1b5e20
+       surface           #f4f7f2        active tint     #eaf5ee
+       hairline          #e5e9e0        hairline (2)    #e0e5df
+       muted text        #4b5f54        body text       #192a1e
+       radius            .875rem        radius (sm)     .625rem
+       eyebrow           .6875rem       small            .8125rem
+       body              .9375rem
+
+   Load order: after fm-sections.css and fm-product-card.css, so nothing here
+   is overruled by a later utility sheet.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Shell
+   -------------------------------------------------------------------------- */
+
+.fm-acct {
+    padding: 1.75rem 0 3rem;
+    background: var(--bg-cream, #fbfcf8);
+}
+
+.fm-acct__container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.fm-acct__main {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
+}
+
+.fm-acct__panel {
+    padding: 1.5rem;
+    min-width: 0;
+}
+
+.fm-acct__head {
+    margin: 0 0 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eef1ee;
+}
+
+.fm-acct__eyebrow {
+    margin: 0 0 .2rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: #047857;
+}
+
+.fm-acct__title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #1b5e20;
+}
+
+.fm-acct__sub {
+    margin: .4rem 0 0;
+    font-size: .875rem;
+    color: #6b7a70;
+}
+
+.fm-acct__body > :first-child { margin-top: 0; }
+.fm-acct__body > :last-child  { margin-bottom: 0; }
+
+.fm-acct__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #eef1ee;
+}
+
+/* --------------------------------------------------------------------------
+   2. Rail
+   -------------------------------------------------------------------------- */
+
+.fm-acct__rail {
+    position: sticky;
+    top: 110px;
+}
+
+.fm-acct-nav {
+    background: #fff;
+    border: 1px solid #e5e9e0;
+    border-radius: .875rem;
+    padding: 1.25rem;
+}
+
+.fm-acct-nav__id {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eef1ee;
+}
+
+.fm-acct-nav__avatar {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 9999px;
+    object-fit: cover;
+    background: #eaf5ee;
+    border: 1px solid #d6e8dd;
+}
+
+/* No avatar on file: an initial beats an <img src=""> (which browsers resolve
+   back to the current page URL and re-request). */
+.fm-acct-nav__avatar--initial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #047857;
+}
+
+.fm-acct-nav__who { min-width: 0; }
+
+.fm-acct-nav__hello {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #8a978e;
+}
+
+.fm-acct-nav__name {
+    margin: .1rem 0 0;
+    font-size: .9375rem;
+    font-weight: 800;
+    color: #192a1e;
+    overflow-wrap: anywhere;
+}
+
+.fm-acct-nav__meta {
+    margin: .2rem 0 0;
+    font-size: .75rem;
+    color: #6b7a70;
+}
+
+.fm-acct-nav__menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fm-acct-nav__link {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-height: 44px;              /* WCAG 2.5.5 target size, same rule as fm-tap-target.css */
+    padding: .55rem .75rem;
+    margin-bottom: .15rem;
+    border-radius: .625rem;
+    font-size: .875rem;
+    font-weight: 600;
+    color: #4b5f54;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease;
+}
+
+.fm-acct-nav__link i { font-size: 1rem; flex: 0 0 auto; }
+
+.fm-acct-nav__link:hover {
+    background: #f4f7f2;
+    color: #1b5e20;
+}
+
+.fm-acct-nav__link.is-active {
+    background: #eaf5ee;
+    color: #047857;
+}
+
+.fm-acct-nav__link--danger { color: #b91c1c; }
+.fm-acct-nav__link--danger:hover { background: #fdecec; color: #b91c1c; }
+
+.fm-acct-nav__divider {
+    height: 1px;
+    margin: .75rem .25rem;
+    background: #eef1ee;
+}
+
+/* --------------------------------------------------------------------------
+   3. Detail list (the "Name / Phone / Email" table the classic pages wrote
+      out by hand seven times)
+   -------------------------------------------------------------------------- */
+
+.fm-acct__list {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+}
+
+.fm-acct__row {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: .5rem 1rem;
+    padding: .8rem 0;
+    border-bottom: 1px solid #f2f5f1;
+}
+
+.fm-acct__row:last-child { border-bottom: 0; }
+
+.fm-acct__row dt {
+    margin: 0;
+    font-size: .8125rem;
+    font-weight: 700;
+    color: #6b7a70;
+}
+
+.fm-acct__row dd {
+    margin: 0;
+    font-size: .9375rem;
+    color: #192a1e;
+    overflow-wrap: anywhere;
+}
+
+.fm-acct__row dd:empty::before {
+    content: "\2014";               /* em dash: "no value" reads better than blank */
+    color: #a8b3ab;
+}
+
+/* --------------------------------------------------------------------------
+   4. Forms
+   -------------------------------------------------------------------------- */
+
+.fm-acct__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.fm-acct__grid--1 { grid-template-columns: minmax(0, 1fr); }
+.fm-acct__field--wide { grid-column: 1 / -1; }
+
+.fm-acct__field { min-width: 0; }
+
+.fm-acct__label {
+    display: block;
+    margin: 0 0 .35rem;
+    font-size: .8125rem;
+    font-weight: 700;
+    color: #4b5f54;
+}
+
+.fm-acct__label .req { color: #dc2626; margin-left: .1rem; }
+
+.fm-acct__hint {
+    margin: .3rem 0 0;
+    font-size: .75rem;
+    color: #8a978e;
+}
+
+.fm-acct__error {
+    margin: .3rem 0 0;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #dc2626;
+}
+
+.fm-acct__error:empty { display: none; }
+
+/* --------------------------------------------------------------------------
+   5. Status pills
+   -------------------------------------------------------------------------- */
+
+.fm-acct__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: #f0f2f0;
+    color: #4b5f54;
+}
+
+.fm-acct__pill--green  { background: #eaf5ee; color: #047857; }
+.fm-acct__pill--amber  { background: #fdf3e3; color: #b45309; }
+.fm-acct__pill--red    { background: #fdecec; color: #b91c1c; }
+.fm-acct__pill--blue   { background: #e8f1fd; color: #1d4ed8; }
+.fm-acct__pill--grey   { background: #eef1ee; color: #6b7a70; }
+
+/* --------------------------------------------------------------------------
+   6. Record cards (orders, notifications)
+   -------------------------------------------------------------------------- */
+
+.fm-acct__stack {
+    display: flex;
+    flex-direction: column;
+    gap: .85rem;
+}
+
+.fm-acct__card {
+    border: 1px solid #e5e9e0;
+    border-radius: .75rem;
+    background: #fff;
+    padding: 1rem;
+}
+
+.fm-acct__card--muted { background: #f7f9f5; }
+
+.fm-acct__card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .75rem;
+}
+
+.fm-acct__card-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #192a1e;
+}
+
+.fm-acct__card-meta {
+    margin: .15rem 0 0;
+    font-size: .8125rem;
+    color: #6b7a70;
+}
+
+.fm-acct__card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .85rem;
+    padding-top: .85rem;
+    border-top: 1px solid #f2f5f1;
+}
+
+.fm-acct__thumb {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 auto;
+    border-radius: .5rem;
+    object-fit: cover;
+    background: #f4f7f2;
+    border: 1px solid #eef1ee;
+}
+
+.fm-acct__lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.fm-acct__line {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: .875rem;
+}
+
+.fm-acct__line dt,
+.fm-acct__line-label { color: #6b7a70; }
+.fm-acct__line dd,
+.fm-acct__line-value { margin: 0; font-weight: 600; color: #192a1e; text-align: right; }
+
+.fm-acct__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: .85rem;
+    padding-top: .85rem;
+    border-top: 1px dashed #dfe4de;
+    font-size: .9375rem;
+    font-weight: 800;
+    color: #1b5e20;
+}
+
+/* --------------------------------------------------------------------------
+   7. Progress rail (order tracking)
+   -------------------------------------------------------------------------- */
+
+.fm-acct__track {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.fm-acct__track-step {
+    position: relative;
+    padding: 0 0 1.25rem 2rem;
+    min-height: 2.25rem;
+}
+
+.fm-acct__track-step:last-child { padding-bottom: 0; }
+
+/* Connector line, drawn only between two steps. */
+.fm-acct__track-step::before {
+    content: "";
+    position: absolute;
+    left: .6875rem;
+    top: 1.5rem;
+    bottom: 0;
+    width: 2px;
+    background: #e0e5df;
+}
+
+.fm-acct__track-step:last-child::before { display: none; }
+
+.fm-acct__track-dot {
+    position: absolute;
+    left: 0;
+    top: .125rem;
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: 9999px;
+    background: #fff;
+    border: 2px solid #e0e5df;
+}
+
+.fm-acct__track-step.is-done    .fm-acct__track-dot { background: #047857; border-color: #047857; }
+.fm-acct__track-step.is-current .fm-acct__track-dot { border-color: #047857; box-shadow: 0 0 0 4px rgba(4,120,87,.15); }
+
+.fm-acct__track-title {
+    margin: 0;
+    font-size: .9375rem;
+    font-weight: 700;
+    color: #6b7a70;
+}
+
+.fm-acct__track-step.is-done .fm-acct__track-title,
+.fm-acct__track-step.is-current .fm-acct__track-title { color: #192a1e; }
+
+.fm-acct__track-meta { margin: .1rem 0 0; font-size: .8125rem; color: #8a978e; }
+
+/* --------------------------------------------------------------------------
+   8. Empty state
+   -------------------------------------------------------------------------- */
+
+.fm-acct__empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+}
+
+.fm-acct__empty i {
+    display: block;
+    font-size: 2.5rem;
+    color: #c9d3cb;
+    margin-bottom: .75rem;
+}
+
+.fm-acct__empty p { margin: 0 0 1rem; color: #6b7a70; font-size: .9375rem; }
+
+/* --------------------------------------------------------------------------
+   9. Notices
+   -------------------------------------------------------------------------- */
+
+.fm-acct__notice {
+    display: flex;
+    gap: .6rem;
+    padding: .85rem 1rem;
+    border-radius: .75rem;
+    font-size: .875rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+
+.fm-acct__notice i { flex: 0 0 auto; margin-top: .1rem; }
+
+.fm-acct__notice--ok   { background: #eaf5ee; border-color: #cbe7d6; color: #065f46; }
+.fm-acct__notice--err  { background: #fdecec; border-color: #f8d7d7; color: #991b1b; }
+.fm-acct__notice--info { background: #e8f1fd; border-color: #d3e3fb; color: #1e40af; }
+
+.fm-acct__notice ul { margin: .35rem 0 0; padding-left: 1.1rem; }
+
+/* --------------------------------------------------------------------------
+   10. Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+    .fm-acct__main { grid-template-columns: minmax(0, 1fr); }
+
+    /* Rail becomes a horizontal scroller. Same markup, so the logout form id
+       is still unique and every destination stays one tap away. */
+    .fm-acct__rail { position: static; }
+
+    .fm-acct-nav { padding: .75rem; }
+
+    .fm-acct-nav__id { padding-bottom: .75rem; margin-bottom: .75rem; }
+
+    .fm-acct-nav__menu ul {
+        display: flex;
+        gap: .4rem;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .fm-acct-nav__menu li { flex: 0 0 auto; }
+
+    .fm-acct-nav__link {
+        margin-bottom: 0;
+        white-space: nowrap;
+        border: 1px solid #e5e9e0;
+    }
+
+    .fm-acct-nav__link.is-active { border-color: #047857; }
+
+    .fm-acct-nav__divider { display: none; }
+
+    .fm-acct__panel { padding: 1.25rem; }
+}
+
+@media (max-width: 575.98px) {
+    .fm-acct { padding: 1rem 0 2rem; }
+
+    .fm-acct__grid { grid-template-columns: minmax(0, 1fr); }
+    .fm-acct__field--wide { grid-column: auto; }
+
+    /* Two columns (190px label + value) does not fit a 360px phone. */
+    .fm-acct__row { grid-template-columns: minmax(0, 1fr); }
+
+    .fm-acct__row dd { text-align: left; }
+
+    .fm-acct__title { font-size: 1.25rem; }
+
+    .fm-acct__actions .fm-acct__actions-btn { width: 100%; }
+}
+
+/* --------------------------------------------------------------------------
+   11. Print (invoices)
+   -------------------------------------------------------------------------- */
+
+@media print {
+    .fm-acct__rail,
+    .fm-acct__actions,
+    .fm-acct-nav { display: none !important; }
+
+    .fm-acct__main { grid-template-columns: minmax(0, 1fr); }
+    .fm-acct__panel { border: 0; box-shadow: none; padding: 0; }
+}

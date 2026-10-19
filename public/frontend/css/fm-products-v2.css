@@ -1,0 +1,1245 @@
+/* ==========================================================================
+   fm-products-v2.css - catalog page body, design from work/code.html
+   ==========================================================================
+   SCOPE
+   ----------------------------------------------------------------------
+   Everything sits under .fm-page-shop, which only frontend/fm/pages/
+   products.blade.php renders. The search page includes the SAME
+   shop-sidebar / shop-toolbar / _product-grid partials but not the wrapper,
+   so those pages keep the v1 card and the v1 sidebar untouched.
+
+   THE SIDEBAR IS NOT DUPLICATED
+   ----------------------------------------------------------------------
+   work/code.html repeats the whole filter list inside a mobile drawer.
+   Copying it would put a second #fmFilterForm on the page, and the toolbar's
+   sort/page-size selects join the form through form="fmFilterForm" - the
+   second id would silently break them. Instead there is ONE form node; the
+   page script moves it between its desktop slot and the drawer (see
+   "fm-products-v2" script in products.blade.php) and puts it back when the
+   drawer closes. Ids, names and JS bindings therefore stay unique.
+
+   WHY SOME RULES CARRY !important
+   ----------------------------------------------------------------------
+   Same two layers as fm-home-v2.css, from the same reasons:
+     #fm-audit-fix  img { height:auto !important } - would collapse the
+                    fixed-height media box back to its intrinsic ratio.
+     fm-runtime-fix .container is retuned at 992/1200/1400 px and the
+                    reference is a plain max-w-7xl flex row, so the page
+                    does not use .container at all - it uses .fm-container.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Tokens
+   -------------------------------------------------------------------------- */
+.fm-page-shop {
+  --fmv2-primary-dark: #065f46;
+  --fmv2-primary: #059669;
+  --fmv2-primary-light: #10b981;
+  --fmv2-primary-subtle: #ecfdf5;
+  --fmv2-card-border: #f1f5f9;
+  --fmv2-border: #e2e8f0;
+  --fmv2-text-dark: #1e293b;
+  --fmv2-text-muted: #64748b;
+  --fmv2-text-light: #94a3b8;
+  --fmv2-radius-sm: 0.5rem;
+  --fmv2-radius-md: 0.75rem;
+  --fmv2-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+}
+
+.fm-page-shop,
+.fm-page-shop * {
+  box-sizing: border-box;
+}
+
+.fm-page-shop {
+  font-family: var(--fmv2-font);
+  color: var(--fmv2-text-dark);
+}
+
+.fm-page-shop a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* The reference page is max-w-7xl (1280px). fm-runtime-fix.css retunes
+   .container to 1320px at 1400px+, so the gutter is its own class. */
+.fm-page-shop .fm-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   Two column shell
+   --------------------------------------------------------------------------
+   THE FLEX ROW IS .fm-container, NOT .fm-shop-layout.
+
+   The markup is
+
+       <main class="fm-shop-layout">
+           <div class="fm-container">      <- the centred page gutter
+               <aside class="fm-shop-aside">
+               <div class="fm-shop-main">
+
+   so .fm-shop-layout has exactly ONE child. Making .fm-shop-layout the flex
+   row therefore does nothing at all: the gutter div stays display:block, the
+   aside and the product column stack vertically, and the products end up
+   BELOW the sidebar instead of beside it. .fm-container is the element whose
+   children actually have to sit side by side, so that is the one that gets
+   display:flex.
+
+   .fm-shop-layout keeps a plain block role and only carries the vertical
+   rhythm, which is what its name suggests.
+   -------------------------------------------------------------------------- */
+.fm-page-shop .fm-shop-layout {
+  padding: 24px 0;
+}
+
+.fm-page-shop .fm-shop-layout > .fm-container {
+  display: flex;
+  /* the sidebar sits LEFT of the products, lg and up */
+  flex-direction: row;
+  align-items: flex-start;
+  /* code.html: <div class="flex flex-col lg:flex-row gap-6"> */
+  gap: 24px;
+}
+
+.fm-page-shop .fm-shop-aside {
+  flex-shrink: 0;
+  /* code.html: aside.lg:w-64 = 16rem */
+  width: 16rem;
+  /* Hidden below lg: the sidebar lives in the drawer there instead. It is
+     display:none rather than visibility:hidden so it never reserves the
+     16rem column on a phone. */
+  display: none;
+}
+
+.fm-page-shop .fm-shop-main {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+/*
+   lg and up: the sidebar joins the row.
+
+   flex-direction stays ROW here on purpose. This block used to say
+   `column` above 1024px, which is exactly backwards - it stacked the
+   filter panel above the products on desktop, the one screen the two
+   columns are supposed to share. Below lg the row is already single
+   column because .fm-shop-aside is display:none there, so there is
+   nothing to restate at all.
+*/
+@media (min-width: 1024px) {
+  .fm-page-shop .fm-shop-aside { display: block; }
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar panel
+   -------------------------------------------------------------------------- */
+.fm-page-shop .fm-sidebar {
+  background-color: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  /* code.html: .fm-sidebar.rounded-1rem */
+  border-radius: 1rem;
+  /* code.html: .fm-sidebar.shadow-sm -> the design's own soft shadow */
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  /* code.html: .fm-sidebar.p-5 = 1.25rem */
+  /* !important: the shared sidebar card still carries Bootstrap's .p-5, and
+     #fm-audit-fix rewrites [class*="p-"] to .75rem !important below 576px.
+     Without this the design's gutter collapses on every phone. */
+  padding: 1.25rem !important;
+}
+
+.fm-page-shop .fm-sidebar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 18px;
+}
+
+.fm-page-shop .fm-sidebar__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--fmv2-text-dark);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.fm-page-shop .fm-sidebar__title svg {
+  width: 20px;
+  height: 20px;
+  color: var(--fmv2-primary);
+  flex-shrink: 0;
+}
+
+.fm-page-shop .fm-sidebar__reset {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fmv2-primary);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.fm-page-shop .fm-sidebar__reset:hover {
+  color: var(--fmv2-primary-dark);
+  text-decoration: underline;
+}
+
+.fm-page-shop .fm-sidebar__group {
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.fm-page-shop .fm-sidebar__group:first-of-type {
+  padding-top: 0;
+  margin-top: 0;
+  border-top: 0;
+}
+
+.fm-page-shop .fm-sidebar__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fmv2-text-dark);
+  margin: 0 0 12px;
+  display: block;
+}
+
+.fm-page-shop .fm-sidebar__label--muted {
+  color: var(--fmv2-text-muted);
+}
+
+/* Departments - a radio row with a round indicator and a count. */
+.fm-page-shop .fm-check-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  text-decoration: none;
+  margin: 0;
+}
+
+.fm-page-shop .fm-check-row:hover {
+  background: #f8fafc;
+}
+
+.fm-page-shop .fm-check-row__main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.fm-page-shop .fm-check-row input[type="radio"],
+.fm-page-shop .fm-check-row input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  accent-color: var(--fmv2-primary);
+  margin: 0;
+  cursor: pointer;
+}
+
+.fm-page-shop .fm-check-row__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fm-page-shop .fm-check-row__count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--fmv2-text-light);
+  flex-shrink: 0;
+}
+
+/* The design paints the whole active department row emerald. */
+.fm-page-shop .fm-check-row:has(input:checked),
+.fm-page-shop .fm-check-row.is-active {
+  background: var(--fmv2-primary-subtle);
+  color: var(--fmv2-primary-dark);
+  font-weight: 600;
+}
+
+.fm-page-shop .fm-check-row:has(input:checked) .fm-check-row__count,
+.fm-page-shop .fm-check-row.is-active .fm-check-row__count {
+  color: var(--fmv2-primary);
+}
+
+/* Browsers without :has() fall back to the neutral row - still usable. */
+.fm-page-shop .fm-dept-radio:checked + .fm-check-row__label {
+  font-weight: 600;
+  color: var(--fmv2-primary-dark);
+}
+
+/* Price ceiling */
+.fm-page-shop .fm-price-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.fm-page-shop .fm-price-head .fm-sidebar__label {
+  margin: 0;
+}
+
+.fm-page-shop .fm-price-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--fmv2-primary);
+}
+
+.fm-page-shop .fm-price-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--fmv2-text-light);
+  margin: 8px 0 16px;
+}
+
+.fm-page-shop .fm-price-range {
+  width: 100%;
+  height: 6px;
+  background: var(--fmv2-primary);
+  border-radius: 9999px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.fm-page-shop .fm-price-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--fmv2-primary);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.fm-page-shop .fm-price-range::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--fmv2-primary);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Price tier buttons - 2x2 grid in the reference. */
+.fm-page-shop .fm-price-tiers {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.fm-page-shop .fm-price-pill {
+  /* !important for the same .p-/px- reason as the sidebar card above - the
+     pills still carry px-2 from the shared markup. */
+  padding: 6px 8px !important;
+  background: #f1f5f9;
+  border: 0;
+  border-radius: 6px;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fm-page-shop .fm-price-pill:hover {
+  background: var(--fmv2-primary-subtle);
+  color: var(--fmv2-primary-dark);
+}
+
+/* Amount fields */
+.fm-page-shop .fm-amounts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.fm-page-shop .fm-amounts input {
+  width: 100%;
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  color: var(--fmv2-text-dark);
+}
+
+.fm-page-shop .fm-amounts input:focus {
+  border-color: var(--fmv2-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.fm-page-shop .fm-amounts span {
+  color: var(--fmv2-text-light);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Brand accordion - a native <details>, so it opens and closes with
+   JavaScript off. The marker is removed and replaced by the design's
+   chevron, which rotates instead of swapping images. */
+.fm-page-shop .fm-sidebar__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+  padding: 0;
+}
+
+.fm-page-shop .fm-sidebar__summary::-webkit-details-marker { display: none; }
+.fm-page-shop .fm-sidebar__summary::marker { content: ""; }
+
+.fm-page-shop .fm-sidebar__chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--fmv2-text-light);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.fm-page-shop details[open] > .fm-sidebar__summary .fm-sidebar__chevron {
+  transform: rotate(90deg);
+}
+
+/* The summary needs the same 44px hit area as any other control on touch. */
+.fm-page-shop .fm-sidebar__summary {
+  min-height: 32px;
+}
+
+.fm-page-shop .fm-sidebar__title-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--fmv2-primary);
+  flex-shrink: 0;
+}
+
+/* Apply button - sticky at the bottom of the sidebar on desktop. */
+.fm-page-shop .fm-sidebar__apply {
+  width: 100%;
+  margin-top: 20px;
+  /* code.html's buttons: 38px tall, 0.5rem radius, 0.72rem label. */
+  height: 38px;
+  padding: 0 0.35rem;
+  background: var(--fmv2-primary-dark);
+  color: #ffffff;
+  border: 0;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.fm-page-shop .fm-sidebar__apply:hover {
+  background: #044e39;
+}
+
+/* --------------------------------------------------------------------------
+   v2 sidebar - work/code.html font sizes transcribed
+   The shared markup leans on Tailwind utilities; the v2 panel pins the same
+   sizes in plain CSS so the design does not drift with the CDN build and
+   stays identical to the approved static page:
+
+     labels      text-xs   = 0.75rem, uppercase, tracking-wider
+     counts      text-[11px]
+     body rows   text-xs   = 0.75rem, slate-600/700
+     reset       text-xs, emerald-700
+     title       text-base = 1rem, bold, slate-800
+   -------------------------------------------------------------------------- */
+.fm-page-shop .fm-shop-sidebar--v2 {
+  /* code.html: the panel is a stack of groups 1.5rem apart. */
+  font-size: 0.875rem;
+}
+
+/* code.html .fm-sidebar border is slate-200 (#e2e8f0); Bootstrap's .border
+   utility repaints it #dee2e6 with !important, so this restates it. */
+.fm-page-shop .fm-shop-sidebar--v2 .fm-sidebar {
+  border-color: #e2e8f0 !important;
+}
+
+/* code.html paints the group labels (Departments / Price Ceiling / Brand)
+   in slate-800. The muted variant keeps the slate-500 the design uses for
+   the lighter department caption. */
+.fm-page-shop .fm-shop-sidebar--v2 .fm-sidebar__label {
+  color: var(--fmv2-text-dark);
+}
+
+.fm-page-shop .fm-shop-sidebar--v2 .fm-sidebar__label--muted,
+.fm-page-shop .fm-shop-sidebar--v2 .fm-sidebar__label.text-slate-500 {
+  color: #64748b;
+}
+
+.fm-page-shop .fm-shop-sidebar--v2 .fm-sidebar__label,
+.fm-page-shop .fm-shop-sidebar--v2 .fm-sidebar__label--muted {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.fm-page-shop .fm-shop-sidebar--v2 .fm-sidebar__title {
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.fm-page-shop .fm-shop-sidebar--v2 .fm-sidebar__reset {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.fm-page-shop .fm-shop-sidebar--v2 .fm-check-row {
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+/* code.html: department count is text-[11px]; brand count is text-xs in a
+   lighter slate. 11px is the smaller of the two and reads on both rows. */
+.fm-page-shop .fm-shop-sidebar--v2 .fm-check-row__count {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+/* Active row keeps the emerald treatment from code.html. */
+.fm-page-shop .fm-shop-sidebar--v2 .fm-check-row:has(input:checked) .fm-check-row__count,
+.fm-page-shop .fm-shop-sidebar--v2 .fm-check-row.is-active .fm-check-row__count {
+  font-weight: 700;
+  color: var(--fmv2-primary);
+}
+
+.fm-page-shop .fm-shop-sidebar--v2 .fm-price-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.fm-page-shop .fm-shop-sidebar--v2 .fm-price-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--fmv2-primary);
+}
+
+/* Amount labels + inputs: text-[11px] / text-xs as in code.html. */
+.fm-page-shop .fm-shop-sidebar--v2 label[for="fmMinPrice"],
+.fm-page-shop .fm-shop-sidebar--v2 label[for="fmMaxPrice"] {
+  font-size: 0.75rem;
+}
+
+.fm-page-shop .fm-shop-sidebar--v2 .fm-amounts input {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Toolbar
+   -------------------------------------------------------------------------- */
+.fm-page-shop .fm-shop-toolbar {
+  background: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  /* code.html: .rounded-xl = 0.75rem */
+  border-radius: 0.75rem;
+  /* code.html: p-3 sm:p-3.5 */
+  padding: 0.875rem 0.75rem;
+  /* code.html: mb-5 sm:mb-6 */
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  /* code.html: .shadow-sm */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.fm-page-shop .fm-shop-toolbar__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.fm-page-shop .fm-shop-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Filters button - phones and tablets only. */
+.fm-page-shop .fm-filter-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  /* Measured 84x36 at 360px: the shop's main mobile control gets the 44px
+     floor like every other touch control on the page. */
+  min-height: 44px;
+  background: var(--fmv2-primary-subtle);
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.fm-page-shop .fm-filter-open:hover {
+  background: #d1fae5;
+}
+
+.fm-page-shop .fm-filter-open svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* fm-runtime-fix.css wraps every span/button (`overflow-wrap: anywhere`) so a
+   long string can never push the layout. In a squeezed flex row that guard also
+   breaks SHORT labels mid-word: measured on /products at 360px the trigger
+   rendered as "Filt / ers". A control label is atomic - the row has to give it
+   room instead of the label giving way. */
+.fm-page-shop .fm-filter-open {
+  flex-shrink: 0;
+}
+.fm-page-shop .fm-filter-open span {
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+.fm-page-shop .fm-view-switch {
+  flex-shrink: 0;
+}
+
+.fm-page-shop .fm-filter-open__count {
+  background: var(--fmv2-primary-dark);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fm-page-shop .fm-view-switch {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-view-switch { display: flex; }
+}
+
+.fm-page-shop .fm-view-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--fmv2-text-light);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+  min-height: 0;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fm-page-shop .fm-view-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.fm-page-shop .fm-view-btn.is-active {
+  background: #ffffff;
+  color: var(--fmv2-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.fm-page-shop .fm-shop-toolbar__count {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--fmv2-text-muted);
+  margin: 0;
+}
+
+.fm-page-shop .fm-shop-toolbar__count strong {
+  color: var(--fmv2-primary-dark);
+  font-weight: 700;
+}
+
+.fm-page-shop .fm-sort-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.fm-page-shop .fm-sort-label {
+  font-size: 0.75rem;
+  color: var(--fmv2-text-muted);
+  white-space: nowrap;
+}
+
+.fm-page-shop .fm-shop-toolbar select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #f8fafc;
+  border: 1px solid var(--fmv2-border);
+  color: var(--fmv2-text-dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 28px 8px 12px;
+  cursor: pointer;
+  max-width: 190px;
+}
+
+.fm-page-shop .fm-shop-toolbar select:focus {
+  border-color: var(--fmv2-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.fm-page-shop .fm-sort-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--fmv2-text-muted);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Product grid - 2 / 3 / 4 columns
+   -------------------------------------------------------------------------- */
+/* code.html: grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 */
+.fm-page-shop .fm-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-grid { gap: 1.25rem; }
+}
+
+@media (min-width: 768px) {
+  .fm-page-shop .fm-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .fm-page-shop .fm-product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.fm-page-shop .fm-product-card {
+  background-color: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  /* code.html: .fm-product-card.rounded-xl -> 0.75rem */
+  border-radius: 0.75rem;
+  /* code.html: .fm-product-card.p-2.5 sm:p-3 */
+  padding: 0.625rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* The card's own padding means the inner body must not add more, and the
+   list view drops the padding entirely so the row reads as one panel. */
+.fm-page-shop .fm-product-card__body { padding: 0.625rem 0 0; }
+.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card__body { padding: 0; }
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card { padding: 0.75rem; }
+  .fm-page-shop .fm-product-card__body { padding: 0.75rem 0 0; }
+}
+
+.fm-page-shop .fm-product-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.fm-page-shop .fm-product-card:hover .fm-product-card__media img {
+  transform: scale(1.05);
+}
+
+.fm-page-shop .fm-product-card__inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.fm-page-shop .fm-product-card__media {
+  position: relative;
+  /* code.html: .rounded-lg */
+  border-radius: 0.5rem;
+  overflow: hidden;
+  /* code.html: .bg-emerald-50 */
+  background: #ecfdf5;
+  /* code.html: .h-36 sm:h-44 */
+  height: 9rem;
+  /* code.html: .mb-2.5 sm:mb-3 */
+  margin-bottom: 0.625rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card__media {
+    height: 11rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.fm-page-shop .fm-product-card__media img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.fm-page-shop .fm-product-card:hover .fm-product-card__media img {
+  transform: scale(1.05);
+}
+
+.fm-page-shop .fm-product-card__media a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fm-page-shop .fm-product-card__badge {
+  position: absolute;
+  /* code.html: .top-1.5 .left-1.5  (sm: .top-2 .left-2) */
+  top: 0.375rem;
+  left: 0.375rem;
+  z-index: 2;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card__badge { top: 0.5rem; left: 0.5rem; }
+}
+
+.fm-page-shop .fm-product-card__wish {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+  /* code.html: .w-7 h-7 */
+  width: 1.75rem;
+  height: 1.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fmv2-text-light);
+  cursor: pointer;
+  z-index: 2;
+  border: 0;
+  padding: 0;
+  transition: color 0.2s, transform 0.15s;
+  /* Opt out of #fm-audit-fix's 42px tap-target floor - a 28px heart stretched
+     to 42px would hang off the top of the card on a phone. */
+  min-height: 0;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card__wish { top: 0.5rem; right: 0.5rem; }
+}
+
+.fm-page-shop .fm-product-card__wish i { font-size: 14px; line-height: 1; }
+
+.fm-page-shop .fm-product-card__wish:hover,
+.fm-page-shop .fm-product-card__wish.is-active { color: #ef4444; }
+
+.fm-page-shop .fm-product-card__body {
+  padding: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card__body { padding: 12px; }
+}
+
+.fm-page-shop .fm-product-card__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--fmv2-text-dark);
+  margin: 0 0 4px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card__title { font-size: 0.875rem; }
+}
+
+.fm-page-shop .fm-product-card__title a:hover {
+  color: var(--fmv2-primary-dark);
+}
+
+.fm-page-shop .fm-product-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card__price { gap: 8px; margin-bottom: 12px; }
+}
+
+.fm-page-shop .fm-product-card__price strong {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--fmv2-primary-dark);
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card__price strong { font-size: 1rem; }
+}
+
+.fm-page-shop .fm-product-card__price del {
+  font-size: 0.75rem;
+  color: var(--fmv2-text-light);
+  text-decoration: line-through;
+}
+
+@media (min-width: 640px) {
+  .fm-page-shop .fm-product-card__price del { font-size: 0.75rem; }
+}
+
+/* The two-button action row, pushed to the bottom of the card. */
+.fm-page-shop .fm-actions-row {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.fm-page-shop .fm-actions-row form { margin: 0; min-width: 0; }
+
+/* Below 576px the catalog grid is two-up, so the 1fr 1fr action row gives each
+   button only 40-80px. Measured at 360/390/414/480/520px the label clipped in
+   every case ("Add to Cart" needs ~65px of text + a 14px icon + padding:
+   button 40px vs scrollWidth 60px at 360; still 80 vs 78 at 520). At 576px the
+   button is 94px and the label fits, so the two-up row stays from there.
+   Stacking gives each action the full card width, keeps both labels readable
+   at 12px, and keeps the 44px height. */
+@media (max-width: 575.98px) {
+  .fm-page-shop .fm-actions-row { grid-template-columns: 1fr; }
+}
+
+/* 44px / 12px label. The live measurement at 360/768px was 35px with an 11px
+   label on the v2 CTAs; this two-class rule also outranks #fm-audit-fix's
+   `button{min-height:42px}` (<=768px, 0,0,1) and the global `.fm-btn-cart`
+   min-height in fm-product-card.css, so the 44px floor is declared here. */
+.fm-page-shop .fm-btn-cart,
+.fm-page-shop .fm-btn-order {
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease-in-out;
+  /* fm-product-card.css publishes .fm-btn-cart / .fm-btn-order GLOBALLY with
+     min-width: max-content and flex: 0 0 auto. Those values are correct for
+     its own card, but in a 1fr grid cell on a 320px phone they would force
+     the button wider than the column. min-width:0 hands the width back to
+     the grid. The colours it locks with !important are the same design
+     values code.html specifies, so nothing here is being overridden. */
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.fm-page-shop .fm-btn-cart svg,
+.fm-page-shop .fm-btn-order svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.fm-page-shop .fm-btn-cart {
+  border: 1.5px solid var(--fmv2-primary-light);
+  color: var(--fmv2-primary);
+  background-color: #ffffff;
+}
+
+.fm-page-shop .fm-btn-cart:hover {
+  background: var(--fmv2-primary-subtle);
+}
+
+.fm-page-shop .fm-btn-order {
+  border: 1.5px solid var(--fmv2-primary-dark);
+  background: var(--fmv2-primary-dark);
+  color: #ffffff;
+}
+
+.fm-page-shop .fm-btn-order:hover {
+  background: #044e39;
+}
+
+.fm-page-shop .fm-btn-cart:disabled,
+.fm-page-shop .fm-btn-order:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fm-page-shop .fm-product-card__soldout {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b91c1c;
+  border: 2px solid #ef4444;
+  z-index: 3;
+}
+
+/* List view - a presentation-only state, same as the v1 page. */
+.fm-page-shop .fm-product-grid[data-view="list"] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card {
+  flex-direction: row;
+  gap: 12px;
+  padding: 12px;
+}
+
+.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card__media {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card__body {
+  padding: 0;
+}
+
+.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card__actions {
+  max-width: 320px;
+}
+
+/* Empty state */
+.fm-page-shop .fm-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--fmv2-text-muted);
+}
+
+.fm-page-shop .fm-empty i { font-size: 2rem; opacity: 0.4; }
+
+.fm-page-shop .fm-empty p { margin: 8px 0 0; font-size: 0.85rem; }
+
+/* --------------------------------------------------------------------------
+   Pagination
+   -------------------------------------------------------------------------- */
+.fm-page-shop .fm-pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+.fm-page-shop .fm-pager a,
+.fm-page-shop .fm-pager span {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--fmv2-border);
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fmv2-text-muted);
+}
+
+.fm-page-shop .fm-pager .is-current {
+  background: var(--fmv2-primary-dark);
+  border-color: var(--fmv2-primary-dark);
+  color: #ffffff;
+}
+
+.fm-page-shop .fm-pager .is-disabled {
+  opacity: 0.45;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile / tablet filter drawer
+   -------------------------------------------------------------------------- */
+.fm-page-shop .fm-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 1045;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.fm-page-shop .fm-drawer-backdrop.is-open { opacity: 1; }
+
+.fm-page-shop .fm-drawer-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(340px, 88vw);
+  background: #ffffff;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+.fm-page-shop .fm-drawer-panel.is-open { transform: translateX(0); }
+
+.fm-page-shop .fm-drawer-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--fmv2-border);
+  flex-shrink: 0;
+}
+
+.fm-page-shop .fm-drawer-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fm-page-shop .fm-drawer-panel__foot {
+  padding: 16px;
+  border-top: 1px solid var(--fmv2-border);
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.fm-page-shop .fm-drawer-close {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: #f1f5f9;
+  border-radius: 8px;
+  color: var(--fmv2-text-muted);
+  cursor: pointer;
+  padding: 0;
+  min-height: 0;
+  flex-shrink: 0;
+}
+
+/* The drawer never shows on a desktop - the sidebar is already there. */
+@media (min-width: 1024px) {
+  .fm-page-shop .fm-drawer-backdrop,
+  .fm-page-shop .fm-drawer-panel { display: none !important; }
+
+  /* Same reason: the Filters button has nothing to open once lg, and the
+     sidebar is on screen. */
+  .fm-page-shop .fm-filter-open { display: none !important; }
+}
+
+/* --------------------------------------------------------------------------
+   Drawer visibility
+   --------------------------------------------------------------------------
+   The panel carries the `hidden` attribute and is styled display:flex /
+   display:block. An author display declaration beats the UA's [hidden]
+   display:none REGARDLESS of specificity, so without these two lines the
+   tray would sit permanently over the catalog with the backdrop behind it.
+   -------------------------------------------------------------------------- */
+.fm-page-shop .fm-drawer-panel[hidden],
+.fm-page-shop .fm-drawer-backdrop[hidden] {
+  display: none;
+}

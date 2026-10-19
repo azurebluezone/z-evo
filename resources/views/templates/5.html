@@ -1,0 +1,2283 @@
+<div
+  class="export-wrapper"
+  style="
+    width: 1440px;
+    min-height: 812px;
+    position: relative;
+    font-family: var(--font-family-body);
+    background-color: var(--background);
+  "
+>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&family=Geist:wght@100;200;300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@100;200;300;400;500;600;700&family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Nunito:wght@200;300;400;500;600;700;800;900&family=PT+Serif:wght@400;700&family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&family=Shantell+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <html>
+    <head>
+      <style id="layout-styles">
+        * {
+          box-sizing: border-box;
+        }
+
+        .page-container {
+          background-color: #000000;
+          color: #ffffff;
+          font-family: sans-serif;
+          font-size: 15px;
+          line-height: 1.6;
+          min-height: 100vh;
+          padding: 40px 0 80px 0;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        .inner-container {
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 0 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 64px;
+        }
+
+        .section-block {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+        }
+
+        .text-center {
+          text-align: center;
+        }
+      </style>
+
+      <style id="typography-styles">
+        .hero-title {
+          font-size: 32px;
+          font-weight: 800;
+          line-height: 1.3;
+          margin-bottom: 16px;
+        }
+
+        .hero-subtitle {
+          font-size: 16px;
+          color: #d4d4d8;
+          margin-bottom: 24px;
+          max-width: 700px;
+        }
+
+        .section-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          color: #eab308;
+          text-align: center;
+        }
+
+        .text-green {
+          color: #16a34a;
+        }
+
+        .text-red {
+          color: #dc2626;
+        }
+
+        .text-warning {
+          color: #eab308;
+        }
+
+        .font-bold {
+          font-weight: 700;
+        }
+      </style>
+
+      <style id="component-styles">
+        .badge {
+          border: 1px solid #16a34a;
+          color: #16a34a;
+          padding: 6px 16px;
+          border-radius: 999px;
+          font-size: 14px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 24px;
+        }
+
+        .price-block {
+          margin-bottom: 32px;
+        }
+
+        .old-price {
+          color: #dc2626;
+          text-decoration: line-through;
+          font-size: 20px;
+          margin-right: 12px;
+        }
+
+        .new-price {
+          color: #16a34a;
+          font-size: 36px;
+          font-weight: 800;
+        }
+
+        .offer-badge {
+          border: 2px solid #16a34a;
+          color: #16a34a;
+          padding: 8px 24px;
+          border-radius: 4px;
+          font-weight: 700;
+          margin-top: 16px;
+          display: inline-block;
+        }
+
+        .summary-box {
+          border: 2px solid #dc2626;
+          border-radius: 12px;
+          padding: 24px;
+          background-color: #0a0a0a;
+          width: 100%;
+        }
+
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 16px;
+          font-size: 15px;
+        }
+
+        .summary-left {
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+          flex: 1;
+        }
+
+        .summary-price {
+          color: #16a34a;
+          font-weight: 600;
+          white-space: nowrap;
+          margin-left: 16px;
+        }
+
+        .divider {
+          height: 1px;
+          background-color: #333;
+          width: 100%;
+          margin: 24px 0;
+        }
+
+        .video-wrapper {
+          border: 2px solid #dc2626;
+          border-radius: 12px;
+          overflow: hidden;
+          width: 100%;
+          position: relative;
+          background-color: #111;
+        }
+
+        .video-wrapper img {
+          width: 100%;
+          display: block;
+          height: auto;
+        }
+
+        .play-button {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 64px;
+          height: 64px;
+          background-color: #dc2626;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .cta-button {
+          padding: 16px 32px;
+          border-radius: 999px;
+          font-weight: 700;
+          font-size: 18px;
+          text-align: center;
+          color: #ffffff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          cursor: pointer;
+          width: 100%;
+          max-width: 400px;
+          border: none;
+        }
+
+        .btn-purple {
+          background-color: #8b5cf6;
+        }
+
+        .btn-yellow {
+          background-color: #eab308;
+          color: #000000;
+        }
+      </style>
+
+      <style id="grid-styles">
+        .grid-2 {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 24px;
+          width: 100%;
+        }
+
+        .grid-3 {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 16px;
+          width: 100%;
+        }
+
+        .grid-4 {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 16px;
+          width: 100%;
+        }
+      </style>
+
+      <style id="section-specific-styles">
+        /* Student Success */
+        .chat-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+          width: 100%;
+          margin-top: 24px;
+        }
+
+        .chat-wrapper {
+          border: 1px solid #333;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+
+        /* Funnel */
+        .funnel-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+        }
+
+        .funnel-step {
+          padding: 12px 24px;
+          font-weight: 700;
+          color: #ffffff;
+          text-align: center;
+          width: 100%;
+        }
+
+        /* Bonus Package */
+        .bonus-box {
+          background-color: #064e3b;
+          border-radius: 12px;
+          padding: 32px;
+          width: 100%;
+          border: 1px solid #047857;
+        }
+
+        .bonus-list-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          margin-bottom: 12px;
+          font-size: 14px;
+        }
+
+        /* Why Section */
+        .why-card {
+          background-color: #111827;
+          border: 1px solid #1f2937;
+          border-radius: 8px;
+          padding: 20px;
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+        }
+
+        .why-icon {
+          background-color: #3b82f6;
+          color: #ffffff;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        /* Problem Section */
+        .problem-card {
+          background-color: #000000;
+          border: 1px solid #3f3f46;
+          border-radius: 8px;
+          padding: 16px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .solution-banner {
+          background-color: #fdf2f8;
+          border: 2px solid #ec4899;
+          color: #be185d;
+          padding: 16px 32px;
+          border-radius: 8px;
+          font-weight: 700;
+          text-align: center;
+          width: 100%;
+          margin-top: 32px;
+        }
+
+        /* Flow Steps */
+        .flow-container {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          width: 100%;
+        }
+
+        .flow-node {
+          border: 1px solid #ef4444;
+          border-radius: 999px;
+          padding: 8px 24px;
+          font-weight: 700;
+          background-color: #000000;
+        }
+
+        /* Program Outline */
+        .module-card {
+          background-color: #000000;
+          border: 1px solid #333;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .module-header {
+          background-color: #111;
+          padding: 16px;
+          font-weight: 700;
+          text-align: center;
+          border-bottom: 1px solid #333;
+        }
+
+        .module-body {
+          padding: 20px;
+        }
+
+        /* Guarantee */
+        .guarantee-box {
+          border: 2px solid #dc2626;
+          padding: 16px 32px;
+          font-weight: 800;
+          font-size: 20px;
+          color: #dc2626;
+          text-align: center;
+          margin: 32px 0;
+        }
+
+        /* Who is it for */
+        .who-card {
+          background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+          border: 1px solid #4f46e5;
+          border-radius: 8px;
+          padding: 16px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        /* Inside Program */
+        .inside-card {
+          background-color: #0a0a0a;
+          border: 1px solid #262626;
+          border-radius: 12px;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 16px;
+        }
+
+        /* Checkout Form */
+        .checkout-container {
+          background-color: #ffffff;
+          color: #000000;
+          border-radius: 12px;
+          padding: 32px;
+          width: 100%;
+        }
+
+        .form-group {
+          margin-bottom: 16px;
+          width: 100%;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          background-color: #f9fafb;
+          font-size: 14px;
+        }
+
+        .order-summary-box {
+          background-color: #f3f4f6;
+          border-radius: 8px;
+          padding: 24px;
+        }
+
+        .payment-method {
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          padding: 16px;
+          margin-top: 16px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background-color: #ffffff;
+        }
+
+        /* Countdown */
+        .countdown-box {
+          background-color: #1e1b4b;
+          border: 1px solid #3730a3;
+          border-radius: 8px;
+          width: 70px;
+          height: 70px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .countdown-num {
+          font-size: 24px;
+          font-weight: 700;
+          color: #ffffff;
+        }
+
+        .countdown-label {
+          font-size: 10px;
+          color: #a5b4fc;
+        }
+
+        /* FAQ Accordion */
+        .faq-item {
+          border: 1px solid #333;
+          border-radius: 6px;
+          margin-bottom: 12px;
+          background-color: #111;
+          width: 100%;
+        }
+
+        .faq-header {
+          padding: 16px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-weight: 600;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="page-container">
+        <div class="inner-container">
+          <!-- Hero Section -->
+          <div class="section-block">
+            <div class="badge">
+              <div
+                style="
+                  width: 16px;
+                  height: 16px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:pen-tool"
+                  style="font-size: 16px; color: #16a34a"
+                ></iconify-icon>
+              </div>
+              Digital Product Selling Blueprint
+            </div>
+
+            <h1 class="hero-title text-center">
+              <span class="text-green">মাত্র ৭ দিন</span> ডিজিটাল প্রোডাক্ট
+              সেলিং বিজনেস শুরু করুন
+            </h1>
+
+            <p class="hero-subtitle text-center">
+              শেয়ার বাজার আর ৭ মাস নয়!
+              <span class="text-green font-bold">ডিজিটাল প্রোডাক্ট</span> তৈরি
+              করে 14 লক্ষ টাকারও বেশি প্রফিট করেছি - সেই পুরো
+              <span class="text-green font-bold">real system</span> এই কোর্সে
+              শেয়ার করবো!
+            </p>
+
+            <div class="price-block text-center">
+              <span class="old-price">৳৯,৯৯৯</span>
+              <span class="new-price">৳২,৯৯৯</span>
+              <span class="text-green font-bold"> / Lifetime</span>
+              <br />
+              <div class="offer-badge">90% OFFER WILL END SOON</div>
+            </div>
+          </div>
+
+          <!-- Course Summary Box -->
+          <div class="section-block">
+            <div class="summary-box">
+              <h2 class="section-title" style="margin-bottom: 24px">
+                বাংলাদেশের সেরা ডিজিটাল প্রোডাক্ট বিজনেস কোর্স সমূহ
+                <div
+                  style="
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <iconify-icon
+                    icon="lucide:rocket"
+                    style="font-size: 24px; color: #eab308"
+                  ></iconify-icon>
+                </div>
+              </h2>
+
+              <div class="summary-row">
+                <div class="summary-left">
+                  <div
+                    style="
+                      width: 16px;
+                      height: 16px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      margin-top: 4px;
+                    "
+                  >
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="font-size: 16px; color: #dc2626"
+                    ></iconify-icon>
+                  </div>
+                  <span>ফেস্টিভ সিজন ডিজিটাল প্রোডাক্ট বিজনেস</span>
+                </div>
+                <div class="summary-price">৳৩,৫০০</div>
+              </div>
+
+              <div class="summary-row">
+                <div class="summary-left">
+                  <div
+                    style="
+                      width: 16px;
+                      height: 16px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      margin-top: 4px;
+                    "
+                  >
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="font-size: 16px; color: #dc2626"
+                    ></iconify-icon>
+                  </div>
+                  <span
+                    >মাত্র ৩০ দিনে ডিজিটাল প্রোডাক্ট সেলিং বিজনেস শুরু
+                    করুন</span
+                  >
+                </div>
+                <div class="summary-price">৳৪,০০০</div>
+              </div>
+
+              <div class="summary-row">
+                <div class="summary-left">
+                  <div
+                    style="
+                      width: 16px;
+                      height: 16px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      margin-top: 4px;
+                    "
+                  >
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="font-size: 16px; color: #dc2626"
+                    ></iconify-icon>
+                  </div>
+                  <span
+                    >Advance Digital Product Business Course With Meta ADS</span
+                  >
+                </div>
+                <div class="summary-price">৳৪,৫০০</div>
+              </div>
+
+              <div class="summary-row">
+                <div class="summary-left">
+                  <div
+                    style="
+                      width: 16px;
+                      height: 16px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      margin-top: 4px;
+                    "
+                  >
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="font-size: 16px; color: #dc2626"
+                    ></iconify-icon>
+                  </div>
+                  <span>META AD PRO With Digital Product</span>
+                </div>
+                <div class="summary-price">৳৪,৯৯৯</div>
+              </div>
+
+              <div class="summary-row">
+                <div class="summary-left">
+                  <div
+                    style="
+                      width: 16px;
+                      height: 16px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      margin-top: 4px;
+                    "
+                  >
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="font-size: 16px; color: #dc2626"
+                    ></iconify-icon>
+                  </div>
+                  <span>প্রিমিয়াম ডিজিটাল প্রোডাক্ট অ্যাসেটস</span>
+                </div>
+                <div class="summary-price">৳৪৯,৯৯৯</div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="summary-row" style="color: #60a5fa">
+                <div class="summary-left font-bold">Total Value</div>
+                <div class="summary-price font-bold" style="color: #60a5fa">
+                  ৳74,000+
+                </div>
+              </div>
+
+              <div class="summary-row">
+                <div class="summary-left font-bold">Course Price</div>
+                <div class="summary-price font-bold">
+                  <span style="text-decoration: line-through; color: #dc2626"
+                    >৳9,999</span
+                  >
+                </div>
+              </div>
+
+              <div class="summary-row">
+                <div class="summary-left font-bold" style="color: #c084fc">
+                  90% Discount Price
+                </div>
+                <div
+                  class="summary-price font-bold"
+                  style="color: #c084fc; font-size: 18px"
+                >
+                  ৳2,999
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Video Section -->
+          <div class="section-block">
+            <div class="video-wrapper">
+              <img
+                data-aspect-ratio="16:9"
+                data-query="youtube video player presentation screen dark theme selling digital products"
+                alt="Main Video Presentation"
+                src="https://storage.googleapis.com/banani-generated-images/generated-images/b157ed90-519f-4b81-a799-077dab0a473f.jpg"
+              />
+              <div class="play-button">
+                <iconify-icon
+                  icon="lucide:play"
+                  style="font-size: 32px; color: white; margin-left: 4px"
+                ></iconify-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Proof Videos -->
+          <div class="section-block">
+            <h2 class="section-title">
+              <iconify-icon
+                icon="lucide:play-square"
+                style="font-size: 24px"
+              ></iconify-icon>
+              Live Proof of Earning
+            </h2>
+            <div class="video-wrapper">
+              <img
+                data-aspect-ratio="16:9"
+                data-query="dashboard screenshot showing high revenue and live proof of earnings dark mode"
+                alt="Earning Proof"
+                src="https://storage.googleapis.com/banani-generated-images/generated-images/99b804f5-4b8d-460c-9e39-3fa4f246f375.jpg"
+              />
+              <div class="play-button">
+                <iconify-icon
+                  icon="lucide:play"
+                  style="font-size: 32px; color: white; margin-left: 4px"
+                ></iconify-icon>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h2 class="section-title">
+              <iconify-icon
+                icon="lucide:wallet"
+                style="font-size: 24px"
+              ></iconify-icon>
+              Real-Time Earning Proof - বিশ্বাস না হলে দেখুন নিজের চোখে!
+            </h2>
+            <div class="video-wrapper">
+              <img
+                data-aspect-ratio="16:9"
+                data-query="payment gateway dashboard showing live transactions and real time earnings dark mode"
+                alt="Real-Time Earning"
+                src="https://storage.googleapis.com/banani-generated-images/generated-images/c6022def-7bf8-4120-9186-4ad4451d493f.jpg"
+              />
+              <div class="play-button">
+                <iconify-icon
+                  icon="lucide:play"
+                  style="font-size: 32px; color: white; margin-left: 4px"
+                ></iconify-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Success -->
+          <div class="section-block">
+            <h2 class="section-title">
+              <iconify-icon
+                icon="lucide:users"
+                style="font-size: 24px"
+              ></iconify-icon>
+              আমাদের স্টুডেন্ট দের সাফল্য
+            </h2>
+            <div class="grid-2">
+              <div class="video-wrapper" style="border-color: #3b82f6">
+                <img
+                  data-aspect-ratio="16:9"
+                  data-query="person recording video testimonial selfie dark background"
+                  alt="Student Review 1"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/8a807f3e-08db-4573-9fc2-87d7600eea4c.jpg"
+                />
+                <div class="play-button">
+                  <iconify-icon
+                    icon="lucide:play"
+                    style="font-size: 32px; color: white; margin-left: 4px"
+                  ></iconify-icon>
+                </div>
+              </div>
+              <div class="video-wrapper" style="border-color: #3b82f6">
+                <img
+                  data-aspect-ratio="16:9"
+                  data-query="person recording video testimonial selfie dark background blue accent"
+                  alt="Student Review 2"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/33ab4e8f-c900-461f-85f4-e7332599edbb.jpg"
+                />
+                <div class="play-button">
+                  <iconify-icon
+                    icon="lucide:play"
+                    style="font-size: 32px; color: white; margin-left: 4px"
+                  ></iconify-icon>
+                </div>
+              </div>
+            </div>
+            <div class="chat-grid">
+              <div class="chat-wrapper">
+                <img
+                  data-aspect-ratio="9:16"
+                  data-query="whatsapp chat screenshot showing positive feedback earnings dark mode"
+                  alt="Chat Proof 1"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/b07e965e-075e-401e-9a90-4c57a910a91e.jpg"
+                />
+              </div>
+              <div class="chat-wrapper">
+                <img
+                  data-aspect-ratio="9:16"
+                  data-query="whatsapp chat screenshot success story dark mode"
+                  alt="Chat Proof 2"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/f2213329-42f8-4d1a-8b25-76e1144f31f1.jpg"
+                />
+              </div>
+              <div class="chat-wrapper">
+                <img
+                  data-aspect-ratio="9:16"
+                  data-query="whatsapp chat screenshot course review dark mode"
+                  alt="Chat Proof 3"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/90e6f249-f148-4d8d-9f1d-4e8062bc27b0.jpg"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Funnel Steps -->
+          <div class="section-block">
+            <div class="funnel-container">
+              <div
+                class="funnel-step"
+                style="
+                  background-color: #ef4444;
+                  max-width: 300px;
+                  border-radius: 8px 8px 0 0;
+                "
+              >
+                DIGITAL PRODUCT
+              </div>
+              <div
+                class="funnel-step"
+                style="background-color: #8b5cf6; max-width: 260px"
+              >
+                WEBSITE
+              </div>
+              <div
+                class="funnel-step"
+                style="background-color: #06b6d4; max-width: 220px"
+              >
+                MARKETING
+              </div>
+              <div
+                class="funnel-step"
+                style="
+                  background-color: #eab308;
+                  max-width: 180px;
+                  color: #000;
+                  border-radius: 0 0 8px 8px;
+                "
+              >
+                MONEY
+              </div>
+            </div>
+          </div>
+
+          <!-- Free Bundle Video -->
+          <div class="section-block">
+            <h2 class="section-title" style="color: #eab308">
+              ১,৭০,০০০ টাকার অল-ইন-ওয়ান ডিজিটাল বান্ডেল একদম ফ্রি !
+            </h2>
+            <div class="video-wrapper" style="border-color: #eab308">
+              <img
+                data-aspect-ratio="16:9"
+                data-query="digital product bundle presentation video thumbnail dark theme"
+                alt="Free Bundle"
+                src="https://storage.googleapis.com/banani-generated-images/generated-images/3b0b060d-4cb5-426a-9895-b07767617b98.jpg"
+              />
+              <div class="play-button">
+                <iconify-icon
+                  icon="lucide:play"
+                  style="font-size: 32px; color: white; margin-left: 4px"
+                ></iconify-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bonus Package -->
+          <div class="section-block">
+            <div class="bonus-box">
+              <h3
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  font-size: 20px;
+                  font-weight: bold;
+                  margin-bottom: 24px;
+                "
+              >
+                <div
+                  style="
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <iconify-icon
+                    icon="lucide:gift"
+                    style="font-size: 24px; color: #ffffff"
+                  ></iconify-icon>
+                </div>
+                বোনাস প্যাকেজ
+              </h3>
+
+              <div class="grid-3">
+                <div>
+                  <div style="font-weight: 600; margin-bottom: 16px">
+                    কি পাচ্ছেন এই প্যাকেজে
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Elementor Pro, WP Rocket etc</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Premium Themes &amp; Plugins</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Video Editing Premium Pack</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Office Productivity Tools</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="font-weight: 600; margin-bottom: 16px">
+                    Premium Subscription Materials
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Graphics Design Assets</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Social Media Templates</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Email Marketing Swipes</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Sales Page Copy</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="font-weight: 600; margin-bottom: 16px">
+                    Advanced Digital Assets
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>E-book Bundles</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Canva Templates</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>Notion Templates</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check-circle"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ChatGPT Prompts</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drive Screenshot -->
+          <div class="section-block">
+            <h2
+              class="section-title"
+              style="color: #eab308; margin-bottom: 16px"
+            >
+              সাথে আরো পাচ্ছেন
+            </h2>
+            <img
+              data-aspect-ratio="16:9"
+              data-query="google drive folder interface showing digital files lists clean mockup"
+              alt="Google Drive Files"
+              style="width: 100%; border-radius: 8px; border: 1px solid #333"
+              src="https://storage.googleapis.com/banani-generated-images/generated-images/c9bb2f4a-2395-4671-ab17-96fed61cead9.jpg"
+            />
+          </div>
+
+          <!-- Why Section -->
+          <div class="section-block">
+            <h2 class="section-title">
+              <iconify-icon
+                icon="lucide:play"
+                style="font-size: 24px"
+              ></iconify-icon>
+              কেনো ডিজিটাল প্রোডাক্ট নিয়ে ব্যবসা করবেন?
+            </h2>
+            <div class="grid-2">
+              <div class="why-card">
+                <div class="why-icon">
+                  <iconify-icon
+                    icon="lucide:coins"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>
+                  স্বল্প পুঁজি ও অটোমেশনের মাধ্যমে প্যাসিভ ইনকাম করা যায়।
+                </div>
+              </div>
+              <div class="why-card">
+                <div class="why-icon">
+                  <iconify-icon
+                    icon="lucide:repeat"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>
+                  প্রোডাক্ট বারবার তৈরি করতে হয় না, একবার তৈরি করে সেল করা যায়।
+                </div>
+              </div>
+              <div class="why-card">
+                <div class="why-icon">
+                  <iconify-icon
+                    icon="lucide:truck"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>
+                  ডেলিভারি চার্জ নেই, সাথে সাথে কাস্টমার প্রোডাক্ট পেয়ে যায়।
+                </div>
+              </div>
+              <div class="why-card">
+                <div class="why-icon">
+                  <iconify-icon
+                    icon="lucide:package-x"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>কোনো শিপিং বা প্যাকেজিং এর ঝামেলা নেই।</div>
+              </div>
+              <div class="why-card">
+                <div class="why-icon">
+                  <iconify-icon
+                    icon="lucide:shield-check"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>প্রোডাক্ট হারানো বা ড্যামেজ হওয়ার কোনো ভয় নেই।</div>
+              </div>
+              <div class="why-card">
+                <div class="why-icon">
+                  <iconify-icon
+                    icon="lucide:laptop"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>
+                  যেকোনো জায়গা থেকে ল্যাপটপ বা মোবাইল দিয়ে কন্ট্রোল করা যায়।
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Problems Section -->
+          <div class="section-block">
+            <h2 class="section-title">
+              <iconify-icon
+                icon="lucide:layout-dashboard"
+                style="font-size: 24px"
+              ></iconify-icon>
+              আমরা সবাই কখন কিছু সমস্যায় মুখোমুখি হই
+            </h2>
+            <div class="grid-2">
+              <div class="problem-card">
+                <iconify-icon
+                  icon="lucide:x"
+                  style="font-size: 20px; color: #dc2626; flex-shrink: 0"
+                ></iconify-icon>
+                <span style="color: #a1a1aa">সঠিক গাইডলাইনের অভাব</span>
+              </div>
+              <div class="problem-card">
+                <iconify-icon
+                  icon="lucide:x"
+                  style="font-size: 20px; color: #dc2626; flex-shrink: 0"
+                ></iconify-icon>
+                <span style="color: #a1a1aa"
+                  >কোথা থেকে শুরু করবো বুঝতে না পারা</span
+                >
+              </div>
+              <div class="problem-card">
+                <iconify-icon
+                  icon="lucide:x"
+                  style="font-size: 20px; color: #dc2626; flex-shrink: 0"
+                ></iconify-icon>
+                <span style="color: #a1a1aa">প্রোডাক্ট আইডিয়া না থাকা</span>
+              </div>
+              <div class="problem-card">
+                <iconify-icon
+                  icon="lucide:x"
+                  style="font-size: 20px; color: #dc2626; flex-shrink: 0"
+                ></iconify-icon>
+                <span style="color: #a1a1aa">মার্কেটিং না জানা</span>
+              </div>
+              <div class="problem-card">
+                <iconify-icon
+                  icon="lucide:x"
+                  style="font-size: 20px; color: #dc2626; flex-shrink: 0"
+                ></iconify-icon>
+                <span style="color: #a1a1aa">সেলস না আসা</span>
+              </div>
+              <div class="problem-card">
+                <iconify-icon
+                  icon="lucide:x"
+                  style="font-size: 20px; color: #dc2626; flex-shrink: 0"
+                ></iconify-icon>
+                <span style="color: #a1a1aa"
+                  >কাস্টমার সাপোর্ট দিতে না পারা</span
+                >
+              </div>
+            </div>
+            <div class="solution-banner">
+              আমরা এই সব সমস্যার একটি স্থায়ী সমাধান তৈরি করেছি এই প্রোগ্রামের
+              মাধ্যমে!
+            </div>
+          </div>
+
+          <!-- What you will learn Section -->
+          <div class="section-block">
+            <h2 class="section-title">
+              <iconify-icon
+                icon="lucide:play"
+                style="font-size: 24px"
+              ></iconify-icon>
+              কোর্সেগুলো করে কি কি শিখবেন
+            </h2>
+            <div class="grid-2">
+              <div class="why-card" style="border-color: #450a0a">
+                <div class="why-icon" style="background-color: #7f1d1d">
+                  <iconify-icon
+                    icon="lucide:search"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>ডিজিটাল প্রোডাক্ট রিসার্চ ও আইডিয়া তৈরি</div>
+              </div>
+              <div class="why-card" style="border-color: #450a0a">
+                <div class="why-icon" style="background-color: #7f1d1d">
+                  <iconify-icon
+                    icon="lucide:box"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>প্রোডাক্ট তৈরি ও সেটআপ</div>
+              </div>
+              <div class="why-card" style="border-color: #450a0a">
+                <div class="why-icon" style="background-color: #7f1d1d">
+                  <iconify-icon
+                    icon="lucide:layout"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>ফানেল তৈরি ও ল্যান্ডিং পেজ ডিজাইন</div>
+              </div>
+              <div class="why-card" style="border-color: #450a0a">
+                <div class="why-icon" style="background-color: #7f1d1d">
+                  <iconify-icon
+                    icon="lucide:facebook"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>ফেসবুক পেজ অপ্টিমাইজেশন</div>
+              </div>
+              <div class="why-card" style="border-color: #450a0a">
+                <div class="why-icon" style="background-color: #7f1d1d">
+                  <iconify-icon
+                    icon="lucide:pen-tool"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>কন্টেন্ট তৈরি ও মার্কেটিং</div>
+              </div>
+              <div class="why-card" style="border-color: #450a0a">
+                <div class="why-icon" style="background-color: #7f1d1d">
+                  <iconify-icon
+                    icon="lucide:target"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>ফেসবুক অ্যাডস ও পিক্সেল সেটআপ</div>
+              </div>
+              <div class="why-card" style="border-color: #450a0a">
+                <div class="why-icon" style="background-color: #7f1d1d">
+                  <iconify-icon
+                    icon="lucide:bot"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>অটোমেশন ও সেলস বৃদ্ধি</div>
+              </div>
+              <div class="why-card" style="border-color: #450a0a">
+                <div class="why-icon" style="background-color: #7f1d1d">
+                  <iconify-icon
+                    icon="lucide:headphones"
+                    style="font-size: 16px"
+                  ></iconify-icon>
+                </div>
+                <div>কাস্টমার সাপোর্ট ও রিটার্ন কাস্টমার</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flow Steps -->
+          <div class="section-block">
+            <h2 class="section-title" style="color: #eab308; font-size: 20px">
+              চলুন দেখে নেই, ধাপে ধাপে আমরা কীভাবে এগোবো
+            </h2>
+            <div class="flow-container">
+              <div class="flow-node">প্রোডাক্ট তৈরি</div>
+              <iconify-icon
+                icon="lucide:arrow-right"
+                style="font-size: 24px; color: #ef4444"
+              ></iconify-icon>
+              <div class="flow-node">ফেসবুক</div>
+              <iconify-icon
+                icon="lucide:arrow-right"
+                style="font-size: 24px; color: #ef4444"
+              ></iconify-icon>
+              <div class="flow-node">কনটেন্ট</div>
+              <iconify-icon
+                icon="lucide:arrow-right"
+                style="font-size: 24px; color: #ef4444"
+              ></iconify-icon>
+              <div class="flow-node">মার্কেট</div>
+              <iconify-icon
+                icon="lucide:arrow-right"
+                style="font-size: 24px; color: #ef4444"
+              ></iconify-icon>
+              <div class="flow-node">সেল</div>
+            </div>
+          </div>
+
+          <!-- Program Outline -->
+          <div class="section-block">
+            <h2 class="section-title text-center" style="color: #3b82f6">
+              প্রোগ্রাম আউটলাইন :
+            </h2>
+            <div class="grid-2">
+              <div class="module-card">
+                <div class="module-header">মডিউল - ১</div>
+                <img
+                  data-aspect-ratio="16:9"
+                  data-query="course module thumbnail introduction dark theme modern presentation"
+                  alt="Module 1"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/5c8ef6e4-1e5b-4e90-a8e5-f6d739509219.jpg"
+                />
+                <div class="module-body">
+                  <div
+                    style="
+                      font-size: 18px;
+                      font-weight: 700;
+                      margin-bottom: 16px;
+                    "
+                  >
+                    পরিচিতি এবং প্রস্তুতি
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ডিজিটাল প্রোডাক্ট বিজনেস কি?</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>কিভাবে শুরু করবেন?</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>প্রোডাক্ট আইডিয়া জেনারেশন</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module-card">
+                <div class="module-header">মডিউল - ২</div>
+                <img
+                  data-aspect-ratio="16:9"
+                  data-query="course module thumbnail website automation dark theme modern"
+                  alt="Module 2"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/afcee6b4-46a8-4b47-ada4-c63c2458322e.jpg"
+                />
+                <div class="module-body">
+                  <div
+                    style="
+                      font-size: 18px;
+                      font-weight: 700;
+                      margin-bottom: 16px;
+                    "
+                  >
+                    ওয়েবসাইট এবং অটোমেশন
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ডোমেইন হোস্টিং সেটআপ</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ল্যান্ডিং পেজ ডিজাইন</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>পেমেন্ট গেটওয়ে ইন্টিগ্রেশন</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module-card">
+                <div class="module-header">মডিউল - ৩</div>
+                <img
+                  data-aspect-ratio="16:9"
+                  data-query="course module thumbnail business strategy dark theme"
+                  alt="Module 3"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/47a5eec6-de74-43d6-8ba8-d9d18a425386.jpg"
+                />
+                <div class="module-body">
+                  <div
+                    style="
+                      font-size: 18px;
+                      font-weight: 700;
+                      margin-bottom: 16px;
+                    "
+                  >
+                    বিজনেসের তৃতীয় দিন
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ফেসবুক পেজ অপ্টিমাইজেশন</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ব্র্যান্ডিং সেটআপ</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>কাস্টমার ট্রাস্ট বিল্ডিং</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module-card">
+                <div class="module-header">মডিউল - ৪</div>
+                <img
+                  data-aspect-ratio="16:9"
+                  data-query="course module thumbnail content creation dark theme"
+                  alt="Module 4"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/e536c70d-ad17-49fa-80b5-3631b052d38e.jpg"
+                />
+                <div class="module-body">
+                  <div
+                    style="
+                      font-size: 18px;
+                      font-weight: 700;
+                      margin-bottom: 16px;
+                    "
+                  >
+                    কনটেন্ট তৈরি
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ভাইরাল কন্টেন্ট আইডিয়া</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ভিডিও এডিটিং বেসিকস</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>কপিরাইটিং হ্যাকস</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module-card">
+                <div class="module-header">মডিউল - ৫</div>
+                <img
+                  data-aspect-ratio="16:9"
+                  data-query="course module thumbnail ai marketing dark theme"
+                  alt="Module 5"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/9a0156ef-5948-43e4-9705-a55e21005b82.jpg"
+                />
+                <div class="module-body">
+                  <div
+                    style="
+                      font-size: 18px;
+                      font-weight: 700;
+                      margin-bottom: 16px;
+                    "
+                  >
+                    এআই মার্কেটিং
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ChatGPT দিয়ে মার্কেটিং</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>অটোমেটেড ইমেইল সিকোয়েন্স</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>চ্যাটবট সেটআপ</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module-card">
+                <div class="module-header">মডিউল - ৬</div>
+                <img
+                  data-aspect-ratio="16:9"
+                  data-query="course module thumbnail facebook ads dark theme"
+                  alt="Module 6"
+                  src="https://storage.googleapis.com/banani-generated-images/generated-images/2b4bf323-d1c6-4458-b7a3-8f4780a0edea.jpg"
+                />
+                <div class="module-body">
+                  <div
+                    style="
+                      font-size: 18px;
+                      font-weight: 700;
+                      margin-bottom: 16px;
+                    "
+                  >
+                    অ্যাড রান
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>ফেসবুক অ্যাডস বেসিক টু প্রো</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>পিক্সেল এবং ট্র্যাকিং</span>
+                  </div>
+                  <div class="bonus-list-item">
+                    <iconify-icon
+                      icon="lucide:check"
+                      style="color: #10b981; margin-top: 2px"
+                    ></iconify-icon>
+                    <span>রিটার্গেটিং স্ট্র্যাটেজি</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile text and Guarantee -->
+          <div class="section-block">
+            <div
+              style="
+                color: #dc2626;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 24px;
+              "
+            >
+              লাইফে কিছু করার ইচ্ছা থাকলে দেরি না করে শুরু করে দিতে পারেন এই
+              কোর্স!
+            </div>
+            <h2 class="section-title text-center" style="color: #eab308">
+              মোবাইল দিয়ে কি কাজগুলো করা সম্ভব?
+            </h2>
+            <p class="text-center" style="color: #d4d4d8">
+              ১০০% সম্ভব। আপনার কিছু ক্ষেত্রে ল্যাপটপের প্রয়োজনে কাস্টমারের থেকে
+              মোবাইল থেকে কাজ করে ল্যাপটপ কাজ করতে হবে এছাড়াও আর কোন কাজই নেই।
+              আপনি নিশ্চিন্তে মোবাইল ফোন দিয়ে শুরু করতে পারবেন। তবে ল্যাপটপ
+              থাকলে কাজগুলো সহজ হয়।
+            </p>
+            <div class="guarantee-box">100% SATISFACTION<br />GUARANTEED</div>
+          </div>
+
+          <!-- Who is it for Section -->
+          <div class="section-block">
+            <h2 class="section-title text-center">
+              ডিজিটাল প্রোডাক্ট বিজনেস বান্ডেলটি কাদের জন্যঃ
+            </h2>
+            <div class="grid-2">
+              <div class="who-card">
+                <iconify-icon
+                  icon="lucide:user-plus"
+                  style="font-size: 24px; color: #60a5fa"
+                ></iconify-icon>
+                <div>যারা নতুন করে অনলাইন বিজনেস শুরু করতে চান</div>
+              </div>
+              <div class="who-card">
+                <iconify-icon
+                  icon="lucide:trending-up"
+                  style="font-size: 24px; color: #60a5fa"
+                ></iconify-icon>
+                <div>যারা প্যাসিভ ইনকাম করতে চান</div>
+              </div>
+              <div class="who-card">
+                <iconify-icon
+                  icon="lucide:clock"
+                  style="font-size: 24px; color: #60a5fa"
+                ></iconify-icon>
+                <div>যাদের অনেক বেশি সময় নেই</div>
+              </div>
+              <div class="who-card">
+                <iconify-icon
+                  icon="lucide:briefcase"
+                  style="font-size: 24px; color: #60a5fa"
+                ></iconify-icon>
+                <div>স্টুডেন্ট বা চাকরিজীবী যারা পার্ট টাইম কিছু করতে চান</div>
+              </div>
+              <div class="who-card">
+                <iconify-icon
+                  icon="lucide:laptop"
+                  style="font-size: 24px; color: #60a5fa"
+                ></iconify-icon>
+                <div>যারা ডিজিটাল মার্কেটিং শিখতে চান</div>
+              </div>
+              <div class="who-card">
+                <iconify-icon
+                  icon="lucide:home"
+                  style="font-size: 24px; color: #60a5fa"
+                ></iconify-icon>
+                <div>যারা ঘরে বসে ইনকাম করতে চান</div>
+              </div>
+              <div class="who-card">
+                <iconify-icon
+                  icon="lucide:star"
+                  style="font-size: 24px; color: #60a5fa"
+                ></iconify-icon>
+                <div>যারা নিজের একটি ব্র্যান্ড তৈরি করতে চান</div>
+              </div>
+              <div class="who-card">
+                <iconify-icon
+                  icon="lucide:wallet"
+                  style="font-size: 24px; color: #60a5fa"
+                ></iconify-icon>
+                <div>যাদের ইনভেস্টমেন্ট কম</div>
+              </div>
+            </div>
+
+            <div
+              style="margin-top: 40px"
+              class="text-center"
+              data-media-type="banani-button"
+            >
+              <button class="cta-button btn-purple">এখনই এনরোল করুন</button>
+            </div>
+          </div>
+
+          <!-- Inside the program -->
+          <div class="section-block">
+            <h2 class="section-title text-center" style="color: #eab308">
+              প্রোগ্রামের ভিতরে যা কিছু পাচ্ছেন
+            </h2>
+            <div class="grid-3">
+              <div class="inside-card">
+                <iconify-icon
+                  icon="lucide:check-circle-2"
+                  style="font-size: 32px; color: #dc2626"
+                ></iconify-icon>
+                <div class="font-bold">৬ টি বিস্তারিত মডিউল</div>
+              </div>
+              <div class="inside-card">
+                <iconify-icon
+                  icon="lucide:check-circle-2"
+                  style="font-size: 32px; color: #dc2626"
+                ></iconify-icon>
+                <div class="font-bold">৩০+ রেকর্ডেড ভিডিও</div>
+              </div>
+              <div class="inside-card">
+                <iconify-icon
+                  icon="lucide:check-circle-2"
+                  style="font-size: 32px; color: #dc2626"
+                ></iconify-icon>
+                <div class="font-bold">প্র্যাকটিক্যাল ক্লাস</div>
+              </div>
+              <div class="inside-card">
+                <iconify-icon
+                  icon="lucide:check-circle-2"
+                  style="font-size: 32px; color: #dc2626"
+                ></iconify-icon>
+                <div class="font-bold">প্রিমিয়াম রিসোর্স ও টুলস</div>
+              </div>
+              <div class="inside-card">
+                <iconify-icon
+                  icon="lucide:check-circle-2"
+                  style="font-size: 32px; color: #dc2626"
+                ></iconify-icon>
+                <div class="font-bold">লাইফটাইম এক্সেস</div>
+              </div>
+              <div class="inside-card">
+                <iconify-icon
+                  icon="lucide:check-circle-2"
+                  style="font-size: 32px; color: #dc2626"
+                ></iconify-icon>
+                <div class="font-bold">প্রাইভেট সাপোর্ট গ্রুপ</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Countdown Section -->
+          <div class="section-block">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 32px;
+                flex-wrap: wrap;
+                width: 100%;
+              "
+            >
+              <h2 class="font-bold" style="font-size: 20px">
+                আপনার পরবর্তী লক্ষ্য হোক
+              </h2>
+              <div style="display: flex; gap: 12px">
+                <div class="countdown-box">
+                  <div class="countdown-num">12</div>
+                  <div class="countdown-label">Hours</div>
+                </div>
+                <div class="countdown-box">
+                  <div class="countdown-num">58</div>
+                  <div class="countdown-label">Minutes</div>
+                </div>
+                <div class="countdown-box">
+                  <div class="countdown-num">17</div>
+                  <div class="countdown-label">Seconds</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- At a Glance Section -->
+          <div class="section-block">
+            <h2 class="section-title text-center" style="color: #eab308">
+              <iconify-icon
+                icon="lucide:play"
+                style="font-size: 24px"
+              ></iconify-icon>
+              এক নজরে কি কি পাচ্ছেন
+            </h2>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                align-items: center;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  font-weight: bold;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:check-circle"
+                  style="font-size: 20px; color: #16a34a"
+                ></iconify-icon>
+                লাইফটাইম এক্সেস
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  font-weight: bold;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:check-circle"
+                  style="font-size: 20px; color: #16a34a"
+                ></iconify-icon>
+                প্রিমিয়াম টুলস ও রিসোর্স
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  font-weight: bold;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:check-circle"
+                  style="font-size: 20px; color: #16a34a"
+                ></iconify-icon>
+                প্রাইভেট সাপোর্ট গ্রুপ
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  font-weight: bold;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:check-circle"
+                  style="font-size: 20px; color: #16a34a"
+                ></iconify-icon>
+                ফ্রি আপডেট
+              </div>
+            </div>
+
+            <div
+              style="
+                margin-top: 40px;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                font-style: italic;
+                color: #d4d4d8;
+                max-width: 600px;
+              "
+            >
+              "আপনাকে সফল উদ্যোক্তা হিসেবে তৈরি করার জন্য বিজনেস সেটাপ করার জন্য
+              যা যা লাগবে সব কিছু দিব আমরাই"
+            </div>
+          </div>
+
+          <!-- FAQ Section -->
+          <div class="section-block">
+            <h2 class="section-title text-center" style="color: #eab308">
+              <iconify-icon
+                icon="lucide:play"
+                style="font-size: 24px"
+              ></iconify-icon>
+              কোর্স সম্পর্কে তথ্য ও জিজ্ঞাসা
+            </h2>
+            <div style="width: 100%; max-width: 700px">
+              <div class="faq-item">
+                <div class="faq-header">
+                  <span>আমি একদম নতুন, আমি কি পারবো?</span>
+                  <iconify-icon
+                    icon="lucide:plus"
+                    style="font-size: 20px; color: #a1a1aa"
+                  ></iconify-icon>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-header">
+                  <span>কোর্সটি কিভাবে করতে পারবো?</span>
+                  <iconify-icon
+                    icon="lucide:plus"
+                    style="font-size: 20px; color: #a1a1aa"
+                  ></iconify-icon>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-header">
+                  <span>সাপোর্ট কিভাবে পাবো?</span>
+                  <iconify-icon
+                    icon="lucide:plus"
+                    style="font-size: 20px; color: #a1a1aa"
+                  ></iconify-icon>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-header">
+                  <span>মোবাইল দিয়ে কি করা যাবে?</span>
+                  <iconify-icon
+                    icon="lucide:plus"
+                    style="font-size: 20px; color: #a1a1aa"
+                  ></iconify-icon>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-header">
+                  <span>কত দিন সময় লাগতে পারে?</span>
+                  <iconify-icon
+                    icon="lucide:plus"
+                    style="font-size: 20px; color: #a1a1aa"
+                  ></iconify-icon>
+                </div>
+              </div>
+              <div class="faq-item">
+                <div class="faq-header">
+                  <span>পেমেন্ট কিভাবে করবো?</span>
+                  <iconify-icon
+                    icon="lucide:plus"
+                    style="font-size: 20px; color: #a1a1aa"
+                  ></iconify-icon>
+                </div>
+              </div>
+            </div>
+
+            <div
+              style="margin-top: 32px"
+              class="text-center"
+              data-media-type="banani-button"
+            >
+              <button
+                class="cta-button"
+                style="
+                  background-color: #f1f5f9;
+                  color: #dc2626;
+                  border: 1px solid #dc2626;
+                  max-width: auto;
+                "
+              >
+                <iconify-icon icon="lucide:play-circle"></iconify-icon>
+                বিস্তারিত পেমেন্ট প্রসেস ভিডিও দেখুন
+              </button>
+            </div>
+          </div>
+
+          <!-- Enrollment CTA Banner -->
+          <div class="section-block">
+            <div
+              style="
+                background-color: #1e1b4b;
+                border: 1px solid #3730a3;
+                padding: 24px;
+                border-radius: 8px;
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                gap: 24px;
+              "
+            >
+              <div style="font-size: 20px; font-weight: bold; color: #ffffff">
+                ৯০% ছাড়ে আজীবন অ্যাক্সেস মাত্র ২৯৯ টাকায়
+              </div>
+              <div data-media-type="banani-button">
+                <button
+                  class="cta-button btn-yellow"
+                  style="padding: 12px 24px; font-size: 16px"
+                >
+                  এখনি অর্ডার করুন
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Still thinking Section -->
+          <div class="section-block">
+            <h2 class="section-title text-center" style="color: #eab308">
+              <iconify-icon
+                icon="lucide:play"
+                style="font-size: 24px"
+              ></iconify-icon>
+              এখনো ভাবছেন কোর্সটি করবেন কিনা?
+            </h2>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                width: 100%;
+                max-width: 700px;
+              "
+            >
+              <div class="bonus-list-item">
+                <iconify-icon
+                  icon="lucide:check-circle"
+                  style="color: #dc2626; margin-top: 2px; font-size: 20px"
+                ></iconify-icon>
+                <span
+                  >আপনাকে একটুকুও চিন্তা করতে হবে না, আমরা আপনাকে দেখিয়ে দিবো
+                  কিভাবে শুরু করবেন, কিভাবে কি করবেন।</span
+                >
+              </div>
+              <div class="bonus-list-item">
+                <iconify-icon
+                  icon="lucide:check-circle"
+                  style="color: #dc2626; margin-top: 2px; font-size: 20px"
+                ></iconify-icon>
+                <span
+                  >যদি সেলস এবং মার্কেটিং সম্পর্কে কিছুই নাও জানেন, তাহলেও এই
+                  কোর্সটি আপনার জন্য।</span
+                >
+              </div>
+              <div class="bonus-list-item">
+                <iconify-icon
+                  icon="lucide:check-circle"
+                  style="color: #dc2626; margin-top: 2px; font-size: 20px"
+                ></iconify-icon>
+                <span
+                  >কোর্স এনরোল করার পর আপনি একটি প্রাইভেট সাপোর্ট গ্রুপ পাবেন,
+                  যেখানে আপনার যেকোনো প্রশ্ন জিজ্ঞাসা করতে পারবেন।</span
+                >
+              </div>
+            </div>
+
+            <div
+              style="
+                margin-top: 32px;
+                border: 1px solid #16a34a;
+                padding: 12px 24px;
+                border-radius: 999px;
+                display: inline-flex;
+                align-items: center;
+                gap: 12px;
+                font-weight: bold;
+              "
+            >
+              <span style="font-size: 20px">4,427+</span>
+              <span style="color: #a1a1aa; font-weight: normal"
+                >Students Enrolled</span
+              >
+              <div style="display: flex; color: #eab308">
+                <iconify-icon
+                  icon="lucide:star"
+                  style="font-size: 16px"
+                ></iconify-icon>
+                <iconify-icon
+                  icon="lucide:star"
+                  style="font-size: 16px"
+                ></iconify-icon>
+                <iconify-icon
+                  icon="lucide:star"
+                  style="font-size: 16px"
+                ></iconify-icon>
+                <iconify-icon
+                  icon="lucide:star"
+                  style="font-size: 16px"
+                ></iconify-icon>
+                <iconify-icon
+                  icon="lucide:star"
+                  style="font-size: 16px"
+                ></iconify-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checkout Form -->
+          <div class="section-block" style="margin-bottom: 40px">
+            <h2
+              style="
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 32px;
+              "
+            >
+              অর্ডার করতে আপনার সঠিক তথ্য দিয়ে নিচের ফর্মটি পূরণ করুন।
+            </h2>
+
+            <div class="checkout-container">
+              <div
+                style="
+                  font-size: 18px;
+                  font-weight: 700;
+                  margin-bottom: 24px;
+                  border-bottom: 1px solid #e5e7eb;
+                  padding-bottom: 12px;
+                "
+              >
+                বিলের তথ্য পূরণ করুন
+              </div>
+
+              <div class="grid-2">
+                <div>
+                  <div class="form-group">
+                    <label class="form-label">আপনার নাম *</label>
+                    <div class="form-input">আপনার নাম লিখুন</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">আপনার মোবাইল নাম্বার *</label>
+                    <div class="form-input">আপনার মোবাইল নাম্বার লিখুন</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">আপনার ইমেইল (ঐচ্ছিক)</label>
+                    <div class="form-input">আপনার ইমেইল লিখুন</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="order-summary-box">
+                    <div
+                      style="
+                        font-size: 16px;
+                        font-weight: 700;
+                        margin-bottom: 16px;
+                      "
+                    >
+                      আপনার অর্ডার
+                    </div>
+
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        border-bottom: 1px solid #d1d5db;
+                        padding-bottom: 12px;
+                        margin-bottom: 12px;
+                        font-weight: 600;
+                      "
+                    >
+                      <span>Product</span>
+                      <span>Subtotal</span>
+                    </div>
+
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-bottom: 1px solid #d1d5db;
+                        padding-bottom: 12px;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <div
+                        style="display: flex; align-items: center; gap: 12px"
+                      >
+                        <div
+                          style="
+                            width: 40px;
+                            height: 40px;
+                            background-color: #e5e7eb;
+                            border-radius: 4px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                          "
+                        >
+                          <iconify-icon
+                            icon="lucide:image"
+                            style="color: #9ca3af"
+                          ></iconify-icon>
+                        </div>
+                        <span style="font-size: 14px; max-width: 150px"
+                          >Digital Product Selling Blueprint</span
+                        >
+                      </div>
+                      <span style="font-weight: 600">৳299.00</span>
+                    </div>
+
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 12px;
+                      "
+                    >
+                      <span>Subtotal</span>
+                      <span style="font-weight: 600">৳299.00</span>
+                    </div>
+
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 12px;
+                        font-size: 18px;
+                        font-weight: 700;
+                      "
+                    >
+                      <span>Total</span>
+                      <span>৳299.00</span>
+                    </div>
+                  </div>
+
+                  <div class="payment-method">
+                    <div
+                      style="
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        border: 6px solid #8b5cf6;
+                        background-color: white;
+                        flex-shrink: 0;
+                      "
+                    ></div>
+                    <span style="font-weight: 600">bKash / Nagad / Rocket</span>
+                  </div>
+
+                  <div
+                    style="
+                      font-size: 12px;
+                      color: #6b7280;
+                      margin-top: 12px;
+                      line-height: 1.5;
+                    "
+                  >
+                    আপনার পার্সোনাল ডেটা এই ওয়েবসাইটের অভিজ্ঞতা উন্নত করতে
+                    ব্যবহার করা হবে।
+                  </div>
+
+                  <div style="margin-top: 24px" data-media-type="banani-button">
+                    <button
+                      class="cta-button btn-purple"
+                      style="width: 100%; border-radius: 8px"
+                    >
+                      <iconify-icon icon="lucide:lock"></iconify-icon>
+                      Place Order ৳299.00
+                    </button>
+                  </div>
+                  <div
+                    style="
+                      text-align: center;
+                      margin-top: 12px;
+                      font-size: 12px;
+                      color: #9ca3af;
+                    "
+                  >
+                    Secured by SSLCommerz
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+  </html>
+  <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+  <style>
+    :root {
+      --background: #0b0b0c;
+      --foreground: #e8eef6;
+      --border: #00000014;
+      --input: #0f1720;
+      --primary: #00d084;
+      --primary-foreground: #042014;
+      --secondary: #15212a;
+      --secondary-foreground: #cfeee0;
+      --muted: #101214;
+      --muted-foreground: #98a0aa;
+      --success: #16a34a;
+      --success-foreground: #0c1f13;
+      --accent: #ff7a18;
+      --accent-foreground: #241205;
+      --destructive: #ff3b30;
+      --destructive-foreground: #2b0908;
+      --warning: #ffb020;
+      --warning-foreground: #2a1700;
+      --card: #071018;
+      --card-foreground: #ecf6ff;
+      --sidebar: #061018;
+      --sidebar-foreground: #9fdcc3;
+      --sidebar-primary: #083225;
+      --sidebar-primary-foreground: #bff6d9;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --radius-xl: 12px;
+      --font-family-body: Inter;
+    }
+  </style>
+</div>

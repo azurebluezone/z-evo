@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>অ্যাডমিন UI রিভিউ — Materialize (Vertical Menu) বনাম আমাদের বর্তমান অবস্থা</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#fff; --ink:#111827; --ink-2:#4b5563; --ink-3:#6b7280;
+    --line:#e5e7eb; --line-2:#f3f4f6;
+    --brand:#16a34a; --brand-dk:#14532d; --brand-lt:#dcfce7;
+    --warn:#b45309; --warn-bg:#fef3c7;
+    --bad:#b91c1c;  --bad-bg:#fee2e2;
+    --info:#1d4ed8; --info-bg:#dbeafe;
+    --ok:#15803d;   --ok-bg:#dcfce7;
+    --radius:14px; --shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0b0f14; --card:#121821; --ink:#e5e7eb; --ink-2:#9ca3af; --ink-3:#9ca3af;
+      --line:#1f2a37; --line-2:#182130;
+      --brand-lt:#052e16; --warn-bg:#422006; --bad-bg:#450a0a; --info-bg:#172554; --ok-bg:#052e16;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Bengali","Hind Siliguri",sans-serif;
+  }
+  a{color:var(--info)}
+  code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+  header.hero{
+    background:linear-gradient(135deg,#052e16 0%,#166534 55%,#15803d 100%);
+    color:#fff;padding:56px 0 44px;position:relative;overflow:hidden
+  }
+  header.hero:after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(600px 240px at 85% -10%,rgba(255,255,255,.18),transparent 70%);
+    pointer-events:none
+  }
+  .eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:12px;opacity:.85;font-weight:600}
+  h1{font-size:clamp(26px,4.2vw,42px);line-height:1.2;margin:10px 0 12px;font-weight:800}
+  .sub{font-size:17px;max-width:70ch;opacity:.95}
+  .meta{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
+  .pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:999px;font-size:13px}
+
+  nav.toc{
+    position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--card) 92%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)
+  }
+  nav.toc .wrap{display:flex;gap:6px;overflow-x:auto;padding:9px 20px}
+  nav.toc a{white-space:nowrap;text-decoration:none;color:var(--ink-2);font-size:13.5px;font-weight:600;padding:5px 10px;border-radius:8px}
+  nav.toc a:hover{background:var(--line-2);color:var(--ink)}
+
+  section{padding:38px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:24px;margin:0 0 6px;font-weight:800;letter-spacing:-.01em}
+  h2 .n{color:var(--brand);font-variant-numeric:tabular-nums;margin-right:8px}
+  h3{font-size:18px;margin:26px 0 10px;font-weight:700}
+  .lead{color:var(--ink-2);max-width:78ch;margin:0 0 18px}
+
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .stat .n{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+  .stat .l{color:var(--ink-3);font-size:13px;margin-top:4px}
+  .stat.ok .n{color:var(--ok)} .stat.warn .n{color:var(--warn)} .stat.bad .n{color:var(--bad)}
+
+  .callout{border-radius:var(--radius);padding:16px 18px;border:1px solid var(--line);background:var(--card);margin:16px 0}
+  .callout.ok{background:var(--ok-bg);border-color:transparent}
+  .callout.warn{background:var(--warn-bg);border-color:transparent}
+  .callout.bad{background:var(--bad-bg);border-color:transparent}
+  .callout.info{background:var(--info-bg);border-color:transparent}
+  .callout b{display:block;margin-bottom:4px}
+
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;font-size:14.5px}
+  th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line-2);vertical-align:top}
+  th{background:var(--line-2);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tw{overflow-x:auto;margin:14px 0}
+
+  .tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .t-ok{background:var(--ok-bg);color:var(--ok)}
+  .t-warn{background:var(--warn-bg);color:var(--warn)}
+  .t-bad{background:var(--bad-bg);color:var(--bad)}
+  .t-info{background:var(--info-bg);color:var(--info)}
+  .t-none{background:var(--line-2);color:var(--ink-3)}
+
+  pre{background:#0d1117;color:#e6edf3;padding:14px 16px;border-radius:10px;overflow-x:auto;font-size:13px;line-height:1.55}
+  pre .c{color:#8b949e} pre .k{color:#ff7b72} pre .s{color:#a5d6ff}
+
+  ul.tight{margin:8px 0 0;padding-left:20px}
+  ul.tight li{margin:5px 0}
+
+  .file{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--ink-2);
+        background:var(--line-2);border:1px solid var(--line);border-radius:7px;padding:2px 7px;display:inline-block}
+
+  .phase{border-left:4px solid var(--brand);padding:2px 0 2px 16px;margin:22px 0}
+  .phase h3{margin:0 0 4px}
+  .phase.warn{border-color:var(--warn)}
+  .phase.bad{border-color:var(--bad)}
+
+  .kbd{font:12px ui-monospace,Menlo,monospace;background:var(--line-2);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px}
+
+  footer{padding:34px 0 60px;color:var(--ink-3);font-size:13.5px}
+  .note{font-size:13px;color:var(--ink-3)}
+  @media print{nav.toc{display:none} body{background:#fff} .card{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Admin UI Review · ২০২৬-১০-১২</div>
+    <h1>Materialize “Vertical Menu” টেমপ্লেট: আমাদের অ্যাডমিনে কী কাজে লাগবে</h1>
+    <p class="sub">
+      যে ডেমো লিংক দিয়েছেন (<code>demos.pixinvent.com/materialize…/vertical-menu-template</code>) — সেটা আমাদের অ্যাডমিনের
+      <b>আগে থেকেই বেস টেমপ্লেট</b>। নিচে প্রমাণসহ বলা হয়েছে: আমাদের কোথায় কী ইতিমধ্যে আছে, কোন কম্পোনেন্টগুলো শুধু
+      ফাইলে পড়ে আছে কিন্তু চালু নেই, কোনগুলো বসালে প্রোডাক্টিভিটি বাড়বে, আর আগের রিপোর্টে যে বাগগুলো পাওয়া গিয়েছিল
+      সেগুলোর অবস্থা।
+    </p>
+    <div class="meta">
+      <span class="pill">১৮১টি অ্যাডমিন ব্লেড</span>
+      <span class="pill">৫৫টি Admin কন্ট্রোলার</span>
+      <span class="pill">Bootstrap 5.3 · Laravel 10</span>
+      <span class="pill">সবকিছু ইভিডেন্স-ভিত্তিক</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#verdict">১ · সিদ্ধান্ত</a>
+    <a href="#current">২ · বর্তমান অবস্থা</a>
+    <a href="#inventory">৩ · কম্পোনেন্ট ইনভেন্টরি</a>
+    <a href="#map">৪ · কোথায় কোন component</a>
+    <a href="#companies">৫ · কারা এমন admin ব্যবহার করে</a>
+    <a href="#python">৬ · Python দিয়ে হবে?</a>
+    <a href="#bugs">৭ · বাগ ও গ্যাপ</a>
+    <a href="#plan">৮ · করণীয়</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- 1 -->
+<section id="verdict">
+  <h2><span class="n">১</span>সিদ্ধান্ত — এক বাক্যে</h2>
+  <div class="callout ok">
+    <b>নতুন টেমপ্লেট আনতে হবে না।</b>
+    Materialize ইতিমধ্যেই আমাদের অ্যাডমিনের স্কেলিং-পয়েন্ট। যা নেই তা নতুন ডিজাইন নয় — যে কম্পোনেন্টগুলো
+    ফাইলে বানানো আছে কিন্তু কোথাও কানেক্ট করা হয়নি, সেগুলো চালু করলেই বেশিরভাগ উন্নতি পাওয়া যাবে।
+  </div>
+  <div class="grid g3">
+    <div class="card stat ok"><div class="n">৮৯%</div><div class="l">অ্যাডমিন স্ক্রিন ইতিমধ্যেই Materialize-এর vertical-menu স্কিলেটে চলছে</div></div>
+    <div class="card stat ok"><div class="n">২টি</div><div class="l">লাইব্রেরি এখন সত্যিই চালু — DataTables (৮টি তালিকা) ও SweetAlert2 (৫৯টি ক্লাস)</div></div>
+    <div class="card stat warn"><div class="n">৫টি</div><div class="l">এখনও অচালু লাইব্রেরি (dropzone, notiflix, jkanban, fullcalendar, bs-stepper)</div></div>
+  </div>
+  <ul class="tight">
+    <li><b>হয়ে গেছে:</b> DataTables এখন ৮টি অ্যাডমিন তালিকায় সার্ভার-সাইড সার্চ/সর্ট/পেজিং করে (<code>backEnd/partials/datatable.blade.php</code> + <code>admin-datatable.js</code>)। SweetAlert2 দিয়ে ৫৯টি delete/change নিশ্চিতকরণ সংযুক্ত। বাটনগুলো একটি কম্পোনেন্টে (<code>&lt;x-admin.button&gt;</code>)।</li>
+    <li><b>সবচেয়ে সস্তা:</b> অ্যাডমিনের প্রতিটা পেজে ThemeForest-এর নিজস্ব SEO ক্রাফট বসানো আছে (<code>seo-fields.blade.php</code>) — মুছলেই ফার্ক, ঝুঁকি শূন্য।</li>
+    <li><b>সবচেয়ে বিপজ্জনক:</b> <code>GET /admin/locked</code> যে কোনো ভিজিটরকে সাইট-লক করতে দেয়। এটা ফ্রন্টএন্ড সাজানোর বিষয় না, কিন্তু রিপোর্টে রাখা উচিত।</li>
+  </ul>
+
+  <div class="callout fix">
+    <b>আগের রিপোর্টের দুটি দাবি ভুল ছিল, এখন সংশোধিত:</b><br>
+    ১) “DataTables-এর মূল লাইব্রেরি নেই” — ভুল। <code>datatables-bootstrap5.js</code>-ই একটি ২.৪ MB UMD বান্ডিল যেটার ভেতরে core আছে;
+    ব্রাউজারে <code>DataTable v2.1.8</code> দেখা যায়। শুধু responsive ও buttons এক্সটেনশন আলাদা ফাইলে লেগেছে।<br>
+    ২) SweetAlert2-এর “ফোল্ডার সম্পূর্ণ খালি” — সেটা টেমপ্লেট প্যাকেজের বক্স ছিল; ফাইল এখন আনা হয়েছে এবং চালু।
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="current">
+  <h2><span class="n">২</span>আমাদের বর্তমান অবস্থা</h2>
+  <p class="lead">প্রতিটি দাবির পাশে ফাইল/লাইন, যাতে আপনি নিজে যাচাই করতে পারেন।</p>
+
+  <div class="grid g4">
+    <div class="card stat"><div class="n">181</div><div class="l">অ্যাডমিন ব্লেড ফাইল</div></div>
+    <div class="card stat"><div class="n">160</div><div class="l">যেগুলো <code>backEnd.layouts.app</code> extend করে</div></div>
+    <div class="card stat"><div class="n">55</div><div class="l">Admin কন্ট্রোলার</div></div>
+    <div class="card stat"><div class="n">573</div><div class="l">সাইডবার লাইন (<span class="file">partials/sidebar.blade.php</span>)</div></div>
+  </div>
+
+  <h3>প্রমাণ: আমরা ইতিমধ্যেই Materialize ব্যবহার করি</h3>
+  <p><span class="file">resources/views/backEnd/layouts/app.blade.php</span>-এর প্রথম কয়েক লাইন, ডেমোর <code>&lt;html&gt;</code> ট্যাগের হুবহু মিল:</p>
+<pre><span class="c">&lt;!-- আমাদের app.blade.php --&gt;</span>
+&lt;html lang="en"
+  <span class="k">class</span>=<span class="s">"layout-navbar-fixed layout-menu-fixed layout-compact"</span>
+  dir=<span class="s">"ltr"</span> data-skin=<span class="s">"default"</span> data-bs-theme=<span class="s">"light"</span>
+  data-assets-path=<span class="s">"{{ asset('admin/assets') }}/"</span>
+  data-template=<span class="s">"vertical-menu-template"</span>&gt;</pre>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>Materialize ডেমোর অংশ</th><th>আমাদের অবস্থান</th><th>অবস্থা</th></tr></thead>
+    <tbody>
+      <tr><td>Vertical menu + submenu + <code>menu-header</code> গ্রুপিং</td><td><span class="file">backEnd/layouts/partials/sidebar.blade.php</span> (৫৭৩ লাইন)</td><td><span class="tag t-ok">আছে ও ব্যবহৃত</span></td></tr>
+      <tr><td>Navbar + search + user dropdown</td><td><span class="file">partials/navbar.blade.php</span> (১৬৭ লাইন)</td><td><span class="tag t-ok">আছে ও ব্যবহৃত</span></td></tr>
+      <tr><td>Layout wrapper / content-backdrop</td><td><span class="file">layouts/app.blade.php</span></td><td><span class="tag t-ok">আছে</span></td></tr>
+      <tr><td>Helpers + template-customizer + config</td><td>head-এ একই তিনটি স্ক্রিপ্ট</td><td><span class="tag t-ok">আছে</span></td></tr>
+      <tr><td>Theme CSS / vendors / assets</td><td><span class="file">public/admin/assets/**</span> (~vendor libs ২৫+)</td><td><span class="tag t-ok">আছে</span></td></tr>
+      <tr><td>দ্বিতীয় legacy layout</td><td><span class="file">backEnd/layouts/master.blade.php</span> (৭১৭ লাইন)</td><td><span class="tag t-bad">dead — কোনো view এটি ব্যবহার করে না</span></td></tr>
+      <tr><td>তৃতীয় অবশিষ্ট</td><td><span class="file">backEnd/layouts/0app.blade.php</span> + <span class="file">layouts.zip</span></td><td><span class="tag t-bad">dead</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <b>লাইসেন্স — একটু চেক করে নিন।</b>
+    ডেমো ফাইলের হেডারে লেখা: <i>“You must have a valid license purchased in order to legally use the theme.”</i>
+    আমাদের কোডে সেই কমেন্ট সরানো হয়েছে, কিন্তু অ্যাসেটগুলো ThemeForest-এর Materialize-এর। প্রোডাকশনে যাওয়ার আগে
+    লাইসেন্স রসিদ ফাইলে রাখুন — এটাই একমাত্র আইনি ঝুঁকি।
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="inventory">
+  <h2><span class="n">৩</span>কম্পোনেন্ট ইনভেন্টরি — আছে / নেই / আছে কিন্তু অচালু</h2>
+  <p class="lead">
+    ডেমো সাইটের মেনু থেকে প্রতিটি কম্পোনেন্ট আমাদের <code>public/admin/assets</code>-এ ও view-এ খুঁজেছি।
+    <span class="tag t-warn">⚠️ অচালু</span> মানে ফাইল আছে, কিন্তু কোনো view বা JS-এ initialize হয়নি — ফাইল শুধু ডিস্কে সময় নিচ্ছে।
+  </p>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>কম্পোনেন্ট</th><th>অবস্থা</th><th>প্রমাণ</th><th>ব্যবহার করলে যা পাওয়া যায়</th></tr></thead>
+    <tbody>
+      <tr><td>DataTables (+buttons, +responsive)</td><td><span class="tag t-ok">চালু</span></td><td><code>backEnd/partials/datatable.blade.php</code> + <code>admin-datatable.js</code>; ব্রাউজারে <code>DataTable v2.1.8</code>, ৮টি তালিকায় সার্ভার-সাইড সার্চ/সর্ট/পেজিং। responsive এক্সটেনশনও বসানো হয়েছে</td><td>বড় তালিকায় সার্চ/সর্ট/সার্ভার-সাইড পেজিং — হয়ে গেছে</td></tr>
+      <tr><td>Dropzone (ফাইল আপলোড)</td><td><span class="tag t-warn">অচালু</span></td><td>লাইব্রেরি আছে, view-এ ০ রেফারেন্স</td><td>ড্র্যাগ-অ্যান্ড-ড্রপ মাল্টি-ইমেজ আপলোড, preview সহ</td></tr>
+      <tr><td>SweetAlert2</td><td><span class="tag t-ok">চালু</span></td><td><code>admin-confirm.js</code> দিয়ে ৩৩টি <code>.delete-confirm</code> ও ২৬টি <code>.change-confirm</code> হুক সংযুক্ত (আগে কোনো হ্যান্ডলারই ছিল না)</td><td>“মুছবেন নিশ্চিত?” সংলাপ — হয়ে গেছে</td></tr>
+      <tr><td>Notiflix</td><td><span class="tag t-warn">অচালু</span></td><td>লাইব্রেরি আছে, view-এ ০ রেফারেন্স</td><td>Toastr-এর বদলে দেখতে পরিষ্কার নোটিফিকেশন</td></tr>
+      <tr><td>Kanban</td><td><span class="tag t-warn">অচালু</span></td><td>লাইব্রেরি আছে, view-এ ০ রেফারেন্স</td><td>অর্ডারগুলো ড্র্যাগ করে Pending→Packed→Shipped</td></tr>
+      <tr><td>FullCalendar</td><td><span class="tag t-warn">অচালু</span></td><td>লাইব্রেরি আছে, view-এ ০ রেফারেন্স</td><td>কুরিয়ার পিকআপ ও ডেলিভারি ক্যালেন্ডার</td></tr>
+      <tr><td>BS Stepper</td><td><span class="tag t-warn">অচালু</span></td><td>লাইব্রেরি আছে, view-এ ০ রেফারেন্স</td><td>প্রোডাক্ট তৈরির multistep ফর্ম (Basic→Price→Stock→Variants)</td></tr>
+      <tr><td>Select2</td><td><span class="tag t-ok">চালু</span></td><td>৩৩টি view-এ ব্যবহৃত</td><td>—</td></tr>
+      <tr><td>Quill (rich text)</td><td><span class="tag t-ok">চালু</span></td><td>১৭টি view-এ ব্যবহৃত</td><td>—</td></tr>
+      <tr><td>ApexCharts</td><td><span class="tag t-ok">চালু</span></td><td>৩টি view-এ ব্যবহৃত</td><td>—</td></tr>
+      <tr><td>Flatpickr / Pickr</td><td><span class="tag t-ok">চালু</span></td><td>২টি / ৪টি view</td><td>—</td></tr>
+      <tr><td>Form validation (@form-validation)</td><td><span class="tag t-info">আছে</span></td><td>লাইব্রেরি আছে, ইউজ অপ্রয়োগিত</td><td>সার্ভার ভ্যালিডেশনের সাথে মিলিয়ে ইনলাইন এরর</td></tr>
+      <tr><td>Tour (guided onboarding)</td><td><span class="tag t-none">নেই</span></td><td>—</td><td>নতুন স্টাফকে প্রথমবার অ্যাডমিন শেখানো</td></tr>
+      <tr><td>Perfect scrollbar</td><td><span class="tag t-info">আছে</span></td><td>লাইব্রেরি আছে</td><td>৫৭৩ লাইনের সাইডবারে স্ক্রল সুন্দর হবে</td></tr>
+      <tr><td>i18n</td><td><span class="tag t-info">আছে</span></td><td>লাইব্রেরি আছে</td><td>অ্যাডমিন বাংলায় করা</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout info">
+    <b>সংশোধন (২০২৬-১০-১২ পরে যাচাই ও বাস্তবায়ন):</b>
+    DataTables ও SweetAlert2 এখন লেআউটে লোড হয় এবং কাজ করছে — ৮টি অ্যাডমিন তালিকা সার্ভার-সাইড গ্রিডে,
+    ৫৯টি delete/change কাজ নিশ্চিতকরণসহ। বাকি ৫টি (dropzone, notiflix, jkanban, fullcalendar, bs-stepper)
+    এখনও লোড হয় না, তাই অপ্রয়োগিত বাইট ডাউনলোড হচ্ছে না।<br>
+    আগের দাবি “DataTables core ও SweetAlert2-এর ফাইল নেই” ভুল ছিল: <code>datatables-bootstrap5.js</code>-ই
+    একটি সম্পূর্ণ UMD বান্ডিল (ব্রাউজারে <code>DataTable v2.1.8</code>), আর SweetAlert2 এখন আনা হয়েছে।
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="map">
+  <h2><span class="n">৪</span>কোন component কোথায় বসবে — ফলাফল সহ</h2>
+  <p class="lead">প্রতিটি আইটেমে দেওয়া আছে: কোন স্ক্রিন, আজকের সমস্যা, কম্পোনেন্ট কী বদলাবে, এবং আনুমানিক সময়।</p>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>অগ্রাধিকার</th><th>স্ক্রিন</th><th>আজকের সমস্যা</th><th>বসবে</th><th>ফলাফল</th><th>সময়</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tag t-bad">P0</span></td>
+        <td>Order list<br><span class="file">backEnd/order/index.blade.php</span></td>
+        <td>সার্ভার-সাইড Laravel pagination; কোনো সার্চ/সর্ট নেই, স্ট্যাটাস ফিল্টার নেই</td>
+        <td>DataTables (server-side) + Buttons (CSV/Excel export) + Status tabs</td>
+        <td>১০০০+ অর্ডারে ২ সেকেন্ডে খুঁজে বের করা; স্ট্যাটাস-ভিত্তিক ব্যাচ কাজ (কুরিয়ারে দেওয়া)</td>
+        <td class="num">৪–৬ ঘণ্টা</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-bad">P0</span></td>
+        <td>Product list<br><span class="file">product/index.blade.php</span></td>
+        <td><code>#productsTable</code> ক্লাস বসানো হয়েছে কিন্তু JS নেই → টেবিলটা সম্পূর্ণ স্থির; স্টক ফিল্টার নেই</td>
+        <td>DataTables + inline edit (st��ক/দাম) + Dropzone থাম্বনেইল</td>
+        <td>স্টক আপডেট ব্রাউজার ছাড়াই; বাল্ক দাম/স্টক এডিট</td>
+        <td class="num">৬–৮ ঘণ্টা</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-warn">P1</span></td>
+        <td>সব delete/edit ফর্ম</td>
+        <td>ভুলে চাপলে ডেটা হারায় (কোনো confirm নেই)</td>
+        <td>SweetAlert2 confirm + Notiflix toast</td>
+        <td>ভুল-ক্লিকের ক্ষতি শূন্য; সাফল্য বার্তা সব জায়গায় এক রকম</td>
+        <td class="num">৩ ঘণ্টা</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-warn">P1</span></td>
+        <td>Order pipeline<br><span class="file">order/*</span></td>
+        <td>অর্ডারের অবস্থা বদলাতে প্রতিবার পেজ রিলোড</td>
+        <td>Kanban বোর্ড (New → Confirmed → Packed → Shipped)</td>
+        <td>ড্র্যাগ-এন্ড-ড্রপে স্ট্যাটাস, সাথে সাথে সেভ; ওয়ার্কারের দক্ষতা ২–৩×</td>
+        <td class="num">৮–১২ ঘণ্টা</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-warn">P1</span></td>
+        <td>Order create/edit<br><span class="file">order/*</span></td>
+        <td>লম্বা এক-পাতার ফর্ম, লাইন-আইটেম add করতে রিলোড</td>
+        <td>BS Stepper + jQuery Repeater (লাইন আইটেম)</td>
+        <td>ফর্ম ছোট ও নেভিগেবল হয়, লাইন আইটেম টাইপ করেই যোগ হয়</td>
+        <td class="num">৬–১০ ঘণ্টা</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-info">P2</span></td>
+        <td>Customer details<br><span class="file">customer/*</span></td>
+        <td>অর্ডার, ঠিকানা, নোট আলাদা আলাদা পেজে</td>
+        <td>Tab layout (Overview / Orders / Address / Notes) — ডেমোর <code>customer-details-*.html</code> মতো</td>
+        <td>কাস্টমার প্রোফাইল খোলার জন্য ৪ পেজের বদলে ১ পেজ + ট্যাব</td>
+        <td class="num">৫–৭ ঘণ্টা</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-info">P2</span></td>
+        <td>Media / image upload<br><span class="file">product, banner, brand…</span></td>
+        <td>একটি একটি করে আপলোড, preview নেই</td>
+        <td>Dropzone multi-upload + preview</td>
+        <td>১৫টা ছবি ১৫ বার নয়, একবারে</td>
+        <td class="num">৪–৫ ঘণ্টা</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-info">P2</span></td>
+        <td>Courier schedule</td>
+        <td>কুরিয়ার পিকআপের ক্যালেন্ডার নেই</td>
+        <td>FullCalendar</td>
+        <td>ডেলিভারি-ডে ও ডেমান্ড লোড দেখা</td>
+        <td class="num">৫–৭ ঘণ্টা</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-none">P3</span></td>
+        <td>প্রথম লগইন</td>
+        <td>নতুন স্টাফ ভুল পর্দায় ভুল জায়গায় ক্লিক করে</td>
+        <td>Guided tour (Tour.js)</td>
+        <td>প্রথম দিনেই সঠিক কাজ শিখে ফেলা</td>
+        <td class="num">৩–৪ ঘণ্টা</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>ব্যবহার-অভিজ্ঞতার (UX) নিয়ম — যা টেমপ্লেট থেকেই নিতে পারি</h3>
+  <div class="grid g2">
+    <div class="card">
+      <b>অ্যাডমিনে করা যাবে না এমন ৩টি জিনিস</b>
+      <ul class="tight">
+        <li>সাইডবার collapse অবস্থা মনে রাখা (localStorage) — একই স্ক্রিনে বারবার খোলা-বন্ধ খুলতে হবে না</li>
+        <li>“Recent / Frequently used” মেনু আইটেম</li>
+        <li>কমান্ড প্যালেট (<kbd>Ctrl</kbd>+<kbd>K</kbd>) — অর্ডার, পণ্য, কাস্টমার খুঁজতে</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>প্রতিটি স্ক্রিনে থাকা উচিত</b>
+      <ul class="tight">
+        <li>উপরে একই ব্রেডক্রাম্ব + পেজ টাইটেল</li>
+        <li>ফিল্টার বার (এক লাইনে, পাশে “Clear”)</li>
+        <li>বাল্ক অ্যাকশন বার (নির্বাচিত ৫টি দেখায়)</li>
+        <li>Sticky footer যেখানে Save আছে — স্ক্রল করলেও দেখা যায়</li>
+        <li>ফাঁকা অবস্থার (empty state) নকশা</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="companies">
+  <h2><span class="n">৫</span>এই ধরনের অ্যাডমিন কারা ব্যবহার করে</h2>
+  <div class="callout info">
+    <b>সৎ বক্তব্য:</b> কোন প্রতিষ্ঠান ঠিক কোন টেমপ্লেট লাইসেন্স করেছে, সেটা ThemeForest-এর বিক্রির তথ্যের ভেতরে — আমি
+    বাইরে থেকে যাচাই করতে পারি না। নিচের তালিকা <b>একই ধরনের অ্যাডমিন UI প্যাটার্ন</b> (vertical collapsible menu +
+    stat card + data table + kanban) — যেখানে Materialize-এর ডিজাইন ভাষা পুরোপুরি মানানসই।
+  </div>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>পণ্য / কোম্পানি</th><th>তাদের ডিজাইন সিস্টেম</th><th>আমাদের সাথে মিল</th></tr></thead>
+    <tbody>
+      <tr><td><b>Shopify</b> — Polaris</td><td>ভার্টিক্যাল নেভিগেশন, স্ট্যাট কার্ড, টেবিল ভিউ, ইনলাইন এডিট</td><td>সবচেয়ে কাছাকাছি। তাদের ডিজাইন সিস্টেম <i>অ্যাডমিনের প্রতিটি কাজকে এক ধরনের কাজে পরিণত করার চেষ্টা করে</i></td></tr>
+      <tr><td><b>WooCommerce</b> (WordPress)</td><td>WP Admin-এর মেনু + metabox ফর্ম</td><td>টেমপ্লেটের “sticky actions” ধারণাটা এখান থেকেই এসেছে</td></tr>
+      <tr><td><b>Magento Admin</b></td><td>Grid ও Form view দুই ধরনের লিস্ট</td><td>“List view + edit in place” — আমাদের P0 আইটেমের ঠিক সেই ধারণা</td></tr>
+      <tr><td><b>Bagisto / Shoplazza</b></td><td>Bootstrap-ভিত্তিক অ্যাডমিন থিম, RTL সাপোর্ট সহ</td><td>একই টেক স্ট্যাক (Bootstrap 5) — সবচেয়ে সহজ ধারণা করা যায় এখান থেকে</td></tr>
+      <tr><td><b>ERPNext / Frappe</b></td><td>List view + Form view + Dashboard</td><td>“Named filter” ধারণা: প্রতিটি ইউজার নিজের সাভ করে রাখতে পারে</td></tr>
+      <tr><td><b>Odoo</b></td><td>Action menus, kanban, list/kanban/gantt switch</td><td>Kanban (P1) আইটেমটা Odoo-র থেকে ধার করা ভালো হবে</td></tr>
+      <tr><td><b>Laravel Backpack / CoreUI / Tabler</b></td><td>Laravel-এর জন্য তৈরি অ্যাডমিন কিট</td><td>আমাদের স্ট্যাকের সাথে সবচেয়ে কাছের — Blade partial হিসেবে কাজ করে</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="note" style="margin-top:12px">
+    <b>শিক্ষা:</b> এই ধরনের সব অ্যাডমিনের একটাই সাধারণ সিদ্ধান্ত — <i>“ডেলিট/পাবলিশ/স্টক পরিবর্তন” এমন কাজগুলোকে
+    তালিকা পাতা থেকে সরিয়ে আলাদা করা হয়েছে</i>। আমাদের অ্যাডমিনে এখনও বেশিরভাগ কাজ ওই একই পাতা থেকে হয়, এবং সেটাই
+    প্রতিদিনের ধীরতার আসল কারণ।
+  </p>
+</section>
+
+<!-- 6 -->
+<section id="python">
+  <h2><span class="n">৬</span>“পাইথন দিয়ে খুব কম সময়ে করা যাবে?” — সৎ উত্তর</h2>
+
+  <div class="callout warn">
+    <b>সরাসরি উত্তর: না — এবং দরকারও নেই।</b>
+    আমাদের স্ট্যাক <b>Laravel 10 + Blade</b>, টেমপ্লেট <b>Bootstrap 5.3 + Materialize</b>। ডেমোর HTML ফাইলগুলো
+    স্ট্যাটিক ডেমো — তাদের সাথে আমাদের কোনো রানটাইম কানেকশন নেই, শুধু একই CSS ক্লাস। তাই কাজটা <b>HTML-কে Blade-এ
+    রূপান্তরের</b>, Python-এর নয়।
+  </div>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>কাজ</th><th>Python দিয়ে কি সম্ভব?</th><th>আসলে যা করতে হবে</th><th>সময়</th></tr></thead>
+    <tbody>
+      <tr><td>ডেমো পেজ → Blade partial</td><td><span class="tag t-info">হ্যাঁ, উপযোগী</span></td><td>একটি ছোট স্ক্রিপ্ট (HTML parse → <code>@if/@foreach</code> বসানো) ৫০+ ডেমো পেজ বস্তুতে রূপান্তর করতে পারে। কিন্তু লাভ কম — পরে প্রতিটি Blade-ই আলাদা করে ফেলবেন</td><td class="num">২–৩ দিন (উপযোগী হলেও)</td></tr>
+      <tr><td>ডেমোর স্ক্রিন আমাদের ডেটার সাথে জোড়া লাগানো</td><td><span class="tag t-bad">না</span></td><td>Eloquent query + Blade partial। Python-এর এখানে কোনো ভূমিকা নেই</td><td class="num">স্ক্রিনভিত্তিক</td></tr>
+      <tr><td>ডেমো পুরো থিম বসানো</td><td><span class="tag t-bad">দরকার নেই</span></td><td>থিমটা ইতিমধ্যেই <code>public/admin/assets</code>-এ আছে</td><td class="num">০</td></tr>
+      <tr><td>রিপোর্ট/অডিট স্ক্রিপ্ট</td><td><span class="tag t-ok">হ্যাঁ</span></td><td>view ফাইল স্ক্যান করে কোন কম্পোনেন্ট কোথায় অচালু — এই রিভিউটাই তার উদাহরণ</td><td class="num">একটানা ব্যবহার করা যায়</td></tr>
+      <tr><td>রিল টাইমে স্ক্রিন আপডেট (সবচেয়ে আধুনিক)</td><td><span class="tag t-none">প্রযোজ্য নয়</span></td><td><b>Livewire 3 / Alpine.js</b> — Laravel-এর নিজস্ব পদ্ধতি, অন্য ভাষা লাগে না</td><td class="num">P1 আইটেমেই</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout ok">
+    <b>সবচেয়ে বাস্তবসম্মত পথ (৩ সপ্তাহ):</b>
+    <span class="num">১</span> DataTables ওঠানো (P0) → <span class="num">২</span> SweetAlert2 + Dropzone (P1) →
+    <span class="num">৩</span> Kanban অর্ডার পাইপলাইন + Stepper (P1) → <span class="num">৪</span> Customer tabs (P2)।
+    প্রতিটি ধাপ আলাদা commit, আলাদা পরীক্ষা — ফাটলে ফিরে আসা যায়।
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="bugs">
+  <h2><span class="n">৭</span>বাগ ও গ্যাপ — আগের রিপোর্টের সব কিছু, অবস্থাসহ</h2>
+
+  <h3>৭.১ ফ্রন্টএন্ড — classic থেকে modern-এ ডাটা হারানোর গ্যাপ</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th>গ্যাপ</th><th>অবস্থা</th><th>এখন কী করা হয়েছে</th></tr></thead>
+    <tbody>
+      <tr><td>SEO মেটা ব্লক (keywords / robots / OG / Twitter) modern-এ ছিল না</td><td><span class="tag t-ok">সমাধান</span></td><td>classic-এর একই <code>seo-meta</code> partial-এর সাথে যুক্ত</td></tr>
+      <tr><td>GTM <code>&lt;noscript&gt;</code> অংশ modern-এ ছিল না</td><td><span class="tag t-ok">সমাধান</span></td><td><code>event-layer-body</code> layout-এ যুক্ত</td></tr>
+      <tr><td>৩ স্তরের ক্যাটাগরি ট্রি (subcategory/childcategory) modern-এ ছিল না — ১৬টি সাব-পেজ অন্তর্ভুক্ত ছিল</td><td><span class="tag t-ok">সমাধান</span></td><td>নতুন <code>nav-categories</code> partial, drawer-এ collapsible</td></tr>
+      <tr><td>ভাষা switcher (en/bn/hi) modern-এ ছিল না</td><td><span class="tag t-ok">সমাধান</span></td><td>announcement bar-এ dropdown</td></tr>
+      <tr><td>ফুটার লোগো, পেমেন্ট-মেথড ইমেজ, ৯টি লিংক modern-এ ছিল না</td><td><span class="tag t-ok">সমাধান</span></td><td>“Explore” কলামসহ ফুটার পুনর্গঠন</td></tr>
+      <tr><td><b>og:image সবসময় 404</b> (<code>public/</code> প্রিফিক্স + <code>asset()</code>) — classic-এও ছিল</td><td><span class="tag t-ok">সমাধান</span></td><td><code>seo-meta</code>-তে প্রিফিক্স স্ট্রিপ + ফাইল-অস্তিত্ব যাচাই</td></tr>
+      <tr><td><b>Double escaping</b> — টাইটেল/ডেসক্রিপশন দুইবার escape হচ্ছিল (<code>&amp;amp;</code>)</td><td><span class="tag t-ok">সমাধান</span></td><td>নতুন <code>App\Support\MetaText</code></td></tr>
+      <tr><td>Classic ফুটারে <code>route('register')</code> — route table-এ নাম ভিন্ন</td><td><span class="tag t-info">লক্ষণীয়</span></td><td>কোথাও থেকে define করা আছে, চুপচাপ কাজ করছে; ঝুঁকি নেই</td></tr>
+      <tr><td>ডিজাইন-ট্রান্সক্রিপশন orphan ফাইল (<code>fm/sections/design/*</code>)</td><td><span class="tag t-none">স্থির</span></td><td>নির্দেশ অনুযায়ী স্থির রাখা হয়েছে</td></tr>
+      <tr><td>২৮টি classic পেজের modern সংস্করণ নেই</td><td><span class="tag t-none">স্থির</span></td><td>classic-ই render করছে, কোনো ডাটা হারাচ্ছে না</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>৭.২ অ্যাডমিন — এই পর্যবেক্ষণের সময় নতুন করে পাওয়া</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th>#</th><th>বাগ</th><th>তাৎপর্য</th><th>মাত্রা</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="num">A1</td>
+        <td><b><code>GET /admin/locked</code> যে কোনো ভিজিটরকে সাইট লক করতে দেয়।</b><br>
+            <span class="file">DashboardController::locked()</span> — অথেন্টিকেশন চেক করার কোড <code>return</code>-এর পরে অকার্যকর অবস্থায় পড়ে আছে (লাইন ১৪৭–১৫৫)</td>
+        <td>একজন ভিজিটর (লগইন করা ক্রেতা হলেই যথেষ্ট) সাইট লক করে দিতে পারে; অ্যাডমিনদের সবাই লক স্ক্রিনে আটকে যায়</td>
+        <td><span class="tag t-bad">উচ্চ</span></td>
+      </tr>
+      <tr>
+        <td class="num">A2</td>
+        <td>প্রতিটা অ্যাডমিন পেজে <b>ThemeForest-এর নিজস্ব SEO ক্রাফট</b> — canonical ও og:url পয়েন্ট করে <code>themeforest.net</code>-এ, og:image-এ একটি ভাঙা আপেক্ষিক লিংক<br><span class="file">partials/seo-fields.blade.php</span></td>
+        <td>অ্যাডমিন <code>noindex</code> হওয়ায় সার্চ ইমপ্যাক্ট সামান্য, তবে ভুল canonical পাঠানো ভুল সংকেত। মুছলেই ফার্ক</td>
+        <td><span class="tag t-warn">মাঝারি</span></td>
+      </tr>
+      <tr>
+        <td class="num">A3</td>
+        <td><code>#productsTable</code> ক্লাস দেওয়া আছে, কিন্তু কোথাও DataTables initialize নেই → টেবিলটি দেখতে টেবিল, আচরণে সাধারণ টেবিল</td>
+        <td>ইচ্ছাকৃত সুন্দরতা কিন্তু অকার্যকর; ডেভেলপার মনে করে ফিচার আছে</td>
+        <td><span class="tag t-warn">মাঝারি</span></td>
+      </tr>
+      <tr>
+        <td class="num">A4</td>
+        <td><code>backEnd/layouts/master.blade.php</code> (৭১৭ লাইন), <code>0app.blade.php</code>, <code>layouts.zip</code> — কোনো view ব্যবহার করে না</td>
+        <td>ভুল ফাইল এডিট করার ঝুঁকি; রিভিউ ও সার্চে শব্দতুক্তা</td>
+        <td><span class="tag t-info">ক্ষুদ্র</span></td>
+      </tr>
+      <tr>
+        <td class="num">A5</td>
+        <td><code>/ajax-product-subcategory</code>, <code>/ajax-product-childcategory</code> — root level-এ, কোনো middleware ছাড়া</td>
+        <td>পণ্যের শ্রেণিবিন্যাস অনুমানযোগ্যভাবে বের হচ্ছে (ক্ষতি কম, নীতিগত দিক থেকে ঠিক করা উচিত)</td>
+        <td><span class="tag t-info">ক্ষুদ্র</span></td>
+      </tr>
+      <tr>
+        <td class="num">A6</td>
+        <td>৫টি লাইব্রেরি এখনও ব্যবহার হচ্ছে না।</td>
+        <td>লেআউটে কোনোটিই লোড নেই, তাই অপ্রয়োজনীয় ডাউনলোড নেই; বরং শুরু করার আগে core ফাইল দুটি আনতে হবে</td>
+        <td><span class="tag t-warn">মাঝারি</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout bad">
+    <b>A1-এর জন্য প্রস্তাবিত এক-লাইনের সমাধান</b> — <code>locked()</code>-এ <code>Auth::check()</code> যাচাই
+    <code>return</code>-এর <i>উপরে</i> নিয়ে যাওয়া, অথবা ওই route group-এর middleware <code>customer</code> থেকে
+    <code>auth</code>-এ বদলানো। সিদ্ধান্তটি আপনার — আমি কোড বদলাইনি, কারণ এটি সিকিউরিটি পরিবর্তন এবং আপনি বলেননি।
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="plan">
+  <h2><span class="n">৮</span>যা করতে হবে — করণীয়</h2>
+
+  <div class="phase">
+    <h3>Phase 0 · ঝুঁকি বন্ধ করা <span class="tag t-bad">আজই</span></h3>
+    <ul class="tight">
+      <li><code>locked()</code>-এর অথেন্টিকেশন চেক ঠিক করা (A1)</li>
+      <li><code>seo-fields.blade.php</code> থেকে ThemeForest মেটা সরানো, admin-এর নিজস্ব robots দেওয়া (A2)</li>
+      <li>Dead ফাইল সরানো বা <code>_archive/</code>-এ সরানো: <code>master.blade.php</code>, <code>0app.blade.php</code>, <code>layouts.zip</code> (A4)</li>
+      <li><span class="num">≈ ৪৫ মিনিট · ঝুঁকি: নেই</span></li>
+    </ul>
+  </div>
+
+  <div class="phase warn">
+    <h3>Phase 1 · অচালু সম্পদ কাজে লাগানো <span class="tag t-warn">১ সপ্তাহ</span></h3>
+    <ul class="tight">
+      <li><b>Order list → DataTables</b> (server-side) + স্ট্যাটাস ট্যাব + CSV এক্সপোর্ট → একটি সাধারণ partial
+        <code>backEnd/layouts/partials/datatable.blade.php</code> বানে Product, Customer, Return, Coupon সব জায়গায় ব্যবহার</li>
+      <li><b>Product list</b> → inline stock/price edit + স্টক-নিচে-সীমা হাইলাইট</li>
+      <li><b>SweetAlert2</b> → সব delete-এ confirm (একটি global helper দিয়ে)</li>
+      <li><b>Dropzone</b> → প্রোডাক্ট/ব্যানার ইমেজ আপলোড</li>
+      <li><span class="num">≈ ১৫–২০ ঘণ্টা · ঝুঁকি: কম (প্রতিটি স্ক্রিন স্বাধীন)</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h3>Phase 2 · প্রবাহ দ্রুত করা <span class="tag t-info">২ সপ্তাহ</span></h3>
+    <ul class="tight">
+      <li><b>অর্ডার Kanban</b> — নতুন অর্ডারের স্ট্যাটাস বদলানোর সবচেয়ে বেশি ব্যবহৃত কাজ</li>
+      <li><b>অর্ডার ফর্মে BS Stepper + লাইন-আইটেম repeater</b></li>
+      <li><b>Customer details-এ tabs</b> (ডেমোর <code>customer-details-*.html</code> মতো)</li>
+      <li><span class="num">≈ ২৫–৩৫ ঘণ্টা · ঝুঁকি: মাঝারি (স্টেট ম্যানেজমেন্ট পরিবর্তন)</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h3>Phase 3 · সম্পূর্ণতা <span class="tag t-none">পরে</span></h3>
+    <ul class="tight">
+      <li>FullCalendar (কুরিয়ার পিকআপ), command palette (<kbd>Ctrl</kbd>+<kbd>K</kbd>), onboarding tour, সাইডবার-স্টেট মনে রাখা</li>
+      <li>অ্যাডমিন i18n (বাংলা)</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <b>আমার সুপারিশ:</b> Phase 0 আজ, Phase 1 শুরু করুন — কারণ সেটাই সবচেয়ে কম সময়ে সবচেয়ে বেশি ফল দেয়।
+    Phase 2 শুরু করার আগে ঠিক করে নিন অর্ডারের স্ট্যাটাস-মডেল আপনি রাখতে চান কিনা, কারণ সেটা ডেটাবেস পরিবর্তন ছাড়া হবে না।
+  </div>
+</section>
+
+<footer>
+  <p>
+    প্রতিটি দাবি প্রকৃত ফাইল/লাইন দিয়ে যাচাই করা; যেখানে ইন্টারনেট থেকে নিশ্চিত করা যায়নি সেখানে স্পষ্ট লেখা হয়েছে।
+    অ্যাডমিন কোডে কোনো পরিবর্তন করা হয়নি — এই ডকুমেন্ট শুধু পর্যালোচনা।
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

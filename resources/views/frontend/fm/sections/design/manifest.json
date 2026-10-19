@@ -1,0 +1,41 @@
+{
+  "source": "work/2.md",
+  "blocks": [
+    {
+      "file": "shop-header.blade.php",
+      "tag": "section",
+      "lines": 38,
+      "bytes": 1949
+    },
+    {
+      "file": "aside.blade.php",
+      "tag": "aside",
+      "lines": 221,
+      "bytes": 11219
+    },
+    {
+      "file": "catalog-pagination.blade.php",
+      "tag": "nav",
+      "lines": 30,
+      "bytes": 1598
+    },
+    {
+      "file": "shop-guarantees.blade.php",
+      "tag": "section",
+      "lines": 42,
+      "bytes": 1941
+    },
+    {
+      "file": "footer-footer-links.blade.php",
+      "tag": "footer",
+      "lines": 80,
+      "bytes": 4801
+    },
+    {
+      "file": "header-primary-header.blade.php",
+      "tag": "header",
+      "lines": 102,
+      "bytes": 7193
+    }
+  ]
+}

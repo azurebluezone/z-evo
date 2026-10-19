@@ -1,0 +1,1199 @@
+<div
+  class="export-wrapper"
+  style="
+    width: 1440px;
+    min-height: 812px;
+    position: relative;
+    font-family: var(--font-family-body);
+    background-color: var(--background);
+  "
+>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&family=Geist:wght@100;200;300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@100;200;300;400;500;600;700&family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Nunito:wght@200;300;400;500;600;700;800;900&family=PT+Serif:wght@400;700&family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&family=Shantell+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <html>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Tea Landing Page</title>
+      <style id="global-reset">
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        .export-wrapper {
+          background-color: var(--background);
+          color: var(--foreground);
+          font-size: 15px;
+          line-height: 1.5;
+        }
+        img {
+          max-width: 100%;
+          display: block;
+        }
+        .container {
+          width: 100%;
+          max-width: 1120px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+        .section {
+          padding: 64px 0;
+        }
+        .text-center {
+          text-align: center;
+        }
+        .mb-8 {
+          margin-bottom: 8px;
+        }
+        .mb-16 {
+          margin-bottom: 16px;
+        }
+        .mb-24 {
+          margin-bottom: 24px;
+        }
+        .mb-32 {
+          margin-bottom: 32px;
+        }
+        .mb-48 {
+          margin-bottom: 48px;
+        }
+        .mb-64 {
+          margin-bottom: 64px;
+        }
+        .gap-16 {
+          gap: 16px;
+        }
+        .gap-24 {
+          gap: 24px;
+        }
+        .gap-32 {
+          gap: 32px;
+        }
+      </style>
+
+      <style id="typography">
+        .title-large {
+          font-size: 48px;
+          font-weight: 700;
+          line-height: 1.2;
+          color: var(--background);
+          text-shadow: 0 2px 4px var(--foreground);
+        }
+        .title-section {
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 32px;
+        }
+        .title-section.success {
+          color: var(--success);
+        }
+        .title-section.destructive {
+          color: var(--destructive);
+        }
+        .text-muted {
+          color: var(--muted-foreground);
+        }
+      </style>
+
+      <style id="hero-styles">
+        .hero {
+          position: relative;
+          padding: 80px 0 120px;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .hero-bg {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -2;
+          object-fit: cover;
+        }
+        .hero-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: var(--foreground);
+          opacity: 0.6;
+          z-index: -1;
+        }
+        .video-placeholder {
+          position: relative;
+          width: 100%;
+          max-width: 800px;
+          aspect-ratio: 16/9;
+          background-color: var(--foreground);
+          border-radius: var(--radius-md);
+          overflow: hidden;
+          margin: 48px auto 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+        .video-placeholder img {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          opacity: 0.8;
+        }
+        .play-button {
+          position: relative;
+          z-index: 10;
+          width: 64px;
+          height: 64px;
+          background-color: var(--destructive);
+          color: var(--destructive-foreground);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      </style>
+
+      <style id="pricing-styles">
+        .pricing-badges {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          flex-wrap: wrap;
+          margin-bottom: 32px;
+        }
+        .badge {
+          padding: 12px 24px;
+          border-radius: var(--radius-xl);
+          background-color: var(--destructive);
+          color: var(--destructive-foreground);
+          font-weight: 500;
+          font-size: 16px;
+        }
+        .badge.strike {
+          text-decoration: line-through;
+          opacity: 0.9;
+        }
+      </style>
+
+      <style id="button-styles">
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px 32px;
+          font-size: 20px;
+          font-weight: 700;
+          border-radius: var(--radius-xl);
+          cursor: pointer;
+          white-space: nowrap;
+          border: none;
+          gap: 8px;
+        }
+        .btn-success {
+          background-color: var(--success);
+          color: var(--success-foreground);
+        }
+        .btn-primary {
+          background-color: var(--primary);
+          color: var(--primary-foreground);
+          width: 100%;
+          padding: 16px;
+        }
+      </style>
+
+      <style id="gallery-styles">
+        .product-gallery {
+          display: flex;
+          gap: 24px;
+          margin-bottom: 48px;
+          justify-content: center;
+        }
+        .product-image {
+          flex: 1;
+          max-width: 500px;
+          border: 4px solid var(--success);
+          border-radius: var(--radius-md);
+          overflow: hidden;
+        }
+        .product-image img {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 1/1;
+          object-fit: cover;
+        }
+      </style>
+
+      <style id="benefits-styles">
+        .benefits-section {
+          background-color: var(--secondary);
+          color: var(--secondary-foreground);
+        }
+        .benefits-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          max-width: 600px;
+          margin: 0 auto;
+          font-size: 18px;
+          font-weight: 500;
+        }
+        .benefit-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+      </style>
+
+      <style id="testimonials-styles">
+        .testimonials-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+        }
+        .testimonial-card {
+          background-color: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 16px;
+        }
+        .testimonial-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+        .avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .testimonial-name {
+          font-weight: 700;
+          font-size: 14px;
+        }
+        .testimonial-time {
+          font-size: 12px;
+          color: var(--muted-foreground);
+        }
+        .testimonial-body {
+          font-size: 14px;
+          margin-bottom: 12px;
+        }
+        .shared-post {
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 12px;
+          background-color: var(--muted);
+        }
+        .shared-post-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+        }
+        .shared-post-avatar {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .shared-post-author {
+          font-weight: 700;
+          font-size: 13px;
+        }
+        .shared-post-content {
+          font-size: 13px;
+        }
+        .testimonial-actions {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-top: 12px;
+          color: var(--muted-foreground);
+          font-size: 12px;
+          font-weight: 500;
+        }
+      </style>
+
+      <style id="why-us-styles">
+        .why-us-section {
+          background-color: var(--secondary);
+        }
+        .why-us-list {
+          max-width: 800px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .why-us-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          font-size: 16px;
+        }
+        .bullet {
+          width: 8px;
+          height: 8px;
+          background-color: var(--foreground);
+          border-radius: 50%;
+          margin-top: 8px;
+          flex-shrink: 0;
+        }
+      </style>
+
+      <style id="checkout-styles">
+        .checkout-container {
+          background-color: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 48px;
+          margin: 0 auto;
+          max-width: 1000px;
+        }
+        .checkout-title-box {
+          border: 2px solid var(--border);
+          padding: 16px;
+          text-align: center;
+          border-radius: var(--radius-sm);
+          margin-bottom: 48px;
+        }
+        .checkout-title-box h2 {
+          font-size: 24px;
+          font-weight: 700;
+        }
+        .checkout-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 48px;
+        }
+        .checkout-section-title {
+          font-size: 18px;
+          font-weight: 700;
+          margin-bottom: 24px;
+        }
+        .mock-input {
+          width: 100%;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 12px 16px;
+          background-color: var(--input);
+          color: var(--muted-foreground);
+          margin-bottom: 16px;
+          font-size: 14px;
+        }
+        .mock-textarea {
+          width: 100%;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 12px 16px;
+          background-color: var(--input);
+          color: var(--muted-foreground);
+          margin-bottom: 16px;
+          font-size: 14px;
+          min-height: 100px;
+        }
+        .order-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 24px;
+        }
+        .order-table th,
+        .order-table td {
+          padding: 16px 0;
+          border-bottom: 1px solid var(--border);
+          text-align: left;
+          font-size: 14px;
+        }
+        .order-table th {
+          font-weight: 700;
+          color: var(--foreground);
+        }
+        .order-table td {
+          color: var(--foreground);
+        }
+        .order-table .text-right {
+          text-align: right;
+        }
+        .quantity-control {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 4px 12px;
+          width: fit-content;
+        }
+        .quantity-btn {
+          color: var(--muted-foreground);
+          cursor: pointer;
+        }
+        .product-thumb {
+          width: 48px;
+          height: 48px;
+          border-radius: var(--radius-sm);
+          object-fit: cover;
+          background-color: var(--muted);
+          display: inline-block;
+          vertical-align: middle;
+          margin-right: 12px;
+        }
+        .payment-box {
+          background-color: var(--muted);
+          padding: 24px;
+          border-radius: var(--radius-sm);
+          margin-bottom: 24px;
+        }
+        .payment-box .payment-title {
+          font-weight: 500;
+          margin-bottom: 12px;
+        }
+        .payment-box .payment-desc {
+          background-color: var(--card);
+          padding: 16px;
+          font-size: 13px;
+          color: var(--muted-foreground);
+          border-radius: var(--radius-sm);
+        }
+        .privacy-text {
+          font-size: 12px;
+          color: var(--muted-foreground);
+          margin-bottom: 24px;
+          line-height: 1.6;
+        }
+        .privacy-text span {
+          color: var(--primary);
+          cursor: pointer;
+        }
+      </style>
+
+      <style id="footer-styles">
+        .footer {
+          padding: 48px 0;
+          text-align: center;
+          color: var(--muted-foreground);
+          font-size: 14px;
+        }
+        .footer-links {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          margin-bottom: 16px;
+        }
+      </style>
+    </head>
+    <body>
+      <!-- Hero Section -->
+      <section class="hero">
+        <img
+          src="https://storage.googleapis.com/banani-generated-images/generated-images/81b427ba-58ff-4686-be0f-94628d916f6d.jpg"
+          data-aspect-ratio="16:9"
+          data-query="lush green tea garden in sri mangal bangladesh landscape"
+          class="hero-bg"
+          alt="Tea Garden Background"
+        />
+        <div class="hero-overlay"></div>
+
+        <div class="container text-center">
+          <h1 class="title-large mb-48">
+            চায়ের আসল ঘ্রাণ ও স্বাদ পেতে গেলে আপনাকে খেতে<br />হবে শ্রীমঙ্গলের
+            চা।
+          </h1>
+
+          <div class="video-placeholder" data-media-type="banani-button">
+            <img
+              src="https://storage.googleapis.com/banani-generated-images/generated-images/079ace3a-42ae-4ab3-8733-5521fe759560.jpg"
+              data-aspect-ratio="16:9"
+              data-query="youtube video thumbnail showing tea garden landscape with bengali text overlay"
+              alt="Video Thumbnail"
+            />
+            <div class="play-button">
+              <div
+                style="
+                  width: 32px;
+                  height: 32px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:play"
+                  style="font-size: 32px; color: currentColor"
+                ></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing & CTA Section -->
+      <section class="section">
+        <div class="container text-center">
+          <div class="pricing-badges">
+            <div class="badge strike">প্রতি কেজি চায়ের মূল্য ৮০০/- টাকা</div>
+            <div class="badge">বর্তমান মূল্য ৬০০/- টাকা মাত্র</div>
+          </div>
+
+          <div class="btn btn-success mb-64" data-media-type="banani-button">
+            স্পেশাল চা কিনতে ক্লিক করুন
+            <div
+              style="
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <iconify-icon
+                icon="lucide:chevrons-right"
+                style="font-size: 24px; color: currentColor"
+              ></iconify-icon>
+            </div>
+          </div>
+
+          <div class="product-gallery">
+            <div class="product-image">
+              <img
+                src="https://storage.googleapis.com/banani-generated-images/generated-images/1f48f2c3-e26b-49c8-b480-a87af23dbe10.jpg"
+                data-aspect-ratio="1:1"
+                data-query="dry loose black tea leaves piled in a white bowl top down view with two green leaves on top"
+                alt="Premium Tea"
+              />
+            </div>
+            <div class="product-image">
+              <img
+                src="https://storage.googleapis.com/banani-generated-images/generated-images/1f48f2c3-e26b-49c8-b480-a87af23dbe10.jpg"
+                data-aspect-ratio="1:1"
+                data-query="dry loose black tea leaves piled in a white bowl top down view with two green leaves on top"
+                alt="Premium Tea"
+              />
+            </div>
+          </div>
+
+          <div class="btn btn-success" data-media-type="banani-button">
+            স্পেশাল চা কিনতে ক্লিক করুন
+            <div
+              style="
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <iconify-icon
+                icon="lucide:chevrons-right"
+                style="font-size: 24px; color: currentColor"
+              ></iconify-icon>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Benefits Section -->
+      <section class="section benefits-section">
+        <div class="container">
+          <h2 class="title-section success text-center">
+            চায়ের ঔষধি গুন সমূহ:
+          </h2>
+          <div class="benefits-list">
+            <div class="benefit-item">
+              <div
+                style="
+                  width: 24px;
+                  height: 24px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:thumbs-up"
+                  style="font-size: 24px; color: var(--foreground)"
+                ></iconify-icon>
+              </div>
+              রোগ প্রতিরোধ ক্ষমতা বাড়ায়
+            </div>
+            <div class="benefit-item">
+              <div
+                style="
+                  width: 24px;
+                  height: 24px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:thumbs-up"
+                  style="font-size: 24px; color: var(--foreground)"
+                ></iconify-icon>
+              </div>
+              হার্টের স্বাস্থ্যের উন্নতি করে
+            </div>
+            <div class="benefit-item">
+              <div
+                style="
+                  width: 24px;
+                  height: 24px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:thumbs-up"
+                  style="font-size: 24px; color: var(--foreground)"
+                ></iconify-icon>
+              </div>
+              ক্যান্সার প্রতিরোধে সাহায্য করে
+            </div>
+            <div class="benefit-item">
+              <div
+                style="
+                  width: 24px;
+                  height: 24px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:thumbs-up"
+                  style="font-size: 24px; color: var(--foreground)"
+                ></iconify-icon>
+              </div>
+              মাইগ্রেনে প্রব্লেম কমায়
+            </div>
+            <div class="benefit-item">
+              <div
+                style="
+                  width: 24px;
+                  height: 24px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:thumbs-up"
+                  style="font-size: 24px; color: var(--foreground)"
+                ></iconify-icon>
+              </div>
+              ওজন কমাতে সাহায্য করে
+            </div>
+            <div class="benefit-item">
+              <div
+                style="
+                  width: 24px;
+                  height: 24px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <iconify-icon
+                  icon="lucide:thumbs-up"
+                  style="font-size: 24px; color: var(--foreground)"
+                ></iconify-icon>
+              </div>
+              নার্ভ শান্ত করে
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials Section -->
+      <section class="section">
+        <div class="container">
+          <h2 class="title-section destructive text-center">
+            আমাদের চা সম্পর্কে কাস্টমারের মূল্যবান মতামত
+          </h2>
+
+          <div class="testimonials-grid">
+            <!-- Card 1 -->
+            <div class="testimonial-card">
+              <div class="testimonial-header">
+                <img
+                  src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                  class="avatar"
+                  alt="User Avatar"
+                />
+                <div>
+                  <div class="testimonial-name">Philippe Roireau</div>
+                  <div class="testimonial-time">1h</div>
+                </div>
+              </div>
+              <div class="testimonial-body">
+                I need this! <span style="color: var(--primary)">👍 1</span>
+              </div>
+              <div class="shared-post">
+                <div class="shared-post-header">
+                  <img
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F35-50%2FNorth%20American%2F2"
+                    class="shared-post-avatar"
+                    alt="Author Avatar"
+                  />
+                  <div class="shared-post-author">SF Bicycles</div>
+                </div>
+                <div class="shared-post-content">
+                  Philippe, I think you have wonderful taste 😍 Use code "PL10"
+                  to get 10% off this AND anything else on the site you want.
+                </div>
+              </div>
+              <div class="testimonial-actions">
+                <span>Like</span>
+                <span>Reply</span>
+                <span>Message</span>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="testimonial-card">
+              <div class="testimonial-header">
+                <img
+                  src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                  class="avatar"
+                  alt="User Avatar"
+                />
+                <div>
+                  <div class="testimonial-name">Philippe Roireau</div>
+                  <div class="testimonial-time">1h</div>
+                </div>
+              </div>
+              <div class="testimonial-body">
+                I need this! <span style="color: var(--primary)">👍 1</span>
+              </div>
+              <div class="shared-post">
+                <div class="shared-post-header">
+                  <img
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F35-50%2FNorth%20American%2F2"
+                    class="shared-post-avatar"
+                    alt="Author Avatar"
+                  />
+                  <div class="shared-post-author">SF Bicycles</div>
+                </div>
+                <div class="shared-post-content">
+                  Philippe, I think you have wonderful taste 😍 Use code "PL10"
+                  to get 10% off this AND anything else on the site you want.
+                </div>
+              </div>
+              <div class="testimonial-actions">
+                <span>Like</span>
+                <span>Reply</span>
+                <span>Message</span>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="testimonial-card">
+              <div class="testimonial-header">
+                <img
+                  src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                  class="avatar"
+                  alt="User Avatar"
+                />
+                <div>
+                  <div class="testimonial-name">Philippe Roireau</div>
+                  <div class="testimonial-time">1h</div>
+                </div>
+              </div>
+              <div class="testimonial-body">
+                I need this! <span style="color: var(--primary)">👍 1</span>
+              </div>
+              <div class="shared-post">
+                <div class="shared-post-header">
+                  <img
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F35-50%2FNorth%20American%2F2"
+                    class="shared-post-avatar"
+                    alt="Author Avatar"
+                  />
+                  <div class="shared-post-author">SF Bicycles</div>
+                </div>
+                <div class="shared-post-content">
+                  Philippe, I think you have wonderful taste 😍 Use code "PL10"
+                  to get 10% off this AND anything else on the site you want.
+                </div>
+              </div>
+              <div class="testimonial-actions">
+                <span>Like</span>
+                <span>Reply</span>
+                <span>Message</span>
+              </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="testimonial-card">
+              <div class="testimonial-header">
+                <img
+                  src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                  class="avatar"
+                  alt="User Avatar"
+                />
+                <div>
+                  <div class="testimonial-name">Philippe Roireau</div>
+                  <div class="testimonial-time">1h</div>
+                </div>
+              </div>
+              <div class="testimonial-body">
+                I need this! <span style="color: var(--primary)">👍 1</span>
+              </div>
+              <div class="shared-post">
+                <div class="shared-post-header">
+                  <img
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F35-50%2FNorth%20American%2F2"
+                    class="shared-post-avatar"
+                    alt="Author Avatar"
+                  />
+                  <div class="shared-post-author">SF Bicycles</div>
+                </div>
+                <div class="shared-post-content">
+                  Philippe, I think you have wonderful taste 😍 Use code "PL10"
+                  to get 10% off this AND anything else on the site you want.
+                </div>
+              </div>
+              <div class="testimonial-actions">
+                <span>Like</span>
+                <span>Reply</span>
+                <span>Message</span>
+              </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="testimonial-card">
+              <div class="testimonial-header">
+                <img
+                  src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                  class="avatar"
+                  alt="User Avatar"
+                />
+                <div>
+                  <div class="testimonial-name">Philippe Roireau</div>
+                  <div class="testimonial-time">1h</div>
+                </div>
+              </div>
+              <div class="testimonial-body">
+                I need this! <span style="color: var(--primary)">👍 1</span>
+              </div>
+              <div class="shared-post">
+                <div class="shared-post-header">
+                  <img
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F35-50%2FNorth%20American%2F2"
+                    class="shared-post-avatar"
+                    alt="Author Avatar"
+                  />
+                  <div class="shared-post-author">SF Bicycles</div>
+                </div>
+                <div class="shared-post-content">
+                  Philippe, I think you have wonderful taste 😍 Use code "PL10"
+                  to get 10% off this AND anything else on the site you want.
+                </div>
+              </div>
+              <div class="testimonial-actions">
+                <span>Like</span>
+                <span>Reply</span>
+                <span>Message</span>
+              </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="testimonial-card">
+              <div class="testimonial-header">
+                <img
+                  src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                  class="avatar"
+                  alt="User Avatar"
+                />
+                <div>
+                  <div class="testimonial-name">Philippe Roireau</div>
+                  <div class="testimonial-time">1h</div>
+                </div>
+              </div>
+              <div class="testimonial-body">
+                I need this! <span style="color: var(--primary)">👍 1</span>
+              </div>
+              <div class="shared-post">
+                <div class="shared-post-header">
+                  <img
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F35-50%2FNorth%20American%2F2"
+                    class="shared-post-avatar"
+                    alt="Author Avatar"
+                  />
+                  <div class="shared-post-author">SF Bicycles</div>
+                </div>
+                <div class="shared-post-content">
+                  Philippe, I think you have wonderful taste 😍 Use code "PL10"
+                  to get 10% off this AND anything else on the site you want.
+                </div>
+              </div>
+              <div class="testimonial-actions">
+                <span>Like</span>
+                <span>Reply</span>
+                <span>Message</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why Buy From Us Section -->
+      <section class="section why-us-section">
+        <div class="container">
+          <h2 class="title-section success text-center">
+            কেন আমাদের থেকে চা কিনবেন
+          </h2>
+          <div class="why-us-list">
+            <div class="why-us-item">
+              <div class="bullet"></div>
+              চায়ের আসল ঘ্রাণ পাবেন এই চা পাতায়।
+            </div>
+            <div class="why-us-item">
+              <div class="bullet"></div>
+              চায়ের সর্বোচ্চ ফ্লেভার এই পাতায় পাবেন।
+            </div>
+            <div class="why-us-item">
+              <div class="bullet"></div>
+              কোন নিম্নমানের চা পাতা মিক্স করা হয় না।
+            </div>
+            <div class="why-us-item">
+              <div class="bullet"></div>
+              অন্য পাতার তুলনায় পরিমাণে খুবই কম লাগে।
+            </div>
+            <div class="why-us-item">
+              <div class="bullet"></div>
+              দেশের সব থেকে কোয়ালিটিফুল চা হচ্ছে এটা।
+            </div>
+            <div class="why-us-item">
+              <div class="bullet"></div>
+              ১০০% সকল কৃত্রিম রঙ, ফ্লেভার ও কেমিক্যাল মুক্ত।
+            </div>
+            <div class="why-us-item">
+              <div class="bullet"></div>
+              ভেজাল প্রমাণ করতে পারলে ১০০% মানিব্যাক গ্যারান্টি।
+            </div>
+            <div class="why-us-item">
+              <div class="bullet"></div>
+              ক্যাশ অন ফ্রী হোম ডেলিভারি, অর্ডার করতে অগ্রিম ১ টাকাও লাগে না।
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Checkout Section -->
+      <section class="section">
+        <div class="container">
+          <div class="checkout-container">
+            <div class="checkout-title-box">
+              <h2>
+                অর্ডার করতে আপনার নাম, ঠিকানা এবং মোবাইল নাম্বার দিয়ে নীচে
+                Place Order এ ক্লিক করুন
+              </h2>
+            </div>
+
+            <div class="checkout-grid">
+              <!-- Left Column: Billing -->
+              <div>
+                <h3 class="checkout-section-title">Billing details</h3>
+                <div class="mock-input">নাম লিখুন *</div>
+                <div class="mock-input">House number and street name *</div>
+                <div class="mock-input">ফোন *</div>
+
+                <h3 class="checkout-section-title" style="margin-top: 32px">
+                  Additional information
+                </h3>
+                <div class="mock-textarea">
+                  Notes about your order, e.g. special notes for delivery.
+                </div>
+
+                <h3 class="checkout-section-title" style="margin-top: 32px">
+                  Your Products
+                </h3>
+                <table class="order-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Quantity</th>
+                      <th class="text-right">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>১ কেজি স্পেশাল চা (#102)</td>
+                      <td>
+                        <div class="quantity-control">
+                          <span class="quantity-btn">-</span>
+                          <span>1</span>
+                          <span class="quantity-btn">+</span>
+                        </div>
+                      </td>
+                      <td class="text-right">600.00৳</td>
+                    </tr>
+                    <tr>
+                      <td>Product (#257)</td>
+                      <td>
+                        <div class="quantity-control">
+                          <span class="quantity-btn">-</span>
+                          <span>1</span>
+                          <span class="quantity-btn">+</span>
+                        </div>
+                      </td>
+                      <td class="text-right">1,000.00৳</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Right Column: Order Summary -->
+              <div>
+                <h3 class="checkout-section-title">Your order</h3>
+                <table class="order-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th class="text-right">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <img
+                          src="https://storage.googleapis.com/banani-generated-images/generated-images/bc42bd05-1bb2-418f-8cdb-6aa8759f5d61.jpg"
+                          data-aspect-ratio="1:1"
+                          data-query="dry tea leaves close up"
+                          class="product-thumb"
+                          alt="Tea"
+                        />
+                        ১ কেজি স্পেশাল চা
+                      </td>
+                      <td class="text-right">× 1600.00৳</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div
+                          class="product-thumb"
+                          style="background-color: var(--border)"
+                        ></div>
+                        Product
+                      </td>
+                      <td class="text-right">× 11,000.00৳</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500">Subtotal</td>
+                      <td class="text-right" style="font-weight: 500">
+                        1,600.00৳
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700; border-bottom: none">
+                        Total
+                      </td>
+                      <td
+                        class="text-right"
+                        style="font-weight: 700; border-bottom: none"
+                      >
+                        1,600.00৳
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="payment-box">
+                  <div class="payment-title">Cash on delivery</div>
+                  <div class="payment-desc">Pay with cash upon delivery.</div>
+                </div>
+
+                <div class="privacy-text">
+                  Your personal data will be used to process your order, support
+                  your experience throughout this website, and for other
+                  purposes described in our <span>privacy policy</span>.
+                </div>
+
+                <div class="btn btn-primary" data-media-type="banani-button">
+                  <div
+                    style="
+                      width: 20px;
+                      height: 20px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <iconify-icon
+                      icon="lucide:lock"
+                      style="font-size: 20px; color: currentColor"
+                    ></iconify-icon>
+                  </div>
+                  Place Order 1,600.00৳
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="container">
+          <div class="footer-links">
+            <span data-media-type="banani-button">Refund policy</span>
+            <span data-media-type="banani-button">Privacy policy</span>
+            <span data-media-type="banani-button">Terms of service</span>
+          </div>
+          <div>© 2022 Yoursite. All rights reserved.</div>
+        </div>
+      </footer>
+
+      <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    </body>
+  </html>
+  <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #1f2937;
+      --border: #00000014;
+      --input: #ffffff;
+      --primary: #2f9e44;
+      --primary-foreground: #ffffff;
+      --secondary: #e6f4ea;
+      --secondary-foreground: #14532d;
+      --muted: #f3f4f6;
+      --muted-foreground: #9ca3af;
+      --success: #10b981;
+      --success-foreground: #ffffff;
+      --accent: #f59e0b;
+      --accent-foreground: #ffffff;
+      --destructive: #ef4444;
+      --destructive-foreground: #ffffff;
+      --warning: #fbbf24;
+      --warning-foreground: #1f2937;
+      --card: #ffffff;
+      --card-foreground: #111827;
+      --sidebar: #f7f9f8;
+      --sidebar-foreground: #14532d;
+      --sidebar-primary: #2f9e44;
+      --sidebar-primary-foreground: #ffffff;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --radius-xl: 12px;
+      --font-family-body: Inter;
+    }
+  </style>
+</div>

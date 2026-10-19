@@ -1,0 +1,644 @@
+/* ==========================================================================
+   FM:SECTION cart-page ------------------------------------------------------
+   Page level styles for /shop/cart (resources/views/frontend/fm/pages/cart.blade.php).
+
+   Design source: hi/cart.html, <main> area - basket card, order summary card,
+   three step progress rail and the empty basket state.
+
+   Scope: every selector here is prefixed fm-basket- (or targets an attribute
+   owned by this page) so nothing in this file can reach into the header,
+   footer, product cards or the mini-cart drawer. The stepper and quantity
+   controls deliberately reuse fm-qty from fm-interaction.css rather than
+   restyling a second copy of the same control.
+
+   Currency note: Tk is printed by number_format() in the view and by
+   toLocaleString('en-US') in the page script, so no locale knob is needed
+   here.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Progress rail (breadcrumb + steps)
+   -------------------------------------------------------------------------- */
+
+.fm-basket-progress {
+    padding: 1.5rem 0 1rem;
+    background: #fff;
+    border-bottom: 1px solid #eef1ee;
+}
+
+.fm-basket-progress__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    list-style: none;
+    font-size: .8125rem;
+    color: #6b7a70;
+}
+
+.fm-basket-progress__crumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: #047857;
+    text-decoration: none;
+}
+
+.fm-basket-progress__crumbs a:hover {
+    text-decoration: underline;
+}
+
+.fm-basket-progress__crumbs [aria-current="page"] {
+    color: #1b5e20;
+    font-weight: 700;
+}
+
+.fm-basket-progress__steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fm-basket-progress__step {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-width: 0;
+    padding: .75rem .85rem;
+    background: #f4f7f2;
+    border: 1px solid #e5e9e0;
+    border-radius: .875rem;
+}
+
+.fm-basket-progress__step a {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.fm-basket-progress__step.is-active {
+    background: #eaf5ee;
+    border-color: #047857;
+}
+
+.fm-basket-progress__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    font-size: .9375rem;
+    color: #4b5f54;
+    background: #fff;
+    border: 1px solid #e0e5df;
+    border-radius: 9999px;
+}
+
+.fm-basket-progress__step.is-active .fm-basket-progress__icon {
+    color: #fff;
+    background: #047857;
+    border-color: #047857;
+}
+
+.fm-basket-progress__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.fm-basket-progress__no {
+    font-size: 0.75rem;
+    color: #6b7a70;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.fm-basket-progress__title {
+    font-size: .875rem;
+    font-weight: 700;
+    color: #1b5e20;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------------------------
+   2. Page grid + shared card shell
+   -------------------------------------------------------------------------- */
+
+.fm-basket {
+    padding: 1.75rem 0 3rem;
+    background: #f4f7f2;
+}
+
+.fm-basket-card {
+    background: #fff;
+    border: 1px solid #e5e9e0;
+    border-radius: 1.125rem;
+    box-shadow: 0 1px 2px rgb(16 40 26 / .04);
+    overflow: hidden;
+}
+
+.fm-basket-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid #eef1ee;
+}
+
+.fm-basket-card__title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: #1b5e20;
+}
+
+.fm-basket-card__count {
+    padding: .25rem .65rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #047857;
+    background: #eaf5ee;
+    border-radius: 9999px;
+    white-space: nowrap;
+}
+
+.fm-basket-card__body {
+    padding: 1.15rem;
+}
+
+/* --------------------------------------------------------------------------
+   3. Line items
+   -------------------------------------------------------------------------- */
+
+.fm-basket-row {
+    display: flex;
+    gap: .9rem;
+    padding: .95rem;
+    background: #fff;
+    border: 1px solid #edf0ec;
+    border-radius: .9375rem;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.fm-basket-row + .fm-basket-row {
+    margin-top: .75rem;
+}
+
+.fm-basket-row:hover {
+    border-color: rgb(4 120 87 / .35);
+    box-shadow: 0 1px 3px rgb(16 40 26 / .06);
+}
+
+.fm-basket-row__thumb {
+    flex: 0 0 auto;
+    display: block;
+    width: 5.5rem;
+    height: 5.5rem;
+    background: #f7f9f6;
+    border: 1px solid #edf0ec;
+    border-radius: .75rem;
+    overflow: hidden;
+}
+
+.fm-basket-row__thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fm-basket-row__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+.fm-basket-row__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+.fm-basket-row__id {
+    min-width: 0;
+}
+
+.fm-basket-row__meta {
+    display: block;
+    margin-bottom: .2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6b7a70;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.fm-basket-row__name {
+    margin: 0;
+    font-size: .9375rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.fm-basket-row__name a {
+    color: #1b3a24;
+    text-decoration: none;
+}
+
+.fm-basket-row__name a:hover {
+    color: #047857;
+}
+
+.fm-basket-row__unit {
+    margin: .25rem 0 0;
+    font-size: .8125rem;
+    color: #6b7a70;
+}
+
+.fm-basket-row__price {
+    flex: 0 0 auto;
+    text-align: right;
+}
+
+.fm-basket-row__total {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1b5e20;
+}
+
+.fm-basket-row__old {
+    display: block;
+    margin-top: .15rem;
+    font-size: .8125rem;
+    color: #9aa79f;
+    text-decoration: line-through;
+}
+
+.fm-basket-row__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+/* Reuses .fm-qty from fm-interaction.css - the drawer's stepper, not a copy. */
+
+.fm-basket-row__remove {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .6rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: #b3261e;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: .5rem;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.fm-basket-row__remove:hover {
+    background: #fdecea;
+    border-color: #f5c6c2;
+}
+
+/* --------------------------------------------------------------------------
+   4. Empty basket
+   -------------------------------------------------------------------------- */
+
+.fm-basket-empty {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #e5e9e0;
+    border-radius: 1.125rem;
+}
+
+.fm-basket-empty__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    color: #6b7a70;
+    background: #eef1ee;
+    border-radius: 9999px;
+}
+
+.fm-basket-empty__title {
+    margin: 0 0 .5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1b5e20;
+}
+
+.fm-basket-empty__text {
+    max-width: 30rem;
+    margin: 0 auto 1.25rem;
+    font-size: .9375rem;
+    color: #6b7a70;
+}
+
+/* --------------------------------------------------------------------------
+   5. Order summary
+   -------------------------------------------------------------------------- */
+
+.fm-basket-summary__card {
+    position: sticky;
+    top: 1rem;
+}
+
+.fm-basket-summary__secure {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .55rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #047857;
+    background: #eaf5ee;
+    border-radius: 9999px;
+    white-space: nowrap;
+}
+
+.fm-basket-summary__saving {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    margin-bottom: 1rem;
+    padding: .65rem .75rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: #1b5e20;
+    background: #eaf5ee;
+    border: 1px solid rgb(4 120 87 / .25);
+    border-radius: .75rem;
+}
+
+.fm-basket-summary__saving[hidden] {
+    display: none;
+}
+
+.fm-basket-summary__saving i {
+    flex: 0 0 auto;
+    margin-top: .1rem;
+}
+
+.fm-basket-summary__rows {
+    margin: 0;
+}
+
+.fm-basket-summary__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .5rem 0;
+    font-size: .875rem;
+}
+
+.fm-basket-summary__row dt {
+    margin: 0;
+    color: #5c6b62;
+}
+
+.fm-basket-summary__row dd {
+    margin: 0;
+    font-weight: 700;
+    color: #1b3a24;
+    text-align: right;
+}
+
+.fm-basket-summary__row--discount dd {
+    color: #047857;
+}
+
+.fm-basket-summary__row--discount[hidden] {
+    display: none;
+}
+
+.fm-basket-summary__code {
+    display: inline-block;
+    margin-left: .35rem;
+    padding: .1rem .4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #047857;
+    background: #eaf5ee;
+    border-radius: .375rem;
+    vertical-align: middle;
+}
+
+.fm-basket-summary__total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: .5rem;
+    padding-top: .85rem;
+    border-top: 1px dashed #e0e5df;
+    font-size: 1rem;
+    color: #1b3a24;
+}
+
+.fm-basket-summary__total strong {
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: #047857;
+}
+
+/* Coupon: form and applied chip are both in the DOM, `hidden` toggles. */
+
+.fm-basket-summary__coupon {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eef1ee;
+}
+
+.fm-basket-summary__coupon [hidden] {
+    display: none;
+}
+
+.fm-basket-summary__label {
+    display: block;
+    margin-bottom: .4rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #5c6b62;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.fm-basket-summary__field {
+    display: flex;
+    gap: .5rem;
+}
+
+.fm-basket-summary__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: .5rem .75rem;
+    font-size: .875rem;
+    color: #1b3a24;
+    background: #fff;
+    border: 1px solid #d7ded6;
+    border-radius: .625rem;
+    outline: none;
+}
+
+.fm-basket-summary__input::placeholder {
+    color: #9aa79f;
+}
+
+.fm-basket-summary__input:focus {
+    border-color: #047857;
+    box-shadow: 0 0 0 3px rgb(4 120 87 / .15);
+}
+
+.fm-basket-summary__applied {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .6rem .75rem;
+    background: #eaf5ee;
+    border: 1px solid rgb(4 120 87 / .25);
+    border-radius: .75rem;
+}
+
+.fm-basket-summary__applied-code {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .875rem;
+    font-weight: 700;
+    color: #1b5e20;
+}
+
+.fm-basket-summary__applied-remove {
+    padding: .2rem .5rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: #b3261e;
+    background: transparent;
+    border: 0;
+    border-radius: .375rem;
+    cursor: pointer;
+}
+
+.fm-basket-summary__applied-remove:hover {
+    background: #fdecea;
+}
+
+.fm-basket-summary__trust {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .4rem .75rem;
+    margin: .9rem 0 0;
+    padding: .85rem 0 0;
+    border-top: 1px solid #eef1ee;
+    list-style: none;
+}
+
+.fm-basket-summary__trust li {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .75rem;
+    color: #5c6b62;
+}
+
+.fm-basket-summary__trust i {
+    color: #047857;
+}
+
+/* --------------------------------------------------------------------------
+   6. Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+    .fm-basket-summary__card {
+        position: static;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .fm-basket-progress__steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fm-basket-card__body {
+        padding: .9rem;
+    }
+
+    .fm-basket-row {
+        flex-wrap: wrap;
+        gap: .75rem;
+    }
+
+    .fm-basket-row__thumb {
+        width: 4.5rem;
+        height: 4.5rem;
+    }
+
+    .fm-basket-row__head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .5rem;
+    }
+
+    .fm-basket-row__price {
+        text-align: left;
+    }
+
+    .fm-basket-row__total {
+        display: inline;
+        font-size: 1.0625rem;
+    }
+
+    .fm-basket-row__old {
+        display: inline;
+        margin-left: .4rem;
+    }
+
+    .fm-basket-row__foot {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .fm-basket-summary__trust {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 479.98px) {
+    .fm-basket-progress__steps {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fm-basket-row__remove span {
+        display: none;
+    }
+}

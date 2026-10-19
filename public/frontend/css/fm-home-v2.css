@@ -1,0 +1,1485 @@
+/* ==========================================================================
+   fm-home-v2.css - home page body, design from work/home.html
+   ==========================================================================
+   SCOPE
+   ----------------------------------------------------------------------
+   Everything here sits under .fm-page-home. The header and the footer are
+   NOT part of this redesign (they stay exactly as they were), so every rule
+   is scoped to the page wrapper - a bare .fm-section or .fm-hero here would
+   leak into search / cart / product-details, which share the same sheets.
+
+   WHY THE RULES CARRY !important IN PLACES
+   ----------------------------------------------------------------------
+   work/home.html ships no Bootstrap and no audit layer. This project loads
+   both:
+
+     #fm-audit-fix  (inline, layouts.blade.php)
+         img { max-width:100% !important; height:auto !important }
+         button, a.btn, input[type=submit] { min-height:42px }  (<=768px)
+         [class*="p-"], [class*="px-"] { padding-inline:.75rem !important }
+
+     fm-runtime-fix.css
+         img { max-width:100% !important; height:auto }
+         [class*="flex"][style*="display: flex"] { flex-wrap:wrap }
+
+   height:auto would collapse the fixed-height media boxes back to their
+   intrinsic ratio, so the media height is restated with !important at a
+   higher specificity. Only those two properties need it - everything else is
+   plain CSS and loses or wins on source order alone.
+
+   ONE MORE LAYER TO NEGOTIATE: #fm-audit-fix also raises
+       button { min-height: 42px }                     (<=768px)
+       [class*="p-"] { padding-inline:.75rem !important }   (<=576px)
+   Neither is scoped to a page, so the decorative controls below - the 6px
+   slider dot and the 32px wishlist heart - carry an explicit min-height:0 to
+   stop the tap-target rule stretching them into slabs.
+
+   Linked from frontend/fm/pages/home.blade.php on the 'css' stack, i.e.
+   BEFORE fm-product-card.css. That file only ever touches .fm-card.fm-product
+   (the v1 card), so the two never argue.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Design tokens - the palette of work/home.html
+   -------------------------------------------------------------------------- */
+.fm-page-home {
+  --fmv2-primary: #059669;
+  --fmv2-primary-dark: #065f46;
+  --fmv2-primary-light: #10b981;
+  --fmv2-primary-subtle: #ecfdf5;
+  --fmv2-accent-orange: #f97316;
+  --fmv2-text-dark: #111827;
+  --fmv2-text-muted: #6b7280;
+  --fmv2-text-light: #9ca3af;
+  --fmv2-border: #e5e7eb;
+  --fmv2-radius-sm: 8px;
+  --fmv2-radius-md: 12px;
+  --fmv2-radius-lg: 16px;
+  --fmv2-radius-full: 9999px;
+  --fmv2-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --fmv2-shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+  --fmv2-shadow-hover: 0 12px 24px -4px rgba(15, 23, 42, 0.12);
+  --fmv2-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+.fm-page-home,
+.fm-page-home * {
+  box-sizing: border-box;
+}
+
+.fm-page-home {
+  font-family: var(--fmv2-font);
+  color: var(--fmv2-text-dark);
+  line-height: 1.5;
+}
+
+.fm-page-home a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.fm-page-home button,
+.fm-page-home input {
+  font-family: inherit;
+}
+
+/* The design's own page gutter (max-width 1280). Bootstrap's .container is
+   retuned by fm-runtime-fix.css to 1320px at 1400+ and is used by every
+   other page, so the home gutter is its own class instead. */
+.fm-page-home .fm-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   Shared section header
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  position: relative;
+  gap: 16px;
+}
+
+.fm-page-home .fm-section-header-left {
+  display: flex;
+  flex-direction: column;
+  /* The trailing rule that hangs off .fm-section-title has to reach the
+     "view all" link, so the free space belongs to this text column - not to
+     the title. min-width:0 is what lets a long heading shrink instead of
+     pushing the rule (and the link) out of the row. */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fm-page-home .fm-eyebrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fmv2-primary-dark);
+  background: #ecfdf5;
+  padding: 4px 10px;
+  border-radius: var(--fmv2-radius-full);
+  width: fit-content;
+  margin-bottom: 6px;
+  border: 1px solid #d1fae5;
+  line-height: 1.4;
+}
+
+.fm-page-home .fm-eyebrow-badge-red {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fee2e2;
+}
+
+.fm-page-home .fm-eyebrow-badge-amber {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fef3c7;
+}
+
+.fm-page-home .fm-section-title {
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  margin: 4px 0 0;
+  /* Every home section heading carries a hairline rule that runs from the
+     last word to the edge of its column and fades out on the way. Doing it
+     on the h2 keeps the markup free of an extra empty <div>. */
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* In the brands band the h2 is a direct child of .fm-section-header, so it -
+   not a .fm-section-header-left wrapper - is the flex item that has to take
+   the free space before its own ::after can fill it. */
+.fm-page-home .fm-section-header > .fm-section-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fm-page-home .fm-section-title::after {
+  content: "";
+  flex: 1 1 auto;
+  min-width: 40px;
+  height: 2px;
+  border-radius: 2px;
+  /* --fmv2-border fading into its own transparent twin, so the rule reads as
+     a hairline rather than a hard-edged line. */
+  background: linear-gradient(90deg, var(--fmv2-border) 0%, rgba(229, 231, 235, 0) 100%);
+}
+
+.fm-page-home .fm-section-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+/* Title with a short emerald accent bar on its left. Used where the design
+   once stacked eyebrow + title + description and the brief asked to keep
+   only the title (brands section). */
+.fm-page-home .fm-section-title--accent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fm-page-home .fm-section-title--accent::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 6px;
+  height: 1.5em;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--fmv2-primary) 0%, var(--fmv2-primary-dark) 100%);
+}
+
+/* --------------------------------------------------------------------------
+   Same trailing rule for the categories band
+   --------------------------------------------------------------------------
+   Popular categories is the one home section that still renders through the
+   shared sections/partials/_section-head partial, whose class family
+   (.fm-section-head / __text / __link) is different from the
+   .fm-section-header family above. The rule is repeated instead of the
+   partial being rewritten, because products / categories / contact / search
+   all include that partial and must keep their untouched look - the
+   .fm-page-home prefix is what confines this to the home page.
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-section-head__text {
+  /* .fm-section-head is a wrapping row: without flex-grow the text block
+     stops at its own content width and the rule would never reach the link. */
+  flex: 1 1 auto;
+}
+
+.fm-page-home .fm-section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fm-page-home .fm-section-head h2::after {
+  content: "";
+  flex: 1 1 auto;
+  min-width: 40px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--fmv2-border) 0%, rgba(229, 231, 235, 0) 100%);
+}
+
+.fm-page-home .fm-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--fmv2-primary-dark);
+  transition: gap 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.fm-page-home .fm-view-all:hover {
+  text-decoration: underline;
+  gap: 9px;
+}
+
+.fm-page-home .fm-view-all svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.2;
+  flex-shrink: 0;
+}
+
+.fm-page-home .fm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  /* border-radius: var(--fmv2-radius-full); */
+  line-height: 1;
+}
+
+.fm-page-home .fm-badge svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.fm-page-home .fm-badge-organic { background: #059669; color: #ffffff; }
+.fm-page-home .fm-badge-sale { background: #ef4444; color: #ffffff; }
+.fm-page-home .fm-badge-amber { background: #d97706; color: #ffffff; }
+.fm-page-home .fm-badge-pure { background: #0d9488; color: #ffffff; }
+.fm-page-home .fm-badge-blue { background: #0284c7; color: #ffffff; }
+
+/* --------------------------------------------------------------------------
+   Hero slider - FULL WIDTH
+   The banner breaks out of the .fm-container gutter and spans the viewport
+   edge to edge, so the first thing a shopper meets is the whole banner.
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-hero-wrapper {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.fm-page-home .fm-hero-banner {
+  position: relative;
+  /* clamp(): tall enough to feel like a banner on desktop, short enough not
+     to push the categories below the fold on a phone. */
+  height: clamp(260px, 38vw, 520px);
+  overflow: hidden;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+/* Slides are stacked rather than swapped by JavaScript: every slide is in the
+   DOM, only the opacity changes. That means the hero still shows its first
+   slide with JavaScript off, and the banner is one fixed height instead of
+   jumping between slides. */
+.fm-page-home .fm-hero-slides {
+  position: absolute;
+  inset: 0;
+}
+
+.fm-page-home .fm-hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+
+.fm-page-home .fm-hero-slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* The media (image or autoplay video) fills the whole banner. */
+.fm-page-home .fm-hero-hit {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.fm-page-home .fm-hero-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Dark-to-transparent wash: keeps the headline readable over any photo or
+   video frame without hiding the artwork on the right. */
+.fm-page-home .fm-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.45) 42%, rgba(15, 23, 42, 0.05) 75%, rgba(15, 23, 42, 0) 100%);
+  pointer-events: none;
+}
+
+.fm-page-home .fm-hero-overlay {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  max-width: 640px;
+  padding: 32px 40px 40px;
+}
+
+.fm-page-home .fm-hero-text-block h1 {
+  font-size: clamp(24px, 3.4vw, 46px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  overflow-wrap: normal;
+}
+
+.fm-page-home .fm-hero-text-block .fm-hero-subtext {
+  font-size: clamp(16px, 2.2vw, 30px);
+  font-style: italic;
+  font-weight: 400;
+  display: block;
+  color: #fef08a;
+  text-transform: none;
+  margin-top: 4px;
+  line-height: 1.2;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.fm-page-home .fm-hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #14532d;
+  color: #4ade80;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: var(--fmv2-radius-full);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  margin-bottom: 16px;
+  width: fit-content;
+}
+
+.fm-page-home .fm-hero-pill-badge svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Dots and arrows float over the media in the bottom-right corner. */
+.fm-page-home .fm-hero-bottom-controls {
+  position: absolute;
+  right: 40px;
+  bottom: 32px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fm-page-home .fm-slider-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.fm-page-home .fm-slider-dot {
+  /* The painted bar stays 22x6; the button is 44x24 so a thumb can actually hit
+     it (measured before: a 36x6 and a 24x6 button). background-clip keeps the
+     colour inside the padding, so only the hit box changed. */
+  width: 44px;
+  height: 24px;
+  padding: 9px 11px;
+  background: rgba(255, 255, 255, 0.4);
+  background-clip: content-box;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 0;
+  /* #fm-audit-fix forces every <button> to 42px tall below 768px; the dot's own
+     height already encodes the hit area, so it opts out explicitly. */
+  min-height: 0;
+}
+
+.fm-page-home .fm-slider-dot.fm-active {
+  background: #ffffff;
+  /* 58 - 22 padding = the original 36px painted bar. */
+  width: 58px;
+}
+
+.fm-page-home .fm-slider-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.fm-page-home .fm-slider-btn {
+  /* Measured 36x36 - under the 44px floor. */
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  padding: 0;
+}
+
+.fm-page-home .fm-slider-btn:hover {
+  background: #ffffff;
+  color: var(--fmv2-text-dark);
+}
+
+/* Single-banner call to action, shown where the dots would be. */
+.fm-page-home .fm-btn-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #ffffff;
+  color: #b45309;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 10px 20px;
+  border-radius: var(--fmv2-radius-full);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.fm-page-home .fm-btn-hero:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.fm-page-home .fm-btn-hero svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Popular categories
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-categories-section {
+  padding-top: 20px;
+  padding-bottom: 36px;
+}
+
+.fm-page-home .fm-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 16px;
+}
+
+.fm-page-home .fm-cat-card {
+  background: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  border-radius: var(--fmv2-radius-md);
+  padding: 18px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  height: 100%;
+}
+
+.fm-page-home .fm-cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--fmv2-shadow-hover);
+  border-color: var(--fmv2-primary-light);
+}
+
+.fm-page-home .fm-cat-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fmv2-primary);
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.fm-page-home .fm-cat-card:hover .fm-cat-icon-box {
+  background: var(--fmv2-primary);
+  color: #ffffff;
+}
+
+.fm-page-home .fm-cat-icon-box svg {
+  width: 28px;
+  height: 28px;
+}
+
+.fm-page-home .fm-cat-icon-box img {
+  width: 34px !important;
+  height: 34px !important;
+  object-fit: contain;
+}
+
+.fm-page-home .fm-cat-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fmv2-text-dark);
+  line-height: 1.25;
+}
+
+/* --------------------------------------------------------------------------
+   Popular categories - Image Card Style (Ekomart Inspired)
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-categories-grid-v2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.fm-page-home .fm-category-card {
+  background: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  border-radius: var(--fmv2-radius-lg);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  height: 100%;
+  box-shadow: var(--fmv2-shadow-sm);
+}
+
+.fm-page-home .fm-category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--fmv2-shadow-hover);
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.fm-page-home .fm-category-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.fm-page-home .fm-category-media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  padding: clamp(18px, 3vw, 28px);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.6);
+}
+
+.fm-page-home .fm-category-media img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.35s ease;
+  mix-blend-mode: multiply;
+}
+
+.fm-page-home .fm-category-card:hover .fm-category-media img {
+  transform: scale(1.05);
+}
+
+.fm-page-home .fm-category-media-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(64px, 10vw, 88px);
+  height: clamp(64px, 10vw, 88px);
+  border-radius: 50%;
+  background: #f0fdf4;
+  color: var(--fmv2-primary);
+}
+
+.fm-page-home .fm-category-media-fallback i,
+.fm-page-home .fm-category-media-fallback svg {
+  font-size: clamp(28px, 5vw, 38px);
+}
+
+.fm-page-home .fm-category-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 14px 12px 16px;
+}
+
+.fm-page-home .fm-category-title {
+  font-size: clamp(13px, 1.2vw, 15px);
+  font-weight: 700;
+  color: var(--fmv2-text-dark);
+  line-height: 1.25;
+  margin: 0;
+  word-break: break-word;
+}
+
+.fm-page-home .fm-category-count {
+  font-size: 12px;
+  color: var(--fmv2-text-muted);
+  margin: 0;
+  line-height: 1.3;
+}
+
+@media (min-width: 576px) {
+  .fm-page-home .fm-categories-grid-v2 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .fm-page-home .fm-categories-grid-v2 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .fm-page-home .fm-categories-grid-v2 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .fm-page-home .fm-categories-grid-v2 {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 18px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Flash sale banner + live countdown
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-flash-section {
+  padding-bottom: 48px;
+}
+
+.fm-page-home .fm-flash-banner-card {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  box-shadow: 0 16px 36px -10px rgba(6, 78, 59, 0.35), 0 0 20px rgba(16, 185, 129, 0.15);
+  padding: 32px 36px;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.fm-page-home .fm-flash-banner-card::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(110, 231, 183, 0.18) 0%, rgba(6, 78, 59, 0) 70%);
+  pointer-events: none;
+}
+
+.fm-page-home .fm-flash-banner-info {
+  position: relative;
+  z-index: 2;
+  max-width: 620px;
+}
+
+.fm-page-home .fm-flash-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.22);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #fef08a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: var(--fmv2-radius-full);
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fm-page-home .fm-flash-banner-info h2 {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  margin: 0 0 8px;
+}
+
+.fm-page-home .fm-flash-banner-info p {
+  font-size: 0.92rem;
+  color: #d1fae5;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.fm-page-home .fm-countdown-group {
+  position: relative;
+  z-index: 2;
+  background: rgba(4, 47, 46, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.fm-page-home .fm-countdown-unit {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  min-width: 54px;
+  padding: 6px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.fm-page-home .fm-countdown-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.fm-page-home .fm-countdown-lbl {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6ee7b7;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+
+.fm-page-home .fm-countdown-sep {
+  color: #a7f3d0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0.75;
+  padding: 0 2px;
+}
+
+/* The reference shows a bare 08:42:19 while the clock is wired to the real
+   end_time. This is the one static-looking element that is genuinely live. */
+.fm-page-home .fm-countdown-group[data-ended="1"] {
+  opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   Product rails + card
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-products-section {
+  padding-bottom: 48px;
+}
+
+.fm-page-home .fm-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.fm-page-home .fm-product-card {
+  background: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  border-radius: var(--fmv2-radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  height: 100%;
+}
+
+.fm-page-home .fm-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--fmv2-shadow-card);
+  border-color: #cbd5e1;
+}
+
+.fm-page-home .fm-product-image-container {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.fm-page-home .fm-product-image-container img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.fm-page-home .fm-product-card:hover .fm-product-image-container img {
+  transform: scale(1.08);
+}
+
+.fm-page-home .fm-product-image-container a.fm-product-media-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fm-page-home .fm-product-badge-float {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+}
+
+.fm-page-home .fm-wishlist-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s, background 0.2s, transform 0.15s;
+  padding: 0;
+  /* Opt out of the 42px tap-target floor - a 32px heart stretched to 42px
+     would overlap the card's top edge on a phone. */
+  min-height: 0;
+}
+
+.fm-page-home .fm-wishlist-btn:hover {
+  color: #ef4444;
+  background: #ffffff;
+  transform: scale(1.08);
+}
+
+.fm-page-home .fm-wishlist-btn.is-active {
+  color: #ef4444;
+}
+
+.fm-page-home .fm-wishlist-btn i {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.fm-page-home .fm-product-content {
+  padding: 16px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.fm-page-home .fm-product-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fmv2-text-dark);
+  line-height: 1.35;
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 38px;
+}
+
+.fm-page-home .fm-product-title a:hover {
+  color: var(--fmv2-primary-dark);
+}
+
+.fm-page-home .fm-product-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.fm-page-home .fm-price-current {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--fmv2-primary);
+}
+
+.fm-page-home .fm-price-regular {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fmv2-text-light);
+  text-decoration: line-through;
+}
+
+.fm-page-home .fm-product-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.fm-page-home .fm-product-actions-grid form {
+  margin: 0;
+}
+
+/* 44px / 12px: measured live at 360 and 768px these CTAs painted 35px tall
+   with an 11px label (8px padding + 1px border + 1.5 line-height). #fm-audit-fix
+   raises `button` to min-height:42px only below 768px (0,0,1) - still under the
+   44px thumb floor - and this two-class selector outranks it, so the floor is
+   declared here for every breakpoint. */
+.fm-page-home .fm-btn-cart-secondary,
+.fm-page-home .fm-btn-order-primary {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.fm-page-home .fm-btn-cart-secondary {
+  background: #ffffff;
+  color: var(--fmv2-primary-dark);
+  border: 1px solid var(--fmv2-primary);
+}
+
+.fm-page-home .fm-btn-cart-secondary:hover {
+  background: var(--fmv2-primary-subtle);
+}
+
+.fm-page-home .fm-btn-order-primary {
+  background: var(--fmv2-primary);
+  color: #ffffff;
+  border: 1px solid var(--fmv2-primary);
+}
+
+.fm-page-home .fm-btn-order-primary:hover {
+  background: var(--fmv2-primary-dark);
+}
+
+.fm-page-home .fm-btn-cart-secondary svg,
+.fm-page-home .fm-btn-order-primary svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.fm-page-home .fm-btn-cart-secondary:disabled,
+.fm-page-home .fm-btn-order-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* The out-of-stock plate replaces the image, exactly as the v1 card does with
+   its badge. It sits in the media box so the card height never jumps. */
+.fm-page-home .fm-product-soldout {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b91c1c;
+  border: 2px solid #ef4444;
+  z-index: 3;
+}
+
+/* --------------------------------------------------------------------------
+   Shop by brand
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-brands-section {
+  padding-bottom: 40px;
+}
+
+.fm-page-home .fm-brands-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.fm-page-home .fm-brand-card {
+  background: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  border-radius: var(--fmv2-radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 80px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.fm-page-home .fm-brand-card:hover {
+  border-color: var(--fmv2-primary);
+  box-shadow: var(--fmv2-shadow-sm);
+  transform: translateY(-2px);
+}
+
+.fm-page-home .fm-brand-card span {
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  color: #334155;
+}
+
+.fm-page-home .fm-brand-logo-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--fmv2-primary);
+  flex-shrink: 0;
+}
+
+.fm-page-home .fm-brand-logo-icon img {
+  width: 32px !important;
+  height: 32px !important;
+  object-fit: contain;
+}
+
+/* --------------------------------------------------------------------------
+   Trust badges
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-trust-row-section {
+  padding-bottom: 48px;
+}
+
+.fm-page-home .fm-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.fm-page-home .fm-trust-box {
+  background: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  border-radius: var(--fmv2-radius-md);
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+}
+
+.fm-page-home .fm-trust-box:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--fmv2-shadow-sm);
+}
+
+.fm-page-home .fm-trust-box-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ecfdf5;
+  color: var(--fmv2-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fm-page-home .fm-trust-box-icon svg,
+.fm-page-home .fm-trust-box-icon i {
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.fm-page-home .fm-trust-box h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fmv2-text-dark);
+  margin: 0 0 2px;
+}
+
+.fm-page-home .fm-trust-box p {
+  font-size: 12px;
+  color: var(--fmv2-text-muted);
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Social events
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-events-section {
+  padding-bottom: 48px;
+}
+
+.fm-page-home .fm-events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.fm-page-home .fm-event-card {
+  background: #ffffff;
+  border: 1px solid var(--fmv2-border);
+  border-radius: var(--fmv2-radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+}
+
+.fm-page-home .fm-event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--fmv2-shadow-hover);
+}
+
+.fm-page-home .fm-event-media {
+  height: 140px;
+  background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+  position: relative;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.fm-page-home .fm-event-media img {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+.fm-page-home .fm-event-media > * {
+  position: relative;
+  z-index: 2;
+}
+
+.fm-page-home .fm-event-title-plate {
+  font-weight: 800;
+  font-size: 18px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.fm-page-home .fm-event-date-pill {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fm-page-home .fm-event-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.fm-page-home .fm-event-body h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--fmv2-text-dark);
+  margin: 0 0 6px;
+}
+
+.fm-page-home .fm-event-body p {
+  font-size: 12px;
+  color: var(--fmv2-text-muted);
+  line-height: 1.45;
+  margin: 0 0 16px;
+}
+
+.fm-page-home .fm-event-cta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fmv2-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+}
+
+.fm-page-home .fm-event-cta:hover {
+  text-decoration: underline;
+}
+
+.fm-page-home .fm-event-cta svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Newsletter
+   -------------------------------------------------------------------------- */
+.fm-page-home .fm-newsletter-section {
+  padding-bottom: 60px;
+}
+
+.fm-page-home .fm-newsletter-card {
+  background: #f8fafc;
+  /* border: 1px solid var(--fmv2-border); */
+  border-radius: var(--fmv2-radius-lg);
+  padding: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.fm-page-home .fm-newsletter-texts h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--fmv2-text-dark);
+  margin: 4px 0 0;
+}
+
+.fm-page-home .fm-newsletter-texts p {
+  font-size: 13px;
+  color: var(--fmv2-text-muted);
+  margin: 4px 0 0;
+}
+
+.fm-page-home .fm-newsletter-form {
+  display: flex;
+  /* wrap, so the ajax status line (width:100%) drops under the field/button
+     pair instead of squeezing in beside them. */
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+}
+
+.fm-page-home .fm-newsletter-input {
+  flex: 1;
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid #121316;
+  border-radius: var(--fmv2-radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+  outline: none;
+  color: var(--fmv2-text-dark);
+}
+
+.fm-page-home .fm-newsletter-input:focus {
+  border-color: var(--fmv2-primary);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
+}
+
+.fm-page-home .fm-newsletter-btn {
+  background: var(--fmv2-text-dark);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--fmv2-radius-sm);
+  padding: 12px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.fm-page-home .fm-newsletter-btn:hover {
+  background: var(--fmv2-primary);
+}
+
+/* Ajax result line, written by fm-app.js (see setNewsletterStatus).
+   width:100% + the wrapping form above puts it on its own line under the
+   field, and at <=480px - where the form stacks into a column - it is simply
+   full width. :empty keeps the form at rest from shifting. */
+.fm-page-home .fm-newsletter-status {
+  width: 100%;
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--fmv2-primary-dark);
+}
+
+.fm-page-home .fm-newsletter-status:empty {
+  display: none;
+}
+
+.fm-page-home .fm-newsletter-status.is-info {
+  color: var(--fmv2-text-muted);
+}
+
+.fm-page-home .fm-newsletter-status.is-error {
+  color: #b91c1c;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive - transcribed from work/home.html <style data-purpose=
+   "responsive-breakpoints">
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .fm-page-home .fm-categories-grid { grid-template-columns: repeat(4, 1fr); }
+  .fm-page-home .fm-product-grid { grid-template-columns: repeat(3, 1fr); }
+  .fm-page-home .fm-trust-grid { grid-template-columns: repeat(2, 1fr); }
+  .fm-page-home .fm-events-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .fm-page-home .fm-hero-overlay { padding: 20px 18px 24px; max-width: 100%; }
+  .fm-page-home .fm-hero-pill-badge { padding: 7px 14px; font-size: 12px; margin-bottom: 10px; }
+  .fm-page-home .fm-hero-scrim {
+    /* On a phone the text sits on the media itself, so the wash is stronger
+       and comes up from the bottom instead of the left. */
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 30%, rgba(15, 23, 42, 0.82) 100%);
+  }
+  .fm-page-home .fm-hero-bottom-controls { right: 16px; bottom: 16px; gap: 10px; }
+  .fm-page-home .fm-categories-grid { grid-template-columns: repeat(3, 1fr); }
+  .fm-page-home .fm-brands-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .fm-page-home .fm-flash-banner-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+    gap: 20px;
+  }
+  .fm-page-home .fm-flash-banner-info h2 { font-size: 1.5rem; }
+  .fm-page-home .fm-countdown-group { width: 100%; justify-content: center; }
+
+  .fm-page-home .fm-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  /* align-items:flex-start would shrink the text column to its fit-content
+     width, and the hairline rule behind the title would collapse to its 40px
+     floor. Letting the column stretch keeps the sweep edge to edge. */
+  .fm-page-home .fm-section-header-left { align-self: stretch; }
+  /* The brands band puts the h2 straight into the column with no -left
+     wrapper, so it needs the same stretch for the same reason. */
+  .fm-page-home .fm-section-header > .fm-section-title { align-self: stretch; }
+  .fm-page-home .fm-view-all { align-self: flex-start; }
+
+  /* Strict 2-column grid on phones, exactly as the reference. */
+  .fm-page-home .fm-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .fm-page-home .fm-product-image-container { height: 140px; }
+  .fm-page-home .fm-product-content { padding: 12px 10px 10px; }
+  .fm-page-home .fm-product-title { font-size: 13px; min-height: 36px; }
+  .fm-page-home .fm-price-current { font-size: 16px; }
+  .fm-page-home .fm-product-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .fm-page-home .fm-events-grid { grid-template-columns: 1fr; }
+  .fm-page-home .fm-newsletter-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+  }
+  .fm-page-home .fm-newsletter-form { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .fm-page-home .fm-container { padding-left: 14px; padding-right: 14px; }
+  .fm-page-home .fm-categories-grid { grid-template-columns: repeat(2, 1fr); }
+  .fm-page-home .fm-trust-grid { grid-template-columns: 1fr; }
+  .fm-page-home .fm-newsletter-form { flex-direction: column; }
+  .fm-page-home .fm-countdown-unit { min-width: 48px; padding: 5px 6px; }
+  .fm-page-home .fm-countdown-val { font-size: 1.25rem; }
+  .fm-page-home .fm-countdown-sep { font-size: 1.1rem; }
+  .fm-page-home .fm-section-title { font-size: 1.35rem; }
+}

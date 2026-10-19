@@ -1,0 +1,563 @@
+/* ==========================================================================
+   fm-product-card.css - product grid + product card
+   ==========================================================================
+   Source: work/code.html - the approved "FreshCart BD" catalog design.
+
+   Every value below is transcribed from that file's custom sheet
+   (<style data-purpose="custom-fm-theme">) and the utility classes its card
+   carries, converted to plain CSS:
+
+     card      article.fm-product-card.p-2.5 sm:p-3
+               bg-white border border-slate-200 rounded-xl h-full flex
+               flex-col, hover: -translate-y-0.5 + layered shadow
+     media     rounded-lg overflow-hidden bg-emerald-50 h-36 sm:h-44 mb-2.5
+               sm:mb-3, img w-full h-full object-cover group-hover:scale-105
+     badge     .fm-badge .fm-badge-* : solid emerald / red / amber / blue,
+               white text, rounded-full, 0.75rem/600, backdrop-blur
+     heart     w-7 h-7 bg-white/90 rounded-full, top-1.5 right-1.5
+               (sm: 0.5rem), text-slate-400 hover:text-red-500
+     title     text-xs sm:text-sm font-bold text-slate-800 line-clamp-1 mb-1
+     price     text-sm sm:text-base font-extrabold text-emerald-800;
+               old text-[11px] sm:text-xs text-slate-400 line-through
+     actions   .fm-actions-row: grid 1fr 1fr, gap 0.5rem, mt-auto
+               .fm-btn-cart  44px, border 1.5px #10b981, text #059669, r 0.5rem
+               .fm-btn-order 44px, bg #065f46, white, r 0.5rem, hover #044e39
+     grid      grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5
+     page      body: system font stack, bg #f8fafc, text #1e293b;
+               sidebar: bg-white border #e2e8f0 rounded-xl;
+               range thumb 16px #059669 with a white ring
+
+   HOW IT IS APPLIED (CSS ONLY - the blade markup is untouched)
+   --------------------------------------------------------------------------
+   code.html is a static page: its card carries .fm-product-card and the two
+   action buttons directly. Our card component
+   (frontend/fm/components/product-card.blade.php) keeps its own class names
+   and, per the brief, only ONE action button, so the reference selectors are
+   mapped onto ours:
+
+       .fm-product-card        -> .fm-card.fm-product
+       .fm-badge-*             -> .fm-pill-* (same colours, white text)
+       .fm-actions-row         -> .fm-product__foot (single button + price)
+       .fm-btn-cart            -> .fm-add-btn
+       .fm-btn-order           -> .fm-btn-order (shipped for the moment the
+                                  markup adds the second button back)
+       grid-cols-2/3/4         -> .fm-shop-grid .row (products + search)
+
+   WHY SOME DECLARATIONS CARRY !important
+   --------------------------------------------------------------------------
+   code.html ships no Bootstrap, our pages do, and Bootstrap 5.3 publishes
+   .p-4 / .p-3 / .mb-3 / .mt-3 / .gap-* / .border as !important - those were
+   silently widening the reference padding to 1.5rem and the media gap to
+   1rem. #fm-audit-fix (layouts.blade.php) adds img{height:auto!important} and,
+   below 576px, [class*="p-"]{padding-inline:.75rem!important}. A plain
+   declaration cannot beat an !important one regardless of load order, so
+   every property those two layers touch is restated here with the reference
+   value AND !important.
+
+   Linked last in frontend/fm/layouts.blade.php, so this file is the final
+   word on the card and the catalog grid.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Page shell (code.html body / fm-sidebar / range thumb)
+   -------------------------------------------------------------------------- */
+
+body {
+  /* code.html: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+     Helvetica, Arial, sans-serif */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+}
+
+/* code.html: .fm-sidebar */
+.fm-sidebar,
+.fm-shop-sidebar {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+}
+
+/* code.html: main.max-w-[1440px] px-3 sm:px-6 lg:px-8 with a 16rem sidebar
+   and a 1.5rem (gap-6) column gap. Bootstrap's row gutter is retuned to the
+   same 1.5rem, and the filter rail gets code.html's fixed 16rem width. */
+.fm-shop > .container > .row {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 1.5rem;
+}
+
+@media (min-width: 992px) {
+  .fm-shop > .container > .row > .col-lg-3 {
+    flex: 0 0 16rem;
+    width: 16rem;
+    max-width: 16rem;
+  }
+}
+
+/* code.html: input[type=range] thumb - 16px emerald with a white ring. */
+.fm-price-range::-webkit-slider-thumb {
+  height: 16px;
+  width: 16px;
+  background: #059669;
+  border: 2px solid #fff;
+}
+
+.fm-price-range::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  background: #059669;
+  border: 2px solid #fff;
+}
+
+/* --------------------------------------------------------------------------
+   2. Result grid
+   code.html: grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5
+   -------------------------------------------------------------------------- */
+
+.fm-shop-grid .row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .fm-shop-grid .row {
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .fm-shop-grid .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .fm-shop-grid .row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The Bootstrap column wrappers must stand down or the grid would keep their
+   12px padding and flex sizing. */
+.fm-shop-grid .row > .col {
+  flex: none;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. Card shell
+   -------------------------------------------------------------------------- */
+
+.fm-card.fm-product {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  /* p-2.5 sm:p-3 (Bootstrap's .p-* is !important, hence the flag) */
+  padding: 0.625rem !important;
+  background: #fff;
+  /* border-slate-200: Bootstrap's .border utility is !important and would
+     otherwise repaint it #dee2e6. */
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 1rem;
+  box-shadow: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 640px) {
+  .fm-card.fm-product {
+    padding: 0.75rem !important;
+  }
+}
+
+.fm-card.fm-product:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.fm-card.fm-product .fm-card__body,
+.fm-card.fm-product .fm-product__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. Media, badge and the wishlist heart
+   -------------------------------------------------------------------------- */
+
+.fm-card.fm-product .fm-product__media {
+  position: relative;
+  width: 100%;
+  /* code.html replaces the square media with a fixed 9rem / 11rem stage. */
+  height: 9rem;
+  aspect-ratio: auto;
+  margin: 0 0 0.625rem !important;
+  border-radius: 0.5rem;
+  background: #ecfdf5;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .fm-card.fm-product .fm-product__media {
+    height: 11rem;
+    margin-bottom: 0.75rem !important;
+  }
+}
+
+.fm-card.fm-product .fm-product__link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fm-card.fm-product .fm-product__media img {
+  display: block;
+  width: 100%;
+  height: 100% !important;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.fm-card.fm-product:hover .fm-product__media img {
+  transform: scale(1.05);
+}
+
+/* code.html: absolute top-1.5 left-1.5 (sm: top-2 left-2) */
+.fm-card.fm-product .fm-product__badges {
+  position: absolute;
+  top: 0.375rem;
+  left: 0.375rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .fm-card.fm-product .fm-product__badges {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+}
+
+/* code.html: .fm-badge - solid colour, white text, rounded-full. */
+.fm-card.fm-product .fm-product__badges .fm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  border-radius: 9999px;
+  color: #fff;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+/* .fm-badge-organic / -discount / -artisan - the same three fills code.html
+   uses, mapped onto the pill modifiers the card component already renders. */
+.fm-card.fm-product .fm-pill--new,
+.fm-card.fm-product .fm-pill--organic {
+  background-color: #059669;
+  color: #fff;
+}
+
+.fm-card.fm-product .fm-pill--discount {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+/* code.html has no "out of stock" badge; its amber .fm-badge-artisan is the
+   closest non-discount fill, so stock trouble never reads as a sale. */
+.fm-card.fm-product .fm-pill--out {
+  background-color: #d97706;
+  color: #fff;
+}
+
+/* code.html: w-7 h-7 (1.75rem) */
+.fm-card.fm-product .fm-product__wish {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #94a3b8;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+@media (min-width: 640px) {
+  .fm-card.fm-product .fm-product__wish {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+.fm-card.fm-product .fm-product__wish:hover {
+  color: #ef4444;
+}
+
+/* Saved state, toggled by fm-app.js. */
+.fm-card.fm-product .fm-product__wish.is-active {
+  background: #fff1f2;
+  color: #ef4444;
+}
+
+/* --------------------------------------------------------------------------
+   5. Unit, title and rating
+   -------------------------------------------------------------------------- */
+
+/* No counterpart in code.html's card (its card has no unit line); kept small
+   and emerald so a unit never competes with the title. 12px is the readable
+   floor, so it matches text-xs in the markup instead of 10px. */
+.fm-card.fm-product .fm-product__unit {
+  display: block;
+  margin: 0 0 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #047857;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* text-xs sm:text-sm, font-bold, text-slate-800, line-clamp-1, mb-1 */
+.fm-card.fm-product .fm-product__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  margin: 0 0 0.25rem;
+  min-height: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1e293b;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .fm-card.fm-product .fm-product__title {
+    font-size: 0.875rem;
+  }
+}
+
+.fm-card.fm-product .fm-product__title a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.fm-card.fm-product .fm-product__title a:hover {
+  color: #059669;
+}
+
+/* code.html's card carries no rating row. CSS-only per the brief: this one
+   rule hides it - delete the rule (or pass :show-rating="false") to bring it
+   back, no other change is needed. */
+.fm-card.fm-product .fm-product__rating {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. Foot: price left, the Add to Cart button right
+   code.html: .fm-actions-row + .fm-btn-cart / .fm-btn-order
+   -------------------------------------------------------------------------- */
+
+.fm-card.fm-product .fm-product__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  /* code.html has no divider above the actions: the price row simply sits
+     under the title (mb-2.5/3) and the actions row is pushed down by
+     margin-top:auto. The markup still carries pt-3 border-t mt-3, so those
+     three are forced back to the reference values. */
+  margin: auto 0 0 !important;
+  padding: 0 !important;
+  border-top: 0 !important;
+}
+
+/* flex items-baseline gap-1.5 sm:gap-2 */
+.fm-card.fm-product .fm-product__price,
+.fm-card.fm-product .fm-product__foot > span:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.375rem !important;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .fm-card.fm-product .fm-product__foot > span:first-child {
+    gap: 0.5rem !important;
+  }
+}
+
+/* text-sm sm:text-base font-extrabold text-emerald-800 */
+.fm-card.fm-product .fm-price {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #065f46;
+}
+
+@media (min-width: 640px) {
+  .fm-card.fm-product .fm-price {
+    font-size: 1rem;
+  }
+}
+
+/* text-[11px] sm:text-xs text-slate-400 line-through */
+.fm-card.fm-product .fm-product__old {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+@media (min-width: 640px) {
+  .fm-card.fm-product .fm-product__old {
+    font-size: 0.75rem;
+  }
+}
+
+.fm-card.fm-product .fm-product__cart {
+  display: flex;
+  margin: 0;
+  min-width: 0;
+}
+
+/* code.html: .fm-actions-row - the two buttons share one 1fr 1fr grid so the
+   pair always fills the card width. The card currently renders the cart
+   button alone, so the grid is one column wide until the Order Now button
+   comes back in the markup; at that point this rule already matches. */
+.fm-card.fm-product .fm-product__actions {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* code.html: .fm-btn-cart - outlined emerald, radius 0.5rem. Bootstrap
+   publishes .text-white / .border-* / .bg-* as !important utilities and the
+   markup still carries text-white bg-[#1b5e20], so every one of those four is
+   restated with the reference value AND !important.
+   Size is NOT code.html's 38px/0.72rem: a live measurement at 360-768px gave
+   35px tall with an 11px label, below the 44px thumb floor. #fm-audit-fix's
+   `button{min-height:42px}` (<=768px, specificity 0,0,1) is below the floor
+   too and loses to this class selector, so the floor lives here. */
+.fm-card.fm-product .fm-add-btn,
+.fm-btn-cart {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 0.35rem !important;
+  border: 1.5px solid #10b981 !important;
+  border-radius: 0.5rem;
+  background-color: #fff !important;
+  color: #059669 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  min-width: max-content;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.fm-card.fm-product .fm-add-btn:hover,
+.fm-btn-cart:hover {
+  background-color: #ecfdf5 !important;
+}
+
+.fm-card.fm-product .fm-add-btn:active,
+.fm-btn-cart:active {
+  transform: scale(0.97);
+}
+
+.fm-card.fm-product .fm-add-btn:disabled,
+.fm-btn-cart:disabled {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed;
+}
+
+/* code.html: .fm-btn-order - solid #065f46, radius 0.5rem. 44px tall / 12px
+   label for the same measured reason as .fm-btn-cart above. Shipped now
+   so the second action can be re-enabled in the markup with no CSS work.
+   !important for the same Bootstrap-utility reason as .fm-btn-cart above. */
+.fm-card.fm-product .fm-buy-btn,
+.fm-btn-order {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 0.35rem !important;
+  border: 1.5px solid #065f46 !important;
+  border-radius: 0.5rem;
+  background-color: #065f46 !important;
+  color: #fff !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  min-width: max-content;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.fm-card.fm-product .fm-buy-btn:hover,
+.fm-btn-order:hover {
+  background-color: #044e39 !important;
+  border-color: #044e39 !important;
+}
+
+.fm-card.fm-product .fm-buy-btn:active,
+.fm-btn-order:active {
+  transform: scale(0.97);
+}
+
+/* --------------------------------------------------------------------------
+   7. Catalog toolbar (code.html's toolbar bar)
+   -------------------------------------------------------------------------- */
+
+.fm-shop-toolbar {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+}

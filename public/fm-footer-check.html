@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FM footer check harness</title>
+<style>
+  body { margin: 0; background: #ddd; font: 12px system-ui; }
+  .pane { display: block; border: 0; margin: 0 0 8px; background: #fff; }
+  label { display: inline-block; padding: 4px 8px; background: #222; color: #fff; }
+</style>
+</head>
+<body>
+<label id="tag">loading…</label>
+<iframe class="pane" id="frame" src="/" style="width:375px;height:1100px"></iframe>
+<script>
+  // Same-origin harness: renders the live site inside an iframe so the
+  // footer can be inspected at an exact phone width without a device.
+  var params = new URLSearchParams(location.search);
+  var width = parseInt(params.get('w') || '375', 10);
+  var frame = document.getElementById('frame');
+  frame.style.width = width + 'px';
+  frame.addEventListener('load', function () {
+    var doc = frame.contentDocument;
+    var footer = doc.querySelector('.app-footer');
+    footer.scrollIntoView({ block: 'start' });
+    doc.documentElement.scrollTop = footer.offsetTop;
+    doc.body.scrollTop = footer.offsetTop;
+    document.getElementById('tag').textContent =
+      'width ' + width + 'px | footer ' + Math.round(footer.getBoundingClientRect().height) + 'px';
+  });
+</script>
+</body>
+</html>

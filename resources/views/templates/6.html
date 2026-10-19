@@ -1,0 +1,1003 @@
+<div
+  class="export-wrapper"
+  style="
+    width: 1440px;
+    min-height: 812px;
+    position: relative;
+    font-family: var(--font-family-body);
+    background-color: var(--background);
+  "
+>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&family=Geist:wght@100;200;300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@100;200;300;400;500;600;700&family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Nunito:wght@200;300;400;500;600;700;800;900&family=PT+Serif:wght@400;700&family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&family=Shantell+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <html>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Tea Product Landing</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+      <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+      />
+      <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        rel="stylesheet"
+      />
+
+      <style id="base-styles">
+        * {
+          box-sizing: border-box;
+        }
+        .export-wrapper {
+          margin: 0;
+          background: var(--background);
+          color: var(--foreground);
+          font-size: 16px;
+          line-height: 1.6;
+        }
+        .page-shell {
+          min-height: 812px;
+          background: var(--background);
+          display: flex;
+          flex-direction: column;
+        }
+        .site-nav {
+          background: var(--background);
+          padding: 16px 0;
+          border-bottom: 1px solid var(--border);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+        .brand-pill {
+          background: var(--primary);
+          color: var(--primary-foreground);
+          border-radius: var(--radius-xl);
+          padding: 10px 24px;
+          font-size: 16px;
+          font-weight: 700;
+          white-space: nowrap;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link-text {
+          font-size: 15px;
+          color: var(--foreground);
+          text-decoration: none;
+          white-space: nowrap;
+          font-weight: 600;
+          padding: 8px 12px;
+          border-radius: var(--radius-sm);
+        }
+        .section-space {
+          padding: 96px 0;
+        }
+        .section-soft {
+          background: var(--secondary);
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+        }
+        .section-title {
+          font-size: 36px;
+          font-weight: 800;
+          margin: 0 0 48px;
+          text-align: center;
+          letter-spacing: -0.5px;
+        }
+        .section-title.green {
+          color: var(--success);
+        }
+        .section-title.accent {
+          color: var(--primary);
+        }
+        .muted-text {
+          color: var(--muted-foreground);
+          font-size: 14px;
+        }
+      </style>
+
+      <style id="hero-styles">
+        .hero-section {
+          padding: 80px 0 100px;
+          text-align: center;
+          background: linear-gradient(
+            180deg,
+            var(--secondary) 0%,
+            var(--background) 100%
+          );
+        }
+        .hero-title {
+          font-size: 52px;
+          font-weight: 800;
+          line-height: 1.25;
+          margin: 0 auto 48px;
+          max-width: 1000px;
+          color: var(--foreground);
+          letter-spacing: -1px;
+        }
+        .hero-media-card {
+          background: var(--card);
+          border-radius: var(--radius-xl);
+          overflow: hidden;
+          max-width: 840px;
+          margin: 0 auto;
+          position: relative;
+          box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+          border: 8px solid var(--background);
+        }
+        .hero-media-frame {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16/9;
+          background: var(--muted);
+          overflow: hidden;
+          border-radius: calc(var(--radius-xl) - 8px);
+        }
+        .hero-media-frame iframe,
+        .hero-media-frame img {
+          width: 100%;
+          height: 100%;
+          border: 0;
+          object-fit: cover;
+          display: block;
+        }
+        .hero-overlay-copy {
+          position: absolute;
+          top: 24px;
+          left: 24px;
+          right: 24px;
+          z-index: 2;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          align-items: center;
+          pointer-events: none;
+        }
+        .hero-badge-line {
+          background: rgba(0, 0, 0, 0.75);
+          color: #ffffff;
+          padding: 10px 20px;
+          border-radius: var(--radius-md);
+          font-size: 18px;
+          font-weight: 700;
+          white-space: nowrap;
+          backdrop-filter: blur(4px);
+        }
+        .video-link-note {
+          margin-top: 24px;
+          font-size: 14px;
+          color: var(--muted-foreground);
+        }
+      </style>
+
+      <style id="cta-gallery-styles">
+        .offer-section {
+          padding-bottom: 96px;
+        }
+        .pricing-wrap {
+          display: flex;
+          justify-content: center;
+          gap: 16px;
+          flex-wrap: wrap;
+          margin-bottom: 32px;
+        }
+        .price-chip {
+          background: var(--destructive);
+          color: var(--destructive-foreground);
+          padding: 12px 24px;
+          border-radius: var(--radius-xl);
+          font-size: 18px;
+          font-weight: 700;
+          white-space: nowrap;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .price-chip.current {
+          background: var(--success);
+          color: var(--success-foreground);
+          transform: scale(1.05);
+        }
+        .cta-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          background: var(--primary);
+          color: var(--primary-foreground);
+          padding: 20px 48px;
+          border-radius: var(--radius-xl);
+          font-size: 20px;
+          font-weight: 800;
+          white-space: nowrap;
+          text-decoration: none;
+          margin: 0 auto;
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .gallery-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 32px;
+          max-width: 1000px;
+          margin: 48px auto;
+        }
+        .gallery-card {
+          background: var(--card);
+          border-radius: var(--radius-xl);
+          overflow: hidden;
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+          border: 4px solid var(--background);
+        }
+        .gallery-card img {
+          width: 100%;
+          aspect-ratio: 1/1;
+          object-fit: cover;
+          display: block;
+        }
+        .public-link-row {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          flex-wrap: wrap;
+          margin-top: 32px;
+        }
+        .public-link {
+          color: var(--muted-foreground);
+          text-decoration: underline;
+          font-size: 15px;
+          font-weight: 500;
+          white-space: nowrap;
+        }
+      </style>
+
+      <style id="list-section-styles">
+        .benefits-list,
+        .why-list {
+          max-width: 800px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+          gap: 20px;
+        }
+        .benefit-row,
+        .why-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--foreground);
+          background: var(--card);
+          padding: 20px 24px;
+          border-radius: var(--radius-lg);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+          border: 1px solid var(--border);
+        }
+        .icon-wrap {
+          width: 44px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--success);
+          color: var(--success-foreground);
+          border-radius: 50%;
+          flex-shrink: 0;
+          font-size: 20px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+      </style>
+
+      <style id="review-styles">
+        .reviews-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 24px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .review-card {
+          background: var(--card);
+          border-radius: var(--radius-xl);
+          padding: 24px;
+          border: 1px solid var(--border);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+          display: flex;
+          flex-direction: column;
+        }
+        .review-head {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 16px;
+        }
+        .review-avatar {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid var(--secondary);
+        }
+        .review-name {
+          font-size: 16px;
+          font-weight: 700;
+          line-height: 1.2;
+        }
+        .review-sub {
+          font-size: 13px;
+          color: var(--muted-foreground);
+          margin-top: 4px;
+        }
+        .review-body {
+          font-size: 15px;
+          margin-bottom: 20px;
+          flex-grow: 1;
+          line-height: 1.5;
+        }
+        .mini-share {
+          background: var(--secondary);
+          border-radius: var(--radius-md);
+          padding: 16px;
+          font-size: 14px;
+          color: var(--secondary-foreground);
+          border-left: 4px solid var(--primary);
+          margin-bottom: 16px;
+        }
+        .review-actions {
+          display: flex;
+          gap: 24px;
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--muted-foreground);
+          border-top: 1px solid var(--border);
+          padding-top: 16px;
+        }
+      </style>
+
+      <style id="checkout-styles">
+        .order-wrapper {
+          max-width: 1140px;
+          margin: 0 auto;
+          background: var(--card);
+          border-radius: var(--radius-xl);
+          border: 1px solid var(--border);
+          padding: 48px;
+          box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08);
+        }
+        .order-banner {
+          background: var(--success);
+          color: var(--success-foreground);
+          border-radius: var(--radius-md);
+          padding: 24px;
+          text-align: center;
+          font-size: 22px;
+          font-weight: 800;
+          margin-bottom: 48px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        .form-block-title {
+          font-size: 22px;
+          font-weight: 800;
+          margin-bottom: 24px;
+          padding-bottom: 16px;
+          border-bottom: 2px solid var(--border);
+        }
+        .fake-input,
+        .fake-textarea {
+          width: 100%;
+          background: var(--background);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 16px 20px;
+          color: var(--muted-foreground);
+          font-size: 15px;
+          margin-bottom: 20px;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+        .fake-textarea {
+          min-height: 120px;
+        }
+        .order-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 32px;
+        }
+        .order-table th {
+          padding: 16px 0;
+          border-bottom: 2px solid var(--border);
+          font-size: 16px;
+          font-weight: 700;
+          color: var(--muted-foreground);
+        }
+        .order-table td {
+          padding: 20px 0;
+          border-bottom: 1px solid var(--border);
+          font-size: 16px;
+          font-weight: 600;
+          vertical-align: middle;
+        }
+        .qty-box {
+          display: inline-flex;
+          align-items: center;
+          gap: 20px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 10px 20px;
+          background: var(--background);
+        }
+        .thumb-mini {
+          width: 64px;
+          height: 64px;
+          border-radius: var(--radius-md);
+          object-fit: cover;
+          margin-right: 16px;
+          vertical-align: middle;
+          border: 1px solid var(--border);
+        }
+        .summary-panel {
+          background: var(--secondary);
+          border-radius: var(--radius-lg);
+          padding: 24px;
+          margin-top: 32px;
+          border: 1px solid var(--border);
+        }
+        .summary-line {
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 12px 0;
+          font-size: 16px;
+          font-weight: 600;
+          border-bottom: 1px dashed var(--border);
+        }
+        .summary-line:last-child {
+          border-bottom: none;
+        }
+        .summary-line.total {
+          font-size: 22px;
+          font-weight: 800;
+          color: var(--primary);
+          padding-top: 24px;
+          margin-top: 8px;
+        }
+        .payment-box {
+          background: var(--background);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 24px;
+          margin: 32px 0;
+        }
+        .place-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          background: var(--primary);
+          color: var(--primary-foreground);
+          border-radius: var(--radius-xl);
+          padding: 24px;
+          font-size: 22px;
+          font-weight: 800;
+          white-space: nowrap;
+          text-decoration: none;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+      </style>
+
+      <style id="footer-styles">
+        .site-footer {
+          padding: 64px 0;
+          text-align: center;
+          background: var(--secondary);
+          border-top: 1px solid var(--border);
+        }
+        .footer-links {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 32px;
+          flex-wrap: wrap;
+          margin-bottom: 24px;
+        }
+        .footer-link {
+          color: var(--foreground);
+          text-decoration: none;
+          font-size: 15px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="page" class="page-shell">
+        <nav id="top-nav" class="site-nav">
+          <div class="container">
+            <div
+              class="d-flex align-items-center justify-content-between gap-3 flex-wrap"
+            >
+              <div id="brand" class="brand-pill">শ্রীমঙ্গল স্পেশাল চা</div>
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <a
+                  href="#benefits"
+                  class="nav-link-text"
+                  data-media-type="banani-button"
+                  >উপকারিতা</a
+                >
+                <a
+                  href="#reviews"
+                  class="nav-link-text"
+                  data-media-type="banani-button"
+                  >রিভিউ</a
+                >
+                <a
+                  href="#order"
+                  class="nav-link-text"
+                  data-media-type="banani-button"
+                  >অর্ডার</a
+                >
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <section id="hero" class="hero-section">
+          <div class="container">
+            <h1 class="hero-title">
+              চায়ের আসল ঘ্রাণ ও স্বাদ পেতে গেলে আপনাকে খেতে হবে শ্রীমঙ্গলের চা।
+            </h1>
+            <div class="hero-media-card">
+              <div class="hero-media-frame">
+                <div class="hero-overlay-copy">
+                  <div class="hero-badge-line">
+                    চায়ের দেশে যতগুলো চা বাগান আছে
+                  </div>
+                  <div class="hero-badge-line">জানেন সবাই না</div>
+                </div>
+                <iframe
+                  src="https://www.youtube.com/embed/rNq8b8C8j9E?rel=0"
+                  title="Tea garden video"
+                ></iframe>
+              </div>
+            </div>
+            <div class="video-link-note">
+              Public video: youtube.com/watch?v=rNq8b8C8j9E
+            </div>
+          </div>
+        </section>
+
+        <section id="offer" class="offer-section">
+          <div class="container text-center">
+            <div class="pricing-wrap">
+              <div class="price-chip">প্রতি কেজি চায়ের মূল্য ৮০০/- টাকা</div>
+              <div class="price-chip current">
+                বর্তমান মূল্য ৬০০/- টাকা মাত্র
+              </div>
+            </div>
+            <a href="#order" class="cta-btn" data-media-type="banani-button">
+              স্পেশাল চা কিনতে ক্লিক করুন
+              <i class="fa-solid fa-angles-right"></i>
+            </a>
+
+            <div id="gallery" class="gallery-grid">
+              <div class="gallery-card" data-media-type="banani-button">
+                <img
+                  src="https://images.unsplash.com/photo-1594631661960-7f7b8c3d3237?auto=format&amp;fit=crop&amp;w=900&amp;q=80"
+                  alt="Loose leaf tea bowl"
+                />
+              </div>
+              <div class="gallery-card" data-media-type="banani-button">
+                <img
+                  src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&amp;fit=crop&amp;w=900&amp;q=80"
+                  alt="Premium tea leaves bowl"
+                />
+              </div>
+            </div>
+
+            <a href="#order" class="cta-btn" data-media-type="banani-button">
+              স্পেশাল চা কিনতে ক্লিক করুন
+              <i class="fa-solid fa-angles-right"></i>
+            </a>
+
+            <div class="public-link-row">
+              <a
+                class="public-link"
+                href="https://images.unsplash.com/photo-1594631661960-7f7b8c3d3237?auto=format&amp;fit=crop&amp;w=900&amp;q=80"
+                data-media-type="banani-button"
+                >Image link 1</a
+              >
+              <a
+                class="public-link"
+                href="https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&amp;fit=crop&amp;w=900&amp;q=80"
+                data-media-type="banani-button"
+                >Image link 2</a
+              >
+            </div>
+          </div>
+        </section>
+
+        <section id="benefits" class="section-space section-soft">
+          <div class="container">
+            <h2 class="section-title green">চায়ের ঔষধি গুন সমূহ:</h2>
+            <div class="benefits-list">
+              <div class="benefit-row">
+                <div class="icon-wrap">
+                  <i class="fa-regular fa-thumbs-up"></i>
+                </div>
+                <span>রোগ প্রতিরোধ ক্ষমতা বাড়ায়</span>
+              </div>
+              <div class="benefit-row">
+                <div class="icon-wrap">
+                  <i class="fa-regular fa-thumbs-up"></i>
+                </div>
+                <span>হার্টের স্বাস্থ্যের উন্নতি করে</span>
+              </div>
+              <div class="benefit-row">
+                <div class="icon-wrap">
+                  <i class="fa-regular fa-thumbs-up"></i>
+                </div>
+                <span>খারাপ কোলেস্টেরল কমাতে সাহায্য করে</span>
+              </div>
+              <div class="benefit-row">
+                <div class="icon-wrap">
+                  <i class="fa-regular fa-thumbs-up"></i>
+                </div>
+                <span>মাইগ্রেন প্রবলেম কমায়</span>
+              </div>
+              <div class="benefit-row">
+                <div class="icon-wrap">
+                  <i class="fa-regular fa-thumbs-up"></i>
+                </div>
+                <span>ওজন কমাতে সহায়তা করে</span>
+              </div>
+              <div class="benefit-row">
+                <div class="icon-wrap">
+                  <i class="fa-regular fa-thumbs-up"></i>
+                </div>
+                <span>নার্ভ শান্ত করে</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="reviews" class="section-space">
+          <div class="container">
+            <h2 class="section-title accent">
+              আমাদের চা সম্পর্কে কাস্টমারদের মূল্যবান মতামত
+            </h2>
+            <div class="reviews-grid">
+              <div class="review-card" data-media-type="banani-button">
+                <div class="review-head">
+                  <img
+                    class="review-avatar"
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                    alt="avatar"
+                  />
+                  <div>
+                    <div class="review-name">Philippe Roireau</div>
+                    <div class="review-sub">1h</div>
+                  </div>
+                </div>
+                <div class="review-body">I need this 👍 1</div>
+                <div class="mini-share">
+                  SF Bicycles: Philippe, I think you have wonderful taste 😍 Use
+                  code “PL10” to get 10% off.
+                </div>
+                <div class="review-actions">
+                  <span>Like</span><span>Reply</span><span>Message</span>
+                </div>
+              </div>
+              <div class="review-card" data-media-type="banani-button">
+                <div class="review-head">
+                  <img
+                    class="review-avatar"
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                    alt="avatar"
+                  />
+                  <div>
+                    <div class="review-name">Philippe Roireau</div>
+                    <div class="review-sub">1h</div>
+                  </div>
+                </div>
+                <div class="review-body">I need this 👍 1</div>
+                <div class="mini-share">
+                  SF Bicycles: Philippe, I think you have wonderful taste 😍 Use
+                  code “PL10” to get 10% off.
+                </div>
+                <div class="review-actions">
+                  <span>Like</span><span>Reply</span><span>Message</span>
+                </div>
+              </div>
+              <div class="review-card" data-media-type="banani-button">
+                <div class="review-head">
+                  <img
+                    class="review-avatar"
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                    alt="avatar"
+                  />
+                  <div>
+                    <div class="review-name">Philippe Roireau</div>
+                    <div class="review-sub">1h</div>
+                  </div>
+                </div>
+                <div class="review-body">I need this 👍 1</div>
+                <div class="mini-share">
+                  SF Bicycles: Philippe, I think you have wonderful taste 😍 Use
+                  code “PL10” to get 10% off.
+                </div>
+                <div class="review-actions">
+                  <span>Like</span><span>Reply</span><span>Message</span>
+                </div>
+              </div>
+              <div class="review-card" data-media-type="banani-button">
+                <div class="review-head">
+                  <img
+                    class="review-avatar"
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                    alt="avatar"
+                  />
+                  <div>
+                    <div class="review-name">Philippe Roireau</div>
+                    <div class="review-sub">1h</div>
+                  </div>
+                </div>
+                <div class="review-body">I need this 👍 1</div>
+                <div class="mini-share">
+                  SF Bicycles: Philippe, I think you have wonderful taste 😍 Use
+                  code “PL10” to get 10% off.
+                </div>
+                <div class="review-actions">
+                  <span>Like</span><span>Reply</span><span>Message</span>
+                </div>
+              </div>
+              <div class="review-card" data-media-type="banani-button">
+                <div class="review-head">
+                  <img
+                    class="review-avatar"
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                    alt="avatar"
+                  />
+                  <div>
+                    <div class="review-name">Philippe Roireau</div>
+                    <div class="review-sub">1h</div>
+                  </div>
+                </div>
+                <div class="review-body">I need this 👍 1</div>
+                <div class="mini-share">
+                  SF Bicycles: Philippe, I think you have wonderful taste 😍 Use
+                  code “PL10” to get 10% off.
+                </div>
+                <div class="review-actions">
+                  <span>Like</span><span>Reply</span><span>Message</span>
+                </div>
+              </div>
+              <div class="review-card" data-media-type="banani-button">
+                <div class="review-head">
+                  <img
+                    class="review-avatar"
+                    src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FEuropean%2F1"
+                    alt="avatar"
+                  />
+                  <div>
+                    <div class="review-name">Philippe Roireau</div>
+                    <div class="review-sub">1h</div>
+                  </div>
+                </div>
+                <div class="review-body">I need this 👍 1</div>
+                <div class="mini-share">
+                  SF Bicycles: Philippe, I think you have wonderful taste 😍 Use
+                  code “PL10” to get 10% off.
+                </div>
+                <div class="review-actions">
+                  <span>Like</span><span>Reply</span><span>Message</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="why-us" class="section-space section-soft">
+          <div class="container">
+            <h2 class="section-title green">কেন আমাদের থেকে চা কিনবেন</h2>
+            <div class="why-list">
+              <div class="why-row">
+                <div class="icon-wrap"><i class="fa-solid fa-circle"></i></div>
+                <span>চায়ের আসল ঘ্রাণ পাবেন এই চা পাতায়।</span>
+              </div>
+              <div class="why-row">
+                <div class="icon-wrap"><i class="fa-solid fa-circle"></i></div>
+                <span>যেমন স্বাদ তেমনই গভীর ফ্লেভার পাবেন।</span>
+              </div>
+              <div class="why-row">
+                <div class="icon-wrap"><i class="fa-solid fa-circle"></i></div>
+                <span>কোনো নিম্নমানের চা পাতা মিশ্রণ করা হয় না।</span>
+              </div>
+              <div class="why-row">
+                <div class="icon-wrap"><i class="fa-solid fa-circle"></i></div>
+                <span>খুবই অল্প পরিমাণে দারুণ স্বাদ পাওয়া যায়।</span>
+              </div>
+              <div class="why-row">
+                <div class="icon-wrap"><i class="fa-solid fa-circle"></i></div>
+                <span>১০০% কৃত্রিম রং, ফ্লেভার ও কেমিক্যাল মুক্ত।</span>
+              </div>
+              <div class="why-row">
+                <div class="icon-wrap"><i class="fa-solid fa-circle"></i></div>
+                <span>ভেজাল প্রমাণ করতে পারলে ১০০% মানিব্যাক গ্যারান্টি।</span>
+              </div>
+              <div class="why-row">
+                <div class="icon-wrap"><i class="fa-solid fa-circle"></i></div>
+                <span>ক্যাশ অন হোম ডেলিভারি, অর্ডার করতে অগ্রিম লাগে না।</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="order" class="section-space">
+          <div class="container">
+            <div class="order-wrapper">
+              <div class="order-banner">
+                অর্ডার করতে আপনার নাম, ঠিকানা এবং মোবাইল নাম্বার দিয়ে নিচে Place
+                Order এ ক্লিক করুন
+              </div>
+              <div class="row g-5">
+                <div class="col-12 col-lg-6">
+                  <div class="form-block-title">Billing details</div>
+                  <div class="fake-input">নাম লিখুন *</div>
+                  <div class="fake-input">House number and street name *</div>
+                  <div class="fake-input">ফোন *</div>
+                  <div class="form-block-title mt-5">
+                    Additional information
+                  </div>
+                  <div class="fake-textarea">
+                    Notes about your order, e.g. special notes for delivery.
+                  </div>
+                  <div class="form-block-title mt-5">Your Products</div>
+                  <table class="order-table">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th class="text-end">Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>১ কেজি স্পেশাল চা (#102)</td>
+                        <td>
+                          <div class="qty-box">
+                            <span>-</span><span>1</span><span>+</span>
+                          </div>
+                        </td>
+                        <td class="text-end">600.00৳</td>
+                      </tr>
+                      <tr>
+                        <td>Product #257</td>
+                        <td>
+                          <div class="qty-box">
+                            <span>-</span><span>1</span><span>+</span>
+                          </div>
+                        </td>
+                        <td class="text-end">1,000.00৳</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="col-12 col-lg-6">
+                  <div class="form-block-title">Your order</div>
+                  <table class="order-table">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th class="text-end">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <img
+                            class="thumb-mini"
+                            src="https://images.unsplash.com/photo-1594631661960-7f7b8c3d3237?auto=format&amp;fit=crop&amp;w=300&amp;q=80"
+                            alt="tea"
+                          />১ কেজি স্পেশাল চা
+                        </td>
+                        <td class="text-end">× 1 600.00৳</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <img
+                            class="thumb-mini"
+                            src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&amp;fit=crop&amp;w=300&amp;q=80"
+                            alt="tea"
+                          />Product
+                        </td>
+                        <td class="text-end">× 1 1,000.00৳</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="summary-panel">
+                    <div class="summary-line">
+                      <span>Subtotal</span><span>1,600.00৳</span>
+                    </div>
+                    <div class="summary-line total">
+                      <span>Total</span><span>1,600.00৳</span>
+                    </div>
+                  </div>
+                  <div class="payment-box">
+                    <div class="form-block-title mb-3 border-0 pb-0">
+                      Cash on delivery
+                    </div>
+                    <div
+                      class="fake-input mb-0 border-0 shadow-none bg-transparent px-0"
+                    >
+                      Pay with cash upon delivery.
+                    </div>
+                  </div>
+                  <div class="muted-text mb-4">
+                    Your personal data will be used to process your order,
+                    support your experience throughout this website, and for
+                    other purposes described in our privacy policy.
+                  </div>
+                  <a href="#" class="place-btn" data-media-type="banani-button"
+                    ><i class="fa-solid fa-lock"></i> Place Order 1,600.00৳</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer id="footer" class="site-footer">
+          <div class="container">
+            <div class="footer-links">
+              <a href="#" class="footer-link" data-media-type="banani-button"
+                >Refund policy</a
+              >
+              <a href="#" class="footer-link" data-media-type="banani-button"
+                >Privacy policy</a
+              >
+              <a href="#" class="footer-link" data-media-type="banani-button"
+                >Terms of service</a
+              >
+            </div>
+            <div class="muted-text">© 2022 Yoursite. All rights reserved.</div>
+          </div>
+        </footer>
+      </div>
+    </body>
+  </html>
+  <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+  <style>
+    :root {
+      --background: #fffdf8;
+      --foreground: #243b2f;
+      --border: #d9e7dc;
+      --input: #ffffff;
+      --primary: #22a06b;
+      --primary-foreground: #ffffff;
+      --secondary: #eef8f1;
+      --secondary-foreground: #1f5138;
+      --muted: #f6f3ee;
+      --muted-foreground: #6b7280;
+      --success: #2f9e44;
+      --success-foreground: #ffffff;
+      --accent: #ff7a59;
+      --accent-foreground: #ffffff;
+      --destructive: #ef4444;
+      --destructive-foreground: #ffffff;
+      --warning: #f4b740;
+      --warning-foreground: #243b2f;
+      --card: #ffffff;
+      --card-foreground: #243b2f;
+      --sidebar: #f4fbf6;
+      --sidebar-foreground: #1f5138;
+      --sidebar-primary: #22a06b;
+      --sidebar-primary-foreground: #ffffff;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --radius-xl: 12px;
+      --font-family-body: Inter;
+    }
+  </style>
+</div>

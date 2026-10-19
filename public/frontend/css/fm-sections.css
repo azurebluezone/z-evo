@@ -1,0 +1,432 @@
+/* ==========================================================================
+   FreshMart Section Media Queries  (shared by every page)
+   Bootstrap 5.3 breakpoints:
+     xs  <576 | sm >=576 | md >=768 | lg >=992 | xl >=1200 | xxl >=1400
+   ========================================================================== */
+
+:root{
+  --fm-green:#1b5e20;
+  --fm-green-2:#2e7d32;
+  --fm-cream:#fbfcf8;
+  --fm-line:#e5e9e0;
+  --fm-muted:#64756a;
+  --fm-radius:14px;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{overflow-x:hidden}
+img{max-width:100%;height:auto}
+
+/* ---------- announcement bar ---------- */
+[data-purpose="announcement-banner"]{font-size:.8125rem;line-height:1.4}
+@media(min-width:576px){[data-purpose="announcement-banner"]{font-size:.875rem}}
+@media(min-width:992px){[data-purpose="announcement-banner"]{padding-block:.5rem}}
+
+/* ---------- header ---------- */
+/* The bar is a flex row (not a Bootstrap .row since the 07 Oct rebuild):
+   hamburger + logo on the left, search as the flexible middle column, and the
+   action cluster pinned right.
+
+   !important is load-bearing here and must stay: fm-runtime-fix.css declares
+   `img{max-width:100%!important;height:auto}` as its "every image stays inside
+   its column" guard, and that !important beats any plain height declaration.
+   Without it the logo renders at its natural 985x396 and shoves the whole bar
+   off-screen - the exact failure the 07 Oct header rules were written to stop. */
+header[data-purpose="primary-header"]{position:sticky;top:0;z-index:1030}
+header[data-purpose="primary-header"]>div>div{align-items:center}
+/* Logo scale, one step per band (was 36 / 40 / 32 / 28). The phone bar had
+   48px of dead space in front of the hamburger - the #fm-audit-fix substring
+   padding, reset in layouts.blade.php - so the mark was taking the blame for
+   room it never used. With that reclaimed the logo can carry the size the
+   reference shows. */
+header[data-purpose="primary-header"] img{height:40px!important;width:auto!important}
+@media(min-width:768px){header[data-purpose="primary-header"] img{height:44px!important}}
+@media(min-width:1024px){header[data-purpose="primary-header"] img{height:48px!important}}
+@media(max-width:575.98px){
+  header[data-purpose="primary-header"] .container{padding-inline:.75rem}
+  /* On a phone the search collapses into its own strip, so the middle column
+     must be allowed to shrink instead of forcing the bar wider than the screen. */
+  header[data-purpose="primary-header"]>div>div{gap:.5rem}
+  /* Six controls do not fit 375px: the action cluster measured 248px against
+     a 327px bar and the surplus was silently clipped by the global
+     overflow-x:hidden, taking the cart with it. Wishlist and account move into
+     the drawer (both are listed there), the total is already in the cart
+     drawer, and the 48px tap targets are kept for WCAG. The phone bar is left
+     with hamburger, logo, search and cart. */
+  header[data-purpose="primary-header"] .fm-header-user,
+  header[data-purpose="primary-header"] .fm-header-wishlist,
+  header[data-purpose="primary-header"] .fm-header-cart-total{display:none}
+  header[data-purpose="primary-header"] img{height:36px!important}
+  header[data-purpose="primary-header"] .fm-ai-icon-btn{padding:.35rem}
+}
+/* The strip is gone: the phone search surface is #fmSearchDrawer, a top
+   offcanvas (partials/header/search-drawer.blade.php). Bootstrap's .offcanvas-top
+   defaults to height:30vh, which would leave the category picker floating in a
+   mostly empty panel, so the drawer hugs its content instead. It is also a
+   phone-only control: even if it is open when the viewport is resized up, it
+   must not survive into the desktop layout. */
+#fmSearchDrawer{
+  /* .offcanvas sets bottom:0 and .offcanvas-top sets top:0, so with height:auto
+     the box is over-constrained and resolves to the full viewport height (then
+     capped at 90vh): measured 810px tall on an 844px screen with ~150px of
+     content in it. Releasing bottom is what lets the drawer hug its content. */
+  bottom:auto;
+  height:auto;
+  max-height:90vh;
+  overflow-y:auto;
+}
+#fmSearchDrawer .offcanvas-body{position:relative;padding-top:.75rem}
+
+/* The drawer carries the DESKTOP control set - category picker (183px), field,
+   both AI triggers (88px) and the submit - and a 390px pill cannot hold that on
+   one line: the field measured 25px wide, i.e. invisible. Let the shell wrap;
+   the picker takes its own line, the field + triggers + submit share the next. */
+@media(max-width:767.98px){
+  #fmSearchDrawer form > div{flex-wrap:wrap;border-radius:1rem;row-gap:.25rem}
+  #fmSearchDrawer form > div > .dropdown{flex:1 0 100%}
+  #fmSearchDrawer .fm-search-cat{width:100%;border-right:0}
+  #fmSearchDrawer form > div > .relative{order:1}
+  #fmSearchDrawer form > div > button[type="submit"]{order:2}
+  /* The submit's own min-h-[44px] / min-w-[44px] are (0,1,0) and lose to
+     `.offcanvas button{min-height:24px}` (0,1,1) from fm-tap-target.css, so it
+     rendered 36x32. An id-scoped rule puts the 44px floor back. */
+  #fmSearchDrawer button[type="submit"]{min-height:44px;min-width:44px}
+  /* fm-ai.css shrinks the AI triggers to 34px on phones to fit the bar; the
+     drawer has the room, and usable controls are its whole point. */
+  #fmSearchDrawer .fm-ai-icon-btn{width:44px;height:44px}
+}
+@media(min-width:768px){#fmSearchDrawer{display:none!important}}
+
+/* Tablet band (>=576 to <1024). The phone rule above is scoped to <576, so
+   between 576 and 1023 every control was still on the bar while the bar had
+   no room for it: measured at 768px the right-most child ended at right=816,
+   i.e. 48px past the viewport, and the global overflow-x:hidden clipped it
+   away silently (the AI Lens pill already drops out here via fm-ai.css). The
+   two lowest-value controls free ~98px against that 48px deficit - wishlist
+   44x44 box + one 12px gap = 56px, the "Tk 0" cart total at 12px bold with
+   tracking = ~42px - and every freed control still exists elsewhere on screen
+   (wishlist sits in the navigation drawer; the cart total is in the cart
+   drawer), so nothing a tablet visitor needs is lost. Phones (<576) and
+   desktops (>=1024) keep exactly what they render today. */
+@media(min-width:576px) and (max-width:1023.98px){
+  header[data-purpose="primary-header"] .fm-header-wishlist,
+  header[data-purpose="primary-header"] .fm-header-cart-total{display:none}
+}
+
+/* Small phones (<=400px). Measured at 360px after the tablet rule: brand block
+   224px + action cluster 96px = 320px against a 312px row, so the cart still
+   ended at right=364, i.e. 4px past the viewport and silently clipped by the
+   global overflow-x:hidden. The logo is the only element with slack here.
+   It used to drop to 28px; the 48px of substring padding the left cluster was
+   losing to #fm-audit-fix (see layouts.blade.php) is reclaimed above, so the
+   34px here is still 6px TALLER than the 28px this band showed before. */
+@media(max-width:400px){
+  header[data-purpose="primary-header"] img{height:34px!important}
+}
+
+/* ---------- header action cluster: one geometry for every control ----------
+   The bar mixes icon-only links/buttons with the cart pill, so each control
+   was previously sized by its own Tailwind utility:
+
+     wishlist  20px heart  in a 36x44 box
+     account   24px user   in a 40x48 box   <- 2px taller than the neighbours
+     cart      18px basket in a 44px pill
+
+   Three glyph sizes and three line boxes read as "small / big / misaligned".
+   Pin one 44x44 box (WCAG 2.5.5), one 20px glyph and a centred flex line;
+   the cart pill keeps its own width and just shares the same height. */
+header[data-purpose="primary-header"] .fm-header-wishlist,
+header[data-purpose="primary-header"] .fm-header-user > button,
+header[data-purpose="primary-header"] .fm-header-cart{
+  /* Deliberately no `display` here: wishlist/account are display:none below
+     sm and the phone search toggle is md:hidden. Pinning a display value
+     would outrank those breakpoint rules and put all six controls back on a
+     375px bar. These three are already flex when visible. */
+  align-items:center;
+  justify-content:center;
+  height:44px;
+  min-height:44px;
+  padding-block:0;
+  line-height:1;
+}
+
+header[data-purpose="primary-header"] .fm-header-wishlist,
+header[data-purpose="primary-header"] .fm-header-user > button{
+  width:44px;
+  min-width:44px;
+  padding:0;
+}
+
+header[data-purpose="primary-header"] .fm-header-wishlist > .bi,
+header[data-purpose="primary-header"] .fm-header-user > button > .bi,
+header[data-purpose="primary-header"] .fm-header-cart .bi-basket2-fill{
+  font-size:1.25rem;
+  line-height:1;
+}
+
+/* The basket lives in a relative wrapper with mr-2 for the "Tk 0" total.
+   Below sm that total is hidden, so the margin would leave the glyph sitting
+   left-of-centre inside the pill. */
+@media(max-width:575.98px){
+  header[data-purpose="primary-header"] .fm-header-cart > div{margin-right:0!important}
+}
+
+/* The hamburger sits first in the same row, so it takes the same box: 44x44,
+   one 20px glyph, no padding. Without the width/min-width it would collapse to
+   the glyph's own 28px box on phones - the #fm-audit-fix substring padding is
+   what was holding it open, and that is now reset. Scoped below lg: the utility
+   that removes it at >=1024px (lg:hidden) is 0,1,0 and a bare
+   display:inline-flex here (0,2,1) would outrank it and put the hamburger back
+   on the desktop bar. */
+@media(max-width:1023.98px){
+  header[data-purpose="primary-header"] .fm-header-brand > button[data-bs-toggle="offcanvas"]{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:44px;
+    min-width:44px;
+    height:44px;
+    min-height:44px;
+    padding:0;
+    line-height:1;
+    /* Optical alignment: the glyph, not the touch box, lines up with the page
+       grid. The box is 44px wide around a 24px glyph, so without this the icon
+       painted 10px right of every heading below it, and the whole left cluster
+       read as "pushed in". The box bleeds to the left instead. */
+    margin-left:-10px;
+  }
+
+  header[data-purpose="primary-header"] .fm-header-brand > button[data-bs-toggle="offcanvas"] .bi{
+    font-size:1.25rem;
+    line-height:1;
+  }
+}
+
+/* AI Lens is text-led, but its 34px height broke the baseline of the 44px
+   controls once xl shows it. Same line box, same centred content. */
+header[data-purpose="primary-header"] .ai-lens-toggle{
+  height:44px;
+  min-height:44px;
+  padding-block:0;
+}
+
+/* The phone-only search trigger is part of the same row; give it the same
+   44x44 hit box and a glyph that matches the cluster. Scoped below md so it
+   cannot outrank the md:hidden utility that removes it at >=768px, and keyed on
+   the fm-search-open hook rather than on the drawer id it targets. */
+@media(max-width:767.98px){
+  header[data-purpose="primary-header"] button.fm-search-open{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:44px;
+    height:44px;
+    padding:0;
+  }
+
+  header[data-purpose="primary-header"] button.fm-search-open .bi{
+    font-size:1.25rem;
+    line-height:1;
+  }
+}
+
+/* ---------- header search ---------- */
+/* The category select is a bare <select>, so the UA arrow is dropped and the
+   reference's hairline divider on its right is drawn instead. */
+header[data-purpose="primary-header"] form[role="search"] select{
+  appearance:none;-webkit-appearance:none;background-image:none;
+  border-right:1px solid rgba(229,231,235,.9);padding-right:1.5rem;
+}
+header[data-purpose="primary-header"] form[role="search"] input[type="search"]{
+  min-width:0!important;
+}
+header[data-purpose="primary-header"] form[role="search"]>div{
+  min-width:0;overflow:hidden;
+}
+
+/* ---------- desktop navigation strip ---------- */
+/* Hidden below lg by the markup; these rules only shape it once it is shown. */
+.app-navbar-strip{background:#fff;border-bottom:1px solid #e5e7eb}
+.app-navbar-strip .container>div{padding-block:.5rem}
+.app-category-trigger{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:#065f46;color:#fff;font-weight:600;font-size:.875rem;
+  border:0;border-radius:.5rem;padding:.5rem 1rem;cursor:pointer;
+  transition:background-color .15s ease;
+}
+.app-category-trigger:hover{background:#064e3b}
+.app-nav-menu{display:flex;list-style:none;margin:0;padding:0;gap:1.5rem}
+.app-nav-menu a{
+  display:inline-block;padding:.25rem 0;
+  color:#374151;font-size:.875rem;font-weight:500;
+  border-bottom:2px solid transparent;transition:color .15s ease;
+}
+.app-nav-menu a:hover{color:#1b5e20}
+.app-nav-menu a.active{color:#1b5e20;font-weight:700;border-bottom-color:#1b5e20}
+.app-nav-menu a.fm-nav-offers{color:#dc2626;font-weight:600}
+.app-nav-menu a.fm-nav-offers:hover{color:#b91c1c}
+.app-nav-menu a.fm-nav-offers.active{color:#b91c1c;border-bottom-color:#dc2626}
+
+/* ---------- mobile drawer ---------- */
+/* Shared by the phone hamburger and the Categories pill, so the two entry
+   points always land on identical content. */
+.fm-drawer-nav-list{display:flex;flex-direction:column;gap:.25rem}
+.fm-drawer-cat{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.6rem .75rem;border-radius:.65rem;
+  color:#374151;font-size:.875rem;font-weight:500;text-decoration:none;
+  transition:background-color .15s ease;
+}
+.fm-drawer-cat:hover{background:#f9fafb;color:#1b5e20}
+.fm-drawer-cat--all{border-top:1px solid #f3f4f6;border-radius:0;padding-top:.75rem;color:#1b5e20;font-weight:700}
+/* Department tree: department -> sub-department -> child. Bootstrap collapses
+   do the opening, these rules only make the three levels read as a hierarchy
+   inside the 380px offcanvas. */
+.fm-drawer-tree{display:flex;flex-direction:column;gap:.15rem;margin-bottom:.35rem}
+.fm-drawer-cat-group{border-radius:.65rem}
+.fm-drawer-cat-icon{width:20px;height:20px;object-fit:contain;border-radius:.3rem;flex-shrink:0}
+.fm-drawer-cat-toggle{
+  display:flex;align-items:center;justify-content:center;
+  width:2rem;height:2rem;flex-shrink:0;
+  background:none;border:0;border-radius:.5rem;color:#6b7280;font-size:.8rem;
+  transition:background-color .15s ease,color .15s ease,transform .2s ease;
+}
+.fm-drawer-cat-toggle:hover{background:#f3f4f6;color:#1b5e20}
+.fm-drawer-cat-toggle[aria-expanded="true"]{transform:rotate(180deg)}
+.fm-drawer-cat-toggle--sm{width:1.75rem;height:1.75rem;font-size:0.75rem}
+.fm-drawer-sublist{margin:.15rem 0 .35rem .75rem;padding-left:.6rem;border-left:1px solid #e5e7eb}
+.fm-drawer-sublist>li{margin-bottom:.1rem}
+.fm-drawer-subcat{
+  display:block;padding:.4rem .5rem;border-radius:.5rem;
+  color:#4b5563;font-size:.82rem;font-weight:500;text-decoration:none;
+  transition:background-color .15s ease,color .15s ease;
+}
+.fm-drawer-subcat:hover{background:#f9fafb;color:#1b5e20}
+.fm-drawer-childlist{margin:.1rem 0 .25rem .6rem;padding-left:.55rem;border-left:1px solid #f3f4f6}
+.fm-drawer-childcat{display:block;padding:.3rem .5rem;border-radius:.45rem;color:#6b7280;font-size:.78rem;text-decoration:none}
+.fm-drawer-childcat:hover{background:#f9fafb;color:#1b5e20}
+.fm-drawer-links{display:flex;flex-direction:column}
+.fm-drawer-links a,.fm-drawer-logout{
+  display:block;width:100%;text-align:left;
+  padding:.6rem .25rem;color:#374151;font-size:.9rem;text-decoration:none;
+  background:none;border:0;
+}
+.fm-drawer-links a:hover,.fm-drawer-logout:hover{color:#1b5e20}
+.fm-drawer-links a.active{color:#1b5e20;font-weight:700}
+
+/* ---------- hero ---------- */
+.fm-hero h1{font-size:1.75rem;line-height:1.15;letter-spacing:-.02em}
+.fm-hero p{font-size:.95rem;line-height:1.5}
+.fm-hero .fm-hero-img{height:200px;object-fit:cover;border-radius:var(--fm-radius);width:100%}
+@media(min-width:576px){.fm-hero h1{font-size:2.25rem}.fm-hero p{font-size:1.05rem}}
+@media(min-width:768px){.fm-hero .fm-hero-img{height:320px}}
+@media(min-width:992px){.fm-hero h1{font-size:3rem}.fm-hero p{font-size:1.15rem}}
+@media(min-width:1200px){.fm-hero .fm-hero-img{height:420px}}
+@media(min-width:1400px){.fm-hero h1{font-size:3.5rem}}
+
+/* ---------- product / category card grid ---------- */
+.fm-card{
+  border:1px solid var(--fm-line);border-radius:var(--fm-radius);overflow:hidden;
+  background:#fff;height:100%;display:flex;flex-direction:column;
+}
+.fm-card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:var(--fm-cream)}
+.fm-card .fm-card-body{padding:.75rem;display:flex;flex-direction:column;gap:.35rem;flex:1}
+.fm-card .fm-title{font-size:.875rem;font-weight:700;line-height:1.35;margin:0}
+.fm-card .fm-price{font-weight:800;color:var(--fm-green);font-size:1rem}
+.fm-card .fm-meta{font-size:.75rem;color:var(--fm-muted)}
+@media(min-width:576px){
+  .fm-card .fm-card-body{padding:1rem}
+  .fm-card .fm-title{font-size:.95rem}
+}
+@media(min-width:768px){
+  .fm-card img{aspect-ratio:4/3}
+  .fm-card .fm-title{font-size:1rem}
+  .fm-card .fm-card-body{padding:1.125rem}
+}
+@media(min-width:1200px){
+  .fm-card .fm-card-body{padding:1.25rem}
+  .fm-card .fm-title{font-size:1.0625rem}
+}
+@media(min-width:1400px){.fm-card .fm-price{font-size:1.0625rem}}
+
+/* ---------- section heading ---------- */
+.fm-section-head h2{font-size:1.25rem;line-height:1.2;margin:0}
+.fm-section-head p{font-size:.875rem;color:var(--fm-muted);margin:.25rem 0 0}
+@media(min-width:576px){.fm-section-head h2{font-size:1.5rem}}
+@media(min-width:992px){.fm-section-head h2{font-size:1.875rem}.fm-section-head p{font-size:1rem}}
+
+/* ---------- forms ---------- */
+.fm-form label{font-size:.8125rem;font-weight:600;margin-bottom:.25rem}
+.fm-form .form-control,.fm-form .form-select{min-height:44px;border-radius:10px}
+@media(min-width:768px){.fm-form .form-control,.fm-form .form-select{min-height:46px}}
+
+/* ---------- tables (cart / orders) ---------- */
+.fm-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fm-table{min-width:640px}
+.fm-table th,.fm-table td{padding:.6rem .75rem;font-size:.8125rem;white-space:nowrap}
+@media(min-width:768px){.fm-table th,.fm-table td{padding:.875rem 1rem;font-size:.875rem}}
+
+/* ---------- modal / offcanvas ---------- */
+@media(max-width:575.98px){
+  .modal-dialog{margin:.5rem}
+  .modal-content{border-radius:12px}
+  .offcanvas{width:100%!important}
+  .modal-title{font-size:1.05rem}
+}
+
+/* ---------- footer ---------- */
+footer .fm-social{display:flex;gap:.5rem;flex-wrap:wrap}
+footer h5,footer h6{font-size:1rem;margin-bottom:.5rem}
+footer ul{padding-left:0;list-style:none;margin:0}
+footer li{margin-bottom:.35rem}
+footer a{text-decoration:none}
+@media(max-width:575.98px){
+  footer .fm-social{justify-content:center}
+  footer .fm-col{text-align:center}
+}
+@media(min-width:768px){footer{font-size:.9375rem}}
+
+/* ---------- display type scaling on small screens ---------- */
+@media(max-width:575.98px){
+  .display-6{font-size:1.75rem!important}
+  .display-5{font-size:2rem!important}
+}
+
+/* ---------- container width on very large screens ---------- */
+@media(min-width:1400px){.container{max-width:1320px}}
+/* ---------- search category picker (header/search-category-select) ---------- */
+/* Styled by its own class rather than by "select inside the header form", so
+   the component keeps working if it is included somewhere else. The UA arrow is
+   dropped and the reference's hairline divider is drawn instead. */
+.fm-search-cat {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: none;
+  border: 0;
+  border-right: 1px solid rgba(229, 231, 235, 0.9);
+  background: transparent;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 1.5rem 0.25rem 0.75rem;
+  cursor: pointer;
+  /* Measured 183x32 in the header at 768px: a 32px-tall native select is not a
+     thumb target. min-height only - the row grows by 12px, nothing else moves. */
+  min-height: 44px;
+}
+.fm-search-cat:focus { outline: none; }
+.fm-search-cat:focus-visible { outline: 2px solid #1b5e20; outline-offset: -2px; }
+
+/* The AI pill reused inside the navigation drawer. Its own button classes are
+   sized for the header bar, so the drawer restyles it to a full-width row and
+   the inner span becomes the visible label again - the pill hides that label
+   below its own md breakpoint, which would otherwise leave an icon with no
+   words next to five text links. */
+.fm-drawer-ai .ai-lens-toggle {
+  display: flex;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.65rem;
+  justify-content: flex-start;
+}
+.fm-drawer-ai .ai-lens-toggle__text { display: inline; }

@@ -1,0 +1,393 @@
+/* ==========================================================================
+   FM INTERACTION
+   Styles for the three widgets fm-app.js drives at runtime:
+
+     .fm-suggest              header search type-ahead panel
+     .fm-toast-*              safety-net toast, only used when index.js is absent
+     .fm-cart-lines / -line   mini-cart offcanvas line items (cart-items partial)
+     .fm-qty                  quantity stepper inside a cart line
+     .fm-categories-card      the header Categories card pulse
+
+   Loaded after fm-runtime-fix.css and before fm-ai.css (see the documented
+   load order in fm/layouts.blade.php). Mobile first, no !important, every
+   selector defined exactly once and only here.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Categories card pulse
+
+   Plays on the header's Categories card when it is pressed, and when the
+   drawer's ".fm-drawer-cat--all" link is pressed. fm-app.js adds and removes
+   .is-pulsing; it owns the timing and the restart (it forces a reflow between
+   remove and add, so a second press replays instead of being ignored).
+
+   The pulse is scale + a ring that expands and fades. transform and box-shadow
+   only - no width/height/top/left - because those would relayout the header on
+   every frame.
+
+   prefers-reduced-motion is honoured: the class is still added, so the state
+   stays inspectable, but nothing moves.
+   -------------------------------------------------------------------------- */
+@keyframes fm-categories-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(5, 150, 105, 0);
+    }
+    35% {
+        transform: scale(1.06);
+        box-shadow: 0 0 0 8px rgba(5, 150, 105, 0.28);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 14px rgba(5, 150, 105, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(5, 150, 105, 0);
+    }
+}
+
+@keyframes fm-categories-pulse-icon {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    40%      { transform: rotate(-12deg) scale(1.18); }
+    75%      { transform: rotate(8deg) scale(1.08); }
+}
+
+[data-fm-categories-card].is-pulsing {
+    animation: fm-categories-pulse 0.7s ease-out 1;
+}
+
+[data-fm-categories-card].is-pulsing .fm-categories-card__icon {
+    display: inline-block;
+    animation: fm-categories-pulse-icon 0.7s ease-in-out 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-fm-categories-card].is-pulsing,
+    [data-fm-categories-card].is-pulsing .fm-categories-card__icon {
+        animation: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   1. Search type-ahead panel
+   -------------------------------------------------------------------------- */
+
+.fm-suggest {
+    position: absolute;
+    top: calc(100% + .5rem);
+    left: 0;
+    right: 0;
+    z-index: 1085;
+    max-height: 22rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: .5rem;
+    background: #fff;
+    border: 1px solid rgb(209 213 219);
+    border-radius: 1rem;
+    box-shadow: 0 18px 40px rgb(0 0 0 / .14);
+}
+
+/* The panel is hidden with the hidden attribute, so display is never set on
+   .fm-suggest itself - the user agent rule has to keep winning. */
+
+.fm-suggest__empty {
+    padding: .85rem .75rem;
+    font-size: .8125rem;
+    color: rgb(75 85 99);
+    text-align: center;
+}
+
+.fm-suggest a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem .6rem;
+    border-radius: .75rem;
+    color: rgb(17 24 39);
+    text-decoration: none;
+}
+
+.fm-suggest a:hover,
+.fm-suggest a:focus-visible {
+    background: rgb(236 253 245);
+    outline: none;
+}
+
+.fm-suggest a img {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 2.5rem;
+    object-fit: cover;
+    border-radius: .5rem;
+    background: rgb(243 244 246);
+}
+
+.fm-suggest__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-size: .8125rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fm-suggest__price {
+    flex: 0 0 auto;
+    font-size: .8125rem;
+    font-weight: 800;
+    color: rgb(4 120 87);
+}
+
+/* --------------------------------------------------------------------------
+   2. Safety-net toast
+   -------------------------------------------------------------------------- */
+
+.fm-toast-host {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1090;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .5rem;
+    pointer-events: none;
+}
+
+.fm-toast {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    max-width: min(22rem, calc(100vw - 2rem));
+    padding: .6rem .9rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: #fff;
+    background: rgb(4 120 87);
+    border-radius: 9999px;
+    box-shadow: 0 12px 28px rgb(0 0 0 / .22);
+}
+
+.fm-toast--error {
+    background: rgb(185 28 28);
+}
+
+.fm-toast--info {
+    background: rgb(29 78 216);
+}
+
+/* --------------------------------------------------------------------------
+   3. Mini-cart line items
+   -------------------------------------------------------------------------- */
+
+.fm-cart-lines {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.fm-cart-line {
+    display: flex;
+    gap: .75rem;
+    padding: .75rem;
+    background: rgb(249 250 251);
+    border: 1px solid rgb(243 244 246);
+    border-radius: 1rem;
+}
+
+.fm-cart-line__thumb {
+    flex: 0 0 4.5rem;
+}
+
+.fm-cart-line__thumb img {
+    display: block;
+    width: 4.5rem;
+    height: 4.5rem;
+    object-fit: cover;
+    border-radius: .75rem;
+    background: #fff;
+}
+
+.fm-cart-line__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.fm-cart-line__head {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+}
+
+.fm-cart-line__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-size: .8125rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: rgb(17 24 39);
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.fm-cart-line__name:hover {
+    color: rgb(4 120 87);
+}
+
+.fm-cart-line__remove {
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: .875rem;
+    color: rgb(156 163 175);
+    background: transparent;
+    border: 0;
+    border-radius: 9999px;
+    cursor: pointer;
+}
+
+.fm-cart-line__remove:hover {
+    color: rgb(185 28 28);
+    background: rgb(254 242 242);
+}
+
+.fm-cart-line__price {
+    font-size: .75rem;
+    color: rgb(107 114 128);
+}
+
+.fm-cart-line__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-top: .15rem;
+}
+
+.fm-cart-line__total {
+    font-size: .8125rem;
+    font-weight: 800;
+    color: rgb(4 120 87);
+}
+
+/* Empty drawer ---------------------------------------------------------- */
+
+.fm-cart-lines__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .6rem;
+    padding: 2.5rem 1rem;
+    text-align: center;
+}
+
+.fm-cart-lines__empty i {
+    font-size: 2.25rem;
+    color: rgb(209 213 219);
+}
+
+.fm-cart-lines__empty p {
+    margin: 0;
+    font-size: .8125rem;
+    color: rgb(107 114 128);
+}
+
+/* --------------------------------------------------------------------------
+   4. Quantity stepper
+   -------------------------------------------------------------------------- */
+
+.fm-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: .1rem;
+    padding: .15rem;
+    background: #fff;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 9999px;
+}
+
+.fm-qty__btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: .75rem;
+    color: rgb(55 65 81);
+    background: transparent;
+    border: 0;
+    border-radius: 9999px;
+    cursor: pointer;
+}
+
+.fm-qty__btn:hover:not(:disabled) {
+    color: #fff;
+    background: rgb(4 120 87);
+}
+
+.fm-qty__btn:disabled {
+    color: rgb(209 213 219);
+    cursor: not-allowed;
+}
+
+.fm-qty__value {
+    min-width: 1.5rem;
+    font-size: .8125rem;
+    font-weight: 700;
+    text-align: center;
+    color: rgb(17 24 39);
+}
+
+/* ==========================================================================
+   Fly-to-cart micro-animation
+   --------------------------------------------------------------------------
+   When a shopper hits "Add to Cart", fm-app.js clones the button's own icon
+   into a fixed-position ghost and animates it along an arc into the header
+   cart. The ghost is pure decoration: it never blocks clicks (pointer-events
+   none), it is removed on finish, and the badge count is still painted from
+   the SERVER response - the animation never guesses the number.
+   ========================================================================== */
+.fm-cart-ghost {
+    position: fixed;
+    z-index: 2056; /* above the sticky header and the offcanvas (1045) */
+    pointer-events: none;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 4px 10px rgba(5, 150, 105, 0.45));
+}
+
+/* The header cart badge gets a short "thud" when the ghost lands. */
+.fm-header-cart [data-fm-cart-count].is-bumping,
+#cartCountBadge.is-bumping {
+    animation: fm-cart-bump 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fm-cart-bump {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.55); }
+    100% { transform: scale(1); }
+}
+
+/* Shoppers who asked the OS for less motion get the count change and the
+   toast, just not the flight. */
+@media (prefers-reduced-motion: reduce) {
+    .fm-cart-ghost { display: none; }
+}

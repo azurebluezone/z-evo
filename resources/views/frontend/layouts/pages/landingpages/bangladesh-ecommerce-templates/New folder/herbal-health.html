@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>প্রাকৃতিক আয়ুর্বেদিক সাপ্লিমেন্ট - স্বাস্থ্য ও সুস্থতা</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- AOS Animation -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #27ae60;
+      --secondary-color: #2ecc71;
+      --accent-color: #f39c12;
+      --text-color: #2c3e50;
+      --light-bg: #e8f5e8;
+      --dark-bg: #1e3a2e;
+    }
+    
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      overflow-x: hidden;
+      color: var(--text-color);
+    }
+    
+    .hero-section {
+      position: relative;
+      background-image: linear-gradient(rgba(39, 174, 96, 0.8), rgba(46, 204, 113, 0.8)), url('https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 0;
+      color: white;
+    }
+    
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(39, 174, 96, 0.3);
+      z-index: 1;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+    
+    .logo {
+      max-height: 80px;
+      margin-bottom: 30px;
+      filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));
+    }
+    
+    .hero-title {
+      font-weight: bold;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .hero-subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    .wave-divider {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      line-height: 0;
+      z-index: 2;
+    }
+    
+    .wave-divider svg {
+      position: relative;
+      display: block;
+      width: calc(100% + 1.3px);
+      height: 65px;
+    }
+    
+    .wave-divider .shape-fill {
+      fill: #FFFFFF;
+    }
+    
+    .price-section {
+      background: white;
+      padding: 40px 0;
+      text-align: center;
+      position: relative;
+    }
+    
+    .free-delivery {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      position: relative;
+      display: inline-block;
+      color: var(--primary-color);
+    }
+    
+    .free-delivery::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--primary-color);
+      background-image: url("data:image/svg+xml,%3Csvg width='40' height='12' viewBox='0 0 40 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 6c2-2 5-2 7 0s5 2 7 0 5-2 7 0 5 2 7 0 5-2 7 0 5 2 7 0' fill='%2327ae60' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      background-size: 40px 12px;
+    }
+    
+    .original-price {
+      color: #e74c3c;
+      font-size: 1.5rem;
+      text-decoration: line-through;
+      margin-bottom: 5px;
+    }
+    
+    .offer-price {
+      color: var(--primary-color);
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    
+    .product-slider {
+      background: linear-gradient(135deg, var(--light-bg) 0%, #d5f4e6 100%);
+      padding: 60px 0;
+      position: relative;
+    }
+    
+    .product-slider::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2327ae60' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    .swiper {
+      width: 100%;
+      padding-top: 50px;
+      padding-bottom: 50px;
+    }
+    
+    .swiper-slide {
+      background-position: center;
+      background-size: cover;
+      width: 300px;
+      height: 300px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 15px 50px rgba(39, 174, 96, 0.2);
+      overflow: hidden;
+    }
+    
+    .swiper-slide img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .feature-section {
+      padding: 60px 0;
+      background-color: white;
+    }
+    
+    .section-title {
+      text-align: center;
+      font-weight: bold;
+      font-size: 2rem;
+      margin-bottom: 50px;
+      position: relative;
+      color: var(--primary-color);
+    }
+    
+    .section-title::after {
+      content: "";
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--primary-color);
+    }
+    
+    .feature-box {
+      border: 2px solid var(--primary-color);
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      background: white;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+    
+    .feature-box:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(39, 174, 96, 0.2);
+    }
+    
+    .feature-box h3 {
+      color: var(--primary-color);
+      font-weight: bold;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .feature-box p {
+      color: #666;
+      font-size: 1rem;
+      text-align: center;
+    }
+    
+    .feature-box img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .benefits-section {
+      padding: 60px 0;
+      background-color: var(--light-bg);
+      position: relative;
+    }
+    
+    .benefits-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2327ae60' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      z-index: 0;
+    }
+    
+    .benefits-list {
+      list-style: none;
+      padding: 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .benefits-list li {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.1);
+      transition: transform 0.3s ease;
+    }
+    
+    .benefits-list li:hover {
+      transform: translateX(10px);
+    }
+    
+    .benefits-list li i {
+      color: var(--primary-color);
+      margin-right: 15px;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    
+    .gallery-section {
+      padding: 60px 0;
+      background-color: white;
+    }
+    
+    .gallery-main {
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(39, 174, 96, 0.1);
+    }
+    
+    .gallery-main .swiper-slide {
+      height: 400px;
+      width: 100%;
+    }
+
+    .gallery-main .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .gallery-thumbs {
+      height: 100px;
+    }
+    
+    .gallery-thumbs .swiper-slide {
+      height: 100%;
+      width: 100px;
+      opacity: 0.4;
+      cursor: pointer;
+    }
+
+    .gallery-thumbs .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .gallery-thumbs .swiper-slide-thumb-active {
+      opacity: 1;
+    }
+    
+    .order-section {
+      padding: 60px 0;
+      background-color: var(--light-bg);
+    }
+    
+    .order-form {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(39, 174, 96, 0.1);
+    }
+    
+    .order-form h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+    
+    .package-option {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .package-option:hover {
+      border-color: var(--primary-color);
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.1);
+    }
+    
+    .package-option img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-right: 15px;
+    }
+    
+    .package-option .package-details {
+      flex-grow: 1;
+    }
+    
+    .package-option .package-price {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    .order-summary {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+    
+    .order-summary .item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #ddd;
+    }
+    
+    .order-summary .total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-top: 15px;
+    }
+    
+    .submit-btn {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: bold;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.2rem;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+      background-color: #229954;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(39, 174, 96, 0.3);
+    }
+    
+    footer {
+      background-color: var(--dark-bg);
+      color: white;
+      padding: 40px 0 20px;
+    }
+    
+    footer h5 {
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    
+    footer p, footer a {
+      color: rgba(255,255,255,0.7);
+    }
+    
+    footer a:hover {
+      color: white;
+      text-decoration: none;
+    }
+    
+    .social-icons {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .social-icons a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .social-icons a:hover {
+      background: var(--primary-color);
+      transform: translateY(-3px);
+    }
+    
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      margin-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    @media (max-width: 768px) {
+      .hero-section {
+        min-height: auto;
+        padding: 40px 0;
+      }
+
+      .hero-video-container {
+        margin-bottom: 1.5rem;
+      }
+
+      .hero-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .price-text {
+        font-size: 1.2rem;
+      }
+
+      .original-price {
+        font-size: 1.1rem;
+      }
+
+      .current-price {
+        font-size: 1.3rem;
+      }
+
+      .cta-button {
+        padding: 12px 25px;
+        font-size: 1rem;
+      }
+      
+      .free-delivery {
+        font-size: 1.5rem;
+      }
+      
+      .original-price {
+        font-size: 1.2rem;
+      }
+      
+      .offer-price {
+        font-size: 1.5rem;
+      }
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+      
+      .feature-box {
+        padding: 15px;
+      }
+      
+      .order-form {
+        padding: 20px;
+      }
+      
+      .gallery-main .swiper-slide {
+        height: 300px;
+      }
+    }
+  </style>
+  <!-- Google Fonts - Hind Siliguri for Bengali -->
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-content container">
+    <img src="/placeholder.svg?height=80&width=200" alt="Ayurvedic Health Logo" class="logo">
+    <div class="hero-video-container mb-4" data-aos="fade-up">
+      <div class="ratio ratio-16x9 shadow-lg rounded overflow-hidden">
+        <iframe id="video-frame" src="/placeholder.svg" title="Ayurvedic Supplement Video" allowfullscreen></iframe>
+      </div>
+    </div>
+    <h1 class="hero-title" data-aos="fade-up" id="campaign-title">প্রাকৃতিক আয়ুর্বেদিক সাপ্লিমেন্ট</h1>
+    <p class="hero-subtitle" data-aos="fade-up" id="banner-title">১০০% প্রাকৃতিক ও নিরাপদ স্বাস্থ্য সমাধান</p>
+    <div class="price-container" data-aos="fade-up">
+      <p class="price-text">বিশেষ ছাড়ে পাওয়া যাচ্ছে</p>
+      <p class="original-price">নিয়মিত মূল্যঃ ৳<span id="old-price">2000</span></p>
+      <p class="current-price">অফার মূল্যঃ ৳<span id="new-price">1500</span>!</p>
+    </div>
+    <a href="#order-now" class="cta-button" data-aos="fade-up">অর্ডার করুন</a>
+  </div>
+  <div class="wave-divider">
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+    </svg>
+  </div>
+</section>
+
+<!-- Price Section -->
+<section class="price-section" id="price">
+  <div class="container">
+    <h2 class="free-delivery" data-aos="fade-up">সীমিত সময়ের জন্য ফ্রি ডেলিভারি!!</h2>
+    <div class="original-price" data-aos="fade-up" data-aos-delay="100">নিয়মিত মূল্যঃ ৳২০০০</div>
+    <div class="offer-price" data-aos="fade-up" data-aos-delay="200">অফার মূল্যঃ ৳১৫০০!</div>
+    <a href="#order-now" class="btn btn-success btn-lg mt-3" data-aos="fade-up" data-aos-delay="300">অর্ডার করতে ক্লিক করুন</a>
+  </div>
+</section>
+
+<!-- Product Slider -->
+<section class="product-slider" id="product">
+  <div class="container">
+    <h2 class="section-title" data-aos="fade-up">প্রিমিয়াম আয়ুর্বেদিক পণ্য</h2>
+    <div class="swiper product-swiper" data-aos="fade-up">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Herbal Product 1">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Herbal Product 2">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Herbal Product 3">
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="feature-section" id="features">
+  <div class="container">
+    <h2 class="section-title" data-aos="fade-up">পণ্যের বৈশিষ্ট্য</h2>
+    <div class="row">
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="feature-box">
+          <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Natural Ingredients">
+          <h3>১০০% প্রাকৃতিক</h3>
+          <p>সম্পূর্ণ প্রাকৃতিক উপাদান দিয়ে তৈরি, কোনো রাসায়নিক পদার্থ নেই।</p>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="feature-box">
+          <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Ayurvedic Formula">
+          <h3>আয়ুর্বেদিক ফর্মুলা</h3>
+          <p>প্রাচীন আয়ুর্বেদিক জ্ঞান অনুসারে প্রস্তুতকৃত কার্যকর ফর্মুলা।</p>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="feature-box">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="No Side Effects">
+          <h3>পার্শ্বপ্রতিক্রিয়া মুক্ত</h3>
+          <p>সম্পূর্ণ নিরাপদ, কোনো ক্ষতিকর পার্শ্বপ্রতিক্রিয়া নেই।</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section" id="benefits">
+  <div class="container">
+    <h2 class="section-title" data-aos="fade-up">কেন আমাদের পণ্য বেছে নিবেন</h2>
+    <div class="row">
+      <div class="col-lg-6">
+        <ul class="benefits-list">
+          <li data-aos="fade-right" data-aos-delay="100">
+            <i class="fas fa-leaf"></i>
+            <span>১০০% প্রাকৃতিক ও জৈব উপাদান</span>
+          </li>
+          <li data-aos="fade-right" data-aos-delay="200">
+            <i class="fas fa-shield-alt"></i>
+            <span>কোনো পার্শ্বপ্রতিক্রিয়া নেই</span>
+          </li>
+          <li data-aos="fade-right" data-aos-delay="300">
+            <i class="fas fa-certificate"></i>
+            <span>আন্তর্জাতিক মানের সার্টিফিকেট</span>
+          </li>
+          <li data-aos="fade-right" data-aos-delay="400">
+            <i class="fas fa-microscope"></i>
+            <span>ক্লিনিক্যালি টেস্টেড ফর্মুলা</span>
+          </li>
+        </ul>
+      </div>
+      <div class="col-lg-6">
+        <ul class="benefits-list">
+          <li data-aos="fade-right" data-aos-delay="500">
+            <i class="fas fa-heart"></i>
+            <span>স্বাস্থ্যের জন্য সম্পূর্ণ নিরাপদ</span>
+          </li>
+          <li data-aos="fade-right" data-aos-delay="600">
+            <i class="fas fa-shipping-fast"></i>
+            <span>দ্রুত ও নিরাপদ ডেলিভারি</span>
+          </li>
+          <li data-aos="fade-right" data-aos-delay="700">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>সাশ্রয়ী মূল্যে উন্নত মানের পণ্য</span>
+          </li>
+          <li data-aos="fade-right" data-aos-delay="800">
+            <i class="fas fa-undo"></i>
+            <span>১০০% মানি ব্যাক গ্যারান্টি</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gallery Section -->
+<section class="gallery-section" id="gallery">
+  <div class="container">
+    <h2 class="section-title" data-aos="fade-up">পণ্যের ছবি</h2>
+    <div class="swiper gallery-main" data-aos="fade-up">
+      <div class="swiper-wrapper" id="gallery-main">
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Gallery Image 1">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Gallery Image 2">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Gallery Image 3">
+        </div>
+      </div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+    <div class="swiper gallery-thumbs" data-aos="fade-up" data-aos-delay="100">
+      <div class="swiper-wrapper" id="gallery-thumbs">
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Thumbnail 1">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Thumbnail 2">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Thumbnail 3">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Order Form Section -->
+<section class="order-section" id="order-now">
+  <div class="container">
+    <div class="order-form" data-aos="fade-up">
+      <h2>অর্ডার করতে নিচের ফরমটি পূরণ করুন</h2>
+      
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <h3 class="mb-3">প্যাকেজ নির্বাচন করুন</h3>
+          <div class="package-option">
+            <input type="radio" name="package" id="package1" checked class="me-2">
+            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" alt="Herbal Supplement">
+            <div class="package-details">
+              <h5 id="product-name">প্রাকৃতিক আয়ুর্বেদিক সাপ্লিমেন্ট × ১</h5>
+            </div>
+            <div class="package-price">১,৫০০.০০৳</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="order-summary">
+            <h4 class="mb-3">আপনার অর্ডার</h4>
+            <div class="item">
+              <span>পণ্য</span>
+              <span>মূল্য</span>
+            </div>
+            <div class="item">
+              <span>প্রাকৃতিক আয়ুর্বেদিক সাপ্লিমেন্ট × ১</span>
+              <span>১,৫০০.০০৳</span>
+            </div>
+            <div class="item">
+              <span>সাবটোটাল</span>
+              <span>১,৫০০.০০৳</span>
+            </div>
+            <div class="total">
+              <span>মোট</span>
+              <span>১,৫০০.০০৳</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+          <h4 class="mb-3">বিলিং তথ্য</h4>
+          <div class="mb-3">
+            <label class="form-label">নাম *</label>
+            <input type="text" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">ফোন নাম্বার *</label>
+            <input type="tel" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">ঠিকানা *</label>
+            <textarea class="form-control" rows="3" required></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-check mb-4">
+        <input class="form-check-input" type="checkbox" id="cash-delivery" checked>
+        <label class="form-check-label" for="cash-delivery">
+          ক্যাশ-অন ডেলিভারি।
+        </label>
+      </div>
+      
+      <button type="submit" class="submit-btn">অর্ডার করুন</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <img src="/placeholder.svg?height=50&width=150" alt="Ayurvedic Health Logo" class="mb-3" style="height: 50px; filter: brightness(0) invert(1);">
+        <p>আয়ুর্বেদিক হেলথ - আপনার বিশ্বস্ত প্রাকৃতিক স্বাস্থ্য সমাধান। আমরা সর্বদা প্রিমিয়াম কোয়ালিটি আয়ুর্বেদিক পণ্য সরবরাহ করি।</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h5>যোগাযোগ করুন</h5>
+        <p><i class="fas fa-map-marker-alt me-2"></i> ঢাকা, বাংলাদেশ</p>
+        <p><i class="fas fa-phone me-2"></i> +৮৮০১৭XXXXXXXX</p>
+        <p><i class="fas fa-envelope me-2"></i> info@ayurvedichealth.com.bd</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h5>আমাদের অনুসরণ করুন</h5>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>© 2024 আয়ুর্বেদিক হেলথ। সর্বস্বত্ব সংরক্ষিত।</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+<!-- AOS Animation -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<!-- Initialize Scripts -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize AOS
+    AOS.init({
+      duration: 800,
+      easing: 'ease-in-out',
+      once: true
+    });
+    
+    // Product Slider
+    const productSwiper = new Swiper('.product-swiper', {
+      effect: 'coverflow',
+      grabCursor: true,
+      centeredSlides: true,
+      slidesPerView: 'auto',
+      coverflowEffect: {
+        rotate: 50,
+        stretch: 0,
+        depth: 100,
+        modifier: 1,
+        slideShadows: true,
+      },
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+    });
+    
+    // Gallery
+    const galleryThumbs = new Swiper('.gallery-thumbs', {
+      spaceBetween: 10,
+      slidesPerView: 4,
+      freeMode: true,
+      watchSlidesProgress: true,
+      breakpoints: {
+        320: {
+          slidesPerView: 3,
+        },
+        768: {
+          slidesPerView: 4,
+        }
+      }
+    });
+    
+    const galleryMain = new Swiper('.gallery-main', {
+      spaceBetween: 10,
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      thumbs: {
+        swiper: galleryThumbs,
+      },
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+    
+    // Form submission
+    const orderForm = document.querySelector('.order-form');
+    if (orderForm) {
+      orderForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('অর্ডার সফলভাবে সম্পন্ন হয়েছে!');
+      });
+    }
+  });
+
+  // Function to populate data from campaign object
+  function populateCampaignData(campaign) {
+    if (campaign.name) document.getElementById('campaign-title').textContent = campaign.name;
+    if (campaign.banner_title) document.getElementById('banner-title').textContent = campaign.banner_title;
+    
+    if (campaign.product) {
+      if (campaign.product.name) document.getElementById('product-name').textContent = campaign.product.name;
+      if (campaign.product.new_price) document.getElementById('new-price').textContent = campaign.product.new_price;
+      if (campaign.product.old_price) document.getElementById('old-price').textContent = campaign.product.old_price;
+    }
+    
+    if (campaign.video) {
+      document.getElementById('video-frame').src = campaign.video;
+    }
+    
+    // Populate gallery if images are provided
+    if (campaign.images && campaign.images.length > 0) {
+      const galleryMain = document.getElementById('gallery-main');
+      const galleryThumbs = document.getElementById('gallery-thumbs');
+      
+      galleryMain.innerHTML = '';
+      galleryThumbs.innerHTML = '';
+      
+      campaign.images.forEach((image, index) => {
+        // Main gallery
+        const mainSlide = document.createElement('div');
+        mainSlide.className = 'swiper-slide';
+        mainSlide.innerHTML = `<img src="${image}" alt="Gallery Image ${index + 1}">`;
+        galleryMain.appendChild(mainSlide);
+        
+        // Thumbnails
+        const thumbSlide = document.createElement('div');
+        thumbSlide.className = 'swiper-slide';
+        thumbSlide.innerHTML = `<img src="${image}" alt="Thumbnail ${index + 1}">`;
+        galleryThumbs.appendChild(thumbSlide);
+      });
+    }
+  }
+  
+  // Example usage - replace with actual campaign data
+  // populateCampaignData(campaignData);
+</script>
+
+</body>
+</html>
