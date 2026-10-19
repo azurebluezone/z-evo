@@ -29,70 +29,46 @@
 
 @php
     /*
-     * Everything the shop page computes from its own request is reproduced
-     * here so the delegated view behaves identically: the sidebar counters, the
-     * price ceiling and the rating block depend on the query string, and the
-     * heading has to name the search rather than the shop.
+     * Only what this page ADDS to the shared listing is declared here.
+     *
+     * The filter state itself (category, brand[], price, rating, in_stock,
+     * type, sort_by, per_page) used to be re-parsed on this page - ~16 locals
+     * copied from pages/products.blade.php - so that the sidebar and toolbar
+     * partials could read them out of this view's scope. Both are components
+     * now and resolve their own state through App\Support\ShopFilters, so the
+     * page keeps only what they cannot know: the term and the heading.
      */
-    $fmTerm        = trim((string) ($term ?? ''));
+    $fmTerm  = trim((string) ($term ?? ''));
+    $fmQuery = \App\Support\ShopFilters::current();
 
-    // A search may arrive carrying a category scope. The category resolution
-    // below has to prefer it, otherwise the page reports the wrong department
-    // while listing the right products.
-    $fmSearchScope = trim((string) ($searchCategorySlug ?? request('category', '')));
-    $fmCategorySlug = $fmSearchScope;
-    $fmBrandSlugs  = array_values(array_filter((array) request('brand')));
-    $fmMinPrice    = (float) request('min_price', 0);
-    $fmMaxPrice    = (float) request('max_price', 0);
-    $fmRating      = (int) request('rating', 0);
-    $fmInStock     = request('in_stock') === '1';
-    $fmType        = trim((string) request('type', ''));
-    $fmTypeLabels  = [
-        'featured'      => 'Featured products',
-        'best-selling'  => 'Best selling',
-        'discount'      => 'Discounted products',
-        'recommended'   => 'Recommended for you',
-    ];
-    $fmTypeLabel   = $fmTypeLabels[$fmType] ?? null;
-    /*
-     * The shop page resolves the active route once and every included section
-     * reads that name to decide its shape - the sidebar links to department
-     * pages on a path-scoped route but posts a radio on a query-scoped one,
-     * and that switch is keyed on the route. Search is query-scoped, so it is
-     * declared explicitly rather than left undefined.
-     */
-    $fmRouteName = 'search';
-
-    $fmSidebarCats = $sidecategories ?? collect();
-    $fmActiveCategory = $fmCategorySlug !== ''
-        ? $fmSidebarCats->firstWhere('slug', $fmCategorySlug)
+    // A search may arrive carrying a category scope. It is needed twice - the
+    // heading/chip scope and the chip's label - so it is resolved once.
+    $fmSearchScope = $fmQuery->categorySlug;
+    $fmActiveCategory = $fmSearchScope !== ''
+        ? ($sidecategories ?? collect())->firstWhere('slug', $fmSearchScope)
         : null;
-    $fmActiveBrands = ($brands ?? collect())
-        ->filter(static fn ($brand) => in_array($brand->slug, $fmBrandSlugs, true))
-        ->values();
 
-    // shop-header's breadcrumb also reads $fmHeading. It normally derives that
-    // from the query string on the page itself; here the search term names the
-    // page, so both the fallback and the override are supplied and the two
-    // always agree.
-    $fmSearchHeading = $fmHeading = $fmTerm !== '' ? 'Results for "' . $fmTerm . '"' : 'Search';
+    // <x-fm::shop-header> derives its own heading from the query and only
+    // needs to be told the one thing the URL cannot say: the term searched for.
+    $fmSearchHeading = $fmTerm !== '' ? 'Results for "' . $fmTerm . '"' : 'Search';
 
-    // shop-toolbar reads this exact name to decide whether to offer a reset, so
-    // it has to exist in scope here too even though this page renders its own
-    // chip strip.
-    $fmHasActiveFilter = $fmHasAnyFilter = $fmActiveCategory !== null
-        || $fmActiveBrands->isNotEmpty()
-        || $fmMinPrice > 0
-        || $fmMaxPrice > 0
-        || $fmRating > 0
-        || $fmInStock;
+    // Drives the chip strip, the grid guard and the toolbar's reset/count
+    // badge. It is the toolbar component's own definition (ShopFilters::
+    // hasActive), so the chip strip and the toolbar can never disagree.
+    $fmHasActiveFilter = $fmHasAnyFilter = $fmQuery->hasActive();
+
+    // The card quotes the term back to the visitor. It is escaped where it is
+    // printed, so nothing is hand-escaped here.
+    $fmEmptyText = $fmTerm !== ''
+        ? 'No products match "' . $fmTerm . '". Try a different word or clear the filters.'
+        : 'No products match these filters.';
 @endphp
 
 @section('title', $pageTitle ?? 'Search')
 @section('meta_description', \App\Support\MetaText::plain($metaDescription ?? '') ?: 'Search products')
 
 @section('content')
-    @include('frontend.fm.sections.shop-header', ['fmHeadingOverride' => $fmSearchHeading])
+    <x-fm::shop-header :heading="$fmSearchHeading" />
 
     <main class="fm-shop" data-purpose="search-results">
         <div class="container mx-auto px-4 py-5 lg:py-8">
@@ -105,12 +81,15 @@
                     ])
 
                     <div class="collapse" id="fmSearchFilters">
-                        @include('frontend.fm.sections.shop-sidebar')
+                        {{-- v1 flavour: the search page keeps the FreshMart panel.
+                             The component resolves its own filter state from the
+                             request, so this page no longer declares it. --}}
+                        <x-fm::shop-sidebar />
                     </div>
                 </div>
 
                 <div class="col-12 col-lg-9">
-                    @include('frontend.fm.sections.shop-toolbar')
+                    <x-fm::shop-toolbar :products="$products" />
 
                     {{-- The query itself is the one thing a result page has that
                          the shop page does not, so it is shown as a removable
@@ -134,13 +113,10 @@
                          field rather than 24 arbitrary results. --}}
                     @if ($fmTerm !== '' || $fmHasAnyFilter)
                         <div class="fm-shop-grid mt-3 mt-md-4" data-fm-shop-grid data-view="grid">
-                            @include('frontend.fm.sections.partials._product-grid', [
-                                'products'  => $products,
-                                'columns'   => 3,
-                                'emptyText' => $fmTerm !== ''
-                                    ? 'No products match "' . $fmTerm . '". Try a different word or clear the filters.'
-                                    : 'No products match these filters.',
-                            ])
+                            <x-fm::product-grid
+                                :products="$products"
+                                :columns="3"
+                                :emptyText="$fmEmptyText" />
                         </div>
 
                         @if (method_exists($products, 'hasPages') && $products->hasPages())

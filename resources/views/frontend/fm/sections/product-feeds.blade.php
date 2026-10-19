@@ -25,10 +25,9 @@
                     'linkText' => 'View all',
                 ])
 
-                @include('frontend.fm.sections.partials._product-grid', [
-                    'products' => $fmFeed->items->take(8),
-                    'columns'  => 4,
-                ])
+                <x-fm::product-grid
+                    :products="$fmFeed->items->take(8)"
+                    :columns="4" />
             </div>
         </section>
     @endif

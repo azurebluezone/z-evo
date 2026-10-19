@@ -35,28 +35,39 @@
 <main class="fm-shop-layout" data-purpose="catalog">
     <div class="fm-container">
 
-        {{-- Left column: the filter panel. Fixed in place on desktop. --}}
-        <aside class="fm-shop-aside" data-fm-filter-home>
-            @include('frontend.fm.sections.shop-sidebar', ['variant' => 'v2'])
-        </aside>
-
-        {{-- Right column: toolbar, result grid, pagination --}}
+        {{-- Products column: toolbar, result grid, pagination --}}
         <div class="fm-shop-main">
 
-            @include('frontend.fm.sections.shop-toolbar', ['variant' => 'v2'])
+            <x-fm::shop-toolbar :products="$products" variant="v2" />
 
-            @include('frontend.fm.sections.partials._product-grid', [
-                'products'  => $products,
-                'card'      => 'v2',
-                'columns'   => 4,
-                'emptyText' => 'No products match these filters. Try removing a filter.',
-            ])
+            <x-fm::product-grid
+                :products="$products"
+                card="v2"
+                variant="catalog"
+                :columns="4"
+                emptyText="No products match these filters. Try removing a filter." />
 
             @if($products->hasPages())
                 @include('frontend.fm.partials.pagination', ['paginator' => $products])
             @endif
 
         </div>
+
+        {{-- Filter panel, on the RIGHT.
+
+             It is LAST in the DOM on purpose. `.fm-container` is a flex row, so
+             the visual order follows the DOM order - and that keeps what a
+             screen reader reads in the same order as what a sighted visitor
+             sees. The CSS `order` property would have moved the picture while
+             leaving the reading order reversed, which is the classic
+             focus-vs-eye mismatch: tab from the product cards and you would
+             land back on the far-left filter panel.
+
+             The design reference (work/Products.html) labels this aside
+             "DESKTOP SIDEBAR FILTERS (Left Column)", so moving it back to the
+             left is this one element moving above .fm-shop-main - the CSS does
+             not care which side it is on. --}}
+        <x-fm::shop-sidebar variant="v2" aside />
     </div>
 </main>
 {{-- /FM:SECTION catalog --}}

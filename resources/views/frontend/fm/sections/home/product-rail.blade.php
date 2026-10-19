@@ -53,11 +53,10 @@
                 @endif
             </div>
 
-            <div class="fm-product-grid">
-                @foreach($fmRailItems as $fmRailProduct)
-                    <x-fm::product-card-v2 :product="$fmRailProduct" variant="{{ $fmRailVariant }}" />
-                @endforeach
-            </div>
+            <x-fm::product-grid
+                :products="$fmRailItems"
+                card="v2"
+                variant="{{ $fmRailVariant }}" />
 
         </div>
     </section>

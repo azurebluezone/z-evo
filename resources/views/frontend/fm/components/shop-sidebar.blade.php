@@ -1,53 +1,163 @@
 {{--
-    FM:SECTION shop-sidebar ------------------------------------------------
-    Left column of the catalog: the filter form plus the offer card.
+    FM:COMPONENT shop-sidebar
+    =========================================================================
+    The catalog filter column: the filter form plus (v1 only) the offer card.
 
-    Everything inside <form> is a real GET control that the /products route
-    understands; nothing here is decorative. A block renders only while the
-    shop can actually answer it - the rating rows wait for published reviews
-    and the brand rows wait for products that carry a brand - so a visitor
-    never meets a control whose only possible outcome is "no results".
-    Selected state comes straight from the checked attribute, so it is right
-    on first paint and needs no script.
--------------------------------------------------------------------------- --}}
+    WHY A COMPONENT
+    -------------------------------------------------------------------------
+    This used to be frontend/fm/sections/shop-sidebar.blade.php, included with
+    @include. A partial inherits the INCLUDING view's scope, so it could only be
+    rendered by a page that had already declared ~16 locals
+    ($fmRouteName, $fmCategorySlug, $fmBrandSlugs, $fmMinPrice, $fmMaxPrice,
+    $fmRating, $fmInStock, $fmType, $categoryCounts, $brandCounts,
+    $priceCeiling, $hasReviewData ...). Only pages/products.blade.php and
+    pages/search.blade.php did that - each with its own copy of the same parse.
+    That is why the panel could not be reused anywhere else.
+
+    As a component it takes those as optional PROPS with real defaults, so
+
+        <x-fm::shop-sidebar />                 the FreshMart panel (v1)
+        <x-fm::shop-sidebar variant="v2" aside />   the work/code.html panel
+
+    render a complete, correct panel on ANY page. Nothing has to be declared by
+    the caller; every prop is an override.
+
+    WHERE EACH FLAVOUR CAN RENDER
+    -------------------------------------------------------------------------
+    v1 is styled by fm-products.css + Tailwind, which are global: it renders
+    correctly anywhere, wrapped in whatever column the page already has (that is
+    how pages/search.blade.php uses it - inside a Bootstrap .col + .collapse).
+
+    v2 is styled by fm-products-v2.css, whose rules are scoped to the shop
+    layout, `.fm-page-shop` (its token block, the aside width, the panel, the
+    drawer). So a page that wants v2 opens that scope once on its own wrapper:
+
+        <div class="fm-page-shop"> ... <x-fm::shop-sidebar variant="v2" aside /> ... </div>
+
+    That is not a quirk of this component: `.fm-shop-layout`, `.fm-shop-main`
+    and the v2 product grid are scoped the same way, because they are the shop
+    page. A page that only wants a filter column, without the shop layout, uses
+    the v1 flavour. What the component removes is the old requirement to
+    declare ~16 variables - not the layout scope.
+
+    Props (all optional)
+        variant         'v1'|'v2'   default 'v1'
+        aside           bool        default false   wrap in <aside class="fm-shop-aside">
+                                    (the v2 two-column column; the shop page needs it,
+                                     the search page keeps its own Bootstrap column)
+        filters         \App\Support\ShopFilters   default: the current request
+        categoryList    Collection  default: ShopFilterData::categories()
+                                    (categories holding a published product, by name)
+        categoryCounts  Collection  default: ShopFilterData::categoryCounts()
+        brandList       Collection  default: ShopFilterData::brands()
+                                    (brands a published product uses, by name)
+        brandCounts     Collection  default: ShopFilterData::brandCounts()
+        priceCeiling    int         default: ShopFilterData::priceCeiling()
+        hasReviewData   bool        default: ShopFilterData::hasReviewData()
+        categorySlug    string      default: from filters
+        brandSlugs      array       default: from filters
+        minPrice        float       default: from filters
+        maxPrice        float       default: from filters
+        rating          int         default: from filters
+        inStock         bool        default: from filters
+        type            string      default: from filters
+
+    NOTE ON THE TWO LIST PROPS
+    -------------------------------------------------------------------------
+    They are not named `categories` / `brands` on purpose. A component receives
+    the view-SHARED data, and AppServiceProvider shares `$sidecategories` and
+    `$brands` globally with a DIFFERENT meaning (every top-level category, every
+    brand - unordered, unfiltered). A prop named `brands` would be
+    indistinguishable from that shared variable inside this view, which is
+    exactly how the first draft of this component silently rendered the wrong
+    department order. See the note in the preamble below.
+
+    WHAT MUST NOT CHANGE
+    -------------------------------------------------------------------------
+    1. ONE form node. The id is #fmFilterForm and the toolbar's two selects join
+       it through form="fmFilterForm". public/frontend/js/fm-products.js MOVES
+       this form into the phone drawer and back (sections/.../filters-drawer
+       renders the empty shell), so a second copy of the form on the page would
+       make the browser resolve form="fmFilterForm" to the first match and
+       submit a stale, empty filter set. Render this component once per page.
+    2. Every input keeps its name/id/value/checked as a real GET control. The
+       panel works with JavaScript off: the drawer trigger is hidden by CSS
+       under lg and the form stays in the page.
+    3. A block renders only while the shop can answer it: the rating rows wait
+       for published reviews, the brand rows wait for a brand in use. Never
+       show a filter whose only possible outcome is "no results".
+    =========================================================================
+--}}
 
 @php
-    $fmCategoryCounts = $categoryCounts ?? collect();
-    $fmBrandCounts = $brandCounts ?? collect();
-    $fmPriceCeiling = max(1, (int) ($priceCeiling ?? 0));
-    $fmShowRating = (bool) ($hasReviewData ?? false);
+    $fmV2     = ($variant ?? 'v1') === 'v2';
+    $fmAside  = (bool) ($aside ?? false);
+
+    /** @var \App\Support\ShopFilters $fmFilters */
+    $fmFilters = $filters ?? \App\Support\ShopFilters::current();
+
+    // Counters: the controller's numbers win when it passed them (listing
+    // routes), otherwise the component fetches them itself - that is what
+    // makes it usable on a page the controller never prepared.
+    $fmCategoryCounts = $categoryCounts ?? \App\Support\ShopFilterData::categoryCounts();
+    $fmBrandCounts    = $brandCounts ?? \App\Support\ShopFilterData::brandCounts();
+    $fmPriceCeiling   = max(1, (int) ($priceCeiling ?? \App\Support\ShopFilterData::priceCeiling()));
+    $fmShowRating     = (bool) ($hasReviewData ?? \App\Support\ShopFilterData::hasReviewData());
+
+    // Departments and brands come from ShopFilterData - NOT from the
+    // view-shared $sidecategories / $brands.
+    //
+    // AppServiceProvider shares those two names globally and they are NOT the
+    // lists a listing page needs: the shared $sidecategories is every top-level
+    // category (parent_id = 0, no ordering, no published-product filter), while
+    // the sidebar must show the categories that actually hold a product,
+    // ordered by name - the same list FrontendController::withListingSidebar()
+    // used to pass.
+    //
+    // A Blade component receives the view-SHARED data but not the including
+    // page's view data, so a bare `$sidecategories ?? ...` inside a component
+    // silently reads the shared one. Measured: the department radios on
+    // /products came out in a different order (caught by rendering the previous
+    // commit on a second port and diffing the HTML). ShopFilterData is the one
+    // definition of both lists; the props exist for a page that wants a
+    // narrower list of its own.
+    $sidecategories = $categoryList ?? \App\Support\ShopFilterData::categories();
+    $brands         = $brandList ?? \App\Support\ShopFilterData::brands();
+
+    // Current filter state: props beat the request, so a page that already
+    // resolved a scope (the search page) can hand it over.
+    $fmCategorySlug = $categorySlug ?? $fmFilters->categorySlug;
+    $fmBrandSlugs   = $brandSlugs ?? $fmFilters->brandSlugs;
+    $fmMinPrice     = (float) ($minPrice ?? $fmFilters->minPrice);
+    $fmMaxPrice     = (float) ($maxPrice ?? $fmFilters->maxPrice);
+    $fmRating       = (int) ($rating ?? $fmFilters->rating);
+    $fmInStock      = (bool) ($inStock ?? $fmFilters->inStock);
+    $fmType         = (string) ($type ?? $fmFilters->type);
 
     /*
-     * Layout flavour.
-     *
-     * 'v1' is the original FreshMart panel. 'v2' is the work/code.html panel
-     * and is used only by pages/products.blade.php; the search page passes
-     * nothing and therefore keeps the old look.
-     *
-     * Only CHROME varies. Every input keeps the same name, id, value and
-     * checked state in both flavours, and there is still exactly ONE
-     * <form id="fmFilterForm"> - the whole point of the variant is that the
-     * filter logic below has a single definition.
+     * Route shape decides whether "Categories" is a radio group or a list of
+     * links. /products is query scoped: the radio narrows the list in place.
+     * /category/{slug}, /products/category/{slug} and /products/brand/{slug}
+     * are PATH scoped: FrontendController reads only its own route parameter,
+     * so a radio submitted from there would filter nothing - those routes link
+     * each department to its own page instead.
      */
-    $fmV2 = ($variant ?? 'v1') === 'v2';
+    $fmPathScopedCategories = $fmFilters->pathScopedCategories();
 
     // Brands that at least one published product uses. With an empty shop
     // assignment the whole block disappears instead of listing dead links.
-    $fmFilterBrands = ($brands ?? collect())
+    $fmFilterBrands = $brands
         ->filter(static fn ($brand) => (int) ($fmBrandCounts[$brand->id] ?? 0) > 0)
         ->values();
 
     $fmDepartmentTotal = (int) $fmCategoryCounts->sum();
 
-    // Route shape decides whether "Categories" is a radio group or a list of
-    // links. $fmRouteName is resolved once in pages/products.blade.php and
-    // arrives through the include, exactly like $fmType below.
-    $fmPathScopedCategories = in_array((string) $fmRouteName, [
-        'category', 'products.category', 'products.brand',
-    ], true);
-
     $fmSliderMax = $fmMaxPrice > 0 ? (int) $fmMaxPrice : $fmPriceCeiling;
 @endphp
+
+@if($fmAside)
+<aside class="fm-shop-aside" data-fm-filter-home>
+@endif
 
 <div class="space-y-4 fm-shop-sidebar {{ $fmV2 ? 'fm-shop-sidebar--v2' : '' }}">
 
@@ -116,11 +226,10 @@
                  /category/{slug}, /products/category/{slug} and
                  /products/brand/{slug} are PATH scoped: FrontendController
                  reads only its own route parameter, so a radio submitted from
-                 there would filter nothing while the heading (before the fix
-                 in pages/products.blade.php) happily renamed the page. Those
-                 routes therefore link each department to its own page - the
-                 same answer classic gives, which renders 392 category links
-                 and zero radios on /category/premature.
+                 there would filter nothing while the heading happily renamed
+                 the page. Those routes therefore link each department to its
+                 own page - the same answer classic gives, which renders 392
+                 category links and zero radios on /category/premature.
             --}}
             <div class="{{ $fmV2 ? 'fm-sidebar__group' : '' }}">
                 {{--
@@ -140,7 +249,7 @@
                             <span class="fm-check-row__count">{{ $fmDepartmentTotal }}</span>
                         </a>
 
-                        @foreach(($sidecategories ?? collect()) as $fmDepartment)
+                        @foreach($sidecategories as $fmDepartment)
                             <a class="fm-check-row" href="{{ route('category', $fmDepartment->slug) }}"
                                @if($fmCategorySlug === $fmDepartment->slug) aria-current="page" @endif>
                                 <span class="fm-check-row__label">{{ $fmDepartment->name }}</span>
@@ -154,7 +263,7 @@
                             <span class="fm-check-row__count">{{ $fmDepartmentTotal }}</span>
                         </label>
 
-                        @foreach(($sidecategories ?? collect()) as $fmDepartment)
+                        @foreach($sidecategories as $fmDepartment)
                             <label class="fm-check-row">
                                 <input type="radio" name="category" value="{{ $fmDepartment->slug }}"
                                        {{ $fmCategorySlug === $fmDepartment->slug ? 'checked' : '' }}>
@@ -339,3 +448,7 @@
     @endunless
 
 </div>
+
+@if($fmAside)
+</aside>
+@endif

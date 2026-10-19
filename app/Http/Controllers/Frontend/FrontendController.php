@@ -28,6 +28,7 @@ use App\Models\PromoBanner;
 use App\Models\FlashSale;
 use App\Models\Service;
 use App\Models\GeneralSetting;
+use App\Support\ShopFilterData;
 use Illuminate\Support\Facades\DB;
 use Session;
 use Cart;
@@ -83,34 +84,11 @@ class FrontendController extends Controller
      */
     private function withListingSidebar(array $data): array
     {
-        $categoryCounts = Product::where('status', 1)
-            ->selectRaw('category_id, COUNT(*) as total')
-            ->groupBy('category_id')
-            ->pluck('total', 'category_id');
-
-        $brandCounts = Product::where('status', 1)
-            ->whereNotNull('brand_id')
-            ->selectRaw('brand_id, COUNT(*) as total')
-            ->groupBy('brand_id')
-            ->pluck('total', 'brand_id');
-
-        $priceCeiling = (int) ceil((float) Product::where('status', 1)->max('new_price'));
-
-        return array_merge($data, [
-            'categoryCounts' => $categoryCounts,
-            'brandCounts' => $brandCounts,
-            'sidecategories' => Category::where('status', 1)
-                ->whereIn('id', $categoryCounts->keys())
-                ->orderBy('name')
-                ->get(['id', 'name', 'slug']),
-            'brands' => Brand::where('status', 1)
-                ->whereIn('id', $brandCounts->keys())
-                ->orderBy('name')
-                ->get(['id', 'name', 'slug']),
-            'priceCeiling' => $priceCeiling,
-            'maxPrice' => $priceCeiling,
-            'hasReviewData' => Product::where('status', 1)->whereHas('reviews')->exists(),
-        ]);
+        // The seven numbers live in App\Support\ShopFilterData, which the
+        // sidebar/toolbar components also read. Keeping the queries there means
+        // the panel renders the same counters whether the controller prepared
+        // the route or the component had to fetch them itself.
+        return array_merge($data, ShopFilterData::forListingSidebar());
     }
 
     public function campaign($slug)

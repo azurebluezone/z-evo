@@ -34,36 +34,20 @@
         : 'Hot deals';
 
     /*
-        THE LISTING-SECTION CONTRACT.
+        THE LISTING COMPONENTS RESOLVE THEIR OWN STATE.
 
-        sections/products/catalog includes shop-sidebar and shop-toolbar, and
-        both read their state from variables the PAGE is expected to declare:
-        the active filter values, and $fmRouteName. This page renders the same
-        two partials as /products and /search, so it declares the same set -
-        which is why they are declared here rather than defaulted away inside
-        the partials: a partial that guesses its own scope is how the listing
-        pages drift apart in the first place. Omitting $fmRouteName is not a
-        cosmetic miss, it 500s the page.
+        This page renders the same catalog section as /products and /search. It
+        used to declare the whole set of filter locals - $fmRouteName,
+        $fmCategorySlug, $fmBrandSlugs, $fmMinPrice, $fmMaxPrice, $fmRating,
+        $fmInStock, $fmType, $fmHasActiveFilter - purely because the sidebar and
+        toolbar partials read them out of the including view's scope, and
+        omitting $fmRouteName 500'd the page.
 
-        Hot deals is scoped by neither a path nor a filter, so every value is
-        the neutral one. $fmRouteName is the one that carries meaning: the
-        sidebar renders "Categories" as a list of links rather than a radio
-        group on a path-scoped route, and 'hotdeals' is query-scoped like
-        /products.
+        <x-fm::shop-sidebar> and <x-fm::shop-toolbar> now parse the request
+        themselves through App\Support\ShopFilters, so the contract is gone: a
+        page supplies what it knows and nothing else. Hot deals is scoped by
+        neither a path nor a filter, so the defaults are exactly right.
     */
-    $fmRouteName    = (string) (app('router')->current()?->getName() ?? 'hotdeals');
-    $fmCategorySlug = '';
-    $fmBrandSlugs   = [];
-    $fmMinPrice     = 0.0;
-    $fmMaxPrice     = 0.0;
-    $fmRating       = 0;
-    $fmInStock      = false;
-    $fmType         = '';
-    $fmTypeLabel    = null;
-
-    // shop-toolbar offers a "reset" only when something is actually filtered.
-    $fmHasActiveFilter = false;
-    $fmHasAnyFilter    = false;
 @endphp
 
 @section('title', $fmHeading)
@@ -97,7 +81,7 @@
 
     @include('frontend.fm.sections.products.catalog', ['products' => $products])
 
-    @include('frontend.fm.sections.products.filters-drawer')
+    <x-fm::filters-drawer />
 
 </div>
 

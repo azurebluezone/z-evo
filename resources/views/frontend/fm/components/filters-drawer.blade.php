@@ -1,5 +1,5 @@
 {{--
-    FM:PARTIAL products/filters-drawer
+    FM:COMPONENT filters-drawer
     =========================================================================
     The off-canvas tray for phones and tablets.
 
@@ -7,18 +7,22 @@
     filter form in here on open and back out on close. Keeping the shell in the
     markup means the reference's slide animation, the backdrop and the focus
     behaviour all work on the first open without waiting for a render - and it
-    is the reason the page can ship ONE #fmFilterForm (see products/catalog).
+    is the reason the page can ship ONE #fmFilterForm (see components/
+    shop-sidebar, which owns that form).
+
+    Together with <x-fm::shop-toolbar variant="v2"> it forms the pair: the
+    toolbar's [data-fm-open-filters] button opens this panel. A page that
+    renders the toolbar but not this shell gets a button that does nothing, so
+    render them together.
+
+    Usage
+        <x-fm::filters-drawer />
 
     Props
         (none)
-
-    Usage
-        @include('frontend.fm.sections.products.filters-drawer')
+    =========================================================================
 --}}
 
-{{--
-    FM:SECTION filters-drawer
---}}
 <div class="fm-drawer-backdrop" data-fm-drawer-backdrop hidden></div>
 
 <div class="fm-drawer-panel" id="fmShopFiltersDrawer"

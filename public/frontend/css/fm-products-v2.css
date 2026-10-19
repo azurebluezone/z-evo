@@ -82,8 +82,8 @@
 
        <main class="fm-shop-layout">
            <div class="fm-container">      <- the centred page gutter
-               <aside class="fm-shop-aside">
                <div class="fm-shop-main">
+               <aside class="fm-shop-aside">   <- last, so it paints on the RIGHT
 
    so .fm-shop-layout has exactly ONE child. Making .fm-shop-layout the flex
    row therefore does nothing at all: the gutter div stays display:block, the
@@ -101,7 +101,9 @@
 
 .fm-page-shop .fm-shop-layout > .fm-container {
   display: flex;
-  /* the sidebar sits LEFT of the products, lg and up */
+  /* The panel is on the RIGHT: it is the last child in the DOM, and the row
+     follows DOM order (no `order` override - see catalog.blade.php for why the
+     reading order is kept in step with the visual one). */
   flex-direction: row;
   align-items: flex-start;
   /* code.html: <div class="flex flex-col lg:flex-row gap-6"> */

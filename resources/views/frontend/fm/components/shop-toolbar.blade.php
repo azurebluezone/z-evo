@@ -1,17 +1,52 @@
 {{--
-    FM:SECTION shop-toolbar ------------------------------------------------
+    FM:COMPONENT shop-toolbar
+    =========================================================================
     Above the result grid: view switcher, honest result count and the two
     selects that shape the listing.
 
-    Both selects belong to the sidebar form through the form attribute, so
-    one GET form owns every filter on the page and one submit carries them
-    all. Sort and page size change immediately (data-fm-submit), price and
-    category wait for the Apply button.
--------------------------------------------------------------------------- --}}
+    WHY A COMPONENT
+    -------------------------------------------------------------------------
+    Same reason as shop-sidebar: as an @include it read $products and
+    $fmHasActiveFilter straight out of the including view, so only the two
+    pages that declared them could use it. Both are props now.
+
+    Usage
+        <x-fm::shop-toolbar :products="$products" />            v1 (FreshMart)
+        <x-fm::shop-toolbar :products="$products" variant="v2" />    catalog
+
+    Props (all optional, but products is the point)
+        products          Paginator|Collection|null  the current result set
+        variant           'v1'|'v2'      default 'v1'
+        hasActiveFilter   bool|null      default: ShopFilters::current()->hasActive()
+        filters           \App\Support\ShopFilters  default: the current request
+
+    WHY THE TWO SELECTS ARE OUTSIDE THE FORM
+    -------------------------------------------------------------------------
+    Both selects carry form="fmFilterForm", so they submit through the sidebar's
+    form and ONE GET request carries every filter, sort and page size. With
+    JavaScript off they still work: the browser joins them to the form by id.
+    Sort and page size change immediately (data-fm-submit); price and category
+    wait for the sidebar's Apply button.
+
+    The v2 panel drops the "Per page" select because the reference does not
+    show it. The parameter is still accepted in the query string and still
+    honoured by the controller - it just has no widget.
+    =========================================================================
+--}}
 
 @php
-    $fmSortBy = (string) request('sort_by', '');
-    $fmPerPage = (int) request('per_page', 24);
+    $fmV2 = ($variant ?? 'v1') === 'v2';
+
+    /** @var \App\Support\ShopFilters $fmFilters */
+    $fmFilters = $filters ?? \App\Support\ShopFilters::current();
+
+    /** @var \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection|null $products */
+    $fmProducts = $products ?? collect();
+
+    $fmHasActiveFilter = (bool) ($hasActiveFilter ?? $fmFilters->hasActive());
+
+    $fmSortBy  = $fmFilters->sortBy;
+    $fmPerPage = $fmFilters->perPage > 0 ? $fmFilters->perPage : 24;
 
     $fmSortOptions = [
         ''           => 'Default (newest first)',
@@ -23,25 +58,11 @@
 
     $fmPerPageOptions = [4, 8, 16, 24, 32, 64, 80, 100];
 
-    /*
-     * Layout flavour.
-     *
-     * 'v1' is the original FreshMart toolbar. 'v2' is the work/code.html one
-     * and is used only by pages/products.blade.php; search.blade.php passes
-     * nothing and keeps the old look.
-     *
-     * BOTH flavours render the same two selects with the same names, the
-     * same form="fmFilterForm" owner and the same data-fm-submit hook, so the
-     * page script that drives them is shared. The v2 panel simply drops the
-     * "Per page" select, which the reference does not show - the value is
-     * still accepted in the query string and still honoured by the
-     * controller, it just has no widget.
-     */
-    $fmV2 = ($variant ?? 'v1') === 'v2';
-
-    // The counter the v2 toolbar prints, in the reference's phrasing.
-    $fmShowing = $products->count();
-    $fmTotal   = $products->total();
+    // A paginator knows how many rows it is showing and the grand total; a
+    // plain collection only knows the first. Both are handled so the toolbar
+    // can sit above a home rail too.
+    $fmShowing = $fmProducts->count();
+    $fmTotal   = method_exists($fmProducts, 'total') ? (int) $fmProducts->total() : $fmShowing;
 @endphp
 
 <div class="fm-shop-toolbar" data-section="shop-toolbar">
@@ -58,7 +79,7 @@
                           stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
                 </svg>
                 <span>Filters</span>
-                @if($fmHasActiveFilter ?? false)
+                @if($fmHasActiveFilter)
                     <span class="fm-filter-open__count">!</span>
                 @endif
             </button>

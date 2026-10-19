@@ -20,59 +20,34 @@
 @extends('frontend.fm.layouts')
 
 @php
-    // One computation feeds the document title, the page heading and the
-    // active-filter chips below, so the three can never drift apart.
-    $fmTypeLabels = [
-        'featured'     => 'Featured products',
-        'best-selling' => 'Best selling products',
-        'discount'     => 'Discounted products',
-        'recommended'  => 'Recommended products',
-    ];
+    /*
+     * The heading is this page's concern; the filter STATE is not.
+     *
+     * App\Support\ShopFilters parses the same query string for the sidebar and
+     * toolbar components, so the page reads that one object instead of keeping
+     * a second copy of the parse - which is exactly how the two copies drifted
+     * (type labels, an empty-category edge case, the path-scoped rules).
+     */
+    $fmQuery = \App\Support\ShopFilters::current();
 
-    $fmType = (string) request('type', '');
-    $fmTypeLabel = $fmTypeLabels[$fmType] ?? null;
-
-    $fmCategorySlug = trim((string) request('category', ''));
-
-    // ------------------------------------------------------------------
-    // The path wins over the query on path-scoped routes.
-    //
-    // /category/{slug} and /products/brand/{slug} already decide the list in
-    // the route, and FrontendController::category()/brand() read only their
-    // own $slug - ?category= is ignored there. Letting it through let the
-    // sidebar radio rename the page: /category/premature?category=newborn
-    // printed the heading "Newborn" over a list of Premature products.
-    // The route is the source of truth on those routes, so it is used instead.
-    // ------------------------------------------------------------------
-    $fmPageRoute = app('router')->current();
-    $fmRouteName = (string) ($fmPageRoute?->getName() ?? '');
-
-    if ($fmRouteName === 'category') {
-        $fmCategorySlug = (string) ($fmPageRoute->parameter('category') ?? '');
-    } elseif ($fmRouteName === 'products.category') {
-        $fmCategorySlug = (string) ($fmPageRoute->parameter('slug') ?? '');
-    } elseif ($fmRouteName === 'products.brand') {
-        // Brand pages carry no category; the heading falls through to the
-        // controller's $pageTitle, which names the brand.
-        $fmCategorySlug = '';
-    }
-
-    $fmActiveCategory = $fmCategorySlug !== ''
-        ? ($sidecategories ?? collect())->firstWhere('slug', $fmCategorySlug)
-        : null;
-
-    $fmBrandSlugs = array_values(array_filter((array) request('brand')));
-    $fmActiveBrands = ($brands ?? collect())
-        ->filter(static fn ($brand) => in_array($brand->slug, $fmBrandSlugs, true))
-        ->values();
-
-    $fmMinPrice = (float) request('min_price', 0);
-    $fmMaxPrice = (float) request('max_price', 0);
-    $fmRating = (int) request('rating', 0);
-    $fmInStock = request('in_stock') === '1';
+    $fmTypeLabel = $fmQuery->typeLabel();
 
     // The most specific active filter names the page.
     //
+    // /category/{slug} and /products/brand/{slug} already decide the list in
+    // the route, and FrontendController::category()/brand() read only their own
+    // $slug - ?category= is ignored there. Letting it through let the sidebar
+    // radio rename the page: /category/premature?category=newborn printed the
+    // heading "Newborn" over a list of Premature products. ShopFilters applies
+    // the path-over-query rule once, for the heading and the panel alike.
+    $fmActiveCategory = $fmQuery->categorySlug !== ''
+        ? ($sidecategories ?? collect())->firstWhere('slug', $fmQuery->categorySlug)
+        : null;
+
+    $fmActiveBrands = ($brands ?? collect())
+        ->filter(static fn ($brand) => in_array($brand->slug, $fmQuery->brandSlugs, true))
+        ->values();
+
     // Routes that scope the listing through the PATH rather than the query
     // string leave every candidate above null: /products/brand/{slug} never
     // puts a brand in the query, so the heading used to fall through to the
@@ -91,13 +66,9 @@
         ?? $fmControllerTitle
         ?? 'All products & groceries';
 
-    $fmHasActiveFilter = $fmActiveCategory !== null
-        || $fmActiveBrands->isNotEmpty()
-        || $fmTypeLabel !== null
-        || $fmMinPrice > 0
-        || $fmMaxPrice > 0
-        || $fmRating > 0
-        || $fmInStock;
+    // Kept for the page's own use (the header/footer partials read it); the
+    // toolbar component derives the same value from ShopFilters by itself.
+    $fmHasActiveFilter = $fmQuery->hasActive();
 @endphp
 
 @section('title', $fmHeading)
@@ -134,7 +105,7 @@
 
     @include('frontend.fm.sections.products.catalog', ['products' => $products])
 
-    @include('frontend.fm.sections.products.filters-drawer')
+    <x-fm::filters-drawer />
 
 </div>
 

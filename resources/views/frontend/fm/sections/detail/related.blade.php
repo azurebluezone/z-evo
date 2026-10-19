@@ -37,10 +37,9 @@
                 </a>
             </div>
 
-            @include('frontend.fm.sections.partials._product-grid', [
-                'products' => $products,
-                'columns'  => 4,
-            ])
+            <x-fm::product-grid
+                :products="$products"
+                :columns="4" />
         </div>
     </section>
     {{-- /FM:SECTION related-products --}}

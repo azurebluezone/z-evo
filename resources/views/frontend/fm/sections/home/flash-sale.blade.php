@@ -115,11 +115,10 @@
                     </a>
                 </div>
 
-                <div class="fm-product-grid">
-                    @foreach($fmFlashProducts->take(4) as $fmDeal)
-                        <x-fm::product-card-v2 :product="$fmDeal" variant="home" />
-                    @endforeach
-                </div>
+                <x-fm::product-grid
+                    :products="$fmFlashProducts->take(4)"
+                    card="v2"
+                    variant="home" />
             @endif
 
         </div>
