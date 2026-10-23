@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use shurjopayv2\ShurjopayLaravelPackage8\Http\Controllers\ShurjopayController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
@@ -1432,81 +1431,6 @@ class FrontendController extends Controller
     }
 
 
-
-    public function payment_success(Request $request)
-    {
-        $order_id = $request->order_id;
-        $shurjopay_service = new ShurjopayController();
-        $json = $shurjopay_service->verify($order_id);
-        $data = json_decode($json);
-
-        if ($data[0]->sp_code != 1000) {
-            Toastr::error('Your payment failed, try again', 'Oops!');
-            if ($data[0]->value1 == 'customer_payment') {
-                return redirect()->route('home');
-            } else {
-                return redirect()->route('home');
-            }
-        }
-
-        if ($data[0]->value1 == 'customer_payment') {
-
-            $customer = Customer::find(Auth::guard('customer')->user()->id);
-
-            // order data save
-            $order = new Order();
-            $order->invoice_id = $data[0]->id;
-            $order->amount = $data[0]->amount;
-            $order->customer_id = Auth::guard('customer')->user()->id;
-            $order->order_status = $data[0]->bank_status;
-            $order->save();
-
-            // payment data save
-            $payment = new Payment();
-            $payment->order_id = $order->id;
-            $payment->customer_id = Auth::guard('customer')->user()->id;
-            $payment->payment_method = 'shurjopay';
-            $payment->amount = $order->amount;
-            $payment->trx_id = $data[0]->bank_trx_id;
-            $payment->sender_number = $data[0]->phone_no;
-            $payment->payment_status = 'paid';
-            $payment->save();
-            // order details data save
-            foreach (Cart::instance('shopping')->content() as $cart) {
-                $order_details = new OrderDetails();
-                $order_details->order_id = $order->id;
-                $order_details->product_id = $cart->id;
-                $order_details->product_name = $cart->name;
-                $order_details->purchase_price = $cart->options->purchase_price;
-                $order_details->sale_price = $cart->price;
-                $order_details->qty = $cart->qty;
-                $order_details->save();
-            }
-
-            Cart::instance('shopping')->destroy();
-            Toastr::error('Thanks, Your payment send successfully', 'Success!');
-            return redirect()->route('home');
-        }
-
-        Toastr::error('Something wrong, please try agian', 'Error!');
-        return redirect()->route('home');
-    }
-    public function payment_cancel(Request $request)
-    {
-        $order_id = $request->order_id;
-        $shurjopay_service = new ShurjopayController();
-        $json = $shurjopay_service->verify($order_id);
-        $data = json_decode($json);
-
-        Toastr::error('Your payment cancelled', 'Cancelled!');
-        if ($data[0]->sp_code != 1000) {
-            if ($data[0]->value1 == 'customer_payment') {
-                return redirect()->route('home');
-            } else {
-                return redirect()->route('home');
-            }
-        }
-    }
 
     public function offers()
     {

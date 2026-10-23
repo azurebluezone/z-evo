@@ -6,7 +6,6 @@ use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\ShoppingController;
 use App\Http\Controllers\Frontend\CustomerController;
 use App\Http\Controllers\Frontend\BkashController;
-use App\Http\Controllers\Frontend\ShurjopayControllers;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderCourierController;
@@ -741,8 +740,6 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
     Route::get('districts', [FrontendController::class, 'districts'])->name('districts');
     Route::get('/campaign/{slug}', [FrontendController::class, 'campaign'])->name('campaign');
     Route::get('/offer', [FrontendController::class, 'offers'])->name('offers');
-    Route::get('/payment-success', [FrontEndController::class, 'payment_success'])->name('payment_success');
-    Route::get('/payment-cancel', [FrontEndController::class, 'payment_cancel'])->name('payment_cancel');
 
     // cart route
     Route::post('cart/store', [ShoppingController::class, 'cart_store'])->name('cart.store');
@@ -833,8 +830,6 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
     // (see Frontend\CustomerController, the 'bkash' branch of order_save()).
     Route::any('bkash/checkout-url/create', [BkashController::class, 'create'])->name('url-create');
     Route::get('bkash/checkout-url/callback', [BkashController::class, 'callback'])->name('url-callback');
-    Route::get('/payment-success', [ShurjopayControllers::class, 'payment_success'])->name('shurjopay.payment_success');
-    Route::get('/payment-cancel', [ShurjopayControllers::class, 'payment_cancel'])->name('shurjopay.payment_cancel');
 });
 
 // ajax route
