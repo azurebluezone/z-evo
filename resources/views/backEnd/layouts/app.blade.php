@@ -28,6 +28,15 @@
 
     @include('backEnd.layouts.partials.styles')
 
+    {{--
+        A view may add page CSS / JS with @section('css') / @section('script').
+        Without these two yields the section is compiled and then thrown away:
+        the view's <script> never reaches the browser, so its buttons do nothing.
+        The stacks (@push('css') / @push('script')) are the other, newer path
+        and both are supported.
+    --}}
+    @yield('css')
+
     <!-- Helpers -->
     <script src="{{ asset('admin/assets/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('admin/assets/vendor/js/template-customizer.js') }}"></script>
@@ -318,5 +327,12 @@
           }
       });
     </script>
+
+    {{--
+        Page scripts. Placed at the very end of <body> so a view's script sees
+        the DOM it is written against, and after the layout's own scripts, so
+        jQuery / Bootstrap / Select2 are already on the page.
+    --}}
+    @yield('script')
 </body>
 </html>

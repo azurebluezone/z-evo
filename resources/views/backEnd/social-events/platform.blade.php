@@ -256,7 +256,13 @@
 @endsection
 
 @section('script')
-<script type="module" src="{{ asset('admin/build/apexcharts-DQTXqG1-.js') }}"></script>
+{{--
+    The old <script type="module" src=".../admin/build/apexcharts-DQTXqG1-.js">
+    pointed at a Vite build chunk that is not in this repository (there is no
+    public/admin/build directory), so it 404'd on every load. ApexCharts is
+    already loaded by the layout's scripts partial
+    (admin/assets/vendor/libs/apex-charts/apexcharts.js).
+--}}
 <script>
 (function() {
     if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.DataTable === 'function') {

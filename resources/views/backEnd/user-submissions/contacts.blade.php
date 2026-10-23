@@ -2,179 +2,203 @@
 @section('title','Contact Messages')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-            <h4 class="mb-0">Contact Messages</h4>
-        </div>
+{{--
+    Contact Messages
 
-        <div class="card">
-            <div class="card-body">
-                <form method="post" action="{{ route('admin.user-submissions.bulk-notify') }}" class="mb-3">
-                    @csrf
-                    <input type="hidden" name="type" value="contacts">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-12 col-md-5 col-lg-4">
-                            <label class="form-label">Template</label>
-                            <select name="template_id" class="form-select form-select-sm">
-                                <option value="" selected disabled>Select template</option>
-                                @foreach(($templates ?? []) as $tpl)
-                                    <option value="{{ $tpl->id }}">{{ $tpl->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-3 col-lg-2">
-                            <x-admin.button variant="primary" size="sm" class="w-100" type="submit">Send</x-admin.button>
-                        </div>
-                        <div class="col-12 col-md-4 col-lg-6 d-flex justify-content-md-end">
-                            <x-admin.button variant="danger" size="sm" type="button" id="contacts-bulk-delete-btn">Delete Selected</x-admin.button>
-                        </div>
-                    </div>
-                </form>
+    Same card structure as the Newsletter screen - the two are siblings under
+    the same menu, so they read the same way.
 
-                    <form method="post" action="{{ route('admin.user-submissions.bulk-delete') }}" id="contacts-bulk-delete-form" class="d-none">
-                        @csrf
-                        <input type="hidden" name="type" value="contacts">
-                    </form>
+    Fixed from the previous version:
+      - ONE surplus </div> at the end of the file, which closed the layout's
+        .content-wrapper early and ejected the admin footer from it
+      - the title was a bare <h4> above the card instead of a card header
+      - the pagination was the Bootstrap 4 view in a Bootstrap 5.3 theme
+      - the message column was a <div> nested inside a <td>, and the whole
+        row was clickable-by-div rather than by a real action
+--}}
 
-                    <div class="card-datatable table-responsive">
-                        <table class="table table-striped table-sm w-100 align-middle">
-                            <thead>
-                                <tr>
-                                    <th style="width:40px" class="text-center">
-                                        <input class="form-check-input" type="checkbox" id="contacts-check-all" aria-label="Select all">
-                                    </th>
-                                    <th style="width:18%">Name</th>
-                                    <th style="width:20%" class="d-none d-md-table-cell">Email</th>
-                                    <th>Subject</th>
-                                    <th style="width:16%" class="d-none d-md-table-cell">Date</th>
-                                    <th style="width:56px" class="text-end"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($messages as $item)
-                                    <tr>
-                                        <td class="text-center">
-                                            <input class="form-check-input contacts-check" type="checkbox" value="{{ $item->id }}" aria-label="Select message">
-                                        </td>
-                                        <td>
-                                            <div class="fw-medium" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $item->name }}</div>
-                                            <div class="d-md-none text-muted small" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $item->email }}</div>
-                                        </td>
-                                        <td class="d-none d-md-table-cell">
-                                            <div style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $item->email }}</div>
-                                        </td>
-                                        <td>
-                                            <div style="min-width: 0; overflow: hidden;">
-                                                <div class="fw-medium" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;">{{ $item->subject }}</div>
-                                                <div class="text-muted small" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;">{{ $item->message }}</div>
-                                            </div>
-
-                                            <div class="modal fade" id="contactMessageModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-scrollable">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Message</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="mb-2 fw-medium">{{ $item->name }}</div>
-                                                            <div class="text-muted mb-3">{{ $item->email }}</div>
-                                                            <div class="fw-medium mb-2">Subject</div>
-                                                            <div class="mb-3" style="white-space: pre-wrap;">{{ $item->subject }}</div>
-                                                            <div class="fw-medium mb-2">Message</div>
-                                                            <div style="white-space: pre-wrap;">{{ $item->message }}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="d-none d-md-table-cell">
-                                            <div class="text-muted small"><i class="ri-time-line me-1"></i>{{ $item->created_at ? $item->created_at->format('Y-m-d H:i') : '' }}</div>
-                                        </td>
-                                        <td class="text-end">
-                                            <div class="dropdown">
-                                                <x-admin.button variant="text-secondary" size="sm" shape="icon" class="dropdown-toggle hide-arrow" type="button" style="padding: .25rem; width: 32px; height: 32px;" data-bs-toggle="dropdown" aria-expanded="false" title="Actions">
-                                                    <i class="icon-base ri ri-more-2-fill"></i>
-                                                </x-admin.button>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#contactMessageModal{{ $item->id }}">
-                                                        <i class="ri-eye-line me-2"></i>View
-                                                    </button>
-                                                    <div class="dropdown-divider"></div>
-                                                    <form method="post" action="{{ route('admin.user-submissions.contacts.destroy', $item->id) }}" class="d-inline">
-                                                        @csrf
-                                                        <button type="submit" class="dropdown-item text-danger delete-confirm">
-                                                            <i class="ri-delete-bin-7-line me-2"></i>Delete
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">No messages found</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="mt-3">
-                        {{ $messages->links() }}
-                    </div>
-                </div>
-            </div>
+<div class="card rounded-0">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3">
+        <h5 class="mb-0 text-uppercase fw-bold">Contact Messages</h5>
+        <div class="d-flex flex-wrap gap-2">
+            <form method="post" action="{{ route('admin.user-submissions.bulk-notify') }}" class="d-flex flex-wrap gap-2 m-0">
+                @csrf
+                <input type="hidden" name="type" value="contacts">
+                <select name="template_id" class="form-select form-select-sm" style="min-width: 200px;" aria-label="Notification template">
+                    <option value="" selected disabled>Select template</option>
+                    @foreach(($templates ?? []) as $tpl)
+                        <option value="{{ $tpl->id }}">{{ $tpl->name }}</option>
+                    @endforeach
+                </select>
+                <x-admin.button variant="primary" size="sm" type="submit">
+                    <i class="icon-base ri ri-mail-send-line me-1"></i>Send
+                </x-admin.button>
+            </form>
+            <x-admin.button variant="outline-danger" size="sm" type="button" id="contacts-bulk-delete-btn">
+                <i class="icon-base ri ri-delete-bin-7-line me-1"></i>Delete Selected
+            </x-admin.button>
         </div>
     </div>
+
+    <form method="post" action="{{ route('admin.user-submissions.bulk-delete') }}" id="contacts-bulk-delete-form" class="d-none">
+        @csrf
+        <input type="hidden" name="type" value="contacts">
+    </form>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 w-100">
+                <thead>
+                    <tr>
+                        <th style="width:44px" class="text-center">
+                            <input class="form-check-input" type="checkbox" id="contacts-check-all" aria-label="Select all">
+                        </th>
+                        <th style="width:22%">Name</th>
+                        <th style="width:22%" class="d-none d-md-table-cell">Email</th>
+                        <th>Subject</th>
+                        <th style="width:14%" class="d-none d-md-table-cell">Received</th>
+                        <th style="width:56px" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($messages as $item)
+                        <tr>
+                            <td class="text-center">
+                                <input class="form-check-input contacts-check" type="checkbox" value="{{ $item->id }}" aria-label="Select message">
+                            </td>
+                            <td>
+                                <div class="fw-medium text-truncate">{{ $item->name }}</div>
+                                <div class="text-muted small d-md-none text-truncate">{{ $item->email }}</div>
+                            </td>
+                            <td class="d-none d-md-table-cell">
+                                <div class="text-truncate">{{ $item->email }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-medium text-truncate">{{ $item->subject }}</div>
+                                <div class="text-muted small text-truncate">{{ $item->message }}</div>
+                            </td>
+                            <td class="d-none d-md-table-cell">
+                                <div class="text-muted small">
+                                    <i class="icon-base ri ri-time-line me-1"></i>{{ $item->created_at ? $item->created_at->format('Y-m-d H:i') : '' }}
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <x-admin.button variant="text-secondary" size="sm" shape="icon" type="button" class="dropdown-toggle hide-arrow" data-bs-toggle="dropdown" aria-expanded="false" title="Actions">
+                                        <i class="icon-base ri ri-more-2-fill"></i>
+                                    </x-admin.button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#contactMessageModal{{ $item->id }}">
+                                            <i class="icon-base ri ri-eye-line me-2"></i>View
+                                        </button>
+                                        <div class="dropdown-divider"></div>
+                                        <form method="post" action="{{ route('admin.user-submissions.contacts.destroy', $item->id) }}" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item text-danger delete-confirm">
+                                                <i class="icon-base ri ri-delete-bin-7-line me-2"></i>Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                {{--
+                                    The modal lives inside the cell, not in the
+                                    table body: a <div> directly under <tbody>
+                                    is invalid markup and the browser hoists it
+                                    out of the table, which breaks the row
+                                    count and the table's own layout.
+                                --}}
+                                <div class="modal fade" id="contactMessageModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Message</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-2 fw-medium">{{ $item->name }}</div>
+                                                <div class="text-muted mb-3">{{ $item->email }}</div>
+                                                <div class="fw-medium mb-2">Subject</div>
+                                                <div class="mb-3" style="white-space: pre-wrap;">{{ $item->subject }}</div>
+                                                <div class="fw-medium mb-2">Message</div>
+                                                <div style="white-space: pre-wrap;">{{ $item->message }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No messages found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if($messages->hasPages())
+        <div class="card-footer border-top bg-white py-3">
+            <div class="d-flex justify-content-end">
+                {{ $messages->links('pagination::bootstrap-5') }}
+            </div>
+        </div>
+    @endif
 </div>
 
+@push('script')
 <script>
-  (function () {
-    const checkAll = document.getElementById('contacts-check-all');
-    const bulkDeleteBtn = document.getElementById('contacts-bulk-delete-btn');
-    const bulkDeleteForm = document.getElementById('contacts-bulk-delete-form');
+(function () {
+    'use strict';
+
+    var checkAll = document.getElementById('contacts-check-all');
+    var bulkDeleteBtn = document.getElementById('contacts-bulk-delete-btn');
+    var bulkDeleteForm = document.getElementById('contacts-bulk-delete-form');
     if (!checkAll || !bulkDeleteBtn || !bulkDeleteForm) return;
 
-    const items = () => Array.from(document.querySelectorAll('.contacts-check'));
+    var items = function () {
+        return Array.prototype.slice.call(document.querySelectorAll('.contacts-check'));
+    };
+
+    var fillIds = function (form, selected) {
+        form.querySelectorAll('input[name="ids[]"]').forEach(function (node) { node.remove(); });
+        selected.forEach(function (id) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+    };
+
+    var selectedIds = function () {
+        return items().filter(function (cb) { return cb.checked; }).map(function (cb) { return cb.value; });
+    };
 
     checkAll.addEventListener('change', function () {
-      items().forEach(cb => { cb.checked = checkAll.checked; });
+        items().forEach(function (cb) { cb.checked = checkAll.checked; });
     });
 
     bulkDeleteBtn.addEventListener('click', function () {
-      const selected = items().filter(cb => cb.checked).map(cb => cb.value);
-      if (!selected.length) return;
-      bulkDeleteForm.querySelectorAll('input[name="ids[]"]').forEach(n => n.remove());
-      selected.forEach(id => {
-        const inp = document.createElement('input');
-        inp.type = 'hidden';
-        inp.name = 'ids[]';
-        inp.value = id;
-        bulkDeleteForm.appendChild(inp);
-      });
-      bulkDeleteForm.submit();
+        var selected = selectedIds();
+        if (!selected.length) return;
+        fillIds(bulkDeleteForm, selected);
+        bulkDeleteForm.submit();
     });
 
-    const notifyForm = document.querySelector('form[action="{{ route('admin.user-submissions.bulk-notify') }}"]');
+    var notifyForm = document.querySelector('form[action="{{ route('admin.user-submissions.bulk-notify') }}"]');
     if (notifyForm) {
-      notifyForm.addEventListener('submit', function (e) {
-        const selected = items().filter(cb => cb.checked).map(cb => cb.value);
-        if (!selected.length) {
-          e.preventDefault();
-          return;
-        }
-        notifyForm.querySelectorAll('input[name="ids[]"]').forEach(n => n.remove());
-        selected.forEach(id => {
-          const inp = document.createElement('input');
-          inp.type = 'hidden';
-          inp.name = 'ids[]';
-          inp.value = id;
-          notifyForm.appendChild(inp);
+        notifyForm.addEventListener('submit', function (e) {
+            var selected = selectedIds();
+            if (!selected.length) {
+                e.preventDefault();
+                return;
+            }
+            fillIds(notifyForm, selected);
         });
-      });
     }
-  })();
+})();
 </script>
+@endpush
 @endsection

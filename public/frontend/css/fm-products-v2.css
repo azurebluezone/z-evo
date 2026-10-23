@@ -1,12 +1,23 @@
 /* ==========================================================================
-   fm-products-v2.css - catalog page body, design from work/code.html
+   fm-products-v2.css - catalog page body: shell, filter panel, toolbar,
+   drawer, pager.  Design from work/code.html
    ==========================================================================
    SCOPE
    ----------------------------------------------------------------------
-   Everything sits under .fm-page-shop, which only frontend/fm/pages/
-   products.blade.php renders. The search page includes the SAME
-   shop-sidebar / shop-toolbar / _product-grid partials but not the wrapper,
-   so those pages keep the v1 card and the v1 sidebar untouched.
+   Everything sits under .fm-page-shop, which frontend/fm/pages/products.blade.php
+   and frontend/fm/pages/hotdeals.blade.php render (both include
+   sections/products/catalog). The search page renders the sidebar and the
+   toolbar too, but not the wrapper, so it keeps its own layout.
+
+   THE PRODUCT CARD IS NOT IN THIS FILE
+   ----------------------------------------------------------------------
+   It is in fm-card-system.css, which every storefront page loads, because
+   /products and /hot-deals now render the SAME card as the home page (the
+   work/home.html card, the approved one). This file used to carry a second
+   card design transcribed from work/code.html - fm-product-card__media /
+   __badge / __wish / __body / __title / __price and fm-btn-cart / fm-btn-order.
+   That duplication is gone, and with it the possibility of the shop page
+   drifting away from the home page one CSS pass at a time.
 
    THE SIDEBAR IS NOT DUPLICATED
    ----------------------------------------------------------------------
@@ -64,80 +75,43 @@
 
 /* The reference page is max-w-7xl (1280px). fm-runtime-fix.css retunes
    .container to 1320px at 1400px+, so the gutter is its own class. */
-.fm-page-shop .fm-container {
-  width: 100%;
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-}
+/* The 1280px gutter is defined once, in fm-card-system.css (.fm-container).
+   This page uses it as-is, so there is nothing to declare here. */
 
 /* --------------------------------------------------------------------------
-   Two column shell
+   Shell - the 12 columns come from Bootstrap
    --------------------------------------------------------------------------
-   THE FLEX ROW IS .fm-container, NOT .fm-shop-layout.
+   The frame lives in the markup (sections/products/catalog.blade.php):
 
-   The markup is
+       <div class="row g-4 align-items-start">
+           <aside class="fm-shop-aside col-12 col-lg-3 d-none d-lg-block">
+           <div class="col-12 col-lg-9 fm-shop-main">    products  (9 of 12)
 
-       <main class="fm-shop-layout">
-           <div class="fm-container">      <- the centred page gutter
-               <div class="fm-shop-main">
-               <aside class="fm-shop-aside">   <- last, so it paints on the RIGHT
+   3 + 9 = 12. Bootstrap's own language, so the arithmetic is visible where the
+   columns are instead of buried in a stylesheet, and the gutter is the row's.
+   The card grid inside that 9 is fm-product-grid--catalog (3 across), which
+   paints the card at ~295px - the same size the home page shows in its
+   4-across rails. That is the point of the split: one card, one size.
 
-   so .fm-shop-layout has exactly ONE child. Making .fm-shop-layout the flex
-   row therefore does nothing at all: the gutter div stays display:block, the
-   aside and the product column stack vertically, and the products end up
-   BELOW the sidebar instead of beside it. .fm-container is the element whose
-   children actually have to sit side by side, so that is the one that gets
-   display:flex.
+   So there is no grid to declare here. What this file still owns is the page
+   gutter - a plain max-w-7xl, NOT Bootstrap's .container, because
+   fm-runtime-fix.css retunes .container at 992/1200/1400px and the reference is
+   a flat max-w-7xl.
 
-   .fm-shop-layout keeps a plain block role and only carries the vertical
-   rhythm, which is what its name suggests.
+   The aside is FIRST in the DOM, which is what paints it on the left: the flex
+   row paints in DOM order, so the panel and the reading order agree - filters
+   first, results second, the same way the reference labels the column. See
+   sections/products/catalog.blade.php.
    -------------------------------------------------------------------------- */
 .fm-page-shop .fm-shop-layout {
   padding: 24px 0;
 }
 
-.fm-page-shop .fm-shop-layout > .fm-container {
-  display: flex;
-  /* The panel is on the RIGHT: it is the last child in the DOM, and the row
-     follows DOM order (no `order` override - see catalog.blade.php for why the
-     reading order is kept in step with the visual one). */
-  flex-direction: row;
-  align-items: flex-start;
-  /* code.html: <div class="flex flex-col lg:flex-row gap-6"> */
-  gap: 24px;
-}
-
+/* min-width:0 - a flex child defaults to min-width:auto and would refuse to
+   shrink below its widest row (the toolbar), pushing the whole row sideways. */
+.fm-page-shop .fm-shop-main,
 .fm-page-shop .fm-shop-aside {
-  flex-shrink: 0;
-  /* code.html: aside.lg:w-64 = 16rem */
-  width: 16rem;
-  /* Hidden below lg: the sidebar lives in the drawer there instead. It is
-     display:none rather than visibility:hidden so it never reserves the
-     16rem column on a phone. */
-  display: none;
-}
-
-.fm-page-shop .fm-shop-main {
-  flex: 1 1 auto;
-  width: 100%;
   min-width: 0;
-}
-
-/*
-   lg and up: the sidebar joins the row.
-
-   flex-direction stays ROW here on purpose. This block used to say
-   `column` above 1024px, which is exactly backwards - it stacked the
-   filter panel above the products on desktop, the one screen the two
-   columns are supposed to share. Below lg the row is already single
-   column because .fm-shop-aside is display:none there, so there is
-   nothing to restate at all.
-*/
-@media (min-width: 1024px) {
-  .fm-page-shop .fm-shop-aside { display: block; }
 }
 
 /* --------------------------------------------------------------------------
@@ -765,343 +739,19 @@
 }
 
 /* --------------------------------------------------------------------------
-   Product grid - 2 / 3 / 4 columns
+   Product grid + card
+   --------------------------------------------------------------------------
+   NOT HERE ANY MORE. /products and /hot-deals render the same card as the home
+   page, and that card - with its grid, its badge, its two buttons and its
+   list-view state - is styled in fm-card-system.css, which every storefront
+   page loads. This file keeps the shell, the sidebar, the toolbar and the
+   drawer: everything that is only true of the shop page.
+
+   The density difference survives as a modifier on the grid itself:
+   product-grid renders fm-product-grid--catalog here (3 across inside the
+   9-column product column) and fm-product-grid--home on the full-width rails
+   (4 across). See fm-card-system.css.
    -------------------------------------------------------------------------- */
-/* code.html: grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 */
-.fm-page-shop .fm-product-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-grid { gap: 1.25rem; }
-}
-
-@media (min-width: 768px) {
-  .fm-page-shop .fm-product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1280px) {
-  .fm-page-shop .fm-product-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.fm-page-shop .fm-product-card {
-  background-color: #ffffff;
-  border: 1px solid var(--fmv2-border);
-  /* code.html: .fm-product-card.rounded-xl -> 0.75rem */
-  border-radius: 0.75rem;
-  /* code.html: .fm-product-card.p-2.5 sm:p-3 */
-  padding: 0.625rem;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* The card's own padding means the inner body must not add more, and the
-   list view drops the padding entirely so the row reads as one panel. */
-.fm-page-shop .fm-product-card__body { padding: 0.625rem 0 0; }
-.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card__body { padding: 0; }
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card { padding: 0.75rem; }
-  .fm-page-shop .fm-product-card__body { padding: 0.75rem 0 0; }
-}
-
-.fm-page-shop .fm-product-card:hover {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
-}
-
-.fm-page-shop .fm-product-card:hover .fm-product-card__media img {
-  transform: scale(1.05);
-}
-
-.fm-page-shop .fm-product-card__inner {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-}
-
-.fm-page-shop .fm-product-card__media {
-  position: relative;
-  /* code.html: .rounded-lg */
-  border-radius: 0.5rem;
-  overflow: hidden;
-  /* code.html: .bg-emerald-50 */
-  background: #ecfdf5;
-  /* code.html: .h-36 sm:h-44 */
-  height: 9rem;
-  /* code.html: .mb-2.5 sm:mb-3 */
-  margin-bottom: 0.625rem;
-  flex-shrink: 0;
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card__media {
-    height: 11rem;
-    margin-bottom: 0.75rem;
-  }
-}
-
-.fm-page-shop .fm-product-card__media img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  transition: transform 0.3s;
-}
-
-.fm-page-shop .fm-product-card:hover .fm-product-card__media img {
-  transform: scale(1.05);
-}
-
-.fm-page-shop .fm-product-card__media a {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.fm-page-shop .fm-product-card__badge {
-  position: absolute;
-  /* code.html: .top-1.5 .left-1.5  (sm: .top-2 .left-2) */
-  top: 0.375rem;
-  left: 0.375rem;
-  z-index: 2;
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card__badge { top: 0.5rem; left: 0.5rem; }
-}
-
-.fm-page-shop .fm-product-card__wish {
-  position: absolute;
-  top: 0.375rem;
-  right: 0.375rem;
-  /* code.html: .w-7 h-7 */
-  width: 1.75rem;
-  height: 1.75rem;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--fmv2-text-light);
-  cursor: pointer;
-  z-index: 2;
-  border: 0;
-  padding: 0;
-  transition: color 0.2s, transform 0.15s;
-  /* Opt out of #fm-audit-fix's 42px tap-target floor - a 28px heart stretched
-     to 42px would hang off the top of the card on a phone. */
-  min-height: 0;
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card__wish { top: 0.5rem; right: 0.5rem; }
-}
-
-.fm-page-shop .fm-product-card__wish i { font-size: 14px; line-height: 1; }
-
-.fm-page-shop .fm-product-card__wish:hover,
-.fm-page-shop .fm-product-card__wish.is-active { color: #ef4444; }
-
-.fm-page-shop .fm-product-card__body {
-  padding: 10px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card__body { padding: 12px; }
-}
-
-.fm-page-shop .fm-product-card__title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--fmv2-text-dark);
-  margin: 0 0 4px;
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card__title { font-size: 0.875rem; }
-}
-
-.fm-page-shop .fm-product-card__title a:hover {
-  color: var(--fmv2-primary-dark);
-}
-
-.fm-page-shop .fm-product-card__price {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card__price { gap: 8px; margin-bottom: 12px; }
-}
-
-.fm-page-shop .fm-product-card__price strong {
-  font-size: 0.875rem;
-  font-weight: 800;
-  color: var(--fmv2-primary-dark);
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card__price strong { font-size: 1rem; }
-}
-
-.fm-page-shop .fm-product-card__price del {
-  font-size: 0.75rem;
-  color: var(--fmv2-text-light);
-  text-decoration: line-through;
-}
-
-@media (min-width: 640px) {
-  .fm-page-shop .fm-product-card__price del { font-size: 0.75rem; }
-}
-
-/* The two-button action row, pushed to the bottom of the card. */
-.fm-page-shop .fm-actions-row {
-  margin-top: auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  width: 100%;
-}
-
-.fm-page-shop .fm-actions-row form { margin: 0; min-width: 0; }
-
-/* Below 576px the catalog grid is two-up, so the 1fr 1fr action row gives each
-   button only 40-80px. Measured at 360/390/414/480/520px the label clipped in
-   every case ("Add to Cart" needs ~65px of text + a 14px icon + padding:
-   button 40px vs scrollWidth 60px at 360; still 80 vs 78 at 520). At 576px the
-   button is 94px and the label fits, so the two-up row stays from there.
-   Stacking gives each action the full card width, keeps both labels readable
-   at 12px, and keeps the 44px height. */
-@media (max-width: 575.98px) {
-  .fm-page-shop .fm-actions-row { grid-template-columns: 1fr; }
-}
-
-/* 44px / 12px label. The live measurement at 360/768px was 35px with an 11px
-   label on the v2 CTAs; this two-class rule also outranks #fm-audit-fix's
-   `button{min-height:42px}` (<=768px, 0,0,1) and the global `.fm-btn-cart`
-   min-height in fm-product-card.css, so the 44px floor is declared here. */
-.fm-page-shop .fm-btn-cart,
-.fm-page-shop .fm-btn-order {
-  width: 100%;
-  height: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 0 6px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s ease-in-out;
-  /* fm-product-card.css publishes .fm-btn-cart / .fm-btn-order GLOBALLY with
-     min-width: max-content and flex: 0 0 auto. Those values are correct for
-     its own card, but in a 1fr grid cell on a 320px phone they would force
-     the button wider than the column. min-width:0 hands the width back to
-     the grid. The colours it locks with !important are the same design
-     values code.html specifies, so nothing here is being overridden. */
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.fm-page-shop .fm-btn-cart svg,
-.fm-page-shop .fm-btn-order svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
-
-.fm-page-shop .fm-btn-cart {
-  border: 1.5px solid var(--fmv2-primary-light);
-  color: var(--fmv2-primary);
-  background-color: #ffffff;
-}
-
-.fm-page-shop .fm-btn-cart:hover {
-  background: var(--fmv2-primary-subtle);
-}
-
-.fm-page-shop .fm-btn-order {
-  border: 1.5px solid var(--fmv2-primary-dark);
-  background: var(--fmv2-primary-dark);
-  color: #ffffff;
-}
-
-.fm-page-shop .fm-btn-order:hover {
-  background: #044e39;
-}
-
-.fm-page-shop .fm-btn-cart:disabled,
-.fm-page-shop .fm-btn-order:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.fm-page-shop .fm-product-card__soldout {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #b91c1c;
-  border: 2px solid #ef4444;
-  z-index: 3;
-}
-
-/* List view - a presentation-only state, same as the v1 page. */
-.fm-page-shop .fm-product-grid[data-view="list"] {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
-}
-
-.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card {
-  flex-direction: row;
-  gap: 12px;
-  padding: 12px;
-}
-
-.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card__media {
-  width: 150px;
-  height: 150px;
-  margin-bottom: 0;
-  flex-shrink: 0;
-}
-
-.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card__body {
-  padding: 0;
-}
-
-.fm-page-shop .fm-product-grid[data-view="list"] .fm-product-card__actions {
-  max-width: 320px;
-}
 
 /* Empty state */
 .fm-page-shop .fm-empty {

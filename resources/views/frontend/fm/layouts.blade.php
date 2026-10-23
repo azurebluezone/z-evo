@@ -250,6 +250,7 @@ table{max-width:100%;overflow-x:auto;display:block}
         fm-runtime-fix.css          never-scroll-sideways + wrapping hardening
         fm-interaction.css          search suggest, toast, mini-cart line items
         fm-ai.css                   AI search drawer
+        fm-card-system.css          THE product card + its grid (every page)
         ...page sheets on the 'css' stack (fm-products.css, ...)
         fm-product-card.css         LAST: product grid + product card, transcribed
                                     from work/code.html (the approved catalog
@@ -270,6 +271,13 @@ table{max-width:100%;overflow-x:auto;display:block}
   <link rel="stylesheet" href="{{ asset('frontend/css/fm-events.css') }}">
   <link rel="stylesheet" href="{{ asset('frontend/css/fm-footer.css') }}">
   <link rel="stylesheet" href="{{ asset('frontend/css/fm-slider.css') }}">
+
+  {{-- THE product card and the grid it sits in - one card for the whole
+       storefront (home rails, flash sale, /products, /hot-deals). Linked here,
+       after the hardening layers above, so the card's own `min-height: 0`
+       opt-outs are not undone by a blanket tap-target rule, and before the
+       page sheets so a page can still tune the grid if it must. --}}
+  <link rel="stylesheet" href="{{ asset('frontend/css/fm-card-system.css') }}">
 
   {{-- Tracking layer (GTM / Meta / TikTok + tracker helpers). Same include the
        classic layout uses, so ViewContent and friends behave identically on

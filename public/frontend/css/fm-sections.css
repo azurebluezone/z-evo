@@ -22,6 +22,38 @@ img{max-width:100%;height:auto}
 @media(min-width:576px){[data-purpose="announcement-banner"]{font-size:.875rem}}
 @media(min-width:992px){[data-purpose="announcement-banner"]{padding-block:.5rem}}
 
+/* Phone: the helpline is hidden, so the language switcher was the only thing
+   left in a justify-between row and stayed glued to the left edge. Centre the
+   switcher on the strip and centre its menu under it, so both sides get the
+   same gutter down to the dropdown panel. The 44px min-height keeps the strip
+   tall enough after the switcher leaves the flex flow. */
+@media(max-width:767.98px){
+  [data-purpose="announcement-banner"]>.container{
+    position:relative;
+    min-height:44px;
+  }
+  [data-purpose="announcement-banner"] .dropdown{
+    position:absolute;
+    left:50%;
+    top:50%;
+    /* Above the sticky header (z-index 1030), or the open menu is painted
+       behind the logo. */
+    z-index:1040;
+    transform:translate(-50%,-50%);
+  }
+  /* Bootstrap's dropdown plugin writes an inline `transform` and `inset` on
+     the menu through Popper. Those inline values beat a normal rule, so the
+     centring has to win with !important; otherwise the panel keeps the
+     button's left edge and the right gutter is short. */
+  [data-purpose="announcement-banner"] .dropdown-menu{
+    left:50%!important;
+    right:auto!important;
+    top:100%!important;
+    margin-top:8px!important;
+    transform:translateX(-50%)!important;
+  }
+}
+
 /* ---------- header ---------- */
 /* The bar is a flex row (not a Bootstrap .row since the 07 Oct rebuild):
    hamburger + logo on the left, search as the flexible middle column, and the

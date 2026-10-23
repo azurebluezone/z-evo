@@ -4,13 +4,16 @@
 
      .fm-suggest              header search type-ahead panel
      .fm-toast-*              safety-net toast, only used when index.js is absent
+     #cartDrawer              right-hand mini-cart offcanvas width
      .fm-cart-lines / -line   mini-cart offcanvas line items (cart-items partial)
      .fm-qty                  quantity stepper inside a cart line
      .fm-categories-card      the header Categories card pulse
 
    Loaded after fm-runtime-fix.css and before fm-ai.css (see the documented
-   load order in fm/layouts.blade.php). Mobile first, no !important, every
-   selector defined exactly once and only here.
+   load order in fm/layouts.blade.php). Mobile first, every selector defined
+   exactly once and only here. The one !important is deliberate: #cartDrawer
+   has to outrank the .offcanvas{width:100%!important} phone rule shared by
+   fm-runtime-fix.css and fm-sections.css.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -181,7 +184,23 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. Mini-cart line items
+   3. Mini-cart drawer
+   --------------------------------------------------------------------------
+   fm-runtime-fix.css and fm-sections.css force every .offcanvas to width:100%
+   below 576px so the mobile nav and search sheets stay full-bleed. The cart is
+   the exception: it is a right-hand rail, so cap it and leave a strip of the
+   backdrop visible on the left. The ID selector outranks those .offcanvas
+   rules even though they use !important.
+   -------------------------------------------------------------------------- */
+
+#cartDrawer {
+    --bs-offcanvas-width: min(380px, calc(100% - 48px));
+    width: min(380px, calc(100% - 48px)) !important;
+    max-width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   3a. Mini-cart line items
    -------------------------------------------------------------------------- */
 
 .fm-cart-lines {

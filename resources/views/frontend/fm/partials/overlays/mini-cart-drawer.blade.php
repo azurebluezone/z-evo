@@ -17,7 +17,7 @@
 --}}
 
 <!-- BEGIN: MiniCartOffcanvas -->
-<div aria-labelledby="cartDrawerLabel" class="offcanvas offcanvas-end" data-fm-cart-drawer id="cartDrawer" style="--bs-offcanvas-width: min(380px, 100%); max-width: 100%;" tabindex="-1">
+<div aria-labelledby="cartDrawerLabel" class="offcanvas offcanvas-end" data-fm-cart-drawer id="cartDrawer" style="--bs-offcanvas-width: min(380px, calc(100% - 48px)); max-width: 100%;" tabindex="-1">
     <div class="offcanvas-header border-b border-gray-100 bg-emerald-50/50">
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-basket text-xl text-emerald-800"></i>

@@ -8,6 +8,15 @@
    is scoped to the page wrapper - a bare .fm-section or .fm-hero here would
    leak into search / cart / product-details, which share the same sheets.
 
+   THE PRODUCT CARD IS NOT IN THIS FILE
+   ----------------------------------------------------------------------
+   The card (.fm-product-card, .fm-product-image-container, .fm-badge,
+   .fm-wishlist-btn, .fm-btn-cart-secondary / .fm-btn-order-primary) and the
+   grid it sits in now live in fm-card-system.css, which every storefront page
+   loads - because the shop page renders this same card and a page-scoped copy
+   of it could only ever drift. Everything still here is what is true only of
+   the home page.
+
    WHY THE RULES CARRY !important IN PLACES
    ----------------------------------------------------------------------
    work/home.html ships no Bootstrap and no audit layer. This project loads
@@ -87,14 +96,8 @@
 /* The design's own page gutter (max-width 1280). Bootstrap's .container is
    retuned by fm-runtime-fix.css to 1320px at 1400+ and is used by every
    other page, so the home gutter is its own class instead. */
-.fm-page-home .fm-container {
-  width: 100%;
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-}
+/* The 1280px gutter is defined once, in fm-card-system.css (.fm-container).
+   Only the phone padding below is home specific. */
 
 /* --------------------------------------------------------------------------
    Shared section header
@@ -262,28 +265,6 @@
   flex-shrink: 0;
 }
 
-.fm-page-home .fm-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
-  font-size: 12px;
-  font-weight: 700;
-  /* border-radius: var(--fmv2-radius-full); */
-  line-height: 1;
-}
-
-.fm-page-home .fm-badge svg {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-}
-
-.fm-page-home .fm-badge-organic { background: #059669; color: #ffffff; }
-.fm-page-home .fm-badge-sale { background: #ef4444; color: #ffffff; }
-.fm-page-home .fm-badge-amber { background: #d97706; color: #ffffff; }
-.fm-page-home .fm-badge-pure { background: #0d9488; color: #ffffff; }
-.fm-page-home .fm-badge-blue { background: #0284c7; color: #ffffff; }
 
 /* --------------------------------------------------------------------------
    Hero slider - FULL WIDTH
@@ -341,7 +322,10 @@
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
+  /* The layout's #fm-audit-fix sets `img{height:auto!important}`, which
+     otherwise letterboxes this 1920x560 banner into a ~114px strip inside a
+     260px hero. The media is the hero background: it must cover the box. */
+  height: 100% !important;
   object-fit: cover;
   display: block;
 }
@@ -843,232 +827,15 @@
   padding-bottom: 48px;
 }
 
-.fm-page-home .fm-product-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-}
 
-.fm-page-home .fm-product-card {
-  background: #ffffff;
-  border: 1px solid var(--fmv2-border);
-  border-radius: var(--fmv2-radius-md);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  position: relative;
-  height: 100%;
-}
-
-.fm-page-home .fm-product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--fmv2-shadow-card);
-  border-color: #cbd5e1;
-}
-
-.fm-page-home .fm-product-image-container {
-  position: relative;
-  width: 100%;
-  height: 190px;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.fm-page-home .fm-product-image-container img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  transition: transform 0.3s;
-}
-
-.fm-page-home .fm-product-card:hover .fm-product-image-container img {
-  transform: scale(1.08);
-}
-
-.fm-page-home .fm-product-image-container a.fm-product-media-link {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.fm-page-home .fm-product-badge-float {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 2;
-}
-
-.fm-page-home .fm-wishlist-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 2;
-  transition: color 0.2s, background 0.2s, transform 0.15s;
-  padding: 0;
-  /* Opt out of the 42px tap-target floor - a 32px heart stretched to 42px
-     would overlap the card's top edge on a phone. */
-  min-height: 0;
-}
-
-.fm-page-home .fm-wishlist-btn:hover {
-  color: #ef4444;
-  background: #ffffff;
-  transform: scale(1.08);
-}
-
-.fm-page-home .fm-wishlist-btn.is-active {
-  color: #ef4444;
-}
-
-.fm-page-home .fm-wishlist-btn i {
-  font-size: 15px;
-  line-height: 1;
-}
-
-.fm-page-home .fm-product-content {
-  padding: 16px 14px 14px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  justify-content: space-between;
-}
-
-.fm-page-home .fm-product-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--fmv2-text-dark);
-  line-height: 1.35;
-  margin: 0 0 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: 38px;
-}
-
-.fm-page-home .fm-product-title a:hover {
-  color: var(--fmv2-primary-dark);
-}
-
-.fm-page-home .fm-product-price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-
-.fm-page-home .fm-price-current {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--fmv2-primary);
-}
-
-.fm-page-home .fm-price-regular {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--fmv2-text-light);
-  text-decoration: line-through;
-}
-
-.fm-page-home .fm-product-actions-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: auto;
-}
-
-.fm-page-home .fm-product-actions-grid form {
-  margin: 0;
-}
-
-/* 44px / 12px: measured live at 360 and 768px these CTAs painted 35px tall
-   with an 11px label (8px padding + 1px border + 1.5 line-height). #fm-audit-fix
-   raises `button` to min-height:42px only below 768px (0,0,1) - still under the
-   44px thumb floor - and this two-class selector outranks it, so the floor is
-   declared here for every breakpoint. */
-.fm-page-home .fm-btn-cart-secondary,
-.fm-page-home .fm-btn-order-primary {
-  width: 100%;
-  min-height: 44px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 8px 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  white-space: nowrap;
-}
-
-.fm-page-home .fm-btn-cart-secondary {
-  background: #ffffff;
-  color: var(--fmv2-primary-dark);
-  border: 1px solid var(--fmv2-primary);
-}
-
-.fm-page-home .fm-btn-cart-secondary:hover {
-  background: var(--fmv2-primary-subtle);
-}
-
-.fm-page-home .fm-btn-order-primary {
-  background: var(--fmv2-primary);
-  color: #ffffff;
-  border: 1px solid var(--fmv2-primary);
-}
-
-.fm-page-home .fm-btn-order-primary:hover {
-  background: var(--fmv2-primary-dark);
-}
-
-.fm-page-home .fm-btn-cart-secondary svg,
-.fm-page-home .fm-btn-order-primary svg {
-  width: 13px;
-  height: 13px;
-  flex-shrink: 0;
-}
-
-.fm-page-home .fm-btn-cart-secondary:disabled,
-.fm-page-home .fm-btn-order-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* The out-of-stock plate replaces the image, exactly as the v1 card does with
-   its badge. It sits in the media box so the card height never jumps. */
-.fm-page-home .fm-product-soldout {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.82);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #b91c1c;
-  border: 2px solid #ef4444;
-  z-index: 3;
-}
+/* --------------------------------------------------------------------------
+   Product rails
+   --------------------------------------------------------------------------
+   The card and the grid are NOT here. They live in fm-card-system.css, which
+   is loaded on every storefront page, because the home page and the shop page
+   now render the SAME card (this file used to hold a .fm-page-home copy of it).
+   What stays here is what is only true of the home page.
+   -------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------
    Shop by brand
@@ -1410,7 +1177,6 @@
    -------------------------------------------------------------------------- */
 @media (max-width: 1024px) {
   .fm-page-home .fm-categories-grid { grid-template-columns: repeat(4, 1fr); }
-  .fm-page-home .fm-product-grid { grid-template-columns: repeat(3, 1fr); }
   .fm-page-home .fm-trust-grid { grid-template-columns: repeat(2, 1fr); }
   .fm-page-home .fm-events-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -1449,20 +1215,6 @@
      wrapper, so it needs the same stretch for the same reason. */
   .fm-page-home .fm-section-header > .fm-section-title { align-self: stretch; }
   .fm-page-home .fm-view-all { align-self: flex-start; }
-
-  /* Strict 2-column grid on phones, exactly as the reference. */
-  .fm-page-home .fm-product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-  .fm-page-home .fm-product-image-container { height: 140px; }
-  .fm-page-home .fm-product-content { padding: 12px 10px 10px; }
-  .fm-page-home .fm-product-title { font-size: 13px; min-height: 36px; }
-  .fm-page-home .fm-price-current { font-size: 16px; }
-  .fm-page-home .fm-product-actions-grid {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
 
   .fm-page-home .fm-events-grid { grid-template-columns: 1fr; }
   .fm-page-home .fm-newsletter-card {

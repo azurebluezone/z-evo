@@ -1,0 +1,458 @@
+/* ==========================================================================
+   fm-card-system.css - THE product card, and the grid it sits in
+   ==========================================================================
+   ONE CARD
+   ----------------------------------------------------------------------
+   The theme used to carry two cards: the rail card from work/home.html
+   (fm-product-image-container / fm-product-badge-float / fm-wishlist-btn /
+   fm-btn-cart-secondary / fm-btn-order-primary) on the home page, and a second
+   "catalog" card from work/code.html (fm-product-card__media / __badge /
+   __wish / __body / __title / __price, fm-btn-cart / fm-btn-order) on
+   /products and /hot-deals. Same page shell, two designs, two stylesheets -
+   so the same shop page could drift from the home page and nothing failed.
+
+   The home card is the approved one. It is the only card now, and this file is
+   the only place it is styled. Every surface that renders a v2 card loads it.
+
+   WHY THE CARD DEFINES ITS OWN TOKENS
+   ----------------------------------------------------------------------
+   fm-home-v2.css and fm-products-v2.css each declare an --fmv2-* palette with
+   DIFFERENT neutrals:
+
+       token                home (home.html)   shop (code.html)
+       --fmv2-border        #e5e7eb            #e2e8f0
+       --fmv2-text-dark     #111827            #1e293b
+       --fmv2-text-light    #9ca3af            #94a3b8
+
+   A shared card reading those tokens would paint two slightly different
+   designs again - the exact drift this file exists to remove. So the card
+   carries its own --fm-card-* tokens (the work/home.html values) and reads
+   only those. A page may still retheme the card, but it has to say so.
+
+   WHERE THE NUMBERS COME FROM
+   ----------------------------------------------------------------------
+   Card      work/home.html  <style data-purpose="product-card-system">
+   Grid      work/home.html  .fm-product-grid (4 across, 20px gap) for rails
+             work/Products.html  id="product-grid" (2 / 3 across, gap-5) for a
+             listing that shares its row with the filter sidebar
+
+   LOAD ORDER
+   ----------------------------------------------------------------------
+   Linked in fm/layouts.blade.php after the hardening layers (fm-tap-target,
+   fm-runtime-fix) and before the page sheets, so the card's explicit
+   `min-height: 0` opt-outs are not undone by a later blanket tap-target rule.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   The card's own palette - the work/home.html values, not the page's
+   -------------------------------------------------------------------------- */
+.fm-product-grid,
+.fm-product-card {
+  --fm-card-primary: #059669;
+  --fm-card-primary-dark: #065f46;
+  --fm-card-primary-subtle: #ecfdf5;
+  --fm-card-text-dark: #111827;
+  --fm-card-text-light: #9ca3af;
+  --fm-card-border: #e5e7eb;
+  --fm-card-radius: 12px;
+  --fm-card-radius-sm: 6px;
+  --fm-card-radius-full: 9999px;
+  --fm-card-media-bg: #f8fafc;
+  --fm-card-media-height: 190px;
+  --fm-card-shadow-hover: 0 4px 16px -2px rgba(15, 23, 42, 0.06),
+    0 2px 6px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* --------------------------------------------------------------------------
+   The page gutter - ONE definition for the whole storefront
+   --------------------------------------------------------------------------
+   Every listing on the site is a 1280px column with a 20px gutter (the
+   reference's max-w-7xl), and that is what makes the card come out at ~295px
+   wherever it appears: the rail is 4 across inside it, the shop listing is 3
+   across inside 9 of its 12 Bootstrap columns, and the related rail under a
+   product is 4 across inside the same gutter.
+
+   It used to be declared three times - once in fm-home-v2.css, once in
+   fm-products-v2.css and once in fm-categories.css, each under its own page
+   scope, with byte-identical values. A fourth surface (the related rail) then
+   reached for Tailwind's .container instead and painted its card at 293px
+   instead of 295px, because .container is retuned at 992/1200/1400px by
+   fm-runtime-fix.css. One gutter cannot drift like that.
+
+   The ≤480px padding overrides stay in the page sheets that want them
+   (.fm-page-home / .fm-page-categories use 14px there); a scoped rule beats
+   this one, which is exactly the precedence that should decide it.
+   -------------------------------------------------------------------------- */
+.fm-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   The grid - density comes from the variant, not from the page
+   --------------------------------------------------------------------------
+   product-grid renders fm-product-grid--home (a full-width rail) or
+   fm-product-grid--catalog (a listing sharing its row with the sidebar).
+
+       phones           2 across, 12px gap
+       from 640px       2 across, 20px gap
+       from 768px       home: 3 across
+       from 1024px      catalog: 3 across (work/Products.html lg:grid-cols-3)
+       from 1025px      home: 4 across (work/home.html repeat(4, 1fr))
+
+   1025px, not 1024px, because the reference states the boundary the other way
+   round (`@media (max-width:1024px) { 3 across }`); inverting a max-width
+   query has to move the edge by one pixel or 1024 ends up in both states.
+   -------------------------------------------------------------------------- */
+.fm-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .fm-product-grid { gap: 20px; }
+}
+
+@media (min-width: 768px) {
+  .fm-product-grid--home { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .fm-product-grid--catalog { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1025px) {
+  .fm-product-grid--home { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* --------------------------------------------------------------------------
+   Card shell
+   -------------------------------------------------------------------------- */
+.fm-product-card {
+  background: #ffffff;
+  border: 1px solid var(--fm-card-border);
+  border-radius: var(--fm-card-radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  height: 100%;
+  /* The card carries its own text colour instead of inheriting the page's:
+     .fm-page-home's base is #111827 and .fm-page-shop's is #1e293b, and every
+     text node in the card that does not set a colour of its own would have
+     come out a different grey on each page. Measured before this line:
+     root.color rgb(17,24,39) on the rails vs rgb(30,41,59) on the listing. */
+  color: var(--fm-card-text-dark);
+}
+
+.fm-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--fm-card-shadow-hover);
+  border-color: #cbd5e1;
+}
+
+/* --------------------------------------------------------------------------
+   Media + the two things that float over it
+   -------------------------------------------------------------------------- */
+.fm-product-image-container {
+  position: relative;
+  width: 100%;
+  height: var(--fm-card-media-height);
+  background: var(--fm-card-media-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.fm-product-image-container img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.fm-product-card:hover .fm-product-image-container img {
+  transform: scale(1.08);
+}
+
+.fm-product-image-container a.fm-product-media-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fm-product-badge-float {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+}
+
+.fm-wishlist-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s, background 0.2s, transform 0.15s;
+  padding: 0;
+  /* Opt out of the 42px tap-target floor - a 32px heart stretched to 42px
+     would overlap the card's top edge on a phone. The reference specifies
+     32x32; it is the one control on the card that stays below 44px. */
+  min-height: 0;
+}
+
+.fm-wishlist-btn:hover {
+  color: #ef4444;
+  background: #ffffff;
+  transform: scale(1.08);
+}
+
+.fm-wishlist-btn.is-active {
+  color: #ef4444;
+}
+
+.fm-wishlist-btn i {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* The out-of-stock plate replaces the image, exactly as the reference does.
+   It sits in the media box so the card height never jumps. */
+.fm-product-soldout {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b91c1c;
+  border: 2px solid #ef4444;
+  z-index: 3;
+}
+
+/* --------------------------------------------------------------------------
+   Badge - a pill, as the reference draws it
+   --------------------------------------------------------------------------
+   The live rule used to have `border-radius` commented out while the token
+   right below it (--fmv2-radius-full: 9999px) stayed defined, so the "Save N%"
+   badge painted with square corners against a design that asks for a full
+   pill (measured: 0px live, 9999px in work/home.html). Restored here.
+   -------------------------------------------------------------------------- */
+.fm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: var(--fm-card-radius-full);
+  line-height: 1;
+}
+
+.fm-badge svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.fm-badge-organic { background: #059669; color: #ffffff; }
+.fm-badge-sale    { background: #ef4444; color: #ffffff; }
+.fm-badge-amber   { background: #d97706; color: #ffffff; }
+.fm-badge-pure    { background: #0d9488; color: #ffffff; }
+.fm-badge-blue    { background: #0284c7; color: #ffffff; }
+
+/* --------------------------------------------------------------------------
+   Body: title, price row, two actions
+   -------------------------------------------------------------------------- */
+.fm-product-content {
+  padding: 16px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.fm-product-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fm-card-text-dark);
+  line-height: 1.35;
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 38px;
+}
+
+.fm-product-title a {
+  color: inherit;
+}
+
+.fm-product-title a:hover {
+  color: var(--fm-card-primary-dark);
+}
+
+.fm-product-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.fm-price-current {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--fm-card-primary);
+}
+
+.fm-price-regular {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fm-card-text-light);
+  text-decoration: line-through;
+}
+
+.fm-product-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.fm-product-actions-grid form {
+  margin: 0;
+  /* The two buttons are grid cells inside two forms inside a two-cell grid.
+     min-width:0 hands the width down instead of letting a nowrap label force
+     the track wider than the card. */
+  min-width: 0;
+}
+
+/* 44px / 12px: measured live at 360 and 768px these CTAs painted 35px tall
+   with an 11px label (8px padding + 1px border + 1.5 line-height). #fm-audit-fix
+   raises `button` to min-height:42px only below 768px (0,0,1) - still under the
+   44px thumb floor - and this class selector outranks it, so the floor is
+   declared here for every breakpoint. */
+.fm-btn-cart-secondary,
+.fm-btn-order-primary {
+  width: 100%;
+  min-height: 44px;
+  border-radius: var(--fm-card-radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.fm-btn-cart-secondary {
+  background: #ffffff;
+  color: var(--fm-card-primary-dark);
+  border: 1px solid var(--fm-card-primary);
+}
+
+.fm-btn-cart-secondary:hover {
+  background: var(--fm-card-primary-subtle);
+}
+
+.fm-btn-order-primary {
+  background: var(--fm-card-primary);
+  color: #ffffff;
+  border: 1px solid var(--fm-card-primary);
+}
+
+.fm-btn-order-primary:hover {
+  background: var(--fm-card-primary-dark);
+}
+
+/* The card ships Bootstrap Icons (<i class="bi ...">), which size themselves
+   from the button's font-size. These two keep the matching inline-SVG icon -
+   what work/home.html draws - the same 13px, so swapping the icon family does
+   not resize the label. */
+.fm-btn-cart-secondary svg,
+.fm-btn-order-primary svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.fm-btn-cart-secondary:disabled,
+.fm-btn-order-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   List view - a presentation-only state, driven by data-view on the grid
+   (fm-products.js sets it from the toolbar's view switch)
+   -------------------------------------------------------------------------- */
+.fm-product-grid[data-view="list"] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.fm-product-grid[data-view="list"] .fm-product-card {
+  flex-direction: row;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.fm-product-grid[data-view="list"] .fm-product-image-container {
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;
+}
+
+.fm-product-grid[data-view="list"] .fm-product-content {
+  padding: 0;
+}
+
+.fm-product-grid[data-view="list"] .fm-product-actions-grid {
+  max-width: 320px;
+}
+
+/* --------------------------------------------------------------------------
+   Phones - the reference's own compact card
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .fm-product-image-container { height: 140px; }
+  .fm-product-content { padding: 12px 10px 10px; }
+  .fm-product-title { font-size: 13px; min-height: 36px; }
+  .fm-price-current { font-size: 16px; }
+
+  /* Two buttons side by side in a 2-up phone grid leaves each one 40-80px,
+     which clips "Add to Cart" - so on phones each action keeps the full card
+     width. Same rule the reference uses. */
+  .fm-product-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}

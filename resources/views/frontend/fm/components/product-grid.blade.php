@@ -13,20 +13,25 @@
         columns    int      default 4     Bootstrap column count (card v1)
         emptyText  string|null            message when the set is empty
         card       'v1'|'v2'  default 'v1'
-        variant    'catalog'|'home'  default 'catalog'   the v2 card flavour
+        variant    'catalog'|'home'  default 'catalog'   v2 grid DENSITY
 
     card picks the card component:
         'v1'  components/product-card.blade.php      the original FreshMart card
-        'v2'  components/product-card-v2.blade.php   the work/home.html +
-              work/code.html card, two action buttons
+        'v2'  components/product-card-v2.blade.php   the one approved card
 
-    BOTH flavours keep the same hooks (form[data-add-to-cart],
-    [data-wishlist-id], .is-active), so fm-app.js serves them identically and a
-    page can switch flavour without touching any JavaScript.
+    variant is about COLUMNS PER ROW, not about the card:
+        'home'     4 across from 1024px (a full-width rail, no sidebar)
+        'catalog'  3 across from 1024px (a listing that shares its row with the
+                   filter sidebar: 9 of the 12 shell columns)
+    Both drop to 2 across on smaller screens. It becomes the
+    fm-product-grid--home / --catalog class, which fm-card-system.css reads.
 
-    The v2 grid is a CSS grid (.fm-product-grid), not a Bootstrap row - the
-    references lay it out with grid-cols-2 / md:3 / xl:4 and the column counts
-    live in fm-products-v2.css. That is why `columns` is ignored for v2.
+    BOTH grids keep the same hooks (form[data-add-to-cart], [data-wishlist-id],
+    .is-active), so fm-app.js serves them identically.
+
+    The v2 grid is a CSS grid (.fm-product-grid), not a Bootstrap row, so
+    `columns` is ignored for v2 - the v2 column counts live in
+    fm-card-system.css next to the card they hold.
     =========================================================================
 --}}
 
@@ -53,9 +58,9 @@
 
 @if($fmProducts->isNotEmpty())
     @if($fmCard === 'v2')
-        <div class="fm-product-grid" data-view="grid">
+        <div class="fm-product-grid fm-product-grid--{{ $fmVariant }}" data-view="grid">
             @foreach($fmProducts as $fmProduct)
-                <x-fm::product-card-v2 :product="$fmProduct" variant="{{ $fmVariant }}" />
+                <x-fm::product-card-v2 :product="$fmProduct" />
             @endforeach
         </div>
     @else

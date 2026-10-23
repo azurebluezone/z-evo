@@ -46,14 +46,8 @@
 
 /* The 1280px gutter every FM listing uses. fm-runtime-fix.css retunes
    .container to 1320px at 1400px+, so the gutter is its own class. */
-.fm-page-categories .fm-container {
-  width: 100%;
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-}
+/* The 1280px gutter is defined once, in fm-card-system.css (.fm-container).
+   Only the phone padding below is categories specific. */
 
 /* --------------------------------------------------------------------------
    Card grid

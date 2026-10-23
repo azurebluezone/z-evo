@@ -947,6 +947,23 @@
     }
 }
 
+/* ==========================================================================
+   PHONE ONLY: DROP THE THIRD LINK COLUMN
+   --------------------------------------------------------------------------
+   Below lg the grid is two-up: Categories + Company share the first row and
+   Customer Support wraps to a second row at half width, leaving one orphan
+   column under the pair. On a narrow phone that reads as three stacked rows
+   and wastes height. Company is the column to drop: Categories is shopping
+   navigation and Customer Support carries the phone / email that the phone
+   announcement bar hides, so both stay. The result is one balanced row:
+   Categories + Customer Support.
+   ========================================================================== */
+@media (max-width: 575.98px) {
+    .app-footer .fm-footer-company-col {
+        display: none !important;
+    }
+}
+
 @media (min-width: 992px) {
     .app-footer .fm-footer-bottom__legal {
         display: block;

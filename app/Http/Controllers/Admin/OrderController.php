@@ -1534,11 +1534,50 @@ public function order_status(Request $request)
     }
     public function order_report(Request $request){
         $users = User::where('status',1)->get();
-        $orders = OrderDetails::with('shipping','order')->whereHas('order', function ($query){
-                $query->where('order_status', 6);
+
+        /*
+         * The report counts DELIVERED sales.
+
+         * Two things made the old query return nothing:
+         *
+         * 1. It filtered `order_status = 6`. orders.order_status is a varchar
+         *    that holds a SLUG ('pending', 'delivered', ...), and 6 is the id
+         *    of 'returned' - not a sale. The status is now resolved by slug
+         *    (the same way OrderController::index() does it) and the query
+         *    accepts either spelling, because the column has held a numeric
+         *    id as well since order_save() writes `order_status = 1`.
+         *
+         * 2. The keyword filter searched `order_details.name`, a column that
+         *    does not exist, so every keyword search was a 500. The report
+         *    searches the three things a user can actually see on a row:
+         *    the product name, the invoice number and the customer name.
+         */
+        $delivered = $this->resolveOrderStatusBySlug('delivered');
+
+        $orders = OrderDetails::with('shipping','order')->whereHas('order', function ($query) use ($delivered) {
+                $query->where(function ($q) use ($delivered) {
+                    if ($delivered) {
+                        $q->where('order_status', $delivered->slug)
+                          ->orWhere('order_status', (string) $delivered->id)
+                          ->orWhere('order_status', $delivered->id);
+                    } else {
+                        $q->where('order_status', 'delivered');
+                    }
+                });
             });
+
         if ($request->keyword) {
-            $orders = $orders->where('name', 'LIKE', '%' . $request->keyword . "%");
+            $keyword = '%' . $request->keyword . '%';
+            $orders = $orders->where(function ($q) use ($keyword) {
+                $q->where('product_name', 'LIKE', $keyword)
+                  ->orWhereHas('order', function ($oq) use ($keyword) {
+                      $oq->where('invoice_id', 'LIKE', $keyword);
+                  })
+                  ->orWhereHas('shipping', function ($sq) use ($keyword) {
+                      $sq->where('name', 'LIKE', $keyword)
+                        ->orWhere('phone', 'LIKE', $keyword);
+                  });
+            });
         }
         if ($request->user_id) {
             $orders = $orders->whereHas('order', function ($query) use ($request) {

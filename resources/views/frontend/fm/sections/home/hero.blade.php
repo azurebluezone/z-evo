@@ -142,8 +142,19 @@
                             @endif
                         </a>
 
-                        {{-- Dark scrim so white text stays readable over any
-                             banner photo or video frame. --}}
+                        {{--
+                            Banner copy is parked on shop request. The overlay
+                            and the scrim were presentation for two variables,
+                            $fmSlide->title and $fmShopName; both are still
+                            referenced by the image alt attribute above, so the
+                            accessibility text is unchanged.
+
+                            Kept as a Blade comment (not an HTML comment) so the
+                            PHP expressions are not evaluated while the block is
+                            off.
+
+                        Dark scrim so white text stays readable over any banner
+                        photo or video frame:
                         <span class="fm-hero-scrim" aria-hidden="true"></span>
 
                         <div class="fm-hero-overlay">
@@ -161,6 +172,7 @@
                                 <span class="fm-hero-subtext">{{ $fmShopName }}</span>
                             </div>
                         </div>
+                        --}}
                     </div>
                 @endforeach
             </div>
@@ -180,20 +192,7 @@
                         @endforeach
                     </div>
 
-                    <div class="fm-slider-arrows">
-                        <button type="button" class="fm-slider-btn" data-fm-hero-prev aria-label="Previous slide">
-                            <svg fill="none" height="18" stroke="currentColor" stroke-width="2.5"
-                                 viewBox="0 0 24 24" width="18" aria-hidden="true">
-                                <path d="m15 18-6-6 6-6"/>
-                            </svg>
-                        </button>
-                        <button type="button" class="fm-slider-btn" data-fm-hero-next aria-label="Next slide">
-                            <svg fill="none" height="18" stroke="currentColor" stroke-width="2.5"
-                                 viewBox="0 0 24 24" width="18" aria-hidden="true">
-                                <path d="m9 18 6-6-6-6"/>
-                            </svg>
-                        </button>
-                    </div>
+               
                 </div>
             @endif
 

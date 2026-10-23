@@ -38,6 +38,11 @@ class DatabaseSeeder extends Seeder
             // pages are the ones that render. Safe to re-run - every write is
             // an upsert on a stable natural key.
             StorefrontDemoSeeder::class,
+
+            // Imported products from https://shinjukuhalalfood.com/ (25 items)
+            // with images stored under public/uploads/product/shinjuku/. Idempotent
+            // by slug; images are referenced by relative path.
+            ShinjukuProductsSeeder::class,
         ]);
     }
 }

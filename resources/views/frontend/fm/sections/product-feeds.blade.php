@@ -1,6 +1,11 @@
 {{-- FM:SECTION featured-products -------------------------------------------
      Featured / best selling / discount grids all reuse the same partial, so
      the three rails below differ only by their data source.
+
+     No page includes this partial any more (the home page renders
+     home/product-rail instead, once per rail). It is kept alive and aligned
+     with them: same one card, same home density - so if a page ever includes
+     it again it cannot render a second card design.
      --------------------------------------------------------------------- --}}
 
 @php
@@ -26,6 +31,8 @@
                 ])
 
                 <x-fm::product-grid
+                    card="v2"
+                    variant="home"
                     :products="$fmFeed->items->take(8)"
                     :columns="4" />
             </div>

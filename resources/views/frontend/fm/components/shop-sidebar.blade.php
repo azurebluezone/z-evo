@@ -29,16 +29,21 @@
     how pages/search.blade.php uses it - inside a Bootstrap .col + .collapse).
 
     v2 is styled by fm-products-v2.css, whose rules are scoped to the shop
-    layout, `.fm-page-shop` (its token block, the aside width, the panel, the
-    drawer). So a page that wants v2 opens that scope once on its own wrapper:
+    layout, `.fm-page-shop` (its token block, the panel, the drawer, the
+    toolbar). So a page that wants v2 opens that scope once on its own wrapper:
 
         <div class="fm-page-shop"> ... <x-fm::shop-sidebar variant="v2" aside /> ... </div>
 
-    That is not a quirk of this component: `.fm-shop-layout`, `.fm-shop-main`
-    and the v2 product grid are scoped the same way, because they are the shop
-    page. A page that only wants a filter column, without the shop layout, uses
-    the v1 flavour. What the component removes is the old requirement to
-    declare ~16 variables - not the layout scope.
+    `aside` adds the shell column classes (col-12 col-lg-3 d-none d-lg-block) as
+    well as the <aside> tag, so the panel is 3 of the 12 Bootstrap columns and
+    only appears from lg up - below that the same form node is moved into the
+    drawer. A page that has no 12-column row uses the plain flavour and passes
+    no `aside`.
+
+    The PRODUCT CARD is no longer part of this scope: it lives in
+    fm-card-system.css, which every storefront page loads, so the same card
+    renders on any page. The shop page's own sheets only carry what is shop
+    specific - shell, panel, toolbar, drawer, pager.
 
     Props (all optional)
         variant         'v1'|'v2'   default 'v1'
@@ -156,7 +161,13 @@
 @endphp
 
 @if($fmAside)
-<aside class="fm-shop-aside" data-fm-filter-home>
+{{-- 3 of the 12 shell columns, first child of the row. The flex row paints in
+     DOM order, so being first is what puts the panel on the LEFT - no `order`
+     or grid-column override, which keeps the reading order (filters, then
+     results) identical to what the eye sees.
+     d-none d-lg-block: below lg the panel is hidden and the same form node is
+     moved into the drawer by fm-products.js. --}}
+<aside class="fm-shop-aside col-12 col-lg-3 d-none d-lg-block" data-fm-filter-home>
 @endif
 
 <div class="space-y-4 fm-shop-sidebar {{ $fmV2 ? 'fm-shop-sidebar--v2' : '' }}">

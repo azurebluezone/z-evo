@@ -1,101 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="authentication-bg">
 <head>
-        <meta charset="utf-8" />
-        <title>Locked | MasterEcommerce</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
-        <meta content="Coderthemes" name="author" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <!-- App favicon -->
-        <link rel="shortcut icon" href="{{asset('backEnd/')}}/assets/images/favicon.ico">
+    <meta charset="utf-8" />
+    <title>Locked | {{ config('app.name', 'Z Evo') }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <!-- Bootstrap css -->
-        <link href="{{asset('backEnd/')}}/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <!-- App css -->
-        <link href="{{asset('backEnd/')}}/assets/css/app.min.css" rel="stylesheet" type="text/css" id="app-style"/>
-        <!-- icons -->
-        <link href="{{asset('backEnd/')}}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-        <!-- Head js -->
-        <script src="{{asset('backEnd/')}}/assets/js/head.js"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('admin/assets/img/favicon/favicon.ico') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
 
-    </head>
+    <link rel="stylesheet" href="{{ asset('admin/assets/vendor/fonts/iconify-icons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('admin/assets/vendor/css/core.css') }}" />
+    <link rel="stylesheet" href="{{ asset('admin/assets/css/demo.css') }}" />
 
-    <body class="authentication-bg authentication-bg-pattern">
+    <style>
+        body.authentication-bg {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background-color: var(--bs-body-bg, #f8f9fa);
+        }
+        .auth-card { max-width: 420px; margin-inline: auto; }
+    </style>
+</head>
 
-        <div class="account-pages mt-5 mb-5">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-md-8 col-lg-6 col-xl-4">
-                        <div class="card bg-pattern">
+<body class="authentication-bg">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+                <div class="card auth-card rounded-0">
+                    <div class="card-body p-4">
 
-                            <div class="card-body p-4">
-                                
-                                <div class="text-center w-75 m-auto">
-                                    <div class="auth-logo">
-                                        <a href="index.html" class="logo logo-dark text-center">
-                                            <span class="logo-lg">
-                                                <img src="{{asset('backEnd/')}}/assets/images/logo-dark.png" alt="" height="22">
-                                            </span>
-                                        </a>
-                    
-                                        <a href="" class="logo logo-light text-center">
-                                            <span class="logo-lg">
-                                                <img src="{{asset('backEnd/')}}/assets/images/logo-light.png" alt="" height="22">
-                                            </span>
-                                        </a>
-                                    </div>
-                                    <p class="text-muted mb-4 mt-3">Your panel is not locked password to access unlocked panel.</p>
-                                </div>
-
-                                <form method="POST" action="{{route('unlocked')}}" >
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">Password</label>
-                                        <div class="input-group input-group-merge">
-                                            <input type="password" id="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" autocomplete="password" autofocus placeholder="Enter your password">
-                                            <div class="input-group-text" data-password="false">
-                                                <span class="password-eye"></span>
-                                            </div>
-                                            @error('password')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="checkbox-signin" value="1" name="remember" checked>
-                                            <label class="form-check-label" for="checkbox-signin">Remember me</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-center d-grid">
-                                        <x-admin.button variant="primary" type="submit"> Unlock </x-admin.button>
-                                    </div>
-
-                                </form>
-
-
-                            </div> <!-- end card-body -->
+                        <div class="text-center mb-4">
+                            <h4 class="mb-1">Screen Locked</h4>
+                            <p class="text-muted mb-0">Enter your password to unlock the admin panel.</p>
                         </div>
-                        <!-- end card -->
 
-                    </div> <!-- end col -->
+                        <form method="POST" action="{{ route('unlocked') }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="input-group input-group-merge">
+                                    <input type="password" id="password" name="password"
+                                           class="form-control @error('password') is-invalid @enderror"
+                                           value="{{ old('password') }}" autocomplete="current-password"
+                                           autofocus placeholder="Enter your password">
+                                    <button type="button" class="input-group-text" id="toggle-password" aria-label="Show password">
+                                        <i class="icon-base ri ri-eye-line"></i>
+                                    </button>
+                                    @error('password')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="checkbox-signin" value="1" name="remember" checked>
+                                    <label class="form-check-label" for="checkbox-signin">Remember me</label>
+                                </div>
+                            </div>
+
+                            <div class="text-center d-grid">
+                                <x-admin.button variant="primary" type="submit">
+                                    <i class="icon-base ri ri-lock-unlock-line me-1"></i>Unlock
+                                </x-admin.button>
+                            </div>
+                        </form>
+
+                    </div>
                 </div>
-                <!-- end row -->
             </div>
-            <!-- end container -->
         </div>
-        <!-- end page -->
+    </div>
 
-        <!-- Vendor js -->
-        <script src="{{asset('backEnd/')}}/assets/js/vendor.min.js"></script>
+    <script src="{{ asset('admin/assets/vendor/libs/jquery/jquery.js') }}"></script>
+    <script src="{{ asset('admin/assets/vendor/js/bootstrap.js') }}"></script>
+    <script>
+        // The eye button toggles the password field's type. The old view used
+        // the previous theme's .password-eye span, which needs that theme's
+        // app.min.js - a file this admin does not ship.
+        (function () {
+            var toggle = document.getElementById('toggle-password');
+            var input = document.getElementById('password');
+            if (!toggle || !input) return;
 
-        <!-- App js -->
-        <script src="{{asset('backEnd/')}}/assets/js/app.min.js"></script>
-        
-    </body>
+            toggle.addEventListener('click', function () {
+                var show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+                toggle.innerHTML = '<i class="icon-base ri ' + (show ? 'ri-eye-off-line' : 'ri-eye-line') + '"></i>';
+                input.focus();
+            });
+        })();
+    </script>
+</body>
 </html>

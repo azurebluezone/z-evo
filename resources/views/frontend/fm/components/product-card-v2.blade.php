@@ -1,33 +1,39 @@
 {{--
     FM:COMPONENT product-card-v2
     =========================================================================
-    The card from the two approved reference pages: work/home.html (the home
-    rails) and work/code.html (the catalog).
+    THE product card. One card, every page - home rails, flash sale, /products
+    and /hot-deals all render this exact markup.
 
-    WHY A SECOND CARD
+    THE RULING
     -------------------------------------------------------------------------
-    The existing components/product-card.blade.php stays exactly as it is:
-    it is used by search.blade.php and by the related-products rail on
-    product-details.blade.php, and neither page is part of this redesign.
-    Both new pages are handed this component instead, so the shared pages keep
-    the old card rather than inheriting a redesign nobody asked for.
+    There is only ONE card design in this theme. The home page card
+    (work/home.html) is the approved one, and it is what every surface uses.
+    Earlier this component carried a second "catalog" flavour with its own
+    class names (fm-product-card__media / __badge / __wish / __body / __title /
+    __price, fm-btn-cart / fm-btn-order) fed by work/code.html. That second
+    design is gone: two cards meant two CSS systems, and the same shop page
+    could drift from the home page without anyone noticing.
 
-    Usage
-        <x-fm::product-card-v2 :product="$product" variant="home" />
-        <x-fm::product-card-v2 :product="$product" variant="catalog" />
+    The variant prop is gone with it. Grid DENSITY is not the card's business
+    any more - it belongs to the grid, so product-grid passes
+    fm-product-grid--home / --catalog and this component never hears about it.
+
+    WHAT IS STYLED WHERE
+    -------------------------------------------------------------------------
+    public/frontend/css/fm-card-system.css owns this card and nothing else, and
+    it is loaded on every storefront page. It carries its own --fm-card-*
+    tokens instead of the page's --fmv2-* palette, because fm-home-v2.css and
+    fm-products-v2.css declare DIFFERENT neutrals (#e5e7eb vs #e2e8f0,
+    #111827 vs #1e293b) - a card reading those would look like two designs
+    again on the next CSS pass.
 
     Props
         product    App\Models\Product          required
-        variant    'home'|'catalog'  (default 'home')
         badgeText  string|null                 pre-set badge, wins over "Save N%"
         wishlist   bool  (default true)
         stockPlate bool  (default true)         grey plate over the media
 
-    WHAT IS DIFFERENT FROM THE v1 CARD
-    -------------------------------------------------------------------------
-    Two action buttons (the reference has both), no rating row and no unit
-    line. Every hook the shared JavaScript needs is kept:
-
+    Hooks the shared JavaScript relies on - do not rename:
         form[data-add-to-cart]      intercepted by fm-app.js -> cart badge,
                                     toast and mini cart refresh in place
         [data-wishlist-id]          delegated wishlist toggle
@@ -35,28 +41,17 @@
         <i> inside the wish button  fm-app.js swaps bi-heart / bi-heart-fill
 
     "Order Now" deliberately does NOT carry data-add-to-cart: it posts to
-    route('cart.store.buy') (ShoppingController::cart_store_by_now), which
-    puts the item in the cart and redirects to checkout. Intercepting it
-    would turn a checkout jump into a silent in-page add.
-
-    VARIANT AND MARKUP
-    -------------------------------------------------------------------------
-    The two references differ only in where the action row sits (inside the
-    padded body vs. a sibling of it) and in the class names. Both are the
-    same flex column with margin-top:auto on the action row, so ONE structure
-    serves both and the variant only switches the names - which is what keeps
-    fm-home-v2.css and fm-products-v2.css from ever meeting.
+    route('cart.store.buy') (ShoppingController::cart_store_by_now), which puts
+    the item in the cart and redirects to checkout. Intercepting it would turn
+    a checkout jump into a silent in-page add.
     =========================================================================
 --}}
 
 @php
     // Anonymous components do not declare defaults, so normalise here.
-    $variant    = $variant ?? 'home';
     $badgeText  = $badgeText ?? null;
     $wishlist   = $wishlist ?? true;
     $stockPlate = $stockPlate ?? true;
-
-    $isCatalog = $variant === 'catalog';
 
     $image  = \App\Support\MediaPath::product($product);
     $url    = route('product', $product->slug ?: $product->id);
@@ -75,18 +70,6 @@
     $fmWishlisted  = is_array($fmWishlistIds)
         && in_array((int) $product->id, array_map('intval', $fmWishlistIds), true);
 
-    // Class names, per variant.
-    $mediaClass = $isCatalog ? 'fm-product-card__media' : 'fm-product-image-container';
-    $badgeClass = $isCatalog ? 'fm-product-card__badge' : 'fm-product-badge-float';
-    $wishClass  = $isCatalog ? 'fm-product-card__wish' : 'fm-wishlist-btn';
-    $bodyClass  = $isCatalog ? 'fm-product-card__body' : 'fm-product-content';
-    $titleClass = $isCatalog ? 'fm-product-card__title' : 'fm-product-title';
-    $priceClass = $isCatalog ? 'fm-product-card__price' : 'fm-product-price-row';
-    $actClass   = $isCatalog ? 'fm-actions-row' : 'fm-product-actions-grid';
-    $cartClass  = $isCatalog ? 'fm-btn-cart' : 'fm-btn-cart-secondary';
-    $orderClass = $isCatalog ? 'fm-btn-order' : 'fm-btn-order-primary';
-    $plateClass = $isCatalog ? 'fm-product-card__soldout' : 'fm-product-soldout';
-
     // Badge text: an explicit badge wins, then the discount, then nothing.
     // "100% Organic" is NOT invented - the Product model has no organic flag,
     // so the reference's green badge has no honest value to print.
@@ -100,95 +83,74 @@
 
 <article class="fm-product-card" data-product-id="{{ $product->id }}">
 
-    @if($isCatalog)
-        <div class="fm-product-card__inner">
-    @endif
+    {{-- Media ---------------------------------------------------------- --}}
+    <div class="fm-product-image-container">
+        <a href="{{ $url }}" aria-label="{{ $name }}">
+            <img src="{{ $image }}" alt="{{ $name }}"
+                 loading="lazy" decoding="async" width="600" height="600">
+        </a>
 
-        {{-- Media ---------------------------------------------------------- --}}
-        <div class="{{ $mediaClass }}">
-            <a href="{{ $url }}" aria-label="{{ $name }}">
-                <img src="{{ $image }}" alt="{{ $name }}"
-                     loading="lazy" decoding="async" width="600" height="600">
-            </a>
+        @if($fmBadgeText)
+            <div class="fm-product-badge-float">
+                <span class="fm-badge fm-badge-{{ $fmBadgeKind }}">{{ $fmBadgeText }}</span>
+            </div>
+        @endif
 
-            @if($fmBadgeText)
-                <div class="{{ $badgeClass }}">
-                    <span class="fm-badge fm-badge-{{ $fmBadgeKind }}">{{ $fmBadgeText }}</span>
-                </div>
+        @if($wishlist)
+            {{-- The heart keeps <i>: fm-app.js swaps bi-heart and
+                 bi-heart-fill on exactly that element. --}}
+            <button type="button"
+                    class="fm-wishlist-btn {{ $fmWishlisted ? 'is-active' : '' }}"
+                    data-wishlist-id="{{ $product->id }}"
+                    title="{{ $fmWishlisted ? 'Remove from wishlist' : 'Add to wishlist' }}"
+                    aria-label="{{ $fmWishlisted ? 'Remove from wishlist' : 'Add to wishlist' }}">
+                <i class="bi {{ $fmWishlisted ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+            </button>
+        @endif
+
+        @if($stockPlate && ! $inStock)
+            <div class="fm-product-soldout">Out of stock</div>
+        @endif
+    </div>
+
+    {{-- Body ----------------------------------------------------------- --}}
+    <div class="fm-product-content">
+
+        <h3 class="fm-product-title"><a href="{{ $url }}">{{ $name }}</a></h3>
+
+        <div class="fm-product-price-row">
+            <span class="fm-price-current">Tk {{ number_format($newPrice) }}</span>
+            @if($hasDiscount)
+                <span class="fm-price-regular">Tk {{ number_format($oldPrice) }}</span>
             @endif
+        </div>
 
-            @if($wishlist)
-                {{-- The heart keeps <i>: fm-app.js swaps bi-heart and
-                     bi-heart-fill on exactly that element. --}}
-                <button type="button"
-                        class="{{ $wishClass }} {{ $fmWishlisted ? 'is-active' : '' }}"
-                        data-wishlist-id="{{ $product->id }}"
-                        title="{{ $fmWishlisted ? 'Remove from wishlist' : 'Add to wishlist' }}"
-                        aria-label="{{ $fmWishlisted ? 'Remove from wishlist' : 'Add to wishlist' }}">
-                    <i class="bi {{ $fmWishlisted ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+        {{-- Two actions, exactly as the approved card shows them. --}}
+        <div class="fm-product-actions-grid">
+            <form method="POST" action="{{ route('cart.store') }}" data-add-to-cart>
+                @csrf
+                <input type="hidden" name="id" value="{{ $product->id }}">
+                <input type="hidden" name="qty" value="1">
+                <button type="submit" class="fm-btn-cart-secondary"
+                        title="Add to cart" aria-label="Add {{ $name }} to cart"
+                        {{ $inStock ? '' : 'disabled' }}>
+                    <i class="bi bi-cart-plus"></i>
+                    <span>Add to Cart</span>
                 </button>
-            @endif
+            </form>
 
-            @if($stockPlate && ! $inStock)
-                <div class="{{ $plateClass }}">Out of stock</div>
-            @endif
+            <form method="POST" action="{{ route('cart.store.buy') }}">
+                @csrf
+                <input type="hidden" name="id" value="{{ $product->id }}">
+                <input type="hidden" name="qty" value="1">
+                <button type="submit" class="fm-btn-order-primary"
+                        title="Buy now" aria-label="Buy {{ $name }} now"
+                        {{ $inStock ? '' : 'disabled' }}>
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    <span>Order Now</span>
+                </button>
+            </form>
         </div>
-
-        {{-- Body ----------------------------------------------------------- --}}
-        <div class="{{ $bodyClass }}">
-
-            <h3 class="{{ $titleClass }}"><a href="{{ $url }}">{{ $name }}</a></h3>
-
-            {{--
-                The two references use different elements for the price (a
-                <span>/<span> on the home rails, a <strong>/<del> in the
-                catalog), so both are spelled out rather than assembled from a
-                tag name - a dynamic tag would also break the CSS selectors.
-            --}}
-            <div class="{{ $priceClass }}">
-                @if($isCatalog)
-                    <strong>Tk {{ number_format($newPrice) }}</strong>
-                    @if($hasDiscount)
-                        <del>Tk {{ number_format($oldPrice) }}</del>
-                    @endif
-                @else
-                    <span class="fm-price-current">Tk {{ number_format($newPrice) }}</span>
-                    @if($hasDiscount)
-                        <span class="fm-price-regular">Tk {{ number_format($oldPrice) }}</span>
-                    @endif
-                @endif
-            </div>
-
-            {{-- Two actions, exactly as both references show them. --}}
-            <div class="{{ $actClass }} fm-product-card__actions">
-                <form method="POST" action="{{ route('cart.store') }}" data-add-to-cart>
-                    @csrf
-                    <input type="hidden" name="id" value="{{ $product->id }}">
-                    <input type="hidden" name="qty" value="1">
-                    <button type="submit" class="{{ $cartClass }}"
-                            title="Add to cart" aria-label="Add {{ $name }} to cart"
-                            {{ $inStock ? '' : 'disabled' }}>
-                        <i class="bi bi-cart-plus"></i>
-                        <span>Add to Cart</span>
-                    </button>
-                </form>
-
-                <form method="POST" action="{{ route('cart.store.buy') }}">
-                    @csrf
-                    <input type="hidden" name="id" value="{{ $product->id }}">
-                    <input type="hidden" name="qty" value="1">
-                    <button type="submit" class="{{ $orderClass }}"
-                            title="Buy now" aria-label="Buy {{ $name }} now"
-                            {{ $inStock ? '' : 'disabled' }}>
-                        <i class="bi bi-lightning-charge-fill"></i>
-                        <span>Order Now</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-
-    @if($isCatalog)
-        </div>
-    @endif
+    </div>
 
 </article>

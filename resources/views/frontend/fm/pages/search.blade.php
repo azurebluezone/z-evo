@@ -6,13 +6,33 @@
     The reference export ships search.html as its own document, but that file is
     the same shop listing the /products page already implements: a filter
     sidebar, a grid/list switch, a result count and a pager. Only the heading
-    and the query chip differ. So this page delegates to the proven shop page
-    rather than growing a second copy of the grid that would then drift.
+    and the query chip differ. So this page renders the SAME shell as the shop
+    page - same 12-column Bootstrap row, same filter panel, same toolbar, same
+    one product card - rather than growing a second copy of the grid that would
+    then drift.
 
-    Two differences from the plain shop page are applied first:
+    What it adds on top of that shell is only what a result page has and a
+    category page does not:
       - the heading names the query instead of the shop;
       - the query is presented as a removable chip, matching the reference's
         active-filter strip.
+
+    THE SHELL, EXACTLY AS ON /products
+    -------------------------------------------------------------------------
+    .fm-page-shop opens the scope fm-products-v2.css is written under (panel,
+    toolbar, pager, drawer), then the row is Bootstrap's own 12 columns:
+
+        col-lg-3 filter panel   (first child, so it paints on the left)
+        col-lg-9 results        (toolbar, chips, grid, pager)
+
+    Below lg the panel column is hidden and fm-products.js moves the SAME
+    #fmFilterForm node into the drawer that the toolbar's "Filters" button
+    opens - the identical mechanism the shop page uses, so a phone gets one
+    filter behaviour to learn instead of two.
+
+    The 3/9 split is what keeps the card the same size here as everywhere else:
+    the grid inside the 9 columns is fm-product-grid--catalog, which paints the
+    ~295px card the home page shows in its 4-across rails.
 
     The classic page this replaces wrote its Bengali result summary straight
     into the markup. Every string on this page is English.
@@ -67,67 +87,79 @@
 @section('title', $pageTitle ?? 'Search')
 @section('meta_description', \App\Support\MetaText::plain($metaDescription ?? '') ?: 'Search products')
 
+@push('css')
+    {{--
+        The shop shell. Every rule in it is scoped to .fm-page-shop, which only
+        this page and pages/products.blade.php open; the panel, the toolbar, the
+        pager and the drawer all come from here.
+    --}}
+    <link rel="stylesheet" href="{{ asset('frontend/css/fm-products-v2.css') }}">
+@endpush
+
 @section('content')
     <x-fm::shop-header :heading="$fmSearchHeading" />
 
-    <main class="fm-shop" data-purpose="search-results">
-        <div class="container mx-auto px-4 py-5 lg:py-8">
-            <div class="row g-4 align-items-start">
+    <div class="fm-page-shop">
 
-                <div class="col-12 col-lg-3">
-                    @include('frontend.fm.sections.search.filter-toggle', [
-                        'target'     => 'fmSearchFilters',
-                        'hasFilters' => $fmHasAnyFilter,
-                    ])
+        <main class="fm-shop-layout" data-purpose="search-results">
+            <div class="fm-container">
+                <div class="row g-4 align-items-start">
 
-                    <div class="collapse" id="fmSearchFilters">
-                        {{-- v1 flavour: the search page keeps the FreshMart panel.
-                             The component resolves its own filter state from the
-                             request, so this page no longer declares it. --}}
-                        <x-fm::shop-sidebar />
-                    </div>
-                </div>
+                    {{-- 3 of 12, first child = painted on the left. Below lg the
+                         same form node is moved into the drawer. --}}
+                    <x-fm::shop-sidebar variant="v2" aside />
 
-                <div class="col-12 col-lg-9">
-                    <x-fm::shop-toolbar :products="$products" />
+                    <div class="col-12 col-lg-9 fm-shop-main">
+                        <x-fm::shop-toolbar :products="$products" variant="v2" />
 
-                    {{-- The query itself is the one thing a result page has that
-                         the shop page does not, so it is shown as a removable
-                         chip above the grid, echoing the reference's
-                         active-filter strip. --}}
-                    @if ($fmTerm !== '' || $fmHasAnyFilter)
-                        @include('frontend.fm.sections.search.chips', [
-                            'term'       => $fmTerm,
-                            'scope'      => $fmSearchScope,
-                            'scopeName'  => $fmActiveCategory->name ?? null,
-                            'hasFilters' => $fmHasAnyFilter,
-                        ])
-                    @endif
-
-                    {{-- With no query the controller applies no filter at all, so $products
-                         holds the whole catalogue: a search page showing every
-                         product would look like a shop page under the wrong
-                         heading. The classic page hid this behind its own empty
-                         term branch; here the grid is suppressed instead and the
-                         pager goes with it, so /search with no word offers the
-                         field rather than 24 arbitrary results. --}}
-                    @if ($fmTerm !== '' || $fmHasAnyFilter)
-                        <div class="fm-shop-grid mt-3 mt-md-4" data-fm-shop-grid data-view="grid">
-                            <x-fm::product-grid
-                                :products="$products"
-                                :columns="3"
-                                :emptyText="$fmEmptyText" />
-                        </div>
-
-                        @if (method_exists($products, 'hasPages') && $products->hasPages())
-                            @include('frontend.fm.partials.pagination', ['paginator' => $products])
+                        {{-- The query itself is the one thing a result page has
+                             that the shop page does not, so it is shown as a
+                             removable chip above the grid, echoing the
+                             reference's active-filter strip. --}}
+                        @if ($fmTerm !== '' || $fmHasAnyFilter)
+                            @include('frontend.fm.sections.search.chips', [
+                                'term'       => $fmTerm,
+                                'scope'      => $fmSearchScope,
+                                'scopeName'  => $fmActiveCategory->name ?? null,
+                                'hasFilters' => $fmHasAnyFilter,
+                            ])
                         @endif
-                    @endif
-                </div>
 
+                        {{-- With no query the controller applies no filter at all, so $products
+                             holds the whole catalogue: a search page showing every
+                             product would look like a shop page under the wrong
+                             heading. The classic page hid this behind its own empty
+                             term branch; here the grid is suppressed instead and the
+                             pager goes with it, so /search with no word offers the
+                             field rather than 24 arbitrary results. --}}
+                        @if ($fmTerm !== '' || $fmHasAnyFilter)
+                            <x-fm::product-grid
+                                card="v2"
+                                variant="catalog"
+                                :products="$products"
+                                :columns="4"
+                                :emptyText="$fmEmptyText" />
+
+                            @if (method_exists($products, 'hasPages') && $products->hasPages())
+                                @include('frontend.fm.partials.pagination', ['paginator' => $products])
+                            @endif
+                        @endif
+                    </div>
+
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+
+        {{-- Phones and tablets: holds the panel that fm-products.js moves the
+             filter form into. Same component the shop page renders. --}}
+        <x-fm::filters-drawer />
+
+    </div>
 
     @include('frontend.fm.sections.guarantees')
 @endsection
+
+@push('script')
+{{-- Drives the drawer move, the view switch and the sort selects. --}}
+<script src="{{ asset('frontend/js/fm-products.js') }}"></script>
+@endpush

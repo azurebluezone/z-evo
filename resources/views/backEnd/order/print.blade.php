@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Print</title>
-    <link rel="stylesheet" href="{{asset('frontEnd/css/bootstrap.min.css')}}" />
-    <link rel="stylesheet" href="{{asset('frontEnd/css/all.min.css')}}" />
+    {{--
+        The two stylesheets this file used to link were
+        asset('frontEnd/css/bootstrap.min.css') and asset('frontEnd/css/all.min.css').
+        Neither file exists in public/frontend/css, so both 404'd and the
+        invoice rendered as unstyled markup. The admin's own Bootstrap 5
+        bundle is what the rest of the admin uses, and it carries the .table,
+        .row, .col-* and .container classes this file relies on.
+    --}}
+    <link rel="stylesheet" href="{{ asset('admin/assets/vendor/css/core.css') }}" />
+    <link rel="stylesheet" href="{{ asset('admin/assets/vendor/fonts/iconify-icons.css') }}" />
 </head>
 <body>
     <style>
@@ -51,7 +59,7 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12 mt-3 text-center">
-            <x-admin.button variant="success" size="sm" ripple="true" class="no-print waves-light" onclick="printFunction()"><i class="fa fa-print"></i></x-admin.button>
+            <x-admin.button variant="success" size="sm" ripple="true" class="no-print waves-light" onclick="printFunction()"><i class="icon-base ri ri-printer-line"></i></x-admin.button>
         </div>
     </div>
 </div>
@@ -69,9 +77,21 @@
                                 <div class="invoice_form">
                                     <p style="font-size:16px;line-height:1.8;color:#222"><strong>Invoice From:</strong></p>
                                     <p style="font-size:16px;line-height:1.8;color:#222">{{$generalsetting->name}}</p>
-                                    <p style="font-size:16px;line-height:1.8;color:#222">{{$contact->phone}}</p>
-                                    <p style="font-size:16px;line-height:1.8;color:#222">{{$contact->email}}</p>
-                                    <p style="font-size:16px;line-height:1.8;color:#222">{{$contact->address}}</p>
+                                    {{--
+                                        $contact was never passed to this view, so
+                                        the three lines below raised
+                                        "Attempt to read property phone on null"
+                                        and the whole print popup failed. The
+                                        store's own contact details live in
+                                        general_settings, so they are read from
+                                        there and printed only when set.
+                                    --}}
+                                    @if($generalsetting->support_phone)
+                                        <p style="font-size:16px;line-height:1.8;color:#222">Phone: {{$generalsetting->support_phone}}</p>
+                                    @endif
+                                    @if($generalsetting->whatsapp_number)
+                                        <p style="font-size:16px;line-height:1.8;color:#222">WhatsApp: {{$generalsetting->whatsapp_number}}</p>
+                                    @endif
                                 </div>
                             </td>
                             <td  style="width:60%;float: left;">
