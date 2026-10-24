@@ -10,7 +10,14 @@
     }
 @endphp
 
-@if($gtmContainerId)
+@php
+    // The <noscript> iframe is a request to Google, so it needs the same
+    // analytics gate as the script. A visitor who already allowed analytics
+    // still gets it when JS is off; a visitor who never chose does not.
+    $gtmAnalyticsAllowed = \App\Support\Consent::analytics();
+@endphp
+
+@if($gtmContainerId && $gtmAnalyticsAllowed)
     <noscript>
         <iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmContainerId }}"
                 height="0" width="0" style="display:none;visibility:hidden"></iframe>

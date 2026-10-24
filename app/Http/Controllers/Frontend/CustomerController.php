@@ -25,6 +25,7 @@ use App\Support\EventId;
 use App\Services\CourierFraudService;
 use App\Services\GuestCheckoutAccountService;
 use App\Services\FacebookTrackingService;
+use App\Services\Ga4TrackingService;
 use App\Services\TikTokTrackingService;
 use App\Models\CourierShipment;
 use App\Models\User;
@@ -590,6 +591,20 @@ class CustomerController extends Controller
             }
         } catch (\Throwable $e) {
             // no-op
+        }
+
+        // GA4 Measurement Protocol - the fallback for a visitor whose browser
+        // tag was blocked. Off unless TRACKING_GA4_SERVER_SIDE is on and both
+        // credentials exist; GA4 deduplicates it against the browser purchase
+        // by transaction_id (the invoice number). Analytics consent is checked
+        // inside the service, before any request is made.
+        try {
+            $ga4 = app(Ga4TrackingService::class);
+            if ($ga4->isEnabled()) {
+                $ga4->sendPurchase($order);
+            }
+        } catch (\Throwable $e) {
+            // no-op: a lost analytics event must never fail a paid order
         }
 
         // First-party record, independent of whether the ad platform call

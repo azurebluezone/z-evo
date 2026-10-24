@@ -377,8 +377,31 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    @foreach($gtm_code as $gtm)
-    <!-- Google tag (gtag.js) -->
+    @php
+        // This is the classic customer-area layout (login, account, orders). It
+        // does not include event-layer-head, so it needs its own gate - the old
+        // loop printed a container for every row regardless of consent, and used
+        // the raw admin field as the container id (a pasted snippet produced
+        // broken markup and still made a request).
+        $masterGtmId = null;
+
+        foreach (($gtm_code ?? []) as $gtmRow) {
+            if (!empty($gtmRow->code) && preg_match('/GTM-[A-Z0-9]+/i', $gtmRow->code, $m)) {
+                $masterGtmId = strtoupper($m[0]);
+                break;
+            }
+        }
+
+        if (!$masterGtmId) {
+            $masterGtmConfig = config('tracking.gtm.container_id');
+            if (is_string($masterGtmConfig) && preg_match('/GTM-[A-Z0-9]+/i', $masterGtmConfig, $m)) {
+                $masterGtmId = strtoupper($m[0]);
+            }
+        }
+    @endphp
+
+    @if($masterGtmId && \App\Support\Consent::analytics())
+    <!-- Google Tag Manager -->
     <script>
         (function(w, d, s, l, i) {
             w[l] = w[l] || [];
@@ -393,10 +416,10 @@
             j.src =
                 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
             f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', '{{ $gtm->code }}');
+        })(window, document, 'script', 'dataLayer', @json($masterGtmId));
     </script>
     <!-- End Google Tag Manager -->
-    @endforeach
+    @endif
 </head>
 
 <body class="gotop">

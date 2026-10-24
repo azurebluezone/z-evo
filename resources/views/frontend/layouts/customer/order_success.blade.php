@@ -242,6 +242,15 @@
         ]
     };
 
+    // GA4 items, from the same lines the pixel uses. transaction_id is the
+    // invoice number, which is what makes GA4 drop a duplicate purchase sent
+    // through the Measurement Protocol instead of counting the sale twice.
+    const ga4Items = [
+        @foreach(($order->orderdetails ?? []) as $ga4Detail)
+        { item_id: '{{ (int) ($ga4Detail->product_id ?? 0) }}', item_name: @json($ga4Detail->product_name ?? ''), price: {{ (float) ($ga4Detail->sale_price ?? 0) }}, quantity: {{ (int) ($ga4Detail->qty ?? 1) }} },
+        @endforeach
+    ];
+
     function firePurchase() {
         // window.facebookTracker — already initialized singleton with all methods
         const tracker = window.facebookTracker;
@@ -258,6 +267,17 @@
                 order_id: purchaseData.order_id
             }, { eventID: purchaseEventId });
         }
+
+        try {
+            if (window.__GA4__ && typeof window.__GA4__.purchase === 'function') {
+                window.__GA4__.purchase({
+                    transaction_id: @json($order->invoice_id ?? $order->id),
+                    value: purchaseData.total,
+                    currency: purchaseData.currency,
+                    items: ga4Items
+                });
+            }
+        } catch (e) {}
 
         try {
             if (window.__EVENT_LOGGER__ && typeof window.__EVENT_LOGGER__.flush === 'function') {

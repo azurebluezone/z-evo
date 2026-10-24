@@ -375,6 +375,15 @@
                 ]
             };
 
+            // GA4 items, from the same lines the pixel uses. transaction_id is
+            // the invoice number, which is what makes GA4 drop a duplicate
+            // purchase sent through the Measurement Protocol.
+            var ga4Items = [
+                @foreach($order->orderdetails ?? [] as $osGa4Detail)
+                { item_id: '{{ (int) ($osGa4Detail->product_id ?? 0) }}', item_name: @json($osGa4Detail->product_name ?? ''), price: {{ (float) ($osGa4Detail->sale_price ?? 0) }}, quantity: {{ (int) ($osGa4Detail->qty ?? 1) }} },
+                @endforeach
+            ];
+
             function firePurchase() {
                 var tracker = window.facebookTracker;
                 var purchaseEventId = '{{ $purchaseEventId }}';
@@ -389,6 +398,21 @@
                         content_type: 'product',
                         num_items: purchaseData.num_items
                     }, { eventID: purchaseEventId });
+                }
+
+                // GA4 half. A no-op unless analytics consent was granted and a
+                // measurement id is configured.
+                try {
+                    if (window.__GA4__ && typeof window.__GA4__.purchase === 'function') {
+                        window.__GA4__.purchase({
+                            transaction_id: @json($order->invoice_id ?? $order->id),
+                            value: purchaseData.total,
+                            currency: purchaseData.currency,
+                            items: ga4Items
+                        });
+                    }
+                } catch (e) {
+                    /* no-op */
                 }
 
                 // Only present when the event layer partial loaded; never let a

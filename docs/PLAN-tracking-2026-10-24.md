@@ -314,6 +314,19 @@ tracking domain at all, because the Conversions API call is made server-to-serve
 | 5 | Send `event_id` from the outbox into the container as a tag parameter | Meta Events Manager shows one event per purchase, `event_id` matching `event_logs` |
 | 6 | Keep a fallback: if sGTM is down, the outbox retries; the first-party event is already safe | worker backlog visible in admin |
 
+**How the app activates it (implemented in T3, no code change needed):**
+
+| Env | Meaning |
+|---|---|
+| `TRACKING_GTM_ID` | web container id; the admin "GTM code" field wins when both exist |
+| `TRACKING_GTM_SERVER_ID` | server container id; only used to derive `t.<APP_URL host>` |
+| `TRACKING_SERVER_CONTAINER_URL` | explicit container URL — use this for option B (`https://<host>/t`) |
+| `TRACKING_GA4_ID` | GA4 measurement id; prints gtag.js when there is no web container |
+| `TRACKING_GA4_API_SECRET` | Measurement Protocol secret (server-side purchase only) |
+| `TRACKING_GA4_SERVER_SIDE` | `true` enables the MP sender (default `false`) |
+| `TRACKING_GA4_DEBUG` | `true` posts to `/debug/mp/collect` and logs validation messages |
+| `TRACKING_GA4_REGION` | `eu` switches to `region1.google-analytics.com` |
+
 Cost note: one `e2-micro`/`e2-small` VM is enough at this traffic; the container
 is stateless. No vendor markup.
 
@@ -426,7 +439,7 @@ purchases, revenue). No free-text, no identifiers.
 | **P0** (1 day) | Fix the live defects: `event_id` passed through `/api/facebook/track`, `sendPurchaseEvent` takes an id, `value` reads `total`, remove hardcoded `G-1ME4K0RD7K`/`GTM-K29C9BKJ`, throttle + shared-secret the public track endpoint | one purchase → one `event_logs` row, one Meta event, no hardcoded ids in any view |
 | **P1** (2–3 days) | Outbox + `session_id` + signed `track_token` + `page_path` always set; consent state on every event | replay test produces `duplicate`; 0 rows with NULL `page_path` in a 24 h window |
 | **P2** (2–3 days) | Consent page + banner + blocked-mode matrix; `/events/collect` origin allowlist | matrix table from §7 passes in Chromium with storage blocked |
-| **P3** (3–4 days) | sGTM container on `t.<domain>`; GA4 + Meta tags; token out of the page | Meta Events Manager shows deduplicated pairs; page source has no token |
+| **P3** (3–4 days) 🟡 **code complete, deployment pending** | sGTM container on `t.<domain>`; GA4 + Meta tags; token out of the page | page source has no token — met; the container itself needs the owner's Google account and DNS (see below) |
 | **P4** (3–4 days) | Admin: Live, Visitors, Visitor 360, Journey pages + map | visual + a11y acceptance from §9; 1440/390 clean |
 | **P5** (later) | `ai_sandbox` views + `ai_reader` user | `SELECT` works, `INSERT` denied, no PII column present |
 
@@ -449,7 +462,20 @@ the existing `event_details` JSON — **no new table, no new column**.
 denied by default, the server (not the body) decides, a grant reloads once so the
 vendor scripts can be printed server-side, and the collector only accepts
 same-origin calls. The blocked-mode matrix in §7 passes in Chromium, including
-`localStorage` blocked and cookies cleared. **P3 (sGTM) is next.**
+`localStorage` blocked and cookies cleared.
+
+**P3 (= T3) is code-complete** — `docs/IMPL-tracking-t3-2026-10-24.md`. The GA4
+tag (direct gtag with `transport_url`, or a GTM web container), the browser
+bridge, the purchase-only Measurement Protocol sender and the host derivation
+from `APP_URL` are in place and tested: the exact payload is accepted by Google's
+own validation server (`/debug/mp/collect`, which does not check the API secret),
+the browser suite is 21/21, and both consent holes found while wiring GTM (raw
+admin snippets, the classic customer layout, the `<noscript>` iframe) are closed.
+**What is not done, and cannot be done here:** the actual server container on
+`t.<APP_URL host>` needs a GTM account, a `CONTAINER_CONFIG`, DNS and TLS. Until
+those exist, nothing is printed and no request is made.
+
+**P4 (admin Live / Visitors / Journey) is next.**
 
 ---
 

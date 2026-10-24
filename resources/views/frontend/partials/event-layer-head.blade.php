@@ -9,6 +9,16 @@
         }
     }
 
+    // Env fallback for deployments that never touch the admin "GTM code" field.
+    // The admin value wins when both exist, so a shop can move containers
+    // without a redeploy.
+    if (!$gtmContainerId) {
+        $gtmConfigId = config('tracking.gtm.container_id');
+        if (is_string($gtmConfigId) && preg_match('/GTM-[A-Z0-9]+/i', $gtmConfigId, $m)) {
+            $gtmContainerId = strtoupper($m[0]);
+        }
+    }
+
     // Tracking identity for this render. Both values are set by VisitorIdentify;
     // the cookie fallback keeps the partial safe when it is included from a view
     // that was rendered outside the middleware (templates/* previews).
@@ -28,6 +38,11 @@
     $consentAnalytics = $consentState['analytics'] === \App\Support\Consent::GRANTED;
     $consentMarketing = $consentState['marketing'] === \App\Support\Consent::GRANTED;
 @endphp
+
+{{-- Must come before the event logger below: the logger queues PageView while it
+     is still initialising, and the GA4 bridge has to exist by then or the first
+     page view of every visit is silently dropped. --}}
+@include('frontend.partials.analytics-ga4')
 
 <script>
     window.dataLayer = window.dataLayer || [];
@@ -234,6 +249,15 @@
             if (meta.referrer) row.referrer = meta.referrer;
 
             Object.keys(CLICK_IDS).forEach(function (key) { row[key] = CLICK_IDS[key]; });
+
+            // GA4 bridge. One call site, so an event cannot be counted locally
+            // and silently forgotten by Google. The bridge is a no-op unless
+            // analytics consent is granted and a measurement id is configured.
+            try {
+                if (window.__GA4__ && typeof window.__GA4__.send === 'function') {
+                    window.__GA4__.send(name, meta, row);
+                }
+            } catch (e) {}
 
             q.push(row);
             writeQueue(q);
@@ -646,7 +670,10 @@
     <script src="{{ asset('assets/js/facebook-tracking.js') }}"></script>
 @endif
 
-@if(isset($gtm_code) && count($gtm_code) > 0)
+{{-- Raw snippets pasted into the admin GTM field. Same consent gate as the
+     container script above: an admin-pasted snippet is still a Google request,
+     and printing it before the visitor decides would undo the whole gate. --}}
+@if($consentAnalytics && isset($gtm_code) && count($gtm_code) > 0)
     @foreach($gtm_code as $gtmRow)
         @php
             $gtmRaw = (string) ($gtmRow->code ?? '');
