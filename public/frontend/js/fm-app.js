@@ -724,15 +724,14 @@
     /* ------------------------------------------------------------------ *
      * Categories card animation
      *
-     * Pressing the header's Categories card - the desktop pill, or the phone
-     * hamburger that opens the same drawer - plays a pulse on that card, and
-     * the drawer's "View all categories" link plays it too before it
-     * navigates. The markup marks the triggers with data-fm-categories-card
-     * (primary-header.blade.php) and the keyframes live in fm-interaction.css.
+     * Pressing the phone hamburger that opens the category drawer plays a
+     * pulse on it, and the drawer's "View all categories" link plays it too
+     * before it navigates. The markup marks the triggers with
+     * data-fm-categories-card (primary-header.blade.php) and the keyframes live
+     * in fm-interaction.css.
      *
-     * Both cards carry the attribute because only one of them is on screen at
-     * a time: the pill is xl-only, the hamburger is lg-and-down-only. The
-     * visible one is the one that animates.
+     * The desktop pill that used to be the third trigger was removed from the
+     * bar; the drawer link is the desktop entry point now.
      * ------------------------------------------------------------------ */
     var CATEGORIES_PULSE_MS = 700;
 

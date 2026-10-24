@@ -77,7 +77,7 @@
         </div>
 
         <button aria-label="Search" class="bg-[#1b5e20] hover:bg-[#144618] text-white px-4 py-2 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-colors flex-shrink-0 shadow-xs border-0" type="submit">
-            <i class="bi bi-search text-xs"></i>
+            <i class="bi bi-search"></i>
         </button>
     </div>
 </form>

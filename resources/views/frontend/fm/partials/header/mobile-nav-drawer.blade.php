@@ -1,9 +1,9 @@
 {{--
     FM:PARTIAL header/mobile-nav-drawer
     =========================================================================
-    One offcanvas serves both the phone hamburger and the Categories pill: the
-    categories first, because that is what a phone visitor is reaching for, then
-    the same destinations as the desktop strip.
+    One offcanvas serves the phone hamburger and the nav strip's "Browse
+    Categories" trigger: the categories first, because that is what a visitor is
+    reaching for, then the same destinations as the desktop strip.
 
     The destination block is the shared partials/header/nav-links partial, so a
     new page appears in the drawer and in the desktop strip in one edit. The

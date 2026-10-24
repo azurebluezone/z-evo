@@ -27,9 +27,13 @@
      *   route     route name the link points at
      *   also      extra route names that must also light this link up
      *   label     text
-     *   icon      optional Bootstrap icon class
-     *   class     optional extra class on the <a> (fm-nav-offers styles the
-     *             lightning bolt in both variants)
+     *
+     * One weight, one colour, one size for every label. "Special offers" used
+     * to carry a red fill and a lightning bolt while its neighbours were grey
+     * 14px text, so the strip had two different type sizes and the item read as
+     * a separate component even though it is just a destination. Emphasis is
+     * now carried by the active state only (green + tinted pill), which is the
+     * same treatment every other link gets.
      *
      * "Shop Catalog" matches the three routes that all show catalog results:
      * the paginated grid, a single category and a single brand. The drawer's
@@ -41,7 +45,7 @@
         ['route' => 'home', 'label' => 'Home'],
         ['route' => 'products.page', 'also' => ['category', 'products.brand'], 'label' => 'Shop Catalog'],
         ['route' => 'categories.page', 'label' => 'Categories'],
-        ['route' => 'offers.index', 'label' => 'Special offers', 'icon' => 'bi-lightning-charge-fill', 'class' => 'fm-nav-offers'],
+        ['route' => 'offers.index', 'label' => 'Special offers'],
         ['route' => 'hotdeals', 'label' => 'Hot deals'],
         ['route' => 'contact', 'label' => 'Contact'],
     ];
@@ -60,9 +64,6 @@
         @endphp
         <li>
             <a class="{{ $fmNavClass }}" href="{{ route($fmNavItem['route']) }}">
-                @if (!empty($fmNavItem['icon']))
-                    <i class="bi {{ $fmNavItem['icon'] }}"></i>
-                @endif
                 {{ $fmNavItem['label'] }}
             </a>
         </li>

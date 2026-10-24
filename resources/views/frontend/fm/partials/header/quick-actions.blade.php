@@ -29,7 +29,7 @@
         @include('frontend.fm.partials.header.quick-actions')
 --}}
 
-<div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+<div class="fm-header-actions flex items-center gap-2 shrink-0">
 
     {{-- Search trigger for phones: opens the search drawer, which carries the
          whole desktop search component (category picker, field, live suggest,
@@ -41,19 +41,18 @@
     <button aria-controls="fmSearchDrawer" aria-expanded="false" aria-label="Open search"
             class="lg:hidden fm-search-open inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-2 text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors border-0 bg-transparent"
             data-bs-target="#fmSearchDrawer" data-bs-toggle="offcanvas" type="button">
-        <i class="bi bi-search text-lg"></i>
+        <i class="bi bi-search"></i>
     </button>
 
-    {{-- Account. It used to sit immediately left of the search field, where it
-         read as an orphan between the Categories pill and the field. It belongs
-         with the other personal controls: same 44x44 box, same glyph size, same
-         hover treatment. Hidden below 576px by fm-sections.css (the navigation
-         drawer carries the same destinations there). --}}
+    {{-- Account. It belongs with the other personal controls rather than
+         immediately left of the search field: same 44x44 box, same glyph size,
+         same hover treatment. Hidden below 576px by fm-sections.css (the
+         navigation drawer carries the same destinations there). --}}
     @include('frontend.fm.partials.header.account-dropdown')
 
     {{-- Wishlist --}}
     <a class="fm-header-wishlist relative flex items-center justify-center min-h-[44px] min-w-[44px] text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors" href="{{ route('wishlist') }}" title="Wishlist">
-        <i class="bi bi-heart text-xl"></i>
+        <i class="bi bi-heart"></i>
         <span class="absolute top-1 right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full" data-fm-wishlist-count id="wishlistCount">{{ $fmWishlistCount }}</span>
     </a>
 
@@ -64,7 +63,7 @@
          after the glyph. --}}
     <button aria-label="Open cart" class="fm-header-cart bg-[#1b5e20] hover:bg-[#144618] text-white rounded-full min-h-[44px] flex items-center gap-1.5 shadow-sm transition-all active:scale-95 border-0" data-bs-target="#cartDrawer" data-bs-toggle="offcanvas" type="button">
         <div class="relative flex items-center">
-            <i class="bi bi-basket2-fill text-base sm:text-lg"></i>
+            <i class="bi bi-basket2-fill"></i>
             <span class="absolute -top-2 -right-2 bg-amber-400 text-slate-900 font-extrabold text-xs min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-xs" data-fm-cart-count id="cartCountBadge">{{ $fmCartCount }}</span>
         </div>
         <span class="fm-header-cart-total text-xs font-bold text-white tracking-wide" data-fm-cart-total id="cartTotalHeader">Tk {{ number_format($fmCartTotal) }}</span>

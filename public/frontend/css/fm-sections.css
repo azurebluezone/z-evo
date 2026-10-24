@@ -19,45 +19,38 @@ img{max-width:100%;height:auto}
 
 /* ---------- announcement bar ---------- */
 [data-purpose="announcement-banner"]{font-size:.8125rem;line-height:1.4}
-@media(min-width:576px){[data-purpose="announcement-banner"]{font-size:.875rem}}
 @media(min-width:992px){[data-purpose="announcement-banner"]{padding-block:.5rem}}
 
-/* Phone: the helpline is hidden, so the language switcher was the only thing
-   left in a justify-between row and stayed glued to the left edge. Centre the
-   switcher on the strip and centre its menu under it, so both sides get the
-   same gutter down to the dropdown panel. The 44px min-height keeps the strip
-   tall enough after the switcher leaves the flex flow. */
-@media(max-width:767.98px){
-  [data-purpose="announcement-banner"]>.container{
-    position:relative;
-    min-height:44px;
-  }
-  [data-purpose="announcement-banner"] .dropdown{
-    position:absolute;
-    left:50%;
-    top:50%;
-    /* Above the sticky header (z-index 1030), or the open menu is painted
-       behind the logo. */
-    z-index:1040;
-    transform:translate(-50%,-50%);
-  }
-  /* Bootstrap's dropdown plugin writes an inline `transform` and `inset` on
-     the menu through Popper. Those inline values beat a normal rule, so the
-     centring has to win with !important; otherwise the panel keeps the
-     button's left edge and the right gutter is short. */
-  [data-purpose="announcement-banner"] .dropdown-menu{
-    left:50%!important;
-    right:auto!important;
-    top:100%!important;
-    margin-top:8px!important;
-    transform:translateX(-50%)!important;
-  }
+/* Both ends carry real content at every width: helpline left, language right.
+   The strip is a two-child flex row with justify-between, so the ends are
+   pinned by layout rather than by margins. No absolutely-positioned switcher:
+   that rule existed only because the helpline used to be hidden on phones, and
+   it made the language menu open off-centre at >768px. */
+[data-purpose="announcement-banner"] .fm-topbar-contact,
+[data-purpose="announcement-banner"] .fm-topbar-whatsapp{
+  color:#dcfce7;text-decoration:none;
+}
+[data-purpose="announcement-banner"] .fm-topbar-contact:hover,
+[data-purpose="announcement-banner"] .fm-topbar-whatsapp:hover{color:#fff}
+[data-purpose="announcement-banner"] .fm-topbar-lang{
+  display:inline-flex;align-items:center;
+  height:44px;padding:0 .5rem;margin-block:-.5rem;
+  background:transparent;border:0;border-radius:.5rem;
+  color:#dcfce7;font-size:inherit;line-height:1;
+}
+[data-purpose="announcement-banner"] .fm-topbar-lang:hover{color:#fff;background:rgba(255,255,255,.08)}
+[data-purpose="announcement-banner"] .fm-topbar-lang:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+@media(max-width:575.98px){
+  [data-purpose="announcement-banner"]{font-size:.75rem}
+  [data-purpose="announcement-banner"] .fm-topbar-lang{padding-inline:.375rem}
 }
 
 /* ---------- header ---------- */
-/* The bar is a flex row (not a Bootstrap .row since the 07 Oct rebuild):
-   hamburger + logo on the left, search as the flexible middle column, and the
-   action cluster pinned right.
+/* The bar is a flex row below lg (hamburger + centred logo, action cluster
+   right) and a 3-column grid from lg up (brand | search | actions). The grid is
+   what gives the search field a stable share of the width: it used to compete
+   with the brand block and the Categories pill as flex siblings, so the field
+   shrank first. Columns at 1440px: 220px | 1fr | auto (~270px).
 
    !important is load-bearing here and must stay: fm-runtime-fix.css declares
    `img{max-width:100%!important;height:auto}` as its "every image stays inside
@@ -65,20 +58,21 @@ img{max-width:100%;height:auto}
    Without it the logo renders at its natural 985x396 and shoves the whole bar
    off-screen - the exact failure the 07 Oct header rules were written to stop. */
 header[data-purpose="primary-header"]{position:sticky;top:0;z-index:1030}
-header[data-purpose="primary-header"]>div>div{align-items:center}
-/* Logo scale, one step per band (was 36 / 40 / 32 / 28). The phone bar had
-   48px of dead space in front of the hamburger - the #fm-audit-fix substring
-   padding, reset in layouts.blade.php - so the mark was taking the blame for
-   room it never used. With that reclaimed the logo can carry the size the
-   reference shows. */
-header[data-purpose="primary-header"] img{height:40px!important;width:auto!important}
-@media(min-width:768px){header[data-purpose="primary-header"] img{height:44px!important}}
-@media(min-width:1024px){header[data-purpose="primary-header"] img{height:48px!important}}
+/* Below lg the row is a flex row (hamburger + centred logo, actions right);
+   the gap lives here rather than in a Tailwind `gap-*` utility because
+   Bootstrap 5.3 defines `.gap-3{gap:1rem!important}` and wins the collision. */
+header[data-purpose="primary-header"] .fm-header-row{align-items:center;gap:.75rem}
+/* Logo scale, one step per band. The mark is capped so a wider logo asset can
+   never take the search column's space or collide with the centred-logo layout
+   on a 320px phone. */
+header[data-purpose="primary-header"] .fm-header-logo img{height:40px!important;width:auto!important;max-width:180px!important}
+@media(min-width:768px){header[data-purpose="primary-header"] .fm-header-logo img{height:44px!important}}
+@media(min-width:1024px){header[data-purpose="primary-header"] .fm-header-logo img{height:48px!important}}
 @media(max-width:575.98px){
   header[data-purpose="primary-header"] .container{padding-inline:.75rem}
   /* On a phone the search collapses into its own strip, so the middle column
      must be allowed to shrink instead of forcing the bar wider than the screen. */
-  header[data-purpose="primary-header"]>div>div{gap:.5rem}
+  header[data-purpose="primary-header"] .fm-header-row{gap:.5rem}
   /* Six controls do not fit 375px: the action cluster measured 248px against
      a 327px bar and the surplus was silently clipped by the global
      overflow-x:hidden, taking the cart with it. Wishlist and account move into
@@ -88,8 +82,60 @@ header[data-purpose="primary-header"] img{height:40px!important;width:auto!impor
   header[data-purpose="primary-header"] .fm-header-user,
   header[data-purpose="primary-header"] .fm-header-wishlist,
   header[data-purpose="primary-header"] .fm-header-cart-total{display:none}
-  header[data-purpose="primary-header"] img{height:36px!important}
+  header[data-purpose="primary-header"] .fm-header-logo img{height:36px!important}
   header[data-purpose="primary-header"] .fm-ai-icon-btn{padding:.35rem}
+}
+
+/* Desktop: 3 zones, one job each. The brand column is fixed-ish (180-220px) so
+   the logo never shrinks; the search takes the remaining space and is the only
+   flexible cell; the actions take their intrinsic width and sit on the right
+   edge. min-height keeps the bar 72px whether or not a badge is showing. */
+@media(min-width:1024px){
+  header[data-purpose="primary-header"] .fm-header-row{
+    display:grid;
+    grid-template-columns:minmax(180px,220px) minmax(280px,1fr) auto;
+    column-gap:1.5rem;
+    row-gap:0;
+    min-height:72px;
+  }
+  header[data-purpose="primary-header"] .fm-header-brand{justify-self:start}
+  header[data-purpose="primary-header"] .fm-header-search{display:block;width:100%;max-width:none;justify-self:stretch}
+  header[data-purpose="primary-header"] .fm-header-actions{justify-self:end}
+}
+
+/* Below lg the logo is centred in the free middle zone, while the hamburger and
+   the action cluster keep their intrinsic widths. Absolute centring (rather than
+   flex:1 on both sides) means a badge appearing on the cart cannot nudge the
+   logo off the true centre of the viewport. The width cap is measured against
+   the two side clusters: hamburger 44 + actions 96 + gutters = 210px, leaving
+   110px of logo at 320px. */
+@media(max-width:1023.98px){
+  header[data-purpose="primary-header"] .fm-header-row{position:relative;min-height:60px}
+  header[data-purpose="primary-header"] .fm-header-logo{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    max-width:min(180px,calc(100vw - 224px));
+  }
+  /* min-width:0 is load-bearing: the logo is a flex item, and a flex item's
+     automatic minimum size is its intrinsic width, which outranks max-width.
+     Without it a 108px logo overflowed its 92px anchor at 320px and ran 10px
+     into the cart cluster. */
+  header[data-purpose="primary-header"] .fm-header-logo img{min-width:0!important}
+  header[data-purpose="primary-header"] .fm-header-brand{gap:0}
+}
+
+/* The tight desktop band (1024-1279) has the least room and the most controls:
+   976px interior, a 220px brand column and a 173px action cluster leave 551px
+   for the search, and the category picker (183) + AI triggers (88) + submit (60)
+   eat most of it. Give the brand column 170px and a 16px gutter there; the logo
+   itself is 144px, so nothing is clipped, and the field gains 66px. */
+@media(min-width:1024px) and (max-width:1279.98px){
+  header[data-purpose="primary-header"] .fm-header-row{
+    grid-template-columns:170px minmax(280px,1fr) auto;
+    column-gap:1rem;
+  }
 }
 /* The strip is gone: the phone search surface is #fmSearchDrawer, a top
    offcanvas (partials/header/search-drawer.blade.php). Bootstrap's .offcanvas-top
@@ -160,18 +206,21 @@ header[data-purpose="primary-header"] img{height:40px!important;width:auto!impor
    The bar mixes icon-only links/buttons with the cart pill, so each control
    was previously sized by its own Tailwind utility:
 
+     search    18px magnifier
      wishlist  20px heart  in a 36x44 box
      account   24px user   in a 40x48 box   <- 2px taller than the neighbours
-     cart      18px basket in a 44px pill
+     cart      16-18px basket in a 44px pill
 
-   Three glyph sizes and three line boxes read as "small / big / misaligned".
-   Pin one 44x44 box (WCAG 2.5.5), one 20px glyph and a centred flex line;
-   the cart pill keeps its own width and just shares the same height. */
+   Four glyph sizes and three line boxes read as "small / big / misaligned".
+   Pin one 44x44 box (WCAG 2.5.5), one 20px glyph (--fm-header-icon) and a
+   centred flex line; the cart pill keeps its own width and shares the height.
+   The search submit inside the field uses the same 20px token, so the bar has
+   exactly one icon size from the hamburger to the basket. */
 header[data-purpose="primary-header"] .fm-header-wishlist,
 header[data-purpose="primary-header"] .fm-header-user > button,
 header[data-purpose="primary-header"] .fm-header-cart{
   /* Deliberately no `display` here: wishlist/account are display:none below
-     sm and the phone search toggle is md:hidden. Pinning a display value
+     sm and the phone search toggle is lg:hidden. Pinning a display value
      would outrank those breakpoint rules and put all six controls back on a
      375px bar. These three are already flex when visible. */
   align-items:center;
@@ -206,19 +255,48 @@ header[data-purpose="primary-header"] .fm-header-cart{
 
 header[data-purpose="primary-header"] .fm-header-wishlist > .bi,
 header[data-purpose="primary-header"] .fm-header-user > button > .bi,
-header[data-purpose="primary-header"] .fm-header-cart .bi-basket2-fill{
+header[data-purpose="primary-header"] .fm-header-cart .bi-basket2-fill,
+header[data-purpose="primary-header"] button.fm-search-open .bi,
+header[data-purpose="primary-header"] .fm-header-brand > button[data-bs-toggle="offcanvas"] .bi{
   font-size:1.25rem;
   line-height:1;
 }
 
+/* The submit inside the omni-search field is the same 20px glyph. This covers
+   the desktop bar and the phone search drawer (same partial, both surfaces). */
+form[role="search"] button[type="submit"] .bi{font-size:1.25rem;line-height:1}
+
 /* Below sm the total is hidden, so the pill must collapse to a 44x44 box
-   around the basket instead of keeping the two-control padding. */
+   around the basket instead of keeping the two-control padding. The badge also
+   shrinks and moves out to the pill corner: at 18px with an -8px offset it
+   covered half the 20px basket, so the control read as a yellow "0" with no
+   cart glyph behind it. */
 @media(max-width:575.98px){
   header[data-purpose="primary-header"] .fm-header-cart{
     width:44px;
     min-width:44px;
     padding-left:0;
     padding-right:0;
+  }
+}
+
+/* The total is hidden below lg, so the cart pill is only 44px wide there. The
+   badge shrinks and moves out to the pill corner: at 18px with an -8px offset
+   it covered half the 20px basket, so the control read as a yellow "0" with no
+   cart glyph behind it. From lg up the pill carries the total and keeps the
+   larger badge. */
+@media(max-width:1023.98px){
+  header[data-purpose="primary-header"] .fm-header-cart [data-fm-cart-count]{
+    top:-6px;
+    right:-6px;
+    min-width:16px;
+    height:16px;
+    font-size:.625rem;
+    /* layouts.blade.php's <576px guard pads EVERY class containing "px-",
+       including the badge's px-1: measured 12px per side, which inflated the
+       badge to 29.6px wide. Reset it here with the same !important. */
+    padding-left:.25rem!important;
+    padding-right:.25rem!important;
   }
 }
 
@@ -246,11 +324,6 @@ header[data-purpose="primary-header"] .fm-header-cart .bi-basket2-fill{
        read as "pushed in". The box bleeds to the left instead. */
     margin-left:-10px;
   }
-
-  header[data-purpose="primary-header"] .fm-header-brand > button[data-bs-toggle="offcanvas"] .bi{
-    font-size:1.25rem;
-    line-height:1;
-  }
 }
 
 /* AI Lens is text-led, but its 34px height broke the baseline of the 44px
@@ -274,11 +347,6 @@ header[data-purpose="primary-header"] .ai-lens-toggle{
     height:44px;
     padding:0;
   }
-
-  header[data-purpose="primary-header"] button.fm-search-open .bi{
-    font-size:1.25rem;
-    line-height:1;
-  }
 }
 
 /* ---------- header search ---------- */
@@ -296,31 +364,39 @@ header[data-purpose="primary-header"] form[role="search"]>div{
 }
 
 /* ---------- desktop navigation strip ---------- */
-/* Hidden below lg by the markup; these rules only shape it once it is shown. */
+/* Hidden below lg by the markup; these rules only shape it once it is shown.
+   One height for the trigger and every link (36px) and one 14px/600 label, so
+   the strip reads as one row of destinations instead of a button followed by
+   six differently-styled words. The strip itself is 48px tall (6px padding top
+   and bottom), which is the common Amazon-style "All departments + links" bar. */
 .app-navbar-strip{background:#fff;border-bottom:1px solid #e5e7eb}
-.app-navbar-strip .container>div{padding-block:.5rem}
+.app-navbar-strip .container>div{padding-block:.375rem}
+.fm-navbar-start{gap:1rem;min-width:0}
 .app-category-trigger{
-  display:inline-flex;align-items:center;gap:.5rem;
-  background:#065f46;color:#fff;font-weight:600;font-size:.875rem;
-  border:0;border-radius:.5rem;padding:.5rem 1rem;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.45rem;
+  height:36px;padding:0 .875rem;
+  background:#065f46;color:#fff;font-size:.875rem;font-weight:600;line-height:1;
+  border:0;border-radius:.5rem;cursor:pointer;
   transition:background-color .15s ease;
 }
 .app-category-trigger:hover{background:#064e3b}
-.app-nav-menu{display:flex;list-style:none;margin:0;padding:0;gap:1.5rem}
+.app-category-trigger:focus-visible{outline:2px solid #065f46;outline-offset:2px}
+.fm-nav-chevron{font-size:.65rem;opacity:.8}
+.app-nav-menu{display:flex;align-items:center;list-style:none;margin:0;padding:0;gap:.25rem}
 .app-nav-menu a{
-  display:inline-block;padding:.25rem 0;
-  color:#374151;font-size:.875rem;font-weight:500;
-  border-bottom:2px solid transparent;transition:color .15s ease;
+  display:inline-flex;align-items:center;
+  height:36px;padding:0 .75rem;border:0;border-radius:.5rem;
+  color:#374151;font-size:.875rem;font-weight:600;line-height:1;
+  letter-spacing:0;text-decoration:none;
+  transition:color .15s ease,background-color .15s ease;
 }
-.app-nav-menu a:hover{color:#1b5e20}
-.app-nav-menu a.active{color:#1b5e20;font-weight:700;border-bottom-color:#1b5e20}
-.app-nav-menu a.fm-nav-offers{color:#dc2626;font-weight:600}
-.app-nav-menu a.fm-nav-offers:hover{color:#b91c1c}
-.app-nav-menu a.fm-nav-offers.active{color:#b91c1c;border-bottom-color:#dc2626}
+.app-nav-menu a:hover{color:#1b5e20;background:#f0fdf4}
+.app-nav-menu a:focus-visible{outline:2px solid #1b5e20;outline-offset:-2px}
+.app-nav-menu a.active{color:#1b5e20;background:#ecfdf5;font-weight:700}
 
 /* ---------- mobile drawer ---------- */
-/* Shared by the phone hamburger and the Categories pill, so the two entry
-   points always land on identical content. */
+/* Shared by the phone hamburger and the nav strip's "Browse Categories"
+   trigger, so both entry points always land on identical content. */
 .fm-drawer-nav-list{display:flex;flex-direction:column;gap:.25rem}
 .fm-drawer-cat{
   display:flex;align-items:center;gap:.6rem;

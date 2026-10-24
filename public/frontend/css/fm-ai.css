@@ -13,14 +13,14 @@
 }
 .fm-ai-icon-btn{
   display:inline-flex;align-items:center;justify-content:center;
-  /* 38px measured in the header; raised to the 44px floor. The icon itself is
-     unchanged (1.05rem) - only the hit box grows. */
+  /* 38px measured in the header; raised to the 44px floor. The glyph is the
+     same 20px token as every other header control (fm-sections.css). */
   width:44px;height:44px;flex:0 0 auto;
   border:0;background:transparent;cursor:pointer;
   border-radius:50%;color:#1b5e20;
   transition:background .18s ease,color .18s ease,transform .18s ease;
 }
-.fm-ai-icon-btn .bi{font-size:1.05rem;line-height:1}
+.fm-ai-icon-btn .bi{font-size:1.25rem;line-height:1}
 .fm-ai-icon-btn:hover{background:rgba(46,125,50,.14);color:#144618}
 .fm-ai-icon-btn:active{transform:scale(.92)}
 .fm-ai-icon-btn:focus-visible{outline:2px solid #1b5e20;outline-offset:-2px}
@@ -165,7 +165,6 @@ body.fm-ai-open{overflow:hidden}
   /* keep both icons tappable but stop the category button overflowing */
   .fm-ai-inline{padding-inline:.2rem 0}
   .fm-ai-icon-btn{width:34px;height:34px}
-  .fm-ai-icon-btn .bi{font-size:.95rem}
 }
 
 @media(min-width:576px){

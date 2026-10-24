@@ -1,8 +1,9 @@
 {{--
     FM:PARTIAL header/announcement-bar
     =========================================================================
-    The thin green strip above the header: helpline number and the language
-    switcher on the left, the WhatsApp shortcut on the right.
+    The thin green strip above the header: helpline on the left, the language
+    switcher and the WhatsApp shortcut on the right. The two ends stay two ends
+    at every width, including phones.
 
     It is its own partial because it is the one chrome block that is rendered
     on EVERY page yet changes the least - both of its values come straight from
@@ -42,24 +43,34 @@
 
 <!-- BEGIN: AnnouncementBar -->
 <aside class="bg-[#1b5e20] text-white py-2 text-xs border-b border-green-800" data-purpose="announcement-banner">
-    {{-- Three groups, pinned to the two ends: helpline and language on the left,
-         the WhatsApp shortcut on the right. They used to share one right-hand
-         group, so the switcher and the chat link sat shoulder to shoulder and
-         the strip had no left-hand content at all below md (the helpline is
-         hidden there). --}}
-    <div class="container mx-auto px-4 flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2 min-w-0">
-            <span class="hidden md:inline text-green-100">
-                <i class="bi bi-telephone-fill me-1"></i> Helpline: {{ $fmPhone ?: 'Add your number' }}
-            </span>
+    {{-- Two ends, on every width: helpline on the left, language (and the
+         WhatsApp shortcut) on the right. The previous version kept both left
+         and hid the helpline below md, so the strip had an empty right half and
+         a phone visitor saw only the switcher. Neither control is optional
+         chrome, so neither drops out now. --}}
+    <div class="container mx-auto px-4 flex items-center justify-between gap-3">
+        <a class="fm-topbar-contact flex items-center gap-1.5 min-w-0" href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $fmPhone) }}">
+            <i class="bi bi-telephone-fill shrink-0"></i>
+            <span class="hidden sm:inline shrink-0">Helpline:</span>
+            <span class="truncate">{{ $fmPhone ?: 'Add your number' }}</span>
+        </a>
+
+        <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+            @if(!empty($fmWhatsapp))
+                <a aria-label="Chat on WhatsApp" class="fm-topbar-whatsapp inline-flex items-center rounded-lg px-1.5" target="_blank" rel="noopener" href="https://wa.me/{{ $fmWhatsapp }}">
+                    <i class="bi bi-whatsapp"></i>
+                    <span class="hidden md:inline ms-1">Chat on WhatsApp</span>
+                </a>
+            @endif
 
             {{-- Language: the switch route accepts en / bn / hi only. --}}
             <div class="dropdown">
-                <button aria-expanded="false" class="btn btn-sm dropdown-toggle text-green-100 border-0 bg-transparent inline-flex items-center h-[44px] -my-2 px-3"
+                <button aria-expanded="false" aria-label="Change language"
+                        class="fm-topbar-lang btn btn-sm dropdown-toggle inline-flex items-center"
                         data-bs-toggle="dropdown" type="button">
                     <i class="bi bi-translate me-1"></i>{{ $fmLocales[$fmLocale] }}
                 </button>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu dropdown-menu-end">
                     @foreach ($fmLocales as $fmCode => $fmLabel)
                         <li>
                             <a class="dropdown-item {{ $fmCode === $fmLocale ? 'active' : '' }}"
@@ -68,14 +79,6 @@
                     @endforeach
                 </ul>
             </div>
-        </div>
-
-        <div class="flex items-center shrink-0">
-            @if(!empty($fmWhatsapp))
-                <a class="dropdown-item text-green-100 text-xs py-2" target="_blank" rel="noopener" href="https://wa.me/{{ $fmWhatsapp }}">
-                    <i class="bi bi-whatsapp me-1"></i> Chat on WhatsApp
-                </a>
-            @endif
         </div>
     </div>
 </aside>

@@ -1,9 +1,9 @@
 {{--
     FM:PARTIAL header/account-dropdown
     =========================================================================
-    The profile menu. It used to be the fifth control of the right-hand action
-    cluster; it now sits immediately LEFT of the search field, which is where
-    the reference header puts the profile control.
+    The profile menu. It sits in the right-hand action cluster, between the
+    phone search trigger and the wishlist: the personal controls belong
+    together, and none of them is visually louder than another.
 
     The `.fm-header-user` class is load-bearing and must stay:
 
@@ -21,7 +21,7 @@
 
 <div class="dropdown fm-header-user">
     <button aria-label="Account" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors border-0 bg-transparent" data-bs-toggle="dropdown" title="Account" type="button">
-        <i class="bi bi-person text-2xl"></i>
+        <i class="bi bi-person"></i>
     </button>
     <ul class="dropdown-menu dropdown-menu-end shadow-md border-0 rounded-xl p-2 text-sm">
         @auth('customer')
