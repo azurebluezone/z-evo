@@ -564,8 +564,23 @@
           }).filter(function (n) { return !isNaN(n); });
         }
 
+        // Rebuilding the value <select>s from scratch drops the current picks
+        // (and Select2's state with them), so snapshot them first and mark the
+        // same options selected again. Keyed by attribute id.
+        function captureValueSelections() {
+          var picked = {};
+          valuesWrap.querySelectorAll('.js-attr-values').forEach(function (sel) {
+            picked[sel.getAttribute('data-attr-id')] =
+              Array.prototype.slice.call(sel.selectedOptions || []).map(function (o) {
+                return String(o.value);
+              });
+          });
+          return picked;
+        }
+
         function renderValueSelectors() {
           var selectedAttrIds = getSelectedAttributeIds();
+          var previousSelections = captureValueSelections();
           valuesWrap.innerHTML = '';
 
           if (!selectedAttrIds.length) return;
@@ -588,7 +603,9 @@
             html += '      <option value=""></option>';
             values.forEach(function (v) {
               var label = (v.value !== undefined && v.value !== null) ? String(v.value) : (v.name ? String(v.name) : String(v.id));
-              html += '    <option value="' + v.id + '">' + label + '</option>';
+              // Restore a value this attribute already had selected.
+              var isPicked = (previousSelections[String(attrId)] || []).indexOf(String(v.id)) !== -1;
+              html += '    <option value="' + v.id + '"' + (isPicked ? ' selected' : '') + '>' + label + '</option>';
             });
             html += '    </select>';
             html += '    <label>' + (attr.name || 'Attribute') + ' Values</label>';
@@ -619,8 +636,35 @@
           });
         }
 
+        // A rebuild recreates every row, so numbers already typed for a
+        // combination are kept in this store, keyed by that combination's ids
+        // JSON, and restored afterwards. The store outlives a temporary empty
+        // table (e.g. an attribute was just added but has no value yet).
+        // File inputs cannot be refilled by script and are left empty.
+        var rowValuesStore = {};
+
+        function captureRowValues() {
+          Array.prototype.slice.call(tbody.querySelectorAll('tr')).forEach(function (tr) {
+            var idsInput = tr.querySelector('input[name="variant_attrs_ids[]"]');
+            if (!idsInput) return;
+            var read = function (name) {
+              var el = tr.querySelector('input[name="' + name + '"]');
+              return el ? el.value : '';
+            };
+            rowValuesStore[idsInput.value] = {
+              purchase: read('variant_purchase_price[]'),
+              sale: read('variant_sale_price[]'),
+              discount: read('variant_discount_price[]'),
+              stock: read('variant_initial_stock[]')
+            };
+          });
+        }
+
         function buildVariants() {
           var selects = Array.prototype.slice.call(valuesWrap.querySelectorAll('.js-attr-values'));
+          // Snapshot before any early return clears the table.
+          captureRowValues();
+
           if (!selects.length) {
             tbody.innerHTML = '';
             tableWrap.style.display = 'none';
@@ -628,24 +672,38 @@
           }
 
           var groups = [];
+          var incomplete = false;
           selects.forEach(function (sel) {
             var opts = Array.prototype.slice.call(sel.selectedOptions || []);
             var attrSlug = sel.getAttribute('data-attr-slug') || 'attr';
             var attrName = sel.getAttribute('data-attr-name') || attrSlug;
 
-            if (!opts.length) return;
+            if (!opts.length) {
+              incomplete = true;
+              return;
+            }
 
-            groups.push(opts.map(function (o) {
+            var picked = opts.map(function (o) {
               return {
                 attrSlug: attrSlug,
                 attrName: attrName,
                 valueId: parseInt(o.value, 10),
                 valueText: (o.textContent || '').trim()
               };
-            }).filter(function (x) { return x.valueId && x.valueText; }));
+            }).filter(function (x) { return x.valueId && x.valueText; });
+
+            if (!picked.length) {
+              incomplete = true;
+              return;
+            }
+
+            groups.push(picked);
           });
 
-          if (!groups.length) {
+          // Every selected attribute needs at least one value. Building rows
+          // from a partial selection would post a combination that is missing
+          // an attribute, so wait for a complete pick instead.
+          if (incomplete || !groups.length) {
             tbody.innerHTML = '';
             tableWrap.style.display = 'none';
             return;
@@ -667,6 +725,8 @@
 
             var idsJson = JSON.stringify({ ids: attrsIdsMap });
             var textJson = JSON.stringify({ attrs: attrsTextMap });
+            // Values typed before this rebuild, keyed by the same ids JSON.
+            var prev = rowValuesStore[idsJson] || {};
 
             var tr = document.createElement('tr');
             tr.innerHTML = ''
@@ -675,11 +735,11 @@
               + '  <input type="hidden" name="variant_attrs_ids[]" value="' + idsJson.replace(/\"/g, '&quot;') + '">' 
               + '  <input type="hidden" name="variant_attrs_text[]" value="' + textJson.replace(/\"/g, '&quot;') + '">' 
               + '</td>'
-              + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_purchase_price[]" placeholder="0"></td>'
-              + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_sale_price[]" placeholder="0"></td>'
-              + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_discount_price[]" placeholder="0"></td>'
+              + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_purchase_price[]" value="' + (prev.purchase || '') + '" placeholder="0"></td>'
+              + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_sale_price[]" value="' + (prev.sale || '') + '" placeholder="0"></td>'
+              + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_discount_price[]" value="' + (prev.discount || '') + '" placeholder="0"></td>'
               + '<td><input type="file" class="form-control rounded-0" name="variant_image[]" accept="image/*"></td>'
-              + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_initial_stock[]" placeholder="0"></td>';
+              + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_initial_stock[]" value="' + (prev.stock || '') + '" placeholder="0"></td>';
 
             tbody.appendChild(tr);
           });

@@ -260,7 +260,16 @@ class FrontendController extends Controller
     {
         $productId = (int) $productId;
 
-        $attributeValues = json_decode((string) $request->input('attribute_values', '[]'), true);
+        // The storefront JS sends a JSON string (`[1,4]`), but a hand-written
+        // URL may send real array syntax (`attribute_values[]=1&...`). Casting
+        // an array to string raised "Array to string conversion" and returned a
+        // 500 HTML page instead of JSON, so accept both shapes explicitly.
+        $rawValues = $request->input('attribute_values', '[]');
+        if (is_array($rawValues)) {
+            $attributeValues = $rawValues;
+        } else {
+            $attributeValues = json_decode((string) $rawValues, true);
+        }
         $attributeValues = is_array($attributeValues) ? $attributeValues : [];
         $attributeValues = array_values(array_filter(array_map(function ($v) {
             $v = is_scalar($v) ? (string) $v : '';
@@ -1324,6 +1333,7 @@ class FrontendController extends Controller
 
         $variantAttributes = [];
         $attributeSlugToId = [];
+        $attributeSlugToName = [];
         foreach ($productVariants as $v) {
             if (empty($v->attributes_json)) {
                 continue;
@@ -1343,9 +1353,22 @@ class FrontendController extends Controller
                     continue;
                 }
                 if (!isset($variantAttributes[$slugKey])) {
+                    // attributes_json keys are raw slugs ("weight-unit"), but the
+                    // label must be the human name from the attributes table
+                    // ("Weight Unit"). Cache it so N variants cost one lookup per
+                    // attribute, and fall back to the slug if no row exists.
+                    if (!array_key_exists($slugKey, $attributeSlugToName)) {
+                        $attributeSlugToName[$slugKey] = (string) (DB::table('attributes')
+                            ->where('slug', $slugKey)
+                            ->value('name') ?? '');
+                    }
+                    $attributeName = $attributeSlugToName[$slugKey] !== ''
+                        ? $attributeSlugToName[$slugKey]
+                        : $slugKey;
+
                     $variantAttributes[$slugKey] = [
                         'slug' => $slugKey,
-                        'name' => $slugKey,
+                        'name' => $attributeName,
                         'values' => [],
                     ];
                 }

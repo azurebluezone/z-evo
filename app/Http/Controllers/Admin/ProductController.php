@@ -233,13 +233,13 @@ class ProductController extends Controller
             'variant_initial_stock' => 'array',
             'variant_initial_stock.*' => 'nullable|integer|min:0',
             'variant_image' => 'array',
-            'variant_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'variant_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'new_price' => 'required',
             'purchase_price' => 'required',
             'stock' => 'required',
             'description' => 'required',
             'image' => 'required', // Add validation for image
-            'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validation for each image file
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validation for each image file
             'title.*' => 'nullable|string|max:255', // Validation for each image title
             // Allow common downloadable docs up to 20MB (Laravel max is in KB).
             'document' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar|max:20480',
