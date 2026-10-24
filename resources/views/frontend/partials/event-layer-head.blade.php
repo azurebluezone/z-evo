@@ -147,13 +147,15 @@
 
         var CLICK_IDS = readClickIds();
 
-        function queueEvent(name, meta) {
+        function queueEvent(name, meta, eventId) {
             meta = meta || {};
             var q = readQueue();
             var row = {
                 name: name,
                 // A stable id per event is what makes server/browser merging work.
-                event_id: newEventId(),
+                // Callers that already hold the server-minted id pass it in; only
+                // genuinely browser-owned events mint a fresh one.
+                event_id: eventId || newEventId(),
                 url: meta.url ? meta.url : (location.href || null),
                 ts: (new Date()).toISOString()
             };
@@ -455,8 +457,11 @@
         window.facebookTrackingConfig = {
             enabled: true,
             pixelId: '{{ $generalsetting->facebook_pixel_id }}',
-            accessToken: '{{ $generalsetting->facebook_conversion_api_token }}',
-            apiVersion: '{{ $generalsetting->facebook_conversion_api_version ?? 'v18.0' }}',
+            // The Conversions API token is deliberately NOT printed here. The
+            // browser posts to /api/facebook/track and the server attaches the
+            // token; putting it in the page put a live ad-account secret in the
+            // HTML source of every storefront page.
+            apiVersion: '{{ $generalsetting->facebook_conversion_api_version ?? 'v17.0' }}',
             serverSide: {{ ($generalsetting?->facebook_server_side_tracking ?? false) ? 'true' : 'false' }},
             enhancedEcommerce: {{ ($generalsetting?->facebook_enhanced_ecommerce ?? false) ? 'true' : 'false' }}
             @if(auth()->check())

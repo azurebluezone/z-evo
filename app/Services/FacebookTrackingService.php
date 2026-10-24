@@ -55,7 +55,7 @@ class FacebookTrackingService
                         'event_time' => time(),
                         'event_id' => $eventId,
                         'action_source' => 'website',
-                        'event_source_url' => request()->url(),
+                        'event_source_url' => request()->headers->get('referer') ?: request()->url(),
                         'user_data' => $this->prepareUserData($userData),
                         'custom_data' => $eventData
                     ]
@@ -63,7 +63,11 @@ class FacebookTrackingService
                 'access_token' => $this->accessToken
             ];
 
-            $response = Http::post("https://graph.facebook.com/{$this->apiVersion}/{$this->pixelId}/events", $payload);
+            // Bounded: an unreachable Graph API must not hold a checkout request
+            // open. 8s total, 4s to connect.
+            $response = Http::connectTimeout(4)
+                ->timeout(8)
+                ->post("https://graph.facebook.com/{$this->apiVersion}/{$this->pixelId}/events", $payload);
 
             if ($response->successful()) {
                 Log::info('Facebook event sent successfully', [
@@ -150,7 +154,7 @@ class FacebookTrackingService
     /**
      * Send Purchase event
      */
-    public function sendPurchaseEvent($orderData, $userData = [])
+    public function sendPurchaseEvent($orderData, $userData = [], ?string $eventId = null)
     {
         $eventData = [
             'currency' => 'BDT',
@@ -161,7 +165,7 @@ class FacebookTrackingService
             'num_items' => $orderData['num_items'] ?? 1
         ];
 
-        return $this->sendEvent('Purchase', $eventData, $userData);
+        return $this->sendEvent('Purchase', $eventData, $userData, $eventId);
     }
 
     /**
@@ -362,6 +366,19 @@ class FacebookTrackingService
 
         // User agent
         $prepared['client_user_agent'] = request()->userAgent();
+
+        // Click / browser ids are forwarded raw (Meta hashes only PII). They are
+        // read from the raw cookie jar on purpose: Laravel would try to decrypt
+        // these JS-written cookies and hand back null.
+        $fbp = isset($_COOKIE['_fbp']) ? preg_replace('/[^A-Za-z0-9._\-]/', '', (string) $_COOKIE['_fbp']) : '';
+        if ($fbp !== '') {
+            $prepared['fbp'] = $fbp;
+        }
+
+        $fbc = isset($_COOKIE['_fbc']) ? preg_replace('/[^A-Za-z0-9._\-]/', '', (string) $_COOKIE['_fbc']) : '';
+        if ($fbc !== '') {
+            $prepared['fbc'] = $fbc;
+        }
 
         return $prepared;
     }

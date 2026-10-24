@@ -26,12 +26,15 @@ class FacebookTrackingController extends Controller
         $request->validate([
             'facebook_pixel_id' => 'nullable|string|max:255',
             'facebook_conversion_api_token' => 'nullable|string',
-            'facebook_conversion_api_version' => 'required|in:v17.0,v16.0,v15.0',
+            // Meta retires Graph versions on a schedule; hard-coding three of
+            // them meant the field could not be set to the version the account
+            // actually uses. Shape check only, value comes from Meta's docs.
+            'facebook_conversion_api_version' => ['required', 'string', 'regex:/^v\d{1,2}\.\d$/'],
             'facebook_custom_events' => 'nullable|string',
         ]);
 
         $settings = GeneralSetting::first();
-        
+
         if (!$settings) {
             Toastr::error('Settings not found', 'Error');
             return redirect()->back();
@@ -39,10 +42,16 @@ class FacebookTrackingController extends Controller
 
         $input = $request->only([
             'facebook_pixel_id',
-            'facebook_conversion_api_token',
             'facebook_conversion_api_version',
             'facebook_custom_events'
         ]);
+
+        // A blank token field means "keep the stored one". The page no longer
+        // prints the secret back, so treating blank as a value would wipe it on
+        // every unrelated save.
+        if ($request->filled('facebook_conversion_api_token')) {
+            $input['facebook_conversion_api_token'] = $request->input('facebook_conversion_api_token');
+        }
 
         // Handle boolean fields
         $input['facebook_server_side_tracking'] = $request->facebook_server_side_tracking ? 1 : 0;

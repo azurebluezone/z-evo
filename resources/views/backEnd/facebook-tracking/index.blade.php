@@ -51,11 +51,11 @@
                                 <div class="col-sm-6 mb-3">
                                     <div class="form-group">
                                         <label for="facebook_conversion_api_token" class="form-label">Conversion API Access Token</label>
-                                        <input type="text" class="form-control @error('facebook_conversion_api_token') is-invalid @enderror" 
+                                        <input type="password" autocomplete="new-password" class="form-control @error('facebook_conversion_api_token') is-invalid @enderror" 
                                                name="facebook_conversion_api_token" 
-                                               value="{{ $settings->facebook_conversion_api_token ?? '' }}" 
-                                               placeholder="Enter your Conversion API token">
-                                        <small class="form-text text-muted">Server-side access token for Conversion API</small>
+                                               value="" 
+                                               placeholder="{{ filled($settings->facebook_conversion_api_token ?? null) ? 'Stored — leave blank to keep' : 'Paste the Conversions API token' }}">
+                                        <small class="form-text text-muted">Server-side access token for the Conversions API. It is never printed back into the page; leave blank to keep the stored value.</small>
                                         @error('facebook_conversion_api_token')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
@@ -68,13 +68,12 @@
                                 <div class="col-sm-6 mb-3">
                                     <div class="form-group">
                                         <label for="facebook_conversion_api_version" class="form-label">API Version</label>
-                                        <select class="form-control @error('facebook_conversion_api_version') is-invalid @enderror" 
-                                                name="facebook_conversion_api_version">
-                                            <option value="v17.0" @if(($settings->facebook_conversion_api_version ?? 'v17.0') == 'v17.0') selected @endif>v17.0</option>
-                                            <option value="v16.0" @if(($settings->facebook_conversion_api_version ?? 'v17.0') == 'v16.0') selected @endif>v16.0</option>
-                                            <option value="v15.0" @if(($settings->facebook_conversion_api_version ?? 'v17.0') == 'v15.0') selected @endif>v15.0</option>
-                                        </select>
-                                        <small class="form-text text-muted">Facebook API version to use</small>
+                                        <input type="text" class="form-control @error('facebook_conversion_api_version') is-invalid @enderror"
+                                               id="facebook_conversion_api_version"
+                                               name="facebook_conversion_api_version"
+                                               value="{{ $settings->facebook_conversion_api_version ?? 'v17.0' }}"
+                                               placeholder="v23.0">
+                                        <small class="form-text text-muted">Graph API version, e.g. <code>v23.0</code>. Take the current value from Meta's changelog — Meta retires old versions on a schedule.</small>
                                         @error('facebook_conversion_api_version')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>

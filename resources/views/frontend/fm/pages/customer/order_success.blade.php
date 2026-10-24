@@ -356,8 +356,9 @@
     </script>
 
     {{-- Purchase event: browser-side half of the funnel. order_save() already
-         fired the server-side Conversions API event; this is the matching
-         Pixel event so the two can be deduplicated. --}}
+         fired the server-side Conversions API event with the same $purchaseEventId,
+         which is what lets Meta deduplicate the pair. --}}
+    @if(!empty($purchaseEventId))
     <script>
         (function () {
             'use strict';
@@ -376,9 +377,10 @@
 
             function firePurchase() {
                 var tracker = window.facebookTracker;
+                var purchaseEventId = '{{ $purchaseEventId }}';
 
                 if (tracker && typeof tracker.trackPurchase === 'function') {
-                    tracker.trackPurchase(purchaseData);
+                    tracker.trackPurchase(purchaseData, purchaseEventId);
                 } else if (typeof window.fbq === 'function') {
                     window.fbq('track', 'Purchase', {
                         value: purchaseData.total,
@@ -386,7 +388,7 @@
                         content_ids: purchaseData.product_ids,
                         content_type: 'product',
                         num_items: purchaseData.num_items
-                    });
+                    }, { eventID: purchaseEventId });
                 }
 
                 // Only present when the event layer partial loaded; never let a
@@ -408,3 +410,4 @@
         })();
     </script>
 @endpush
+@endif

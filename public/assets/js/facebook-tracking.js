@@ -207,10 +207,10 @@
     // ──────────────────────────────────────────────
     // 4d. Local Event Log (via __EVENT_LOGGER__)
     // ──────────────────────────────────────────────
-    FacebookTracker.prototype.logLocalEvent = function (eventName, eventData) {
+    FacebookTracker.prototype.logLocalEvent = function (eventName, eventData, eventId) {
         try {
             if (window.__EVENT_LOGGER__ && typeof window.__EVENT_LOGGER__.queue === 'function') {
-                window.__EVENT_LOGGER__.queue(eventName, eventData || {});
+                window.__EVENT_LOGGER__.queue(eventName, eventData || {}, eventId);
             }
         } catch (e) {}
     };
@@ -347,20 +347,26 @@
     /**
      * Purchase - Order completed
      */
-    FacebookTracker.prototype.trackPurchase = function (orderData) {
-        var eventId = generateEventId();
+    FacebookTracker.prototype.trackPurchase = function (orderData, eventId) {
+        // The server mints this id when the order row is committed and prints it
+        // into the confirmation page. Re-using it is the whole point: Meta drops
+        // the browser hit when the Conversions API already sent the same id.
+        var id = eventId || generateEventId();
+        // Both order-success templates send `total`; the older callers sent
+        // `amount`. Reading only `amount` made every browser Purchase worth 0.
+        var rawValue = orderData.total != null ? orderData.total : orderData.amount;
         var eventData = {
             currency: 'BDT',
-            value: parseFloat(orderData.amount) || 0,
+            value: parseFloat(rawValue) || 0,
             content_ids: orderData.product_ids || [],
             content_type: 'product',
             order_id: String(orderData.order_id || ''),
             num_items: parseInt(orderData.num_items) || 1
         };
 
-        this.sendClientEvent('Purchase', eventData, eventId);
-        this.sendServerEvent('Purchase', eventData, eventId);
-        this.logLocalEvent('Purchase', eventData);
+        this.sendClientEvent('Purchase', eventData, id);
+        this.sendServerEvent('Purchase', eventData, id);
+        this.logLocalEvent('Purchase', eventData, id);
     };
 
     /**

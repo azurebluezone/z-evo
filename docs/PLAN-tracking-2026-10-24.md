@@ -405,6 +405,13 @@ purchases, revenue). No free-text, no identifiers.
 
 P0 is independent of everything else and can ship this week.
 
+**Status:** P0 (= T0 in the backlog) is **done and committed**. Implementation
+record, evidence and rollback: `docs/IMPL-tracking-t0-2026-10-24.md`. Measured
+result — one purchase produced exactly one `event_logs` row
+(`status=primary method=server matched=browser`), the relay rejects unknown
+events and non-shape ids, and `/`, `/offer`, `/hot-deals` no longer contain
+`G-1ME4K0RD7K`, `GTM-K29C9BKJ` or `googletagmanager`. P1 is next.
+
 ---
 
 ## 13. Risks and open decisions

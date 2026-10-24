@@ -220,7 +220,11 @@
 </script>
 @endpush
 
-{{-- 🎯 Purchase Event: Pixel + CAPI (Industry Standard) --}}
+{{-- 🎯 Purchase Event: Pixel + CAPI (Industry Standard)
+     The id is minted by the server when the order row is committed and passed in
+     as $purchaseEventId; browser and CAPI must send the same value or Meta counts
+     the sale twice. The script only renders for the visit that follows checkout. --}}
+@if(!empty($purchaseEventId))
 @push('scripts')
 <script>
 (function() {
@@ -241,8 +245,9 @@
     function firePurchase() {
         // window.facebookTracker — already initialized singleton with all methods
         const tracker = window.facebookTracker;
+        const purchaseEventId = '{{ $purchaseEventId }}';
         if (tracker && typeof tracker.trackPurchase === 'function') {
-            tracker.trackPurchase(purchaseData);
+            tracker.trackPurchase(purchaseData, purchaseEventId);
         } else if (typeof fbq === 'function') {
             fbq('track', 'Purchase', {
                 value: purchaseData.total,
@@ -251,7 +256,7 @@
                 content_type: 'product',
                 num_items: purchaseData.num_items,
                 order_id: purchaseData.order_id
-            });
+            }, { eventID: purchaseEventId });
         }
 
         try {
@@ -266,3 +271,4 @@
 })();
 </script>
 @endpush
+@endif

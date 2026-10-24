@@ -20,7 +20,8 @@ use App\Models\Product;
 use App\Models\PaymentGateway;
 use App\Models\SmsGateway;
 use App\Models\GeneralSetting;
-use App\Models\EventLog;
+use App\Services\Analytics\EventRecorder;
+use App\Support\EventId;
 use App\Services\CourierFraudService;
 use App\Services\GuestCheckoutAccountService;
 use App\Services\FacebookTrackingService;
@@ -565,9 +566,21 @@ class CustomerController extends Controller
             'num_items' => $numItems
         ];
 
+        // ONE id for this purchase, derived from the order itself. The
+        // confirmation page prints the same value into the pixel, and the CAPI
+        // call below carries it too - that shared id is what makes Meta (and our
+        // own event_logs) count the sale once instead of twice or three times.
+        $purchaseEventId = EventId::purchase($order);
+
+        // Only the first view of the confirmation page should fire the browser
+        // pixel. Without this marker a refresh (or a stranger opening the URL)
+        // re-fires a Purchase; the deterministic id makes Meta drop it, but the
+        // page should not be the thing deciding that.
+        Session::put('recent_order_' . $order->id, true);
+
         // Facebook Server-Side Tracking - Purchase Event
         if (app(FacebookTrackingService::class)->isEnabled()) {
-            app(FacebookTrackingService::class)->sendPurchaseEvent($orderData, $userData);
+            app(FacebookTrackingService::class)->sendPurchaseEvent($orderData, $userData, $purchaseEventId);
         }
 
         try {
@@ -579,19 +592,29 @@ class CustomerController extends Controller
             // no-op
         }
 
-        // 🔥 PATCH: Log Purchase event to local event_logs table
+        // First-party record, independent of whether the ad platform call
+        // succeeded: the shop's own analytics must never depend on Meta being up.
         try {
             $visitorId = $request->cookie('visitor_id');
-            if ($visitorId) {
-                EventLog::create([
-                    'visitor_id' => $visitorId,
-                    'event_name' => 'Purchase',
-                    'url' => $request->url(),
-                    'event_time' => now(),
-                ]);
+            if (is_string($visitorId) && $visitorId !== '') {
+                app(EventRecorder::class)->recordBatch(
+                    $visitorId,
+                    [[
+                        'name' => 'Purchase',
+                        'event_id' => $purchaseEventId,
+                        'url' => $request->fullUrl(),
+                        'page_path' => '/checkout',
+                        'ts' => now()->toIso8601String(),
+                        'event_data' => $orderData,
+                    ]],
+                    EventRecorder::METHOD_SERVER
+                );
             }
         } catch (\Throwable $e) {
-            // no-op
+            Log::warning('Purchase event record failed', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         Cart::instance('shopping')->destroy();
@@ -636,7 +659,16 @@ class CustomerController extends Controller
         $order = Order::where('id', $id)
             ->with(['orderdetails', 'shipping', 'payment'])
             ->firstOrFail();
-        return view('frontend.layouts.customer.order_success', compact('order'));
+
+        // Same deterministic id the checkout used, so the pixel hit and the
+        // Conversions API event share one value. It is handed to the view only
+        // for the visit that actually follows the order, never for a shared or
+        // refreshed URL.
+        $purchaseEventId = Session::pull('recent_order_' . $order->id)
+            ? EventId::purchase($order)
+            : null;
+
+        return view('frontend.layouts.customer.order_success', compact('order', 'purchaseEventId'));
     }
     public function invoice(Request $request)
     {

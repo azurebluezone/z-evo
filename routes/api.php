@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\FrontendController;
 
 use App\Http\Controllers\Api\CourierWebhookController;
+use App\Http\Controllers\Api\FacebookTrackController;
 
 
 Route::group(['namespace' => 'Api', 'prefix' => 'v1', 'middleware' => 'api'], function () {
@@ -50,34 +51,14 @@ Route::post('/steadfast-webhook', [CourierWebhookController::class, 'steadfast']
     ->middleware('courier.webhook:steadfast')
     ->name('api.steadfast.webhook');
 
-// Facebook Server-Side Tracking API Routes
-Route::post('/facebook/track', function (Request $request) {
-    try {
-        $eventName = $request->input('event_name');
-        $eventData = $request->input('event_data', []);
-        $userData = $request->input('user_data', []);
-
-        if (!$eventName) {
-            return response()->json(['error' => 'Event name is required'], 400);
-        }
-
-        $facebookTracking = app(\App\Services\FacebookTrackingService::class);
-
-        if (!$facebookTracking->isEnabled()) {
-            return response()->json(['error' => 'Facebook tracking is disabled'], 400);
-        }
-
-        $result = $facebookTracking->sendEvent($eventName, $eventData, $userData);
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Event tracked successfully']);
-        } else {
-            return response()->json(['error' => 'Failed to track event'], 500);
-        }
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Internal server error: ' . $e->getMessage()], 500);
-    }
-});
+// Facebook Server-Side Tracking API route.
+//
+// 30 requests/minute per IP: a real page fires a handful of events, while a
+// script that tries to burn the ad account's quota is stopped here instead of at
+// Meta. The token stays server-side; the browser only relays the event.
+Route::post('/facebook/track', FacebookTrackController::class)
+    ->middleware('throttle:30,1')
+    ->name('api.facebook.track');
 
 // TikTok Server-Side Tracking API Routes
 Route::post('/tiktok/track', function (Request $request) {

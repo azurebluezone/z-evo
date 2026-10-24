@@ -2515,10 +2515,10 @@ $(document).ready(function() {
             );
         });
     </script>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K29C9BKJ"
-            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+    {{-- Google Tag Manager (noscript) is emitted per container by
+         frontend/partials/event-layer-head.blade.php. The demo container id that
+         used to be hardcoded here (GTM-K29C9BKJ) belonged to the theme author,
+         not to this shop, so it is gone. --}}
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
