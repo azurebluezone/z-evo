@@ -168,6 +168,9 @@
 </div>
 @endsection
 
+{{-- See courier/index.blade.php: a block after @endsection is discarded by
+     Blade, so these handlers must live inside a @section('script'). --}}
+@section('script')
 <script>
     (function () {
         'use strict';
@@ -220,3 +223,4 @@
         });
     })();
 </script>
+@endsection

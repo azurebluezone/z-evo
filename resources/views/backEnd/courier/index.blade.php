@@ -176,6 +176,13 @@
 </div>
 @endsection
 
+{{--
+    These handlers used to sit after @endsection, which Blade discards: the
+    @extends child view only renders what is inside a @section, so the block
+    never reached the browser and the Test / Copy buttons were dead. The layout
+    picks scripts up through @yield('script') (backEnd/layouts/app.blade.php).
+--}}
+@section('script')
 <script>
     // Vanilla JS on purpose: this block lives inside the content section, and the
     // admin layout loads jQuery at the bottom, so a jQuery handler here would
@@ -257,3 +264,4 @@
         });
     })();
 </script>
+@endsection

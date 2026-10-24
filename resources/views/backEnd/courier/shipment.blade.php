@@ -109,6 +109,8 @@
 </div>
 @endsection
 
+{{-- Discarded by Blade after @endsection - kept inside @section('script'). --}}
+@section('script')
 <script>
     (function () {
         'use strict';
@@ -128,3 +130,4 @@
         });
     })();
 </script>
+@endsection

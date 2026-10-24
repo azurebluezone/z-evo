@@ -145,7 +145,9 @@ class DashboardController extends Controller
             return redirect()->route('dashboard');
         }else{
             Toastr::error('Failed', 'Old password not match!');
-            return back();
+            // The form renders @error('old_password'), so the mismatch must land
+            // in the error bag under that key - a bare back() showed no error.
+            return back()->withErrors(['old_password' => 'Old password not match!']);
         }
     }
     /**

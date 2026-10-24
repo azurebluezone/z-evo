@@ -66,6 +66,7 @@ use App\Http\Controllers\Admin\FlashSaleController as AdminFlashSaleController;
 use App\Http\Controllers\Admin\WebsiteSetupController;
 use App\Http\Controllers\Admin\HomepageSettingsController;
 use App\Http\Controllers\Admin\TikTokTestController;
+use App\Http\Controllers\Admin\WishlistController;
 
 // -----------------Landing Page------------------
 
@@ -327,9 +328,17 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
 
         try {
             $wishlist = session()->get('wishlist', []);
-            if (is_array($wishlist)) {
-                $wishlistCount = count(array_unique(array_map('intval', $wishlist)));
+            if (! is_array($wishlist)) {
+                $wishlist = [];
             }
+            $customer = auth('customer')->user();
+            if ($customer) {
+                $wishlist = array_merge(
+                    $wishlist,
+                    \App\Models\Wishlist::where('customer_id', $customer->id)->pluck('product_id')->all()
+                );
+            }
+            $wishlistCount = count(array_unique(array_map('intval', $wishlist)));
         } catch (\Throwable $e) {
             $wishlistCount = 0;
         }
@@ -349,9 +358,17 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
         $wishlistCount = 0;
         try {
             $wishlist = session()->get('wishlist', []);
-            if (is_array($wishlist)) {
-                $wishlistCount = count(array_unique(array_map('intval', $wishlist)));
+            if (! is_array($wishlist)) {
+                $wishlist = [];
             }
+            $customer = auth('customer')->user();
+            if ($customer) {
+                $wishlist = array_merge(
+                    $wishlist,
+                    \App\Models\Wishlist::where('customer_id', $customer->id)->pluck('product_id')->all()
+                );
+            }
+            $wishlistCount = count(array_unique(array_map('intval', $wishlist)));
         } catch (\Throwable $e) {
             $wishlistCount = 0;
         }
@@ -363,9 +380,17 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
         $wishlistIds = [];
         try {
             $wishlist = session()->get('wishlist', []);
-            if (is_array($wishlist)) {
-                $wishlistIds = array_values(array_unique(array_map('intval', $wishlist)));
+            if (! is_array($wishlist)) {
+                $wishlist = [];
             }
+            $customer = auth('customer')->user();
+            if ($customer) {
+                $wishlist = array_merge(
+                    $wishlist,
+                    \App\Models\Wishlist::where('customer_id', $customer->id)->pluck('product_id')->all()
+                );
+            }
+            $wishlistIds = array_values(array_unique(array_map('intval', $wishlist)));
         } catch (\Throwable $e) {
             $wishlistIds = [];
         }
@@ -426,10 +451,26 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
         session()->put('wishlist', $wishlist);
         session()->put('wishlist_count', count($wishlist));
 
+        // Logged-in customers get a durable row so the admin panel can see
+        // it; guests stay session-only (this block is skipped for them).
+        $count = count($wishlist);
+        $customer = auth('customer')->user();
+        if ($customer) {
+            \App\Models\Wishlist::firstOrCreate([
+                'customer_id' => $customer->id,
+                'product_id' => $pid,
+            ]);
+            $count = count(array_unique(array_map('intval', array_merge(
+                $wishlist,
+                \App\Models\Wishlist::where('customer_id', $customer->id)->pluck('product_id')->all()
+            ))));
+            session()->put('wishlist_count', $count);
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Added to wishlist',
-            'count' => count($wishlist),
+            'count' => $count,
         ]);
     });
 
@@ -444,13 +485,30 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
             return (int) $id !== (int) $pid;
         }));
 
+        // Mirror the removal into the durable row for logged-in customers.
+        $customer = auth('customer')->user();
+        if ($customer) {
+            \App\Models\Wishlist::where('customer_id', $customer->id)
+                ->where('product_id', $pid)
+                ->delete();
+        }
+
         session()->put('wishlist', $wishlist);
         session()->put('wishlist_count', count($wishlist));
+
+        $count = count($wishlist);
+        if ($customer) {
+            $count = count(array_unique(array_map('intval', array_merge(
+                $wishlist,
+                \App\Models\Wishlist::where('customer_id', $customer->id)->pluck('product_id')->all()
+            ))));
+            session()->put('wishlist_count', $count);
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Removed from wishlist',
-            'count' => count($wishlist),
+            'count' => $count,
         ]);
     });
 
@@ -1418,6 +1476,11 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::get('review/{id}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
     Route::post('review/update', [ReviewController::class, 'update'])->name('reviews.update');
     Route::post('review/destroy', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Wishlists - per-customer rows written by the frontend add-to-wishlist
+    // route closures; guests stay session-only and are invisible here.
+    Route::get('wishlist', [WishlistController::class, 'index'])->name('admin.wishlist.index');
+    Route::post('wishlist/{id}/destroy', [WishlistController::class, 'destroy'])->name('admin.wishlist.destroy');
 
     // flavor    // Shipping
     Route::get('shipping/manage', [ShippingChargeController::class, 'index'])->name('shippingcharges.index');

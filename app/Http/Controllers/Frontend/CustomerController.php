@@ -768,7 +768,9 @@ class CustomerController extends Controller
             return redirect()->route('customer.account');
         } else {
             Toastr::error('Failed', 'Old password not match!');
-            return redirect()->back();
+            // The form renders @error('old_password'), so the mismatch must land
+            // in the error bag under that key - a bare back() showed no error.
+            return redirect()->back()->withErrors(['old_password' => 'Old password not match!']);
         }
     }
 }

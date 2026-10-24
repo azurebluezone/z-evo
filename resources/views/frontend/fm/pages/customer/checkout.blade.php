@@ -6,12 +6,15 @@
     ---------------------------------------------------------------------------
     CONTRACT - DO NOT DIVERGE WITHOUT READING THE CONTROLLER
     ---------------------------------------------------------------------------
-    CustomerController@checkout() passes exactly three variables and this page
+    CustomerController@checkout() passes exactly two variables and this page
     is allowed to assume nothing else:
 
         $shippingcharge      Collection<ShippingCharge>  (id, name, amount)
         $bkash_gateway       PaymentGateway|null        (status=1, type=bkash)
-        $shurjopay_gateway   PaymentGateway|null        (status=1, type=shurjopay)
+
+    Shurjopay was removed in 8ba62ea; the controller no longer passes
+    $shurjopay_gateway, so this page must not reference it (doing so made
+    /customer/checkout return 500 with "Undefined variable $shurjopay_gateway").
 
     Everything else comes from the session, exactly as before:
         shipping          float   selected ShippingCharge->amount
@@ -26,9 +29,9 @@
         name, address, phone, area, payment_method
 
     payment_method values are the literal strings the gateway branch in
-    order_save() switches on: 'Cash On Delivery', 'bkash', 'shurjopay'.
-    bKash and Shurjopay are rendered only when their gateway row is enabled,
-    which is why the @if wrappers must stay.
+    order_save() switches on: 'Cash On Delivery', 'bkash'.
+    bKash is rendered only when its gateway row is enabled, which is why the
+    @if wrapper must stay.
 
     ---------------------------------------------------------------------------
     WHAT WAS PORTED FROM THE CLASSIC PAGE, UNCHANGED IN BEHAVIOUR
@@ -291,22 +294,6 @@
                                                         bKash
                                                     </span>
                                                     <span class="fm-co__pay-note">Pay from your bKash wallet</span>
-                                                </span>
-                                            </label>
-                                        @endif
-
-                                        @if($shurjopay_gateway)
-                                            <label class="fm-co__pay" data-fm-pay>
-                                                <input type="radio"
-                                                       name="payment_method"
-                                                       value="shurjopay"
-                                                       id="coPayShurjo">
-                                                <span class="fm-co__pay-text">
-                                                    <span class="fm-co__pay-name">
-                                                        <i class="bi bi-credit-card" aria-hidden="true"></i>
-                                                        Shurjopay
-                                                    </span>
-                                                    <span class="fm-co__pay-note">Card, mobile banking or ATM</span>
                                                 </span>
                                             </label>
                                         @endif

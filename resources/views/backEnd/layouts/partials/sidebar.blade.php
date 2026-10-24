@@ -62,9 +62,9 @@
                         <div>All Customers</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="javascript:void(0);" class="menu-link disabled" tabindex="-1" aria-disabled="true">
-                        <div>{!! $comingSoon('Wishlists') !!}</div>
+                <li class="menu-item {{ request()->routeIs('admin.wishlist.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.wishlist.index') }}" class="menu-link">
+                        <div>Wishlists</div>
                     </a>
                 </li>
             </ul>

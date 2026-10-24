@@ -73,8 +73,12 @@ class AppServiceProvider extends ServiceProvider
             $blade->component('backEnd.components.button', 'admin.button');
         });
 
-        // Don't load data from database during console commands or when database isn't ready
-        if ($this->app->runningInConsole()) {
+        // Don't load data from database during console commands or when database isn't ready.
+        // Unit tests run on the CLI SAPI too, but they render real pages that
+        // consume these shared views variables ($generalsetting, $contact, ...),
+        // so they must NOT be skipped - skipping here made every fm layout page
+        // 500 with "Undefined variable $generalsetting" under phpunit.
+        if ($this->app->runningInConsole() && ! $this->app->runningUnitTests()) {
             return;
         }
 
