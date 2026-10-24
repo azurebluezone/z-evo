@@ -144,5 +144,9 @@ Only browser console error on `/` is a pre-existing missing asset,
 
 **Verified by:** `curl` with a cookie jar on `/`, `/hot-deals`, `/offer`;
 `POST /events/collect` in six variants; `php artisan tinker` row inspection;
-Playwright `outbox.mjs` (ack + failure), `cookie.mjs` (HttpOnly proof),
-`r404.mjs`; `php -l`, Blade `compileString`, `node --check`.
+`tests/tracking/outbox.mjs` (ack + failure), `tests/tracking/cookie.mjs`
+(HttpOnly proof), `tests/tracking/dedupe.php`, `tests/tracking/bladecheck.php`;
+`php -l`, Blade `compileString`, `node --check`.
+
+The scripts are committed so the same checks can be re-run:
+`php tests/tracking/dedupe.php`, `node tests/tracking/outbox.mjs`.
