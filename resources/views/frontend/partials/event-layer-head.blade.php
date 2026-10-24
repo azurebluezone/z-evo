@@ -8,10 +8,33 @@
             }
         }
     }
+
+    // Tracking identity for this render. Both values are set by VisitorIdentify;
+    // the cookie fallback keeps the partial safe when it is included from a view
+    // that was rendered outside the middleware (templates/* previews).
+    $trackVisitorId = request()->attributes->get('visitor_id') ?: request()->cookie('visitor_id');
+    $trackSessionId = request()->attributes->get('session_id') ?: request()->cookie('session_id');
+    $trackToken = null;
+
+    if (is_string($trackVisitorId) && $trackVisitorId !== ''
+        && is_string($trackSessionId) && $trackSessionId !== '') {
+        $trackToken = \App\Support\TrackToken::issue($trackVisitorId, $trackSessionId);
+    }
 @endphp
 
 <script>
     window.dataLayer = window.dataLayer || [];
+
+    // The only thing the page is given about this visit. `visitor_id` and
+    // `session_id` stay HttpOnly; this token proves to /events/collect that the
+    // visitor_id in the body was issued by us and belongs to this session.
+    window.__TRACK__ = {
+        token: @json($trackToken['token'] ?? null),
+        exp: @json($trackToken['exp'] ?? null),
+        page_path: @json('/' . ltrim(request()->path(), '/')),
+        server_url: @json(request()->fullUrl())
+    };
+
     window.__EVENT_LAYER__ = window.__EVENT_LAYER__ || {
         push: function (eventName, payload) {
             try {
@@ -27,6 +50,8 @@
         var IDLE_TIMEOUT = 30000; // 30 seconds idle threshold (Section 2)
         var idleTimer = null;
         var lastActivity = Date.now();
+        // Guards against two overlapping flushes removing each other's rows.
+        var inFlight = false;
 
         function getCookie(name) {
             try {
@@ -157,6 +182,9 @@
                 // genuinely browser-owned events mint a fresh one.
                 event_id: eventId || newEventId(),
                 url: meta.url ? meta.url : (location.href || null),
+                // Always set, even when the caller supplied no url: the admin
+                // journey view groups by this column, and NULL rows are invisible.
+                page_path: meta.page_path || (window.__TRACK__ && window.__TRACK__.page_path) || location.pathname || '/',
                 ts: (new Date()).toISOString()
             };
 
@@ -164,6 +192,8 @@
             if (typeof meta.scroll_depth === 'number') row.scroll_depth = meta.scroll_depth;
             if (meta.outbound_host) row.outbound_host = meta.outbound_host;
             if (meta.channel) row.channel = meta.channel;
+            if (meta.title) row.page_title = meta.title;
+            if (meta.referrer) row.referrer = meta.referrer;
 
             Object.keys(CLICK_IDS).forEach(function (key) { row[key] = CLICK_IDS[key]; });
 
@@ -258,33 +288,98 @@
                 idleTimer = null;
             }
 
+            if (inFlight) return;
+
             var q = readQueue();
             if (!q.length) return;
 
+            // One request at a time, bounded batch. A visitor who queued events
+            // while offline should not push a 200KB body through keepalive.
+            var batch = q.slice(0, MAX_BATCH);
             var payload = {
                 visitor_id: getCookie('visitor_id'),
-                events: q
+                events: batch
             };
 
+            if (window.__TRACK__ && window.__TRACK__.token) {
+                payload.track_token = window.__TRACK__.token;
+            }
+
+            var body;
             try {
-                writeQueue([]);
-                if (navigator.sendBeacon) {
-                    var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-                    navigator.sendBeacon('{{ url('/events/collect') }}', blob);
+                body = JSON.stringify(payload);
+            } catch (e) {
+                return;
+            }
+
+            var sentIds = batch.map(function (row) { return row.event_id; });
+            var settled = false;
+
+            function done(delivered) {
+                if (settled) return;
+                settled = true;
+                inFlight = false;
+
+                // The queue is only trimmed AFTER the server acknowledged it.
+                // Clearing it first (the old behaviour) lost every event that
+                // happened to be in flight when the tab closed or the network
+                // blinked; replaying is safe because event_id is unique.
+                if (delivered) {
+                    removeSent(sentIds);
+                    if (readQueue().length) {
+                        setTimeout(flush, 0);
+                    }
+                }
+            }
+
+            inFlight = true;
+
+            // 1) fetch with keepalive: works during unload and reports success.
+            try {
+                if (window.fetch) {
+                    fetch('{{ url('/events/collect') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: body,
+                        keepalive: body.length < 60000,
+                        credentials: 'same-origin'
+                    }).then(function (res) {
+                        done(!!(res && res.ok));
+                    }).catch(function () {
+                        done(false);
+                    });
+
                     return;
                 }
             } catch (e) {
             }
 
+            // 2) sendBeacon: no response, but `true` means the browser accepted
+            //    the request, which is the strongest ack available at unload.
             try {
-                fetch('{{ url('/events/collect') }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                    keepalive: true
-                }).catch(function () {});
+                if (navigator.sendBeacon) {
+                    var blob = new Blob([body], { type: 'application/json' });
+                    done(navigator.sendBeacon('{{ url('/events/collect') }}', blob) === true);
+                    return;
+                }
             } catch (e) {
             }
+
+            done(false);
+        }
+
+        /**
+         * Drop only the rows the server confirmed, keeping anything that was
+         * queued while the request was in flight.
+         */
+        function removeSent(sentIds) {
+            if (!sentIds || !sentIds.length) return;
+
+            var remaining = readQueue().filter(function (row) {
+                return sentIds.indexOf(row.event_id) === -1;
+            });
+
+            writeQueue(remaining);
         }
 
         function bindCheckoutFlush() {
@@ -396,7 +491,12 @@
     });
 
     try {
-        window.__EVENT_LOGGER__.queue('PageView', { url: '{{ url()->current() }}' });
+        window.__EVENT_LOGGER__.queue('PageView', {
+            url: '{{ url()->current() }}',
+            page_path: @json('/' . ltrim(request()->path(), '/')),
+            title: document.title,
+            referrer: document.referrer || null
+        });
     } catch (e) {
     }
 </script>

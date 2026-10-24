@@ -604,6 +604,7 @@ class CustomerController extends Controller
                         'event_id' => $purchaseEventId,
                         'url' => $request->fullUrl(),
                         'page_path' => '/checkout',
+                        'session_id' => $request->cookie('session_id'),
                         'ts' => now()->toIso8601String(),
                         'event_data' => $orderData,
                     ]],

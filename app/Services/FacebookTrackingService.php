@@ -118,6 +118,8 @@ class FacebookTrackingService
                     'name' => $eventName,
                     'event_id' => $eventId,
                     'url' => request()->fullUrl(),
+                    'page_path' => '/' . ltrim(request()->path(), '/'),
+                    'session_id' => request()->cookie('session_id'),
                     'ts' => time(),
                     'event_data' => $eventData,
                     'channel' => 'facebook',

@@ -50,6 +50,23 @@ class VisitorIdentify
             Cookie::queue(cookie('visitor_id', $visitorId, 60 * 24 * 365));
         }
 
+        // A visit is a first-class object: `session_id` groups the events of one
+        // sitting (30 minutes of silence starts a new one). The browser drops the
+        // cookie on its own after 30 idle minutes, so re-queueing it on every
+        // request is what makes the window roll forward - no server-side store.
+        // It stays HttpOnly, so the page never learns the raw value; the signed
+        // track token carries it to the collector instead.
+        $sessionId = $request->cookie('session_id');
+
+        if (empty($sessionId) || !Str::isUuid($sessionId)) {
+            $sessionId = (string) Str::uuid();
+        }
+
+        Cookie::queue(cookie('session_id', $sessionId, 30));
+
+        $request->attributes->set('visitor_id', $visitorId);
+        $request->attributes->set('session_id', $sessionId);
+
         $ip = (string) $request->getClientIp();
         $userAgent = $request->userAgent();
 

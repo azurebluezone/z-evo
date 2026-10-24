@@ -410,7 +410,14 @@ record, evidence and rollback: `docs/IMPL-tracking-t0-2026-10-24.md`. Measured
 result — one purchase produced exactly one `event_logs` row
 (`status=primary method=server matched=browser`), the relay rejects unknown
 events and non-shape ids, and `/`, `/offer`, `/hot-deals` no longer contain
-`G-1ME4K0RD7K`, `GTM-K29C9BKJ` or `googletagmanager`. P1 is next.
+`G-1ME4K0RD7K`, `GTM-K29C9BKJ` or `googletagmanager`.
+
+**P1 (= T1) is done as well** — `docs/IMPL-tracking-t1-2026-10-24.md`. The outbox
+now trims only after acknowledgement (network failure keeps the batch), every
+event carries `session_id` and a non-NULL `page_path`, and the collector verifies
+a signed `track_token` whose payload exposes no identifiers. `session_id` lives in
+the existing `event_details` JSON — **no new table, no new column**. P2 (consent)
+is next.
 
 ---
 

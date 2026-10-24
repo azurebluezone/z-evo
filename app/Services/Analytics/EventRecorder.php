@@ -112,7 +112,7 @@ class EventRecorder
                 'event_name' => $name,
                 'event_id' => $eventId,
                 'url' => $url,
-                'page_path' => $this->pagePathFromUrl($url),
+                'page_path' => $this->pickPagePath($event, $url),
                 'event_details' => $this->encodeDetails($event),
                 'event_time' => $occurredAt,
                 'tracking_method' => $trackingMethod,
@@ -310,6 +310,21 @@ class EventRecorder
     }
 
     /**
+     * An explicit `page_path` wins: the client already knows the route and the
+     * collector normalises it. Deriving from the URL is the legacy fallback.
+     *
+     * @param  array<string, mixed>  $event
+     */
+    private function pickPagePath(array $event, ?string $url): ?string
+    {
+        if (!empty($event['page_path']) && is_string($event['page_path'])) {
+            return $this->clamp($event['page_path'], 500);
+        }
+
+        return $this->pagePathFromUrl($url);
+    }
+
+    /**
      * @param  array<string, mixed>  $event
      */
     private function pagePathFromUrl(?string $url): ?string
@@ -378,7 +393,8 @@ class EventRecorder
                 $event['ts'], $event['event_time'], $event['event_id'],
                 $event['channel'], $event['click_target'], $event['outbound_host'],
                 $event['scroll_depth'], $event['fbclid'], $event['ttclid'],
-                $event['gclid'], $event['name'], $event['event_name']
+                $event['gclid'], $event['name'], $event['event_name'],
+                $event['page_path']
             );
 
             $details = $event;

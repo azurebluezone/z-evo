@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\VisitorMaster;
 use App\Services\Analytics\EventRecorder;
 use App\Support\TrackingEvents;
+use App\Support\TrackToken;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -23,9 +24,36 @@ class EventCollectController extends Controller
 
     public function collect(Request $request)
     {
-        $visitorId = $request->input('visitor_id');
-        if (empty($visitorId)) {
-            $visitorId = $request->cookie('visitor_id');
+        // Identity is proven, not asserted: a valid signed token overrides both
+        // the cookie and the body. Without one, a body visitor_id that disagrees
+        // with the cookie is rejected instead of being allowed to poison another
+        // visitor's timeline. A cached page with no token at all still works.
+        $token = $request->input('track_token');
+        $token = is_string($token) ? $token : null;
+
+        $cookieVisitorId = $request->cookie('visitor_id');
+        $cookieSessionId = $request->cookie('session_id');
+        $bodyVisitorId = $request->input('visitor_id');
+
+        $hasToken = is_string($token) && $token !== '';
+
+        if ($hasToken && !TrackToken::verify($token, $cookieVisitorId, $cookieSessionId)) {
+            return response()->json(['message' => 'Invalid track_token'], 422);
+        }
+
+        if ($hasToken) {
+            // The token proves the cookies; the body is never trusted over them.
+            $visitorId = $cookieVisitorId;
+            $sessionId = $cookieSessionId;
+        } else {
+            if (is_string($bodyVisitorId) && $bodyVisitorId !== ''
+                && is_string($cookieVisitorId) && $cookieVisitorId !== ''
+                && $bodyVisitorId !== $cookieVisitorId) {
+                return response()->json(['message' => 'visitor_id mismatch'], 422);
+            }
+
+            $visitorId = $cookieVisitorId ?: $bodyVisitorId;
+            $sessionId = $cookieSessionId;
         }
 
         if (empty($visitorId) || !Str::isUuid($visitorId)) {
@@ -86,6 +114,8 @@ class EventCollectController extends Controller
             $event['fbclid'] = $event['fbclid'] ?? $request->query('fbclid');
             $event['ttclid'] = $event['ttclid'] ?? $request->query('ttclid');
             $event['gclid'] = $event['gclid'] ?? $request->query('gclid');
+            $event['session_id'] = $sessionId;
+            $event['page_path'] = $this->resolvePagePath($event);
         }
         unset($event);
 
@@ -116,5 +146,33 @@ class EventCollectController extends Controller
     private function isAllowedEventName($name): bool
     {
         return TrackingEvents::isAllowed(is_string($name) ? $name : null);
+    }
+
+    /**
+     * Every row must have a page path: the journey view groups by it, and a NULL
+     * silently disappears from the funnel. Client-side rows now send it, but a
+     * cached legacy page may only send `url`, so derive it here as a fallback.
+     *
+     * @param  array<string, mixed>  $event
+     */
+    private function resolvePagePath(array $event): string
+    {
+        if (!empty($event['page_path']) && is_string($event['page_path'])) {
+            return mb_substr($event['page_path'], 0, 500);
+        }
+
+        foreach (['url', 'page_url', 'event_source_url'] as $key) {
+            if (empty($event[$key]) || !is_string($event[$key])) {
+                continue;
+            }
+
+            $path = parse_url($event[$key], PHP_URL_PATH);
+
+            if (is_string($path) && $path !== '') {
+                return mb_substr($path, 0, 500);
+            }
+        }
+
+        return '/';
     }
 }
