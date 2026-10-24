@@ -45,6 +45,14 @@ class FacebookTrackingService
             return false;
         }
 
+        // Consent gate: no marketing permission, no fan-out. The event itself is
+        // already stored first-party with consent_state=denied by the caller, so
+        // the funnel stays honest instead of silently empty.
+        if (!\App\Support\Consent::marketing()) {
+            Log::info('Facebook CAPI skipped: marketing consent not granted', ['event' => $eventName]);
+            return false;
+        }
+
         $eventId = $this->normaliseEventId($eventId) ?? $this->generateEventId();
 
         try {

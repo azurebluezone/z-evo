@@ -154,8 +154,29 @@
     // ──────────────────────────────────────────────
     // 4b. Client-Side Event (Facebook Pixel)
     // ──────────────────────────────────────────────
+    /**
+     * Marketing consent gate.
+     *
+     * The server already refuses to print the pixel and refuses to forward CAPI
+     * events when marketing consent is denied; this is the second lock, so a page
+     * rendered before the choice was changed cannot keep firing in the tab.
+     */
+    FacebookTracker.prototype.marketingAllowed = function () {
+        if (!this.enabled) return false;
+
+        try {
+            if (window.__CONSENT__ && window.__CONSENT__.marketing !== 'granted') {
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
+
+        return true;
+    };
+
     FacebookTracker.prototype.sendClientEvent = function (eventName, eventData, eventId) {
-        if (!this.enabled || !window.fbq) return;
+        if (!this.marketingAllowed() || !window.fbq) return;
 
         try {
             var params = eventData || {};
@@ -174,7 +195,7 @@
     // 4c. Server-Side Event (via /api/facebook/track)
     // ──────────────────────────────────────────────
     FacebookTracker.prototype.sendServerEvent = function (eventName, eventData, eventId) {
-        if (!this.enabled || !this.serverSide) return;
+        if (!this.marketingAllowed() || !this.serverSide) return;
 
         var userData = this.getUserData();
         var payload = {

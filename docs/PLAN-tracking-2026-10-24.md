@@ -443,8 +443,13 @@ events and non-shape ids, and `/`, `/offer`, `/hot-deals` no longer contain
 now trims only after acknowledgement (network failure keeps the batch), every
 event carries `session_id` and a non-NULL `page_path`, and the collector verifies
 a signed `track_token` whose payload exposes no identifiers. `session_id` lives in
-the existing `event_details` JSON — **no new table, no new column**. P2 (consent)
-is next.
+the existing `event_details` JSON — **no new table, no new column**.
+
+**P2 (= T2) is done too** — `docs/IMPL-tracking-t2-2026-10-24.md`. Consent is
+denied by default, the server (not the body) decides, a grant reloads once so the
+vendor scripts can be printed server-side, and the collector only accepts
+same-origin calls. The blocked-mode matrix in §7 passes in Chromium, including
+`localStorage` blocked and cookies cleared. **P3 (sGTM) is next.**
 
 ---
 

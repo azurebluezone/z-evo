@@ -20,6 +20,13 @@
         && is_string($trackSessionId) && $trackSessionId !== '') {
         $trackToken = \App\Support\TrackToken::issue($trackVisitorId, $trackSessionId);
     }
+
+    // Consent decides which vendor scripts may be printed at all. Defaults are
+    // denied, so a first visit loads no pixel and no container; the banner asks,
+    // and a grant reloads the page once so the server can print what it allowed.
+    $consentState = \App\Support\Consent::state();
+    $consentAnalytics = $consentState['analytics'] === \App\Support\Consent::GRANTED;
+    $consentMarketing = $consentState['marketing'] === \App\Support\Consent::GRANTED;
 @endphp
 
 <script>
@@ -33,6 +40,19 @@
         exp: @json($trackToken['exp'] ?? null),
         page_path: @json('/' . ltrim(request()->path(), '/')),
         server_url: @json(request()->fullUrl())
+    };
+
+    // Server-rendered consent state for this request. `server*` is what the page
+    // was built with; `analytics`/`marketing` is what the cookie says now.
+    window.__CONSENT__ = {
+        version: {{ \App\Support\Consent::VERSION }},
+        ttlDays: {{ \App\Support\Consent::TTL_DAYS }},
+        analytics: @json($consentState['analytics']),
+        marketing: @json($consentState['marketing']),
+        decided: @json($consentState['decided']),
+        serverAnalytics: @json($consentState['analytics']),
+        serverMarketing: @json($consentState['marketing']),
+        page: @json('/' . ltrim(request()->path(), '/'))
     };
 
     window.__EVENT_LAYER__ = window.__EVENT_LAYER__ || {
@@ -61,20 +81,38 @@
             return null;
         }
 
+        // localStorage can throw on the very first access (Safari private mode,
+        // "block all cookies", storage quota). When that happens the queue moves
+        // to memory for the life of the page instead of silently dropping every
+        // event: the visitor still gets counted during this visit, it just cannot
+        // survive a navigation.
+        var memoryQueue = null;
+
         function readQueue() {
+            if (memoryQueue !== null) {
+                return memoryQueue.slice();
+            }
+
             try {
                 var raw = localStorage.getItem(STORAGE_KEY);
                 var parsed = raw ? JSON.parse(raw) : [];
                 return Array.isArray(parsed) ? parsed : [];
             } catch (e) {
+                memoryQueue = [];
                 return [];
             }
         }
 
         function writeQueue(queue) {
+            if (memoryQueue !== null) {
+                memoryQueue = queue || [];
+                return;
+            }
+
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(queue || []));
             } catch (e) {
+                memoryQueue = queue || [];
             }
         }
 
@@ -290,6 +328,16 @@
 
             if (inFlight) return;
 
+            // Cookies blocked: every request would be rejected with 422 (the
+            // collector has no visitor_id to work with). Skip the network call
+            // and say it once instead of filling the console with failures.
+            try {
+                if (navigator.cookieEnabled === false) {
+                    noteRejected();
+                    return;
+                }
+            } catch (e) {}
+
             var q = readQueue();
             if (!q.length) return;
 
@@ -344,6 +392,9 @@
                         keepalive: body.length < 60000,
                         credentials: 'same-origin'
                     }).then(function (res) {
+                        if (res && res.status === 422) {
+                            noteRejected();
+                        }
                         done(!!(res && res.ok));
                     }).catch(function () {
                         done(false);
@@ -366,6 +417,23 @@
             }
 
             done(false);
+        }
+
+        /**
+         * A 422 from the collector almost always means the visitor_id cookie is
+         * unavailable (blocked cookies) or the signed token expired. Say it once,
+         * at info level: the page must keep working and the console must not fill
+         * with red errors for a privacy choice.
+         */
+        var rejectionNoted = false;
+
+        function noteRejected() {
+            if (rejectionNoted) return;
+            rejectionNoted = true;
+
+            try {
+                console.info('Tracking paused: the collector rejected this request (422). The page continues normally.');
+            } catch (e) {}
         }
 
         /**
@@ -501,7 +569,9 @@
     }
 </script>
 
-@if($gtmContainerId)
+@include('frontend.partials.consent-banner')
+
+@if($gtmContainerId && $consentAnalytics)
     <script>
         (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -511,7 +581,7 @@
     </script>
 @endif
 
-@if(!empty($generalsetting?->tiktok_pixel_id) && ($generalsetting?->tiktok_browser_tracking ?? false))
+@if(!empty($generalsetting?->tiktok_pixel_id) && ($generalsetting?->tiktok_browser_tracking ?? false) && $consentMarketing)
     <script>
         (function (w, d, t) {
             w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var o=d.createElement("script");o.type="text/javascript";o.async=!0;o.src=i+"?sdkid="+e+"&lib="+t;var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
@@ -533,8 +603,8 @@
     @endif
 @endif
 
-@if(!empty($generalsetting?->facebook_pixel_id))
-    {{-- Facebook Pixel --}}
+@if(!empty($generalsetting?->facebook_pixel_id) && $consentMarketing)
+    {{-- Facebook Pixel: printed only after the visitor allowed marketing. --}}
     <script>
         !function(f,b,e,v,n,t,s)
         {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -555,7 +625,7 @@
     {{-- Facebook Tracking Config --}}
     <script>
         window.facebookTrackingConfig = {
-            enabled: true,
+            enabled: {{ $consentMarketing ? 'true' : 'false' }},
             pixelId: '{{ $generalsetting->facebook_pixel_id }}',
             // The Conversions API token is deliberately NOT printed here. The
             // browser posts to /api/facebook/track and the server attaches the

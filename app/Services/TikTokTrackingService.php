@@ -36,6 +36,11 @@ class TikTokTrackingService
             return false;
         }
 
+        if (!\App\Support\Consent::marketing()) {
+            Log::info('TikTok Events API skipped: marketing consent not granted', ['event' => $eventName]);
+            return false;
+        }
+
         $eventId = $this->normaliseEventId($eventId) ?? $this->generateEventId();
 
         try {

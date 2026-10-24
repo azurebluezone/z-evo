@@ -734,6 +734,11 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
         return view('frontend.pages.about-us');
     })->name('about.us');
 
+    // Cookie page + preference panel. ThemeViewFinder resolves the fm view when
+    // the modern template is active, so both themes get a page in their own skin.
+    Route::get('privacy/cookies', [\App\Http\Controllers\Frontend\ConsentController::class, 'show'])
+        ->name('consent.page');
+
     Route::get('cart', function () {
         return redirect()->route('cart.show');
     })->name('cart.index');

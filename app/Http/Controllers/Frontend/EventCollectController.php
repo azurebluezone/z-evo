@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\VisitorMaster;
 use App\Services\Analytics\EventRecorder;
+use App\Support\Consent;
 use App\Support\TrackingEvents;
 use App\Support\TrackToken;
 use Carbon\Carbon;
@@ -24,6 +25,10 @@ class EventCollectController extends Controller
 
     public function collect(Request $request)
     {
+        if (!$this->originAllowed($request)) {
+            return response()->json(['message' => 'Origin not allowed'], 403);
+        }
+
         // Identity is proven, not asserted: a valid signed token overrides both
         // the cookie and the body. Without one, a body visitor_id that disagrees
         // with the cookie is rejected instead of being allowed to poison another
@@ -116,6 +121,9 @@ class EventCollectController extends Controller
             $event['gclid'] = $event['gclid'] ?? $request->query('gclid');
             $event['session_id'] = $sessionId;
             $event['page_path'] = $this->resolvePagePath($event);
+            // Server-side truth, not the browser's claim: the cookie is the only
+            // place consent is actually stored, so a script cannot assert it.
+            $event['consent'] = Consent::forEvent($request);
         }
         unset($event);
 
@@ -146,6 +154,70 @@ class EventCollectController extends Controller
     private function isAllowedEventName($name): bool
     {
         return TrackingEvents::isAllowed(is_string($name) ? $name : null);
+    }
+
+    /**
+     * The endpoint is public by necessity (sendBeacon carries no CSRF token), so
+     * it is restricted to our own pages instead.
+     *
+     * Order of checks:
+     *   1. `Sec-Fetch-Site: cross-site` is a hard no - the browser states it.
+     *   2. An explicit Origin must match an allowed host.
+     *   3. Otherwise a Referer must match; sendBeacon always sends one from a page.
+     *   4. Neither header present means a non-browser caller. There is no identity
+     *      to steal in that case (a random UUID buys nothing), so it is allowed
+     *      rather than breaking CLI probes and old clients.
+     */
+    private function originAllowed(Request $request): bool
+    {
+        $site = strtolower((string) $request->headers->get('sec-fetch-site'));
+
+        if ($site === 'cross-site') {
+            return false;
+        }
+
+        $allowed = $this->allowedHosts();
+
+        $origin = $request->headers->get('origin');
+
+        if (is_string($origin) && $origin !== '' && strtolower($origin) !== 'null') {
+            return in_array($this->hostOf($origin), $allowed, true);
+        }
+
+        $referer = $request->headers->get('referer');
+
+        if (is_string($referer) && $referer !== '') {
+            return in_array($this->hostOf($referer), $allowed, true);
+        }
+
+        return true;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function allowedHosts(): array
+    {
+        $hosts = [
+            $this->hostOf((string) config('app.url')),
+            $this->hostOf((string) config('tracking.host')),
+            // The host that served the page. An attacker's Origin is their own
+            // host, never ours, so including this does not widen the trust.
+            strtolower((string) request()->getHost()),
+        ];
+
+        return array_values(array_unique(array_filter($hosts)));
+    }
+
+    private function hostOf(?string $url): string
+    {
+        if (!is_string($url) || $url === '') {
+            return '';
+        }
+
+        $host = parse_url(str_contains($url, '://') ? $url : 'https://' . $url, PHP_URL_HOST);
+
+        return is_string($host) ? strtolower($host) : '';
     }
 
     /**
