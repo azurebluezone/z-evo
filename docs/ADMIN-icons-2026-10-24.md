@@ -193,6 +193,9 @@ ADMIN_EMAIL=… ADMIN_PASSWORD=… node tools/admin-icons-check.mjs   # → exit
 
 ## 8. Next
 
-1. Human visual pass over the admin screens the probe does not cover (courier settings, recommendations, order edit, product edit — the files with the most swept tags).
-2. Port the four legacy storefront e2e specs (see `docs/HEADER-STATUS-2026-10-24.md` §8.2).
-3. `/offers` renders the classic header because of the `/offer` route; topbar phone/WhatsApp settings are still NULL.
+The live list lives in `docs/BACKLOG-2026-10-24.md`. This page's own leftovers:
+
+1. Human visual pass over the admin screens the probe does not cover (courier
+   settings, recommendations, order edit, product edit — the files with the most
+   swept tags).
+2. Port the legacy storefront e2e specs (see `docs/BACKLOG-2026-10-24.md` P1).

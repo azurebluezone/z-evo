@@ -14,7 +14,20 @@ class FlashSaleController extends Controller
     public function index()
     {
         $flash_sales = FlashSale::orderByDesc('id')->withCount('products')->get();
-        return view('backEnd.flash-sale.index', compact('flash_sales'));
+
+        /*
+         * Headline numbers for the manage screen. They come from the same
+         * scopes the storefront uses (`active`, `running`), so the dashboard
+         * cannot disagree with what customers actually see.
+         */
+        $stats = [
+            'total' => FlashSale::count(),
+            'active' => FlashSale::active()->count(),
+            'running' => FlashSale::running()->count(),
+            'products' => (int) \DB::table('flash_sale_products')->distinct()->count('product_id'),
+        ];
+
+        return view('backEnd.flash-sale.index', compact('flash_sales', 'stats'));
     }
 
     public function create()
