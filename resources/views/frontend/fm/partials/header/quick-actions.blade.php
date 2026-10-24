@@ -33,7 +33,7 @@
          CSS must not target the drawer id, because that id moved once already
          and the tap target silently dropped to 28px when it did. --}}
     <button aria-controls="fmSearchDrawer" aria-expanded="false" aria-label="Open search"
-            class="md:hidden fm-search-open inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-2 text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors border-0 bg-transparent"
+            class="lg:hidden fm-search-open inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-2 text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors border-0 bg-transparent"
             data-bs-target="#fmSearchDrawer" data-bs-toggle="offcanvas" type="button">
         <i class="bi bi-search text-lg"></i>
     </button>

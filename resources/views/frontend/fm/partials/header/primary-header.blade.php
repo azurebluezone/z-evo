@@ -96,7 +96,14 @@
             {{-- Omni-search bar. Category picker, field and both AI triggers; the AI
                  triggers are components of their own under fm/sections/ai, and the bar is
                  one under fm/partials/header. --}}
-            <div class="flex-1 min-w-0 max-w-2xl hidden md:block relative">
+            {{-- Inline search appears at lg, not md.
+                 At 768-1023px the row already carries the logo, the account
+                 control and the cart pill; squeezing the field in between left
+                 it 114px wide at 768px (measured), which cuts the placeholder
+                 and is unusable for typing. Below lg the search icon in
+                 quick-actions opens the same search component in a drawer, so
+                 nothing is lost - and the bar keeps 44px tap targets. --}}
+            <div class="flex-1 min-w-0 max-w-2xl hidden lg:block relative">
                 @include('frontend.fm.partials.header.search-bar')
             </div>
 

@@ -89,10 +89,14 @@
 
     {{-- Pricing box --}}
     <div class="p-4 md:p-5 rounded-2xl bg-gray-50 border border-gray-200/80 flex flex-wrap items-center justify-between gap-4 shadow-sm fm-detail-pricebox" id="fmDetailPriceBox">
-        <div class="flex items-baseline gap-3">
-            <span class="text-3xl md:text-4xl font-extrabold text-emerald-900 tracking-tight" id="fmDetailPrice">Tk {{ $fmProduct->new_price }}</span>
-            <span class="text-lg text-gray-400 line-through {{ $fmDetailsOldPrice ? '' : 'hidden' }}" id="fmDetailOldPrice">Tk {{ $fmOldPrice }}</span>
-            <span class="text-xs font-bold bg-amber-400 text-slate-900 px-2.5 py-1 rounded-md shadow-sm {{ $fmDetailsOldPrice ? '' : 'hidden' }}" id="fmDetailSave">
+        {{-- gap-y + wrap: at 390px the old price and the save badge used to be
+             squeezed onto the price's line and both broke mid-number
+             ("Tk" / "350"). Wrapping the group and pinning each figure to one
+             line keeps every amount readable; nothing is hidden. --}}
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-emerald-900 tracking-tight whitespace-nowrap" id="fmDetailPrice">Tk {{ $fmProduct->new_price }}</span>
+            <span class="text-base sm:text-lg text-gray-500 line-through whitespace-nowrap {{ $fmDetailsOldPrice ? '' : 'hidden' }}" id="fmDetailOldPrice">Tk {{ $fmOldPrice }}</span>
+            <span class="text-xs font-bold bg-amber-400 text-slate-900 px-2.5 py-1 rounded-md shadow-sm whitespace-nowrap {{ $fmDetailsOldPrice ? '' : 'hidden' }}" id="fmDetailSave">
                 Save Tk <span id="fmDetailSaveAmount">{{ $fmSaveAmount }}</span> (<span id="fmDetailSavePct">{{ $fmSavePct }}</span>%)
             </span>
         </div>

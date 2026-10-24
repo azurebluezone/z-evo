@@ -79,3 +79,6 @@ Thumbs.db
 
 # Another agent toolkit's scratch screenshots (2.6MB), not tests
 /tests/e2e/work/
+
+# Local responsive QA harness (iframe viewport tests), never shipped
+/public/__qa/

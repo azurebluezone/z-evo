@@ -52,7 +52,9 @@
   --fm-card-primary-dark: #065f46;
   --fm-card-primary-subtle: #ecfdf5;
   --fm-card-text-dark: #111827;
-  --fm-card-text-light: #9ca3af;
+  /* WCAG AA: #9ca3af on white is 2.54:1 - the struck-through old price was
+     unreadable at 13px. #6b7280 is 4.83:1 and still visibly secondary. */
+  --fm-card-text-light: #6b7280;
   --fm-card-border: #e5e7eb;
   --fm-card-radius: 12px;
   --fm-card-radius-sm: 6px;
@@ -277,8 +279,8 @@
   flex-shrink: 0;
 }
 
-.fm-badge-organic { background: #059669; color: #ffffff; }
-.fm-badge-sale    { background: #ef4444; color: #ffffff; }
+.fm-badge-organic { background: #047857; color: #ffffff; }  /* 5.48:1; #059669 was 3.77:1 */
+.fm-badge-sale    { background: #dc2626; color: #ffffff; }  /* white on #dc2626 = 4.83:1; #ef4444 was 3.76:1 */
 .fm-badge-amber   { background: #d97706; color: #ffffff; }
 .fm-badge-pure    { background: #0d9488; color: #ffffff; }
 .fm-badge-blue    { background: #0284c7; color: #ffffff; }
@@ -326,7 +328,10 @@
 .fm-price-current {
   font-size: 18px;
   font-weight: 800;
-  color: var(--fm-card-primary);
+  /* primary-dark (8.3:1), not primary: 18px/800 is below the 18.66px bold
+     large-text threshold, so it needs the 4.5:1 body ratio and #059669 gave
+     only 3.77:1. */
+  color: var(--fm-card-primary-dark);
 }
 
 .fm-price-regular {
@@ -384,9 +389,11 @@
 }
 
 .fm-btn-order-primary {
-  background: var(--fm-card-primary);
+  /* #047857 keeps the brand green at 5.48:1 against white text; the old
+     #059669 measured 3.77:1 for a 12px/700 label. */
+  background: #047857;
   color: #ffffff;
-  border: 1px solid var(--fm-card-primary);
+  border: 1px solid #047857;
 }
 
 .fm-btn-order-primary:hover {
