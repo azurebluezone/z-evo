@@ -28,7 +28,7 @@
 <!-- Search Filters -->
 <div class="card mb-6">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="icon-base ri ri-filter-search-line me-2"></i>Filter & Search</h5>
+        <h5 class="mb-0"><i class="icon-base ri ri-filter-3-line me-2"></i>Filter & Search</h5>
         <x-admin.button variant="outline-secondary" size="sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
             <i class="icon-base ri ri-arrow-down-s-line"></i>
         </x-admin.button>

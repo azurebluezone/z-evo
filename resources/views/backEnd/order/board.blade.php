@@ -11,7 +11,7 @@
                 <h4 class="page-title mb-0">Order Board</h4>
                 <div class="page-title-right d-flex gap-2">
                     <a href="{{ route('admin.orders', ['slug' => 'all']) }}" class="btn btn-outline-secondary btn-square waves-effect">
-                        <i class="ri-list-check-line me-1"></i> List view
+                        <i class="ri ri-list-check me-1"></i> List view
                     </a>
                 </div>
             </div>

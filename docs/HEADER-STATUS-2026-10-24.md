@@ -122,7 +122,7 @@ Backups (pre-change): `/tmp/opencode/header-bak/`.
 2. **Fix the 4 legacy e2e specs** (`homepage-journey`, `user-journey`, `quantity-button-performance`, `phase2-optimistic-reconcile`, `variant-switch-no-reload`). They query classic-theme selectors that do not exist in the modern theme: `.product-card` = 0, `.addToCart` = 0, `.product-card-qty-plus` = 0 on `/` today (`.fm-product-card` = 36). **Pre-existing drift, not caused by this change** — the header edit touches no product-card markup. Either port them to `fm-*` selectors or scope them to the classic theme.
 3. **Bootstrap vs Tailwind `gap-*` collision audit.** Bootstrap 5.3's `.gap-*` uses `!important` with a different scale (`.gap-3` = 1rem vs Tailwind 0.75rem), so every element relying on Tailwind `gap-*` is silently off. Header is fixed; other sections should be audited with the same CDP `CSS.getMatchedStylesForNode` method.
 4. **`/offers` renders the classic header.** The route resolves to `/offer` and returns the classic layout (`fmHeader: false`, `.header-area` present). Pre-existing; needs a modern view or a redirect decision.
-5. **Move the verification scripts** (`/tmp/opencode/header-metrics.mjs`, `header-verify.mjs`) into `tests/e2e/tools/` so the measurements are reproducible from the repo.
+5. ~~**Move the verification scripts** into `tests/e2e/tools/`~~ — done 2026-10-24: `tools/header-metrics.mjs`, `tools/header-verify.mjs`, `tools/admin-icons-check.mjs` (env-gated credentials).
 6. **AI triggers are static** (`fm-ai.js` drawer exists; product-photo path not wired). Separate feature.
 
 ---

@@ -379,7 +379,7 @@
             <div class="col-12 col-xl-6">
                 <div class="card h-100 border border-danger border-opacity-25">
                     <div class="card-header bg-danger bg-opacity-10">
-                        <h5 class="mb-0 text-danger"><i class="ri-shield-alert-line"></i> Safety & Support Alerts</h5>
+                        <h5 class="mb-0 text-danger"><i class="ri ri-error-warning-line"></i> Safety & Support Alerts</h5>
                     </div>
                     <div class="card-body">
                         <!-- Failed Login Attempts -->

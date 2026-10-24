@@ -28,5 +28,10 @@
      small screens. Must load after core.css / demo.css. -->
 <link rel="stylesheet" href="{{ asset('admin/assets/css/admin-responsive.css') }}" />
 
+<!-- Admin icon layer: restores the mask box for the legacy `ri-*` icons that
+     never got the `.ri` base class, and pins the password-visibility control.
+     Must load after iconify-icons.css. -->
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-icons.css') }}" />
+
 @stack('css')
 @stack('styles')

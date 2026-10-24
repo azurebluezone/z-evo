@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Admin — icon base-class shim + password visibility toggle
+   Loaded after iconify-icons.css / core.css / demo.css / admin-responsive.css.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Remix icon base class
+
+   admin/assets/vendor/fonts/iconify-icons.css is MASK based, not font based:
+
+       .ri            display:inline-block; width:1em; height:1em;
+                      background-color:currentColor;
+                      -webkit-mask-image:var(--svg); mask-image:var(--svg);
+       .ri-eye-line   --svg:url("data:image/svg+xml,...");
+
+   The name class only carries the artwork. Without the `.ri` base class the
+   element has no box and no mask, so it renders 0x0 — an invisible glyph.
+
+   The admin views were written for the old font build (`<i class="ri-eye-line">`
+   worked because the font family did the drawing) and 329 <i> tags never got
+   the base class. Measured on /admin/change-password: the eye button was a
+   46x48 empty outline with a 0x0 icon inside it.
+
+   This shim restores the box for those call sites. It is scoped to <i> and
+   skips `.ri` itself, so the 702 correctly written call sites are untouched.
+   The canonical form is still `class="ri ri-eye-line"` — new markup should use
+   it; this rule exists so the old markup is not 329 hand edits plus a visual
+   regression pass.
+   -------------------------------------------------------------------------- */
+i[class*="ri-"]:not(.ri) {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  -webkit-mask-image: var(--svg);
+  mask-image: var(--svg);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* --------------------------------------------------------------------------
+   2. Password visibility toggle (.toggle-password)
+
+   It lives inside an .input-group, so the default .btn padding (7.7px 22px)
+   made it 46px wide and left the 1em glyph floating in a wide border box. Pin
+   a 48x48 square that matches the 48px control height, centre the glyph, and
+   give the "password is visible" state a real colour so the control tells the
+   truth about what it is doing.
+   -------------------------------------------------------------------------- */
+.input-group .toggle-password {
+  width: 48px;
+  min-width: 48px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem; /* 18px glyph; the icon is 1em */
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.input-group .toggle-password > i {
+  font-size: 1em;
+  line-height: 1;
+}
+
+.input-group .toggle-password:hover {
+  background: #f2f3f5;
+  color: #384551;
+}
+
+.input-group .toggle-password:focus-visible {
+  outline: 2px solid var(--bs-primary, #666cff);
+  outline-offset: -2px;
+}
+
+.input-group .toggle-password[aria-pressed="true"] {
+  background: #e7e7ff;
+  border-color: var(--bs-primary, #666cff);
+  color: var(--bs-primary, #666cff);
+}
+
+/* --------------------------------------------------------------------------
+   3. Legacy size utilities
+
+   The old font build shipped `.ri-3x` / `.ri-lg` as font-size helpers. The mask
+   build sizes with width/height, so those classes became no-ops and the
+   empty-state icons collapsed to 1em. Two call sites use them; map them here
+   rather than leaving a 16px icon where a 48px one is intended.
+   -------------------------------------------------------------------------- */
+i.ri-3x {
+  width: 3em;
+  height: 3em;
+}
+
+i.ri-lg {
+  width: 1.33em;
+  height: 1.33em;
+}

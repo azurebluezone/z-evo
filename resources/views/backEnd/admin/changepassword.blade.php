@@ -32,8 +32,10 @@
                                 <label for="old_password" class="form-label fw-semibold">Old Password *</label>
                                 <div class="input-group">
                                     <input type="password" class="form-control rounded-0 @error('old_password') is-invalid @enderror" name="old_password" id="old_password" placeholder="Enter old password" required="">
-                                    <x-admin.button variant="outline-secondary" class="toggle-password rounded-0" type="button" data-target="#old_password">
-                                        <i class="ri-eye-off-line"></i>
+                                    <x-admin.button variant="outline-secondary" class="toggle-password rounded-0" type="button"
+                                        data-target="#old_password" data-label="old password"
+                                        aria-controls="old_password" aria-label="Show old password" aria-pressed="false">
+                                        <i aria-hidden="true" class="ri ri-eye-off-line"></i>
                                     </x-admin.button>
                                 </div>
                                 @error('old_password')
@@ -49,8 +51,10 @@
                                 <label for="new_password" class="form-label fw-semibold">New Password *</label>
                                 <div class="input-group">
                                     <input type="password" class="form-control rounded-0 @error('new_password') is-invalid @enderror" name="new_password" id="new_password" placeholder="Enter new password" required="">
-                                    <x-admin.button variant="outline-secondary" class="toggle-password rounded-0" type="button" data-target="#new_password">
-                                        <i class="ri-eye-off-line"></i>
+                                    <x-admin.button variant="outline-secondary" class="toggle-password rounded-0" type="button"
+                                        data-target="#new_password" data-label="new password"
+                                        aria-controls="new_password" aria-label="Show new password" aria-pressed="false">
+                                        <i aria-hidden="true" class="ri ri-eye-off-line"></i>
                                     </x-admin.button>
                                 </div>
                                 @error('new_password')
@@ -66,8 +70,10 @@
                                 <label for="confirm_password" class="form-label fw-semibold">Confirm Password *</label>
                                 <div class="input-group">
                                     <input type="password" class="form-control rounded-0 @error('confirm_password') is-invalid @enderror" name="confirm_password" id="confirm_password" placeholder="Confirm new password" required="">
-                                    <x-admin.button variant="outline-secondary" class="toggle-password rounded-0" type="button" data-target="#confirm_password">
-                                        <i class="ri-eye-off-line"></i>
+                                    <x-admin.button variant="outline-secondary" class="toggle-password rounded-0" type="button"
+                                        data-target="#confirm_password" data-label="confirm password"
+                                        aria-controls="confirm_password" aria-label="Show confirm password" aria-pressed="false">
+                                        <i aria-hidden="true" class="ri ri-eye-off-line"></i>
                                     </x-admin.button>
                                 </div>
                                 @error('confirm_password')
@@ -88,16 +94,33 @@
 
 @section('script')
 <script>
-    document.querySelectorAll('.toggle-password').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var target = document.querySelector(this.getAttribute('data-target'));
-            if (target.type === 'password') {
-                target.type = 'text';
-                this.querySelector('i').className = 'ri-eye-line';
-            } else {
-                target.type = 'password';
-                this.querySelector('i').className = 'ri-eye-off-line';
-            }
+    /*
+     * Password visibility toggle.
+     *
+     * The icon classes are the MASK-based Remix build, so the base `ri` class is
+     * load-bearing: `className = 'ri-eye-line'` alone drops it and the glyph
+     * collapses to 0x0 (the empty button this control used to be).
+     *
+     * aria-pressed + aria-label are updated too, because a screen reader cannot
+     * see an eye icon change: the button must say what it is about to do.
+     */
+    document.querySelectorAll('.toggle-password').forEach(function (btn) {
+        var target = document.querySelector(btn.getAttribute('data-target'));
+        if (!target) return;
+
+        var icon = btn.querySelector('i');
+        var label = btn.getAttribute('data-label') || 'password';
+
+        btn.addEventListener('click', function () {
+            var reveal = target.type === 'password';
+
+            target.type = reveal ? 'text' : 'password';
+            icon.className = reveal ? 'ri ri-eye-line' : 'ri ri-eye-off-line';
+            btn.setAttribute('aria-pressed', reveal ? 'true' : 'false');
+            btn.setAttribute('aria-label', (reveal ? 'Hide ' : 'Show ') + label);
+
+            // Keep the caret where the user was typing.
+            target.focus({ preventScroll: true });
         });
     });
 </script>
