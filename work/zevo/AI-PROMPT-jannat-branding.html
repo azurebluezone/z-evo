@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jannat Mini Mart — AI Branding Prompt Pack</title>
+<style>
+  :root{
+    --green:#0f7a3d; --green-2:#22a65b; --cream:#f6f2e7; --ink:#12261b;
+    --muted:#5c6b62; --line:#dfe5df; --card:#ffffff; --warn:#b45309;
+    --radius:14px; --shadow:0 10px 28px rgba(18,38,27,.08);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font:16px/1.65 "Noto Sans Bengali","Segoe UI",system-ui,-apple-system,sans-serif;
+  }
+  header.top{
+    background:linear-gradient(135deg,#0b5c2e 0%,#0f7a3d 55%,#17914a 100%);
+    color:#fff; padding:34px 20px 28px;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+  .top h1{margin:0 0 6px;font-size:clamp(22px,3.4vw,34px);line-height:1.25}
+  .top p{margin:0;opacity:.9;max-width:70ch}
+  .badge{
+    display:inline-block;margin-bottom:14px;padding:4px 12px;border-radius:999px;
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);
+    font-size:13px;letter-spacing:.02em
+  }
+  main{padding:26px 20px 70px}
+  section{margin:0 0 34px}
+  h2{font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+  h2 .num{
+    width:26px;height:26px;flex:0 0 26px;border-radius:50%;
+    background:var(--green);color:#fff;font-size:13px;display:grid;place-items:center
+  }
+  .lede{color:var(--muted);margin:0 0 16px;max-width:78ch}
+  .grid{display:grid;gap:14px}
+  @media(min-width:760px){.grid.two{grid-template-columns:1fr 1fr}}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px
+  }
+  .card h3{margin:0 0 8px;font-size:16px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:15px}
+  .kv dt{color:var(--muted)}
+  .kv dd{margin:0;font-weight:600;word-break:break-word}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);font-size:15px}
+  th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#eef4ee;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:#33513f}
+  tr:last-child td{border-bottom:0}
+  code{background:#eef4ee;padding:1px 6px;border-radius:6px;font-size:13.5px}
+  .prompt{
+    position:relative;background:#0f1b14;color:#e9f3ec;border-radius:var(--radius);
+    padding:16px 18px 18px;border:1px solid #1f3326
+  }
+  .prompt .ph{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+  .prompt .ph strong{font-size:14px;letter-spacing:.02em;color:#9fe3b8}
+  .prompt pre{
+    margin:0;white-space:pre-wrap;word-break:break-word;
+    font:14px/1.62 "JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    color:#e9f3ec
+  }
+  .btn{
+    cursor:pointer;border:1px solid var(--green);background:#fff;color:var(--green);
+    padding:7px 13px;border-radius:9px;font:600 13.5px/1 inherit;transition:.15s
+  }
+  .btn:hover{background:var(--green);color:#fff}
+  .btn:focus-visible{outline:3px solid #9fe3b8;outline-offset:2px}
+  .btn.solid{background:var(--green);color:#fff}
+  .btn.solid:hover{background:#0b5c2e;border-color:#0b5c2e}
+  .prompt .btn{border-color:#3d7a55;background:#16301f;color:#b9f0cd}
+  .prompt .btn:hover{background:#22a65b;border-color:#22a65b;color:#06210f}
+  .note{
+    border-left:4px solid var(--warn);background:#fff8ed;padding:12px 14px;border-radius:0 10px 10px 0;
+    color:#6b3f0a;font-size:14.5px
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+  .chip{background:#eef4ee;border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:13px;color:#33513f}
+  .swatches{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .sw{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .sw i{width:26px;height:26px;border-radius:7px;border:1px solid rgba(0,0,0,.12);display:block}
+  footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:13.5px}
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+    background:#12261b;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;
+    opacity:0;pointer-events:none;transition:.2s;z-index:50
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  @media print{
+    header.top{background:#0f7a3d !important;-webkit-print-color-adjust:exact}
+    .btn{display:none}
+    .prompt{background:#fff;color:#111;border:1px solid #ccc}
+    .prompt pre{color:#111}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="badge">AI Branding Prompt Pack · Jannat Mini Mart</span>
+    <h1>লোগো, স্লাইডার ও প্রোডাক্ট ইমেজ তৈরির প্রম্পট</h1>
+    <p>নিচের প্রতিটি ব্লক কপি করে যেকোনো ইমেজ-জেনারেটিং AI (Midjourney, DALL·E, Firefly, Ideogram, Leonardo) —তে পেস্ট করুন। ক্লায়েন্টের নাম, ঠিকানা ও ব্র্যান্ড কালার ইতিমধ্যেই প্রম্পটে বসানো আছে।</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <h2><span class="num">1</span> ক্লায়েন্ট ডেটা</h2>
+    <p class="lede">এই ডেটাই সাইটের <code>general_settings</code> ও <code>contacts</code>-এ বসবে। নিচের বাটনে এক ক্লিকে JSON হিসেবে কপি হবে।</p>
+    <div class="grid two">
+      <div class="card">
+        <h3>দোকান</h3>
+        <dl class="kv">
+          <dt>নাম</dt><dd>Jannat Mini Mart</dd>
+          <dt>ঠিকানা</dt><dd>272-0107 Chiba-ken, Ichikawa-shi, Oshikiri 21-8, 101 Gyotoku Heights 1F</dd>
+          <dt>ইমেইল</dt><dd>jannatminimart2610@gmail.com</dd>
+          <dt>ফোন</dt><dd>08035979290</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3>মালিক</h3>
+        <dl class="kv">
+          <dt>নাম</dt><dd>Gous Uddin</dd>
+          <dt>ঠিকানা</dt><dd>272-0141 Chiba-ken, Ichikawa-shi, Kandori 1-10-24, 103 Front Islands Heights</dd>
+          <dt>ফোন</dt><dd>08035979290</dd>
+          <dt>ইমেইল</dt><dd>jahangir314@gmail.com</dd>
+        </dl>
+        <div style="margin-top:14px">
+          <button class="btn solid" data-copy="client-json">ক্লায়েন্ট JSON কপি</button>
+        </div>
+        <pre id="client-json" hidden>{
+  "store": {
+    "name": "Jannat Mini Mart",
+    "address": "272-0107 Chiba-ken, Ichikawa-shi, Oshikiri 21-8, 101 Gyotoku Heights 1F",
+    "email": "jannatminimart2610@gmail.com",
+    "phone": "08035979290"
+  },
+  "owner": {
+    "name": "Gous Uddin",
+    "address": "272-0141 Chiba-ken, Ichikawa-shi, Kandori 1-10-24, 103 Front Islands Heights",
+    "phone": "08035979290",
+    "email": "jahangir314@gmail.com"
+  },
+  "brand": {
+    "primary": "#0F7A3D",
+    "secondary": "#22A65B",
+    "cream": "#F6F2E7",
+    "ink": "#12261B",
+    "accent": "#E8A33D",
+    "language": "Bengali + English",
+    "market": "Ichikawa, Chiba, Japan"
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="swatches">
+      <span class="sw"><i style="background:#0F7A3D"></i>#0F7A3D primary</span>
+      <span class="sw"><i style="background:#22A65B"></i>#22A65B secondary</span>
+      <span class="sw"><i style="background:#F6F2E7"></i>#F6F2E7 cream</span>
+      <span class="sw"><i style="background:#12261B"></i>#12261B ink</span>
+      <span class="sw"><i style="background:#E8A33D"></i>#E8A33D accent</span>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span> ইমেজ সাইজ স্পেসিফিকেশন</h2>
+    <p class="lede">সাইটের CSS থেকে মাপা। এই মাপে না দিলে ইমেজ ক্রপ বা লেটারবক্স হবে — তাই AI-তে ঠিক এই রেশিও দিন।</p>
+    <table>
+      <thead>
+        <tr><th>অ্যাসেট</th><th>সাইজ (px)</th><th>রেশিও</th><th>ফরম্যাট</th><th>ব্যবহার</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Logo (master)</td><td>512 × 512</td><td>1:1</td><td>PNG (transparent)</td><td>header, invoice, admin</td></tr>
+        <tr><td>Logo (compact)</td><td>128 × 128</td><td>1:1</td><td>PNG/WebP</td><td>mobile header, footer</td></tr>
+        <tr><td>Favicon</td><td>48 × 48 + 32 × 32</td><td>1:1</td><td>PNG / .ico</td><td>browser tab</td></tr>
+        <tr><td>Hero / slider banner</td><td>1920 × 560</td><td>24:7</td><td>JPG/WebP</td><td>home hero (object-fit: cover)</td></tr>
+        <tr><td>Slider figure</td><td>1440 × 1040</td><td>720:520</td><td>JPG/WebP</td><td>hero side figure</td></tr>
+        <tr><td>Product image</td><td>1000 × 1000</td><td>1:1</td><td>JPG/WebP</td><td>product card + detail</td></tr>
+        <tr><td>Category / promo banner</td><td>1200 × 900</td><td>4:3</td><td>JPG/WebP</td><td>category cards</td></tr>
+        <tr><td>Open Graph / social</td><td>1200 × 630</td><td>1.91:1</td><td>JPG</td><td>WhatsApp/Facebook share</td></tr>
+      </tbody>
+    </table>
+    <div class="chips">
+      <span class="chip">প্রোডাক্ট ইমেজে টেক্সট নয়</span>
+      <span class="chip">ব্যাকগ্রাউন্ড সাদা/ক্রিম</span>
+      <span class="chip">ফাইল নাম ইংরেজিতে</span>
+      <span class="chip">WebP প্রেফার</span>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span> প্রম্পট — লোগো</h2>
+    <p class="lede">একই প্রম্পট দুবার চালিয়ে দুটি ভ্যারিয়েন্ট নিন; তারপর 512×512-এ ডাউনস্কেল করুন।</p>
+    <div class="prompt">
+      <div class="ph">
+        <strong>LOGO · 512×512 · transparent PNG</strong>
+        <button class="btn" data-copy="p-logo">Copy prompt</button>
+      </div>
+      <pre id="p-logo">Create a flat vector logo for a neighbourhood grocery supermarket named "Jannat Mini Mart" in Ichikawa, Chiba, Japan.
+
+Style: modern minimal grocery mark, rounded geometric shapes, friendly and trustworthy, no gradients, no photorealism, no 3D bevel.
+Symbol: a simple basket or leaf-basket hybrid that also reads as the letter "J". Keep the symbol readable at 32px.
+Colours: deep green #0F7A3D as the primary, warm cream #F6F2E7 as the background, accent #E8A33D only for a small highlight.
+Typography: clean geometric sans-serif, wordmark "JANNAT" on the first line and "MINI MART" smaller on the second line, generous letter spacing, fully legible.
+Composition: centred, generous padding (at least 8% safe area on every side), no drop shadow.
+Output: 512x512, transparent background, crisp edges suitable for favicon downscaling.
+Do NOT add: slogans, Japanese text, phone numbers, address, photographic textures, more than 3 colours.</pre>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span> প্রম্পট — ফেভিকন / অ্যাপ আইকন</h2>
+    <div class="prompt">
+      <div class="ph">
+        <strong>FAVICON · 48×48 (master 512×512)</strong>
+        <button class="btn" data-copy="p-fav">Copy prompt</button>
+      </div>
+      <pre id="p-fav">Take the "Jannat Mini Mart" logo mark only (no wordmark) and adapt it into a favicon / app icon.
+
+Requirements: the symbol must stay recognisable at 48x48 and 32x32; thicken strokes slightly for small sizes; keep the deep green #0F7A3D symbol on a warm cream #F6F2E7 rounded-square background with 18% corner radius; no text at all; no fine detail, no thin hairlines.
+Output: 512x512 master PNG with transparent outer corners, plus a 48x48 and 32x32 downscale preview that is still sharp.
+Do NOT include: letters, slogans, shadows, outlines thinner than 3px at 48px.</pre>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span> প্রম্পট — হোম হিরো ব্যানার</h2>
+    <p class="lede">ব্যানারে বাঁ দিকে লেখার জায়গা ফাঁকা রাখতে হবে — সাইট নিজেই শিরোনাম বসায় (scrim ওখানেই)।</p>
+    <div class="prompt">
+      <div class="ph">
+        <strong>HERO BANNER · 1920×560</strong>
+        <button class="btn" data-copy="p-hero">Copy prompt</button>
+      </div>
+      <pre id="p-hero">Wide e-commerce hero banner for "Jannat Mini Mart", a Japanese neighbourhood grocery store in Ichikawa, Chiba.
+
+Canvas: 1920x560 (24:7 ultra-wide), designed for object-fit: cover, so keep the important content inside the middle 80% width.
+Scene: bright, airy supermarket still-life — fresh vegetables, fruit, rice bags, cooking oil, tea, snacks arranged on a clean cream surface, soft daylight from the left, shallow depth of field.
+Composition: the LEFT 45% must stay visually calm and darker/plainer (deep green #0F7A3D to transparent gradient overlay area) because the site prints its own headline there. Put the product cluster and any decorative leaves on the RIGHT 55%.
+Colour: natural greens, cream #F6F2E7, warm accents #E8A33D; no neon, no heavy filters.
+NO TEXT, no logos, no watermarks, no price tags, no faces, no hands.
+Output: 1920x560, high detail, photorealistic but clean commercial style, JPG/WebP.</pre>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span> প্রম্পট — স্লাইডার ফিগার</h2>
+    <div class="prompt">
+      <div class="ph">
+        <strong>SLIDER FIGURE · 1440×1040 (720:520)</strong>
+        <button class="btn" data-copy="p-slider">Copy prompt</button>
+      </div>
+      <pre id="p-slider">Square-ish promotional image for the "Jannat Mini Mart" homepage slider, displayed inside a rounded 22px card at 720:520 ratio.
+
+Scene: a curated grocery bundle — a paper bag of fresh vegetables, a bottle of cooking oil, a pack of rice, and a small basket of fruit — arranged on a warm cream #F6F2E7 background with soft studio light and a subtle green #22A65B accent leaf.
+Style: clean commercial product photography, soft shadows, no clutter, centred composition with 10% breathing room.
+NO TEXT, no price stickers, no brand names, no people, no watermark.
+Output: 1440x1040, JPG/WebP, sharp enough for retina.</pre>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span> প্রম্পট — প্রোডাক্ট ইমেজ</h2>
+    <p class="lede">প্রতিটি প্রোডাক্টের জন্য একই টেমপ্লেট, শুধু <code>[PRODUCT]</code> বদলান — এতে ক্যাটালগে সামঞ্জস্য থাকবে।</p>
+    <div class="prompt">
+      <div class="ph">
+        <strong>PRODUCT · 1000×1000 · 1:1</strong>
+        <button class="btn" data-copy="p-product">Copy prompt</button>
+      </div>
+      <pre id="p-product">Professional e-commerce product photo of [PRODUCT] for a Japanese grocery supermarket.
+
+Framing: single product, centred, 1:1 square, product fills ~75% of the frame, small soft contact shadow underneath.
+Background: seamless warm cream #F6F2E7 (or pure white), no props, no hands, no packaging text invented by the model.
+Lighting: soft diffused studio light from upper-left, natural colour, no harsh reflections, no coloured gels.
+Style: photorealistic, sharp focus front to back, commercial catalogue quality.
+NO TEXT, no price tags, no logos, no watermark, no collage, no multiple angles.
+Output: 1000x1000 JPG/WebP.</pre>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">8</span> প্রম্পট — ক্যাটাগরি / প্রোমো ব্যানার</h2>
+    <div class="prompt">
+      <div class="ph">
+        <strong>CATEGORY BANNER · 1200×900 · 4:3</strong>
+        <button class="btn" data-copy="p-cat">Copy prompt</button>
+      </div>
+      <pre id="p-cat">Category banner for "Jannat Mini Mart" showing [CATEGORY, e.g. fresh vegetables / rice &amp; oil / snacks &amp; tea].
+
+Canvas: 1200x900 (4:3), displayed as a card with rounded corners.
+Scene: a tidy flat-lay of 4-6 items from that category on a cream #F6F2E7 surface, top-down view, soft daylight, small green leaf accents.
+Composition: items grouped in the lower two-thirds, upper third kept clean so the site can overlay the category name.
+NO TEXT, no price tags, no logos, no people.
+Output: 1200x900 JPG/WebP, bright and appetising.</pre>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">9</span> প্রম্পট — সোশ্যাল / OG ইমেজ</h2>
+    <div class="prompt">
+      <div class="ph">
+        <strong>OG IMAGE · 1200×630</strong>
+        <button class="btn" data-copy="p-og">Copy prompt</button>
+      </div>
+      <pre id="p-og">Social share image (Open Graph) for "Jannat Mini Mart", a grocery store in Ichikawa, Chiba, Japan.
+
+Canvas: 1200x630.
+Layout: deep green #0F7A3D background with a soft cream #F6F2E7 panel on the left third; on the right, a bright photo-style cluster of fresh groceries (vegetables, fruit, rice, tea).
+Text allowed (keep it minimal and correctly spelled): headline "Jannat Mini Mart" and subline "Fresh groceries in Ichikawa".
+Typography: bold geometric sans-serif, white on green, generous margins, no text inside the photo area.
+NO watermark, no phone number, no address, no QR code.
+Output: 1200x630 JPG.</pre>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span> ফলব্যাক নিয়ম</h2>
+    <div class="note">
+      অ্যাডমিন কোনো ইমেজ আপলোড না করলে সাইট এই ডিফল্টগুলো দেখাবে — তাই প্রতিটি স্লটের জন্য অন্তত একটি করে ফাইল <code>public/uploads/</code>-এ থাকতে হবে। ফাইল না থাকলে পেজ ভাঙবে না, প্লেসহোল্ডার দেখাবে।
+    </div>
+    <table style="margin-top:14px">
+      <thead><tr><th>স্লট</th><th>ফলব্যাক আচরণ</th><th>ফাইল</th></tr></thead>
+      <tbody>
+        <tr><td>Logo</td><td>টেক্সট ওয়ার্ডমার্ক</td><td><code>uploads/settings/logo.webp</code></td></tr>
+        <tr><td>Favicon</td><td>ডিফল্ট আইকন</td><td><code>uploads/settings/favicon.webp</code></td></tr>
+        <tr><td>Product</td><td>placeholder ছবি</td><td><code>uploads/default/placeholder.png</code></td></tr>
+        <tr><td>Banner / slider</td><td>গ্রেডিয়েন্ট প্লেসহোল্ডার</td><td><code>uploads/banner/*</code></td></tr>
+        <tr><td>Wishlist</td><td>empty state</td><td><code>assets/images/empty_wishlist.png</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    <p>Jannat Mini Mart · AI Branding Prompt Pack · তৈরি: 2026-10-24 · সব প্রম্পট কপি-রেডি, কোনো এক্সটার্নাল লাইব্রেরি নেই — ফাইলটি অফলাইনেও খোলে।</p>
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var toast = document.getElementById('toast');
+  var timer = null;
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('on');
+    if (timer) { clearTimeout(timer); }
+    timer = setTimeout(function () { toast.classList.remove('on'); }, 1800);
+  }
+
+  function fallbackCopy(text) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.top = '-1000px';
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  document.querySelectorAll('[data-copy]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var source = document.getElementById(button.getAttribute('data-copy'));
+      if (!source) { showToast('কপি সোর্স পাওয়া যায়নি'); return; }
+      var text = source.textContent.trim();
+
+      function done() {
+        var label = button.textContent;
+        button.textContent = 'Copied ✓';
+        setTimeout(function () { button.textContent = label; }, 1600);
+        showToast('কপি হয়েছে');
+      }
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done, function () {
+          if (fallbackCopy(text)) { done(); } else { showToast('কপি ব্যর্থ — হাতে সিলেক্ট করুন'); }
+        });
+      } else if (fallbackCopy(text)) {
+        done();
+      } else {
+        showToast('কপি ব্যর্থ — হাতে সিলেক্ট করুন');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
