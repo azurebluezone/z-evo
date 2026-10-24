@@ -53,13 +53,18 @@
 
     {{-- Meta header --}}
     <div class="flex flex-col gap-2">
+        {{-- Brand + SKU are secondary identity: on a phone they competed with
+             the stock pill for a 257px row, so the chip broke across two lines
+             and "SKU: FS-7103" split after the colon. Below 640px the pair is
+             hidden and the stock pill gets the line to itself; from 640px up
+             both fit, and whitespace-nowrap keeps each figure in one piece. --}}
         <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
+            <div class="hidden sm:flex items-center gap-2 min-w-0">
                 @if($fmBrandChip)
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100">{{ $fmBrandChip }}</span>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100 whitespace-nowrap">{{ $fmBrandChip }}</span>
                     <span class="text-gray-300">&bull;</span>
                 @endif
-                <span class="text-xs text-gray-500 font-medium">SKU: <span id="fmDetailSku">{{ $fmProduct->sku ?: 'N/A' }}</span></span>
+                <span class="text-xs text-gray-500 font-medium whitespace-nowrap">SKU: <span id="fmDetailSku">{{ $fmProduct->sku ?: 'N/A' }}</span></span>
             </div>
             <span id="fmDetailStockPill" class="fm-stock-pill inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full {{ $fmInStock ? '' : 'is-out' }}">
                 <span class="fm-stock-dot w-2 h-2 rounded-full animate-pulse"></span>

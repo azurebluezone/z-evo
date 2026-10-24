@@ -1,17 +1,17 @@
 {{--
     FM:PARTIAL header/primary-header
     =========================================================================
-    The sticky white bar: brand + mobile menu trigger on the left, the account
-    control, the omni-search field and, on wide screens, the Categories pill in
-    the middle, and the AI Lens / wishlist / cart cluster on the right. The
-    phone search surface is the #fmSearchDrawer offcanvas.
+    The sticky white bar: brand + mobile menu trigger on the left, the
+    omni-search field and, on wide screens, the Categories pill in the middle,
+    and the account / wishlist / cart cluster on the right. The phone search
+    surface is the #fmSearchDrawer offcanvas.
 
     The bar owns no logic of its own - every moving part is a component:
 
         partials/header/search-bar       the search field (both variants)
         partials/header/search-category-select
-        partials/header/account-dropdown the profile menu, left of the field
-        partials/header/quick-actions    AI Lens / wishlist / cart cluster
+        partials/header/quick-actions    account / wishlist / cart cluster
+        partials/header/account-dropdown the profile menu, inside that cluster
         sections/ai/*                    the AI Lens, voice and camera triggers
 
     so the desktop bar and the search drawer can never drift apart: they render
@@ -83,16 +83,6 @@
                 </button>
             </div>
 
-            {{-- Account, at the head of the search field. It used to sit last in
-                 the right-hand cluster; the bar reads better with the profile
-                 control immediately left of the search field, and moving it out
-                 frees 56px of the cluster that the tablet band needs. Hidden
-                 below md exactly like the search column beside it - the drawer
-                 carries the same account links at those widths. --}}
-            <div class="hidden md:block shrink-0">
-                @include('frontend.fm.partials.header.account-dropdown')
-            </div>
-
             {{-- Omni-search bar. Category picker, field and both AI triggers; the AI
                  triggers are components of their own under fm/sections/ai, and the bar is
                  one under fm/partials/header. --}}
@@ -107,7 +97,10 @@
                 @include('frontend.fm.partials.header.search-bar')
             </div>
 
-            {{-- Quick actions: AI Lens pill, wishlist, account, cart --}}
+            {{-- Quick actions: account, wishlist, cart. The AI Lens pill is
+                 gone from the bar: the search field already carries the camera
+                 and mic triggers, and the drawer carries both labelled
+                 buttons on phones. --}}
             @include('frontend.fm.partials.header.quick-actions', [
                 'fmWishlistCount' => $fmWishlistCount ?? 0,
                 'fmCartCount'     => $fmCartCount ?? 0,

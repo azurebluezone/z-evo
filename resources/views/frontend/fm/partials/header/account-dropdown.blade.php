@@ -20,7 +20,7 @@
 --}}
 
 <div class="dropdown fm-header-user">
-    <button aria-label="Account" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-2 text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors border-0 bg-transparent" data-bs-toggle="dropdown" title="Account" type="button">
+    <button aria-label="Account" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors border-0 bg-transparent" data-bs-toggle="dropdown" title="Account" type="button">
         <i class="bi bi-person text-2xl"></i>
     </button>
     <ul class="dropdown-menu dropdown-menu-end shadow-md border-0 rounded-xl p-2 text-sm">

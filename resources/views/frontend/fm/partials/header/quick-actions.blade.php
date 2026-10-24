@@ -1,7 +1,7 @@
 {{--
     FM:PARTIAL header/quick-actions
     =========================================================================
-    The right-hand action cluster: the phone search trigger, the AI Lens pill,
+    The right-hand action cluster: the phone search trigger, the account menu,
     wishlist and the cart trigger.
 
     Every control here is load-bearing, so the ids and data hooks are kept
@@ -13,11 +13,17 @@
         #cartTotalHeader / data-fm-cart-total
         #wishlistCount / data-fm-wishlist-count
 
-    fm-header-wishlist and fm-header-cart-total are the classes the mobile rules
-    in fm-sections.css hide, because the controls do not fit a 375px bar;
-    wishlist is duplicated in the navigation drawer. The account control used to
-    live here too - it now sits immediately left of the search field, in
-    partials/header/account-dropdown.blade.php.
+    Three controls, one geometry: 44px tall, a 20px glyph, the same radius. The
+    "AI Lens" pill that used to sit first in this cluster was removed from the
+    bar - the search field already carries the camera and mic triggers on every
+    width that shows the field, and the navigation drawer carries both labelled
+    buttons on phones. It was the widest optional control (109px) and the only
+    one with its own light-green pill, so the cluster read as three different
+    components.
+
+    fm-header-wishlist, fm-header-user and fm-header-cart-total are the classes
+    the mobile rules in fm-sections.css hide, because the controls do not fit a
+    375px bar; wishlist and account are duplicated in the navigation drawer.
 
     Usage
         @include('frontend.fm.partials.header.quick-actions')
@@ -38,22 +44,26 @@
         <i class="bi bi-search text-lg"></i>
     </button>
 
-    {{-- AI Lens pill: its own component, opens the same drawer as the two
-         inline triggers through the mode prop. --}}
-    @include('frontend.fm.sections.ai.ai-lens-toggle')
+    {{-- Account. It used to sit immediately left of the search field, where it
+         read as an orphan between the Categories pill and the field. It belongs
+         with the other personal controls: same 44x44 box, same glyph size, same
+         hover treatment. Hidden below 576px by fm-sections.css (the navigation
+         drawer carries the same destinations there). --}}
+    @include('frontend.fm.partials.header.account-dropdown')
 
     {{-- Wishlist --}}
-    <a class="fm-header-wishlist relative flex items-center justify-center min-h-[44px] min-w-[44px] p-2 text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors" href="{{ route('wishlist') }}" title="Wishlist">
+    <a class="fm-header-wishlist relative flex items-center justify-center min-h-[44px] min-w-[44px] text-gray-700 hover:text-[#1b5e20] hover:bg-emerald-50 rounded-full transition-colors" href="{{ route('wishlist') }}" title="Wishlist">
         <i class="bi bi-heart text-xl"></i>
         <span class="absolute top-1 right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full" data-fm-wishlist-count id="wishlistCount">{{ $fmWishlistCount }}</span>
     </a>
 
-    {{-- User account moved out of the cluster: it now sits immediately left of
-         the search field, in partials/header/account-dropdown.blade.php. --}}
-
-    {{-- Cart --}}
-    <button aria-label="Open cart" class="fm-header-cart bg-[#1b5e20] hover:bg-[#144618] text-white rounded-full px-3.5 py-1.5 sm:px-4 sm:py-2 min-h-[44px] flex items-center shadow-sm transition-all active:scale-95 border-0" data-bs-target="#cartDrawer" data-bs-toggle="offcanvas" type="button">
-        <div class="relative mr-2 flex items-center">
+    {{-- Cart: the basket and the running total share one pill. The old markup
+         wrapped the basket in a div with mr-2 and padded the button px-4, so
+         the pill measured 85px for "Tk 0" - 26px wider than the 44px controls
+         beside it. The total now sits in the same line box, one small gap
+         after the glyph. --}}
+    <button aria-label="Open cart" class="fm-header-cart bg-[#1b5e20] hover:bg-[#144618] text-white rounded-full min-h-[44px] flex items-center gap-1.5 shadow-sm transition-all active:scale-95 border-0" data-bs-target="#cartDrawer" data-bs-toggle="offcanvas" type="button">
+        <div class="relative flex items-center">
             <i class="bi bi-basket2-fill text-base sm:text-lg"></i>
             <span class="absolute -top-2 -right-2 bg-amber-400 text-slate-900 font-extrabold text-xs min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-xs" data-fm-cart-count id="cartCountBadge">{{ $fmCartCount }}</span>
         </div>

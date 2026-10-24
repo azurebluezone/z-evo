@@ -209,16 +209,17 @@ table{max-width:100%;overflow-x:auto;display:block}
 /* mobile */
 @media(max-width:576px){
   [class*="gap-"]{gap:.5rem!important}
-  [class*="px-"],[class*="p-"]{padding-left:.75rem!important;padding-right:.75rem!important}
-  /* Both guards above match on a SUBSTRING, not on a utility name: "gap-2",
-     "py-2.5", "group-hover:scale-102" and "p-2.5" all contain "p-", and every
-     "-gap-" class contains "gap-". On the header's left cluster that stacked
-     12px on four nested elements and pushed the hamburger glyph to x=60 on a
-     390px screen - 60px of dead space before the first control, measured with
-     work/Narayana Takbeer/header_boxmodel.mjs. The bar is a row of 44x44
-     controls, not a padded block, so the chain is reset through the
-     fm-header-brand hook. Scoped to that chain only: the section blocks this
-     guard was written for keep their padding. */
+  /* Horizontal padding utilities only. The old selector also matched any
+     class CONTAINING "p-": "gap-2", "gap-6" and "group-hover:..." all picked
+     up 12px of side padding on every nested level, which is why a details-page
+     row measured 209px inside a 257px column at 320px. Token-anchored
+     selectors leave gap/position/state classes alone. */
+  [class^="px-"],[class*=" px-"]{padding-left:.75rem!important;padding-right:.75rem!important}
+  /* The header is a row of 44x44 controls, not a padded block. Keep the
+     padding reset on its chain so no mobile padding utility can stack 12px
+     between the viewport edge and the hamburger glyph. Scoped to that chain
+     only: the section blocks the padding guard was written for keep their
+     padding. */
   [data-purpose="primary-header"] .container>div,
   [data-purpose="primary-header"] .fm-header-brand,
   [data-purpose="primary-header"] .fm-header-brand>button,

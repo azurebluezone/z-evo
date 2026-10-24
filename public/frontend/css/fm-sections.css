@@ -189,6 +189,21 @@ header[data-purpose="primary-header"] .fm-header-user > button{
   padding:0;
 }
 
+/* The cart pill: one 44px line box with the basket and the running total.
+   The padding is set here, not with a Tailwind utility, because Bootstrap's
+   .px-3 (1rem) and Tailwind's .px-3 (0.75rem) both exist on this page and
+   Bootstrap's wins the cascade - measured 16px per side for a class that reads
+   px-3. A 44px height and a 10px inline pad measure 69px, next to the 44px
+   icon controls instead of the old 109px AI Lens / 85px cart pair. */
+header[data-purpose="primary-header"] .fm-header-cart{
+  gap:.25rem;
+  padding-left:.625rem;
+  padding-right:.625rem;
+  /* With the total hidden (below lg) the pill would shrink to 40px - 4px
+     narrower than the 44px controls beside it. Keep the same floor. */
+  min-width:44px;
+}
+
 header[data-purpose="primary-header"] .fm-header-wishlist > .bi,
 header[data-purpose="primary-header"] .fm-header-user > button > .bi,
 header[data-purpose="primary-header"] .fm-header-cart .bi-basket2-fill{
@@ -196,11 +211,15 @@ header[data-purpose="primary-header"] .fm-header-cart .bi-basket2-fill{
   line-height:1;
 }
 
-/* The basket lives in a relative wrapper with mr-2 for the "Tk 0" total.
-   Below sm that total is hidden, so the margin would leave the glyph sitting
-   left-of-centre inside the pill. */
+/* Below sm the total is hidden, so the pill must collapse to a 44x44 box
+   around the basket instead of keeping the two-control padding. */
 @media(max-width:575.98px){
-  header[data-purpose="primary-header"] .fm-header-cart > div{margin-right:0!important}
+  header[data-purpose="primary-header"] .fm-header-cart{
+    width:44px;
+    min-width:44px;
+    padding-left:0;
+    padding-right:0;
+  }
 }
 
 /* The hamburger sits first in the same row, so it takes the same box: 44x44,
