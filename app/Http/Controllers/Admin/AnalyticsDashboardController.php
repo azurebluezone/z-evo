@@ -842,7 +842,9 @@ class AnalyticsDashboardController extends Controller
      */
     private function liveData(array $filters): array
     {
-        $rows = $this->liveQuery($filters)->limit(60)->get();
+        // 25 rows: the plan's live table contract. The dashboard reuses the same
+        // payload, so both surfaces show exactly the same recent activity.
+        $rows = $this->liveQuery($filters)->limit(25)->get();
 
         return $rows->map(fn ($row) => $this->presentLiveRow($row))->all();
     }
@@ -924,6 +926,8 @@ class AnalyticsDashboardController extends Controller
                 $row->division,
                 $row->city,
             ]))),
+            'division' => $row->division ?? null,
+            'city' => $row->city ?? null,
             'country' => $row->country,
             'device' => trim(implode(' / ', array_filter([
                 $this->label($row->browser),
@@ -937,6 +941,10 @@ class AnalyticsDashboardController extends Controller
             'dedup_status' => $row->dedup_status,
             'page_path' => $row->page_path,
             'event_time' => optional($row->event_time)->toDateTimeString() ?? (string) $row->created_at,
+            // Compact clock for the live table: "2 minutes ago" is friendlier
+            // but eats the width the page/ISP columns need.
+            'time_hms' => optional($row->event_time)->format('H:i:s')
+                ?? optional($row->created_at)->format('H:i:s'),
             'time_ago' => optional($row->created_at)->diffForHumans() ?? '',
             'status' => (int) ($row->status ?? 1),
             'event_count' => (int) ($row->event_count ?? 0),
@@ -964,11 +972,190 @@ class AnalyticsDashboardController extends Controller
     {
         $filters = $this->resolveFilters($request);
 
-        return response()->json([
+        $payload = [
             'rows' => $this->liveData($filters),
             'live_visitors' => $this->liveVisitorCount($filters),
             'server_time' => now()->toIso8601String(),
-        ]);
+            'stats' => $this->liveStats($filters),
+            'map' => $this->liveMap($filters),
+        ];
+
+        // The dashboard polls this endpoint with `Accept: application/json`;
+        // a normal browser visit gets the page. One route, one payload, so the
+        // page and the poller can never disagree about the numbers.
+        if ($request->expectsJson()) {
+            return response()->json($payload);
+        }
+
+        return view('backEnd.analytics.live', array_merge($filters, $payload, [
+            'query' => $request->query(),
+            'divisions' => BangladeshGeo::DIVISIONS,
+            'channels' => TrafficSourceResolver::CHANNEL_OPTIONS,
+            'presets' => ['today', 'yesterday', 'last7', 'last30', 'last90', 'custom'],
+            'window_minutes' => self::LIVE_WINDOW_MINUTES,
+        ]));
+    }
+
+    /**
+     * Headline numbers for the "Live now" page.
+     *
+     * The window is the last LIVE_WINDOW_MINUTES, and the comparison window is
+     * the same length one hour earlier — comparing a 5-minute window with a
+     * full hour would make every delta meaningless.
+     *
+     * @return array<string, mixed>
+     */
+    private function liveStats(array $filters): array
+    {
+        $now = now();
+        $currentFrom = $now->copy()->subMinutes(self::LIVE_WINDOW_MINUTES);
+        $previousTo = $now->copy()->subHour();
+        $previousFrom = $previousTo->copy()->subMinutes(self::LIVE_WINDOW_MINUTES);
+
+        $base = $this->liveEventQuery($filters);
+
+        $visitorsNow = (int) (clone $base)->where('event_logs.created_at', '>=', $currentFrom)
+            ->distinct()->count('event_logs.visitor_id');
+        $visitorsPrev = (int) (clone $base)->whereBetween('event_logs.created_at', [$previousFrom, $previousTo])
+            ->distinct()->count('event_logs.visitor_id');
+
+        $eventsNow = (int) (clone $base)->where('event_logs.created_at', '>=', $currentFrom)->count();
+        $eventsPrev = (int) (clone $base)->whereBetween('event_logs.created_at', [$previousFrom, $previousTo])->count();
+
+        $topPageRow = (clone $base)->where('event_logs.created_at', '>=', $currentFrom)
+            ->whereNotNull('event_logs.page_path')
+            ->where('event_logs.page_path', '!=', '')
+            ->select('event_logs.page_path', DB::raw('COUNT(*) as total'))
+            ->groupBy('event_logs.page_path')
+            ->orderByDesc('total')
+            ->first();
+
+        $topChannelRow = (clone $base)->where('event_logs.created_at', '>=', $currentFrom)
+            ->whereNotNull('event_logs.channel')
+            ->where('event_logs.channel', '!=', '')
+            ->select('event_logs.channel', DB::raw('COUNT(DISTINCT event_logs.visitor_id) as visitors'))
+            ->groupBy('event_logs.channel')
+            ->orderByDesc('visitors')
+            ->first();
+
+        return [
+            'window_minutes' => self::LIVE_WINDOW_MINUTES,
+            'visitors_now' => $visitorsNow,
+            'visitors_prev' => $visitorsPrev,
+            'visitors_delta' => $this->delta($visitorsNow, $visitorsPrev),
+            'events_now' => $eventsNow,
+            'events_prev' => $eventsPrev,
+            'events_per_min' => round($eventsNow / self::LIVE_WINDOW_MINUTES, 1),
+            'events_delta' => $this->delta($eventsNow, $eventsPrev),
+            'top_page' => $topPageRow ? [
+                'path' => $topPageRow->page_path,
+                'events' => (int) $topPageRow->total,
+                'share' => $this->pct((int) $topPageRow->total, $eventsNow),
+            ] : null,
+            'top_channel' => $topChannelRow ? [
+                'channel' => $topChannelRow->channel,
+                'label' => $this->label($topChannelRow->channel),
+                'visitors' => (int) $topChannelRow->visitors,
+                'share' => $this->pct((int) $topChannelRow->visitors, $visitorsNow),
+            ] : null,
+        ];
+    }
+
+    /**
+     * Visitors per division for the live map.
+     *
+     * Falls back to today's data when the five-minute window is empty, and says
+     * so (`scope`), because an empty map looks like a broken map.
+     *
+     * @return array<string, mixed>
+     */
+    private function liveMap(array $filters): array
+    {
+        $scope = 'live';
+        $rows = $this->divisionCounts($filters, now()->subMinutes(self::LIVE_WINDOW_MINUTES));
+
+        if ($rows->isEmpty()) {
+            $scope = 'today';
+            $rows = $this->divisionCounts($filters, now()->startOfDay());
+        }
+
+        $points = [];
+        $max = 0;
+
+        foreach ($rows as $row) {
+            $division = (string) $row->division;
+            $center = BangladeshGeo::DIVISION_CENTERS[$division] ?? null;
+
+            if ($center === null) {
+                continue;
+            }
+
+            $visitors = (int) $row->visitors;
+            $max = max($max, $visitors);
+
+            $points[] = [
+                'division' => $division,
+                'lat' => $center[0],
+                'lng' => $center[1],
+                'visitors' => $visitors,
+            ];
+        }
+
+        usort($points, fn ($a, $b) => $b['visitors'] <=> $a['visitors']);
+
+        return [
+            'scope' => $scope,
+            'points' => $points,
+            'total' => array_sum(array_column($points, 'visitors')),
+            'max' => $max,
+        ];
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, object>
+     */
+    private function divisionCounts(array $filters, Carbon $from)
+    {
+        $query = EventLog::query()
+            ->join('visitors_master', 'visitors_master.visitor_id', '=', 'event_logs.visitor_id')
+            ->where('event_logs.created_at', '>=', $from)
+            ->whereNotNull('visitors_master.division')
+            ->where('visitors_master.division', '!=', '')
+            ->select('visitors_master.division', DB::raw('COUNT(DISTINCT event_logs.visitor_id) as visitors'))
+            ->groupBy('visitors_master.division')
+            ->orderByDesc('visitors');
+
+        if ($filters['channel'] !== '') {
+            $query->where('event_logs.channel', $filters['channel']);
+        }
+
+        if ($filters['division'] !== '') {
+            $query->where('visitors_master.division', $filters['division']);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Event query used by the live cards and the map, with the same
+     * channel/division filters as the rest of the page.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    private function liveEventQuery(array $filters)
+    {
+        $query = EventLog::query();
+
+        if ($filters['channel'] !== '') {
+            $query->where('event_logs.channel', $filters['channel']);
+        }
+
+        if ($filters['division'] !== '') {
+            $query->join('visitors_master', 'visitors_master.visitor_id', '=', 'event_logs.visitor_id')
+                ->where('visitors_master.division', $filters['division']);
+        }
+
+        return $query;
     }
 
     /**

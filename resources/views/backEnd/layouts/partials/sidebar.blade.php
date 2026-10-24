@@ -336,10 +336,22 @@
 
         <!-- Real-time Analytics & Attribution -->
         <li class="menu-item {{ request()->routeIs('admin.analytics.*') ? 'active open' : '' }}">
-            <a href="{{ route('admin.analytics.index') }}" class="menu-link">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-dashboard-3-line"></i>
                 <div>Real-time Analytics</div>
             </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('admin.analytics.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.analytics.index') }}" class="menu-link">
+                        <div>Overview</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.analytics.live') ? 'active' : '' }}">
+                    <a href="{{ route('admin.analytics.live') }}" class="menu-link">
+                        <div>Live now</div>
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <!-- Social Event Manager -->

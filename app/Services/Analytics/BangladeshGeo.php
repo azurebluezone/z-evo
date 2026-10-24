@@ -31,6 +31,28 @@ class BangladeshGeo
     ];
 
     /**
+     * Division headquarters, used only to place a circle on the admin live map.
+     *
+     * These are the divisional capital coordinates (not a geocoder): the map
+     * answers "which division is active and how many visitors", so a single
+     * stable point per division is the correct level of precision. Plotting an
+     * IP-derived city would pretend to a precision the geo database does not
+     * have.
+     *
+     * @var array<string, array{0: float, 1: float}>  [lat, lng]
+     */
+    public const DIVISION_CENTERS = [
+        'Barishal' => [22.7010, 90.3535],
+        'Chattogram' => [22.3569, 91.7832],
+        'Dhaka' => [23.8103, 90.4125],
+        'Khulna' => [22.8456, 89.5403],
+        'Mymensingh' => [24.7471, 90.4203],
+        'Rajshahi' => [24.3745, 88.6042],
+        'Rangpur' => [25.7439, 89.2752],
+        'Sylhet' => [24.8949, 91.8687],
+    ];
+
+    /**
      * District => Division. This is the authoritative source of truth for the
      * dashboard's geo grouping; city names are matched against these values too
      * because many providers return a district-level city name.

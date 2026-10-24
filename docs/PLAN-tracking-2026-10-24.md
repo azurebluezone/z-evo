@@ -440,7 +440,7 @@ purchases, revenue). No free-text, no identifiers.
 | **P1** (2–3 days) | Outbox + `session_id` + signed `track_token` + `page_path` always set; consent state on every event | replay test produces `duplicate`; 0 rows with NULL `page_path` in a 24 h window |
 | **P2** (2–3 days) | Consent page + banner + blocked-mode matrix; `/events/collect` origin allowlist | matrix table from §7 passes in Chromium with storage blocked |
 | **P3** (3–4 days) 🟡 **code complete, deployment pending** | sGTM container on `t.<domain>`; GA4 + Meta tags; token out of the page | page source has no token — met; the container itself needs the owner's Google account and DNS (see below) |
-| **P4** (3–4 days) | Admin: Live, Visitors, Visitor 360, Journey pages + map | visual + a11y acceptance from §9; 1440/390 clean |
+| **P4** (3–4 days) 🟡 **9.1 done, 9.2–9.4 next** | Admin: Live (done), Visitors, Visitor 360, Journey + map | visual + a11y acceptance from §9; 1440/390 clean |
 | **P5** (later) | `ai_sandbox` views + `ai_reader` user | `SELECT` works, `INSERT` denied, no PII column present |
 
 P0 is independent of everything else and can ship this week.
@@ -475,7 +475,7 @@ admin snippets, the classic customer layout, the `<noscript>` iframe) are closed
 `t.<APP_URL host>` needs a GTM account, a `CONTAINER_CONFIG`, DNS and TLS. Until
 those exist, nothing is printed and no request is made.
 
-**P4 (admin Live / Visitors / Journey) is next.**
+**P4 (= T4) is in progress** — `docs/IMPL-tracking-t4-2026-10-24.md`. T4.1 (Live now, `/admin/analytics/live` as a real page with 4 stat cards, 25-row feed and a Leaflet/OSM map by division) plus `work/client-data-request.html` are done and tested: 5 new tests / 91 assertions, full suite 40 / 245, 0 console errors, no horizontal page scroll at 1440/390, inner table scroll only. **Next: T4.2 (Visitors list), T4.3 (Visitor 360) and T4.4 (Journey/funnel)** — see §6 of the impl doc. **What is not done, and cannot be done here:** the owner-blocked credentials (GTM web/server container id, `CONTAINER_CONFIG`, DNS/TLS for `t.<host>`, GA4 measurement id + MP API secret, Meta `test_event_code` column) — `work/client-data-request.html` is the artefact that collects them; send it and the answers drop into admin settings / `.env`.
 
 ---
 
