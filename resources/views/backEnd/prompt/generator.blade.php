@@ -218,7 +218,7 @@
                                 <label for="promptDescription" class="form-label fw-bold">Describe Your Image (Be Specific)</label>
                                 <textarea class="form-control form-control-lg" id="promptDescription" rows="5" placeholder="Example: A modern corporate banner featuring abstract geometric shapes in blue and white, with a subtle gradient background, clean professional look, and copy space for text overlay..."></textarea>
                                 <div class="alert alert-info mt-2 mb-0">
-                                    <i class="ri-lightbulb-line me-1"></i>
+                                    <i class="ri ri-lightbulb-line me-1"></i>
                                     <strong>Tip:</strong> Be specific about colors, composition, mood, and any text or elements you want included. The more detail you provide, the better the result.
                                 </div>
                             </div>
@@ -228,10 +228,10 @@
                         <div class="row g-2 mb-4">
                             <div class="col-12">
                                 <x-admin.button variant="primary" size="lg" class="w-100" id="generateBtn">
-                                    <i class="ri-rocket-line me-2"></i>Generate Professional Prompt
+                                    <i class="ri ri-rocket-line me-2"></i>Generate Professional Prompt
                                 </x-admin.button>
                                 <x-admin.button variant="secondary" size="lg" class="w-100 mt-2" id="clearBtn">
-                                    <i class="ri-refresh-line me-2"></i>Clear All Fields
+                                    <i class="ri ri-refresh-line me-2"></i>Clear All Fields
                                 </x-admin.button>
                             </div>
                         </div>
@@ -246,7 +246,7 @@
                                     </div>
                                 </div>
                                 <x-admin.button variant="success" class="position-absolute top-0 end-0 m-2" id="copyBtn">
-                                    <i class="ri-file-copy-line me-1"></i>Copy
+                                    <i class="ri ri-file-copy-line me-1"></i>Copy
                                 </x-admin.button>
                             </div>
                         </div>
@@ -376,11 +376,11 @@ OUTPUT: Professional, production-ready image suitable for immediate deployment i
         const promptText = document.getElementById('generatedPrompt').textContent;
         navigator.clipboard.writeText(promptText).then(() => {
             const btn = document.getElementById('copyBtn');
-            btn.innerHTML = '<i class="ri-check-line me-1"></i>Copied!';
+            btn.innerHTML = '<i class="ri ri-check-line me-1"></i>Copied!';
             btn.classList.remove('btn-success');
             btn.classList.add('btn-primary');
             setTimeout(() => {
-                btn.innerHTML = '<i class="ri-file-copy-line me-1"></i>Copy';
+                btn.innerHTML = '<i class="ri ri-file-copy-line me-1"></i>Copy';
                 btn.classList.remove('btn-primary');
                 btn.classList.add('btn-success');
             }, 2000);

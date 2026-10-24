@@ -47,6 +47,20 @@ visible `ri-*` icons with a zero box or no mask, horizontal overflow, and the
 `.toggle-password` behaviour (type flip, icon swap, `aria-pressed`). Exit 1 if
 any problem is found.
 
+## admin-board-check.mjs
+
+The same credentials, for `/admin/order/board`:
+
+```bash
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='…' node tools/admin-board-check.mjs
+```
+
+At 1440 / 1024 / 768 / 390 it proves the page does not scroll sideways
+(`scrollWidth === innerWidth`), the six columns sit on one row inside a real
+horizontal scroller, the scroller is focusable and labelled, and `ArrowRight`
+moves it. It never drags a card, because a drag persists a status change.
+Exit 1 on any problem.
+
 ## Notes
 
 - `analytics` beacon `POST /events/collect` shows up as `net::ERR_ABORTED` in

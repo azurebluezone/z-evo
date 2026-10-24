@@ -103,7 +103,7 @@
               <span class="badge {{ $courierChipClass }}"
                     title="{{ $courierTitle }}"
                     data-bs-toggle="tooltip">
-                <i class="icon-base ri-bar-chart-line icon-16px me-1"></i>{{ $courierChipText }}
+                <i class="ri icon-base ri-bar-chart-line icon-16px me-1"></i>{{ $courierChipText }}
               </span>
 
               @if(isset($value->risk_label) && $value->risk_label === 'high_risk')

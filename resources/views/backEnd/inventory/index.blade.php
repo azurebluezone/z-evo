@@ -36,7 +36,7 @@
                                 </div>
                                 <div class="avatar">
                                     <span class="avatar-initial bg-label-primary rounded-0">
-                                        <i class="ri-stack-line fs-4"></i>
+                                        <i class="ri ri-stack-line fs-4"></i>
                                     </span>
                                 </div>
                             </div>
@@ -49,7 +49,7 @@
                                 </div>
                                 <div class="avatar">
                                     <span class="avatar-initial bg-label-warning rounded-0">
-                                        <i class="ri-alert-line fs-4"></i>
+                                        <i class="ri ri-alert-line fs-4"></i>
                                     </span>
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
                                 </div>
                                 <div class="avatar">
                                     <span class="avatar-initial bg-label-danger rounded-0">
-                                        <i class="ri-close-circle-line fs-4"></i>
+                                        <i class="ri ri-close-circle-line fs-4"></i>
                                     </span>
                                 </div>
                             </div>
@@ -75,7 +75,7 @@
                                 </div>
                                 <div class="avatar">
                                     <span class="avatar-initial bg-label-warning rounded-0">
-                                        <i class="ri-time-line fs-4"></i>
+                                        <i class="ri ri-time-line fs-4"></i>
                                     </span>
                                 </div>
                             </div>
@@ -88,7 +88,7 @@
                                 </div>
                                 <div class="avatar">
                                     <span class="avatar-initial bg-label-danger rounded-0">
-                                        <i class="ri-alert-fill fs-4"></i>
+                                        <i class="ri ri-alert-fill fs-4"></i>
                                     </span>
                                 </div>
                             </div>
@@ -107,10 +107,10 @@
             <form method="GET" action="{{ route('admin.inventory.index') }}" class="d-flex gap-2 align-items-center">
                 <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" class="form-control rounded-0" style="min-width: 320px;" placeholder="Search product / sku / variant / id" />
                 <a href="{{ route('admin.inventory.adjustment') }}" class="btn btn-primary btn-square waves-effect">
-                    <i class="ri-settings-4-line me-1"></i> Adjustment
+                    <i class="ri ri-settings-4-line me-1"></i> Adjustment
                 </a>
                 <x-admin.button variant="info" shape="square" ripple="true" type="submit">
-                    <i class="ri-search-line me-1"></i> Search
+                    <i class="ri ri-search-line me-1"></i> Search
                 </x-admin.button>
                 <a href="{{ route('admin.inventory.index') }}" class="btn btn-outline-secondary btn-square waves-effect">Reset</a>
             </form>

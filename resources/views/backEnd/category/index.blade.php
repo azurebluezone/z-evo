@@ -23,15 +23,15 @@
             </form>
 
             <x-admin.button variant="outline-warning" shape="square" ripple="true" type="submit" form="categoriesHomePageSetOnlyForm">
-                <i class="ri-home-gear-line"></i> Set Home (2)
+                <i class="ri ri-home-gear-line"></i> Set Home (2)
             </x-admin.button>
 
             <x-admin.button variant="outline-danger" shape="square" ripple="true" type="button" onclick="triggerDeleteModal('categoriesBulkDeleteForm')">
-                <i class="ri-delete-bin-line"></i> Bulk Delete
+                <i class="ri ri-delete-bin-line"></i> Bulk Delete
             </x-admin.button>
 
             <a href="{{ route('categories.create') }}" class="btn btn-primary btn-square waves-effect">
-                <i class="ri-add-line"></i> Create New
+                <i class="ri ri-add-line"></i> Create New
             </a>
         </div>
     </div>

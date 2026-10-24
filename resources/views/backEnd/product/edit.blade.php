@@ -9,10 +9,10 @@
         <h5 class="mb-0 text-uppercase fw-bold">Edit Product</h5>
         <div class="d-flex align-items-center gap-2">
             <a href="{{ route('products.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-                <i class="ri-arrow-left-line me-1"></i> All Products
+                <i class="ri ri-arrow-left-line me-1"></i> All Products
             </a>
             <x-admin.button variant="success" shape="square" ripple="true" type="submit" form="productEditForm">
-                <i class="ri-refresh-line me-1"></i> Update Product
+                <i class="ri ri-refresh-line me-1"></i> Update Product
             </x-admin.button>
         </div>
       </div>
@@ -138,7 +138,7 @@
                       $docPath = ltrim($docPath, '/');
                     @endphp
                     <div class="form-text">
-                      <a href="{{ asset($docPath) }}" target="_blank" class="text-primary fw-semibold"><i class="ri-file-download-line me-1"></i> View current document</a>
+                      <a href="{{ asset($docPath) }}" target="_blank" class="text-primary fw-semibold"><i class="ri ri-file-download-line me-1"></i> View current document</a>
                     </div>
                   @endif
                   @error('document')
@@ -193,7 +193,7 @@
                             <div class="card-body p-2">
                               <input type="text" name="title[]" class="form-control form-control-sm rounded-0 mb-2" value="{{ $image->title ?? '' }}" placeholder="Image Title">
                               <input type="hidden" name="image[]" value="{{ $image->id ?? '' }}">
-                              <x-admin.button variant="danger" size="sm" shape="square" ripple="true" class="w-100 remove-image delete-confirm" type="submit" form="fmRemoveProductImage{{ $image->id }}" data-confirm-title="Remove this photo?" data-confirm-text="The gallery row and its file are deleted immediately." data-confirm-ok="Yes, remove"><i class="ri-delete-bin-line me-1"></i> Remove</x-admin.button>
+                              <x-admin.button variant="danger" size="sm" shape="square" ripple="true" class="w-100 remove-image delete-confirm" type="submit" form="fmRemoveProductImage{{ $image->id }}" data-confirm-title="Remove this photo?" data-confirm-text="The gallery row and its file are deleted immediately." data-confirm-ok="Yes, remove"><i class="ri ri-delete-bin-line me-1"></i> Remove</x-admin.button>
                             </div>
                         </div>
                         @endif
@@ -205,14 +205,14 @@
                       <div class="control-group input-group mt-2">
                           <input type="file" name="image[]" class="form-control rounded-0" />
                           <input type="text" name="title[]" class="form-control rounded-0" placeholder="Image Title" />
-                          <x-admin.button variant="danger" shape="square" ripple="true" type="button"><i class="ri-delete-bin-line"></i></x-admin.button>
+                          <x-admin.button variant="danger" shape="square" ripple="true" type="button"><i class="ri ri-delete-bin-line"></i></x-admin.button>
                       </div>
                   </div>
 
                   <div class="input-group control-group increment">
                       <input type="file" name="image[]" class="form-control rounded-0 @error('image') is-invalid @enderror" />
                       <input type="text" name="title[]" class="form-control rounded-0" placeholder="Image Title" />
-                      <x-admin.button variant="primary" shape="square" ripple="true" class="btn-increment" type="button" title="Add image"><i class="ri-add-line me-1"></i> Add</x-admin.button>
+                      <x-admin.button variant="primary" shape="square" ripple="true" class="btn-increment" type="button" title="Add image"><i class="ri ri-add-line me-1"></i> Add</x-admin.button>
                   </div>
                   @error('image')
                   <span class="invalid-feedback d-block fw-semibold mt-1" role="alert">
@@ -228,7 +228,7 @@
             <div class="card-header border-bottom d-flex justify-content-between align-items-center">
               <h5 class="card-title mb-0 fw-semibold">Variants</h5>
               <a href="{{ route('admin.variants.index', ['product_id' => $edit_data->id]) }}" class="btn btn-outline-primary btn-square waves-effect">
-                <i class="ri-git-merge-line me-1"></i> Manage Variants
+                <i class="ri ri-git-merge-line me-1"></i> Manage Variants
               </a>
             </div>
             <div class="card-body mt-3">
@@ -259,7 +259,7 @@
                           </td>
                           <td>
                             <a href="{{ route('admin.variants.edit', $v->id) }}" class="btn btn-outline-secondary btn-sm btn-square waves-effect">
-                              <i class="ri-edit-line me-1"></i> Edit
+                              <i class="ri ri-edit-line me-1"></i> Edit
                             </a>
                           </td>
                         </tr>

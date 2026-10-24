@@ -10,10 +10,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Edit Order</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="javascript:void(0)" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="adminForm">
-              <i class="ri-save-line me-1"></i> Update
+              <i class="ri ri-save-line me-1"></i> Update
             </x-admin.button>
           </div>
         </div>
@@ -51,19 +51,19 @@
         <div class="bs-stepper-header">
          <div class="step active" data-target="#stepper-1">
           <a class="nav-link step-trigger" href="#stepper-1">
-           <i class="ri-shopping-cart-line me-2"></i><span>Products</span>
+           <i class="ri ri-shopping-cart-line me-2"></i><span>Products</span>
           </a>
          </div>
          <div class="line"></div>
          <div class="step" data-target="#stepper-2">
           <a class="nav-link step-trigger" href="#stepper-2">
-           <i class="ri-user-line me-2"></i><span>Customer</span>
+           <i class="ri ri-user-line me-2"></i><span>Customer</span>
           </a>
          </div>
          <div class="line"></div>
          <div class="step" data-target="#stepper-3">
           <a class="nav-link step-trigger" href="#stepper-3">
-           <i class="ri-money-dollar-circle-line me-2"></i><span>Payment</span>
+           <i class="ri ri-money-dollar-circle-line me-2"></i><span>Payment</span>
           </a>
          </div>
         </div>
@@ -289,11 +289,11 @@
           --}}
           <a href="{{ route('admin.order.courier.show', ['provider' => 'steadfast', 'order' => $order->id ?? request('invoice_id')]) }}"
              class="btn btn-outline-primary w-100 mt-2">
-            <i class="ri-truck-line me-1"></i> Send to SteadFast
+            <i class="ri ri-truck-line me-1"></i> Send to SteadFast
           </a>
           <a href="{{ route('admin.order.courier.show', ['provider' => 'pathao', 'order' => $order->id ?? request('invoice_id')]) }}"
              class="btn btn-outline-success w-100 mt-2">
-            <i class="ri-road-map-line me-1"></i> Send to Pathao
+            <i class="ri ri-road-map-line me-1"></i> Send to Pathao
           </a>
         </div>
       </div>
@@ -309,10 +309,10 @@
       --}}
       <div class="d-flex justify-content-between mt-4">
        <x-admin.button variant="outline-secondary" class="btn-prev" type="button" data-bs-stepper-prev>
-        <i class="ri-arrow-left-line me-1"></i> Back
+        <i class="ri ri-arrow-left-line me-1"></i> Back
        </x-admin.button>
        <x-admin.button variant="primary" class="btn-next" type="button" data-bs-stepper-next>
-        Next <i class="ri-arrow-right-line ms-1"></i>
+        Next <i class="ri ri-arrow-right-line ms-1"></i>
        </x-admin.button>
       </div>
 

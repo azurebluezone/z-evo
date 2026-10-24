@@ -232,9 +232,9 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Traffic Trend ({{ ucfirst($trend['granularity']) }}ly)</h5>
         <div class="d-flex gap-3 small">
-            <span><i class="ri-circle-fill text-primary me-1"></i>Events</span>
-            <span><i class="ri-circle-fill text-success me-1"></i>Visitors</span>
-            <span><i class="ri-circle-fill text-info me-1"></i>Server-side</span>
+            <span><i class="ri ri-circle-fill text-primary me-1"></i>Events</span>
+            <span><i class="ri ri-circle-fill text-success me-1"></i>Visitors</span>
+            <span><i class="ri ri-circle-fill text-info me-1"></i>Server-side</span>
         </div>
     </div>
     <div class="card-body">

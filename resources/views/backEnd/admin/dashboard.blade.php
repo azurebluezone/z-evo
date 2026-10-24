@@ -14,13 +14,13 @@
                 <a href="{{ route('products.create') }}" class="btn btn-outline-secondary btn-sm">Create Product</a>
                 <a href="{{ route('products.index') }}" class="btn btn-outline-secondary btn-sm">Manage Products</a>
                 <a href="{{ route('coupons.create') }}" class="btn btn-outline-secondary btn-sm">Create Coupon</a>
-                <a href="{{ route('admin.invoices.index') }}?status=pending&print=bulk" class="btn btn-outline-primary btn-sm"><i class="ri-printer-line"></i> Bulk Print</a>
+                <a href="{{ route('admin.invoices.index') }}?status=pending&print=bulk" class="btn btn-outline-primary btn-sm"><i class="ri ri-printer-line"></i> Bulk Print</a>
                 {{-- POS is not routable yet. OrderController has the full cart_*/order_*
                      POS family on the `pos_shopping` cart instance, but no route and no
                      view were ever added - so this button used to 404 at /admin/pos.
                      Un-comment the moment a POS screen exists. --}}
-                {{-- <a href="{{ url('/admin/pos') }}" class="btn btn-outline-success btn-sm"><i class="ri-shopping-cart-line"></i> POS Interface</a> --}}
-                <a href="{{ route('products.index') }}?stock_alert=1" class="btn btn-outline-info btn-sm"><i class="ri-stock-line"></i> Stock Update</a>
+                {{-- <a href="{{ url('/admin/pos') }}" class="btn btn-outline-success btn-sm"><i class="ri ri-shopping-cart-line"></i> POS Interface</a> --}}
+                <a href="{{ route('products.index') }}?stock_alert=1" class="btn btn-outline-info btn-sm"><i class="ri ri-stock-line"></i> Stock Update</a>
             </div>
         </div>
 
@@ -34,7 +34,7 @@
                             <div>
                                 <p class="mb-1 text-muted">Today's Sale</p>
                                 <h4 class="mb-0 text-primary">৳{{ number_format($today_sale ?? 0) }}</h4>
-                                <small class="text-success"><i class="ri-arrow-up-line"></i> Cash In Today</small>
+                                <small class="text-success"><i class="ri ri-arrow-up-line"></i> Cash In Today</small>
                             </div>
                             <div class="avatar avatar-sm">
                                 <span class="avatar-initial rounded bg-label-success">
@@ -55,7 +55,7 @@
                             <div>
                                 <p class="mb-1 text-muted">Pending Orders</p>
                                 <h4 class="mb-0 text-warning">{{ number_format($pending_orders ?? 0) }}</h4>
-                                <small class="text-warning"><i class="ri-time-line"></i> Need Processing</small>
+                                <small class="text-warning"><i class="ri ri-time-line"></i> Need Processing</small>
                             </div>
                             <div class="avatar avatar-sm">
                                 <span class="avatar-initial rounded bg-label-warning">
@@ -95,7 +95,7 @@
                             <div>
                                 <p class="mb-1 text-muted">Total Customers</p>
                                 <h4 class="mb-0 text-info">{{ number_format($total_customers ?? 0) }}</h4>
-                                <small class="text-info"><i class="ri-user-add-line"></i> Registered Users</small>
+                                <small class="text-info"><i class="ri ri-user-add-line"></i> Registered Users</small>
                             </div>
                             <div class="avatar avatar-sm">
                                 <span class="avatar-initial rounded bg-label-info">
@@ -386,7 +386,7 @@
                         <div class="d-flex align-items-center mb-3 p-2 rounded {{ $failed_login_attempts > 0 ? 'bg-warning bg-opacity-10' : 'bg-success bg-opacity-10' }}">
                             <div class="avatar avatar-sm me-3">
                                 <span class="avatar-initial rounded {{ $failed_login_attempts > 0 ? 'bg-warning' : 'bg-success' }}">
-                                    <i class="ri-lock-unlock-line {{ $failed_login_attempts > 0 ? 'text-dark' : 'text-white' }}"></i>
+                                    <i class="ri ri-lock-unlock-line {{ $failed_login_attempts > 0 ? 'text-dark' : 'text-white' }}"></i>
                                 </span>
                             </div>
                             <div class="flex-grow-1">
@@ -404,7 +404,7 @@
                         <div class="d-flex align-items-center mb-3 p-2 rounded {{ count($abnormal_orders ?? []) > 0 ? 'bg-danger bg-opacity-10' : 'bg-success bg-opacity-10' }}">
                             <div class="avatar avatar-sm me-3">
                                 <span class="avatar-initial rounded {{ count($abnormal_orders ?? []) > 0 ? 'bg-danger' : 'bg-success' }}">
-                                    <i class="ri-shopping-cart-2-line text-white"></i>
+                                    <i class="ri ri-shopping-cart-2-line text-white"></i>
                                 </span>
                             </div>
                             <div class="flex-grow-1">
@@ -424,7 +424,7 @@
                             <ul class="list-unstyled mb-0">
                                 @foreach($abnormal_orders as $abnormal)
                                 <li class="small mb-1">
-                                    <i class="ri-error-warning-line text-danger"></i>
+                                    <i class="ri ri-error-warning-line text-danger"></i>
                                     <strong>{{ $abnormal['identifier'] ?? 'Unknown' }}</strong>
                                     ({{ $abnormal['count'] }} orders in 5min)
                                 </li>

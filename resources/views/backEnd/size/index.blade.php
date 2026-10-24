@@ -6,7 +6,7 @@
     <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
         <h5 class="mb-0 text-uppercase fw-bold">Manage Sizes</h5>
         <a href="{{ route('sizes.create') }}" class="btn btn-primary btn-square waves-effect">
-            <i class="ri-add-line me-1"></i> Create Size
+            <i class="ri ri-add-line me-1"></i> Create Size
         </a>
     </div>
 

@@ -47,13 +47,13 @@
                   </x-admin.button>
                   <div class="dropdown-menu dropdown-menu-end rounded-0">
                     <a class="dropdown-item" href="{{ route('admin.notification-templates.edit', $tpl->id) }}">
-                      <i class="ri-edit-box-line me-2"></i>Edit
+                      <i class="ri ri-edit-box-line me-2"></i>Edit
                     </a>
                     <div class="dropdown-divider"></div>
                     <form method="post" action="{{ route('admin.notification-templates.destroy', $tpl->id) }}" class="d-inline">
                       @csrf
                       <button type="submit" class="dropdown-item text-danger delete-confirm">
-                        <i class="ri-delete-bin-7-line me-2"></i>Delete
+                        <i class="ri ri-delete-bin-7-line me-2"></i>Delete
                       </button>
                     </form>
                   </div>

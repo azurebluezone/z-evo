@@ -12,20 +12,20 @@
             <form method="post" action="{{route('settings.toggle-brands-section')}}" class="d-inline mb-0">
                 @csrf
                 <x-admin.button variant="outline-danger" shape="square" ripple="true" class="change-confirm" type="button" title="Brands section is visible on home page">
-                    <i class="ri-eye-off-line me-1"></i> Hide from Home
+                    <i class="ri ri-eye-off-line me-1"></i> Hide from Home
                 </x-admin.button>
             </form>
             @else
             <form method="post" action="{{route('settings.toggle-brands-section')}}" class="d-inline mb-0">
                 @csrf
                 <x-admin.button variant="outline-success" shape="square" ripple="true" class="change-confirm" type="button" title="Brands section is hidden from home page">
-                    <i class="ri-eye-line me-1"></i> Show on Home
+                    <i class="ri ri-eye-line me-1"></i> Show on Home
                 </x-admin.button>
             </form>
             @endif
 
             <a href="{{ route('brands.create') }}" class="btn btn-primary btn-square waves-effect">
-                <i class="ri-add-line me-1"></i> Create Brand
+                <i class="ri ri-add-line me-1"></i> Create Brand
             </a>
         </div>
     </div>

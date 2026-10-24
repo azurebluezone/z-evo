@@ -10,10 +10,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Order Status Create</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('orderstatus.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="orderstatusForm">
-              <i class="ri-save-line me-1"></i> Submit
+              <i class="ri ri-save-line me-1"></i> Submit
             </x-admin.button>
           </div>
         </div>

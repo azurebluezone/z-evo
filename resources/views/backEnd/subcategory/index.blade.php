@@ -11,12 +11,12 @@
             <form id="subcategoriesBulkDeleteForm" method="post" action="{{ route('subcategories.bulk-destroy') }}" class="d-inline mb-0">
                 @csrf
                 <x-admin.button variant="outline-danger" shape="square" ripple="true" class="delete-confirm" type="submit" title="Delete selected subcategories">
-                    <i class="ri-delete-bin-line me-1"></i> Delete Selected
+                    <i class="ri ri-delete-bin-line me-1"></i> Delete Selected
                 </x-admin.button>
             </form>
 
             <a href="{{ route('subcategories.create') }}" class="btn btn-primary btn-square waves-effect">
-                <i class="ri-add-line me-1"></i> Create Subcategory
+                <i class="ri ri-add-line me-1"></i> Create Subcategory
             </a>
         </div>
     </div>

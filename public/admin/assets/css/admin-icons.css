@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Admin — icon base-class shim + password visibility toggle
+   Admin — icon contract notes + password visibility toggle
    Loaded after iconify-icons.css / core.css / demo.css / admin-responsive.css.
    ========================================================================== */
 
@@ -14,31 +14,15 @@
        .ri-eye-line   --svg:url("data:image/svg+xml,...");
 
    The name class only carries the artwork. Without the `.ri` base class the
-   element has no box and no mask, so it renders 0x0 — an invisible glyph.
+   element has no box and no mask, so it renders 0x0 — an invisible glyph
+   (the empty change-password eye button of 2026-10-24).
 
-   The admin views were written for the old font build (`<i class="ri-eye-line">`
-   worked because the font family did the drawing) and 329 <i> tags never got
-   the base class. Measured on /admin/change-password: the eye button was a
-   46x48 empty outline with a 0x0 icon inside it.
-
-   This shim restores the box for those call sites. It is scoped to <i> and
-   skips `.ri` itself, so the 702 correctly written call sites are untouched.
-   The canonical form is still `class="ri ri-eye-line"` — new markup should use
-   it; this rule exists so the old markup is not 329 hand edits plus a visual
-   regression pass.
+   Every <i class="ri-..."> in resources/views now carries the base class
+   (324 tags across 94 files were swept on 2026-10-24). The temporary shim
+   `i[class*="ri-"]:not(.ri)` was removed in the same change, so this file no
+   longer patches markup — it only styles the controls below. New markup must
+   be `class="ri ri-<name>"`.
    -------------------------------------------------------------------------- */
-i[class*="ri-"]:not(.ri) {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  background-color: currentColor;
-  -webkit-mask-image: var(--svg);
-  mask-image: var(--svg);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-}
 
 /* --------------------------------------------------------------------------
    2. Password visibility toggle (.toggle-password)

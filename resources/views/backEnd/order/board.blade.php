@@ -38,9 +38,37 @@
 </div>
 
 <style>
-/* Scoped to the board so nothing here can reach another admin screen. */
-#kanbanBoard.kanban-container { display: flex; gap: .75rem; align-items: flex-start; overflow-x: auto; padding-bottom: .5rem; }
-#kanbanBoard .kanban-board { background: #f8f9fa; border: 1px solid var(--bs-border-color, #e9ecef); border-radius: .5rem; min-width: 15rem; }
+/*
+ * Scoped to the board so nothing here can reach another admin screen.
+ *
+ * jKanban builds its own `.kanban-container` INSIDE #kanbanBoard and gives it
+ * an inline width of (boards x 250px + gutters). The host itself is
+ * `.kanban-scroll`, so the old `#kanbanBoard.kanban-container` selector never
+ * matched anything: the columns stacked vertically and the 1680px inner
+ * container escaped the 1044px card, pushing the whole page sideways
+ * (scrollWidth 2008 at 1440). The scroll owner must be the element that is
+ * actually too wide - the child container - not the page.
+ */
+#kanbanBoard { max-width: 100%; }
+#kanbanBoard > .kanban-container {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: .5rem;
+}
+/* Keep the horizontal scrollbar visible: without it the columns past the
+   fourth are undiscoverable until the user happens to scroll. */
+#kanbanBoard > .kanban-container::-webkit-scrollbar { height: 8px; }
+#kanbanBoard > .kanban-container::-webkit-scrollbar-track { background: transparent; }
+#kanbanBoard > .kanban-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+#kanbanBoard > .kanban-container:focus-visible { outline: 2px solid var(--bs-primary, #666cff); outline-offset: 2px; }
+/* The library writes margin-left/right:15px inline on every board; the gap
+   above already owns the spacing, so drop the inline margins (inline styles
+   need !important to lose against a stylesheet). */
+#kanbanBoard > .kanban-container > .kanban-board { margin-left: 0 !important; margin-right: 0 !important; }
+#kanbanBoard .kanban-board { flex: 0 0 auto; background: #f8f9fa; border: 1px solid var(--bs-border-color, #e9ecef); border-radius: .5rem; min-width: 15rem; }
 #kanbanBoard .kanban-board-header { background: #fff; border-bottom: 1px solid var(--bs-border-color, #e9ecef); border-radius: .5rem .5rem 0 0; padding: .6rem .8rem; }
 #kanbanBoard .kanban-title-board { font-weight: 600; }
 #kanbanBoard .kanban-drag { min-height: 10rem; padding: .5rem; display: flex; flex-direction: column; gap: .5rem; }
@@ -133,6 +161,21 @@
         item.setAttribute('data-column-from', parsed.status);
         item.setAttribute('data-invoice', parsed.invoice);
     });
+
+    /*
+     * The columns are wider than the card, so the scroller jKanban created
+     * inside #kanbanBoard owns the overflow. A plain div is not reachable by
+     * keyboard and a hidden overlay scrollbar makes the off-screen columns
+     * undiscoverable, so give the scroller a tab stop, a name and a role.
+     */
+    var scroller = root.querySelector('.kanban-container');
+    if (scroller) {
+        scroller.setAttribute('tabindex', '0');
+        scroller.setAttribute('role', 'region');
+        scroller.setAttribute('aria-label',
+            'Order board, ' + scroller.querySelectorAll('.kanban-board').length +
+            ' status columns, scrolls horizontally');
+    }
 
     /* Remember the column a card is dragged FROM, so a drop back is not a change. */
     root.addEventListener('mousedown', function (e) {

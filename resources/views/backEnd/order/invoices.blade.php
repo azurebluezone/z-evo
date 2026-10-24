@@ -142,13 +142,13 @@
                                             </x-admin.button>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item" href="{{ route('admin.order.invoice', ['invoice_id' => $inv->invoice_id]) }}">
-                                                    <i class="ri-eye-line me-2"></i>View Invoice
+                                                    <i class="ri ri-eye-line me-2"></i>View Invoice
                                                 </a>
                                                 <a class="dropdown-item" href="{{ route('admin.order.process', ['invoice_id' => $inv->invoice_id]) }}">
-                                                    <i class="ri-settings-3-line me-2"></i>Process
+                                                    <i class="ri ri-settings-3-line me-2"></i>Process
                                                 </a>
                                                 <a class="dropdown-item" href="{{ route('admin.order.edit', ['invoice_id' => $inv->invoice_id]) }}">
-                                                    <i class="ri-edit-box-line me-2"></i>Edit
+                                                    <i class="ri ri-edit-box-line me-2"></i>Edit
                                                 </a>
 
                                                 <div class="dropdown-divider"></div>
@@ -157,7 +157,7 @@
                                                     @csrf
                                                     <input type="hidden" name="id" value="{{ $inv->id }}">
                                                     <button type="submit" class="dropdown-item text-danger delete-confirm">
-                                                        <i class="ri-delete-bin-7-line me-2"></i>Delete
+                                                        <i class="ri ri-delete-bin-7-line me-2"></i>Delete
                                                     </button>
                                                 </form>
                                             </div>

@@ -38,7 +38,7 @@
            page do". --}}
       @if(session('courier_success'))
         <div class="alert alert-success d-flex align-items-start gap-2 mb-4" role="alert">
-          <i class="ri-checkbox-circle-fill"></i>
+          <i class="ri ri-checkbox-circle-fill"></i>
           <div>
             <h6 class="alert-heading mb-1">Sent to the courier.</h6>
             <p class="mb-0">{{ session('courier_success') }}</p>
@@ -48,7 +48,7 @@
 
       @if(session('courier_error'))
         <div class="alert alert-danger d-flex align-items-start gap-2 mb-4" role="alert">
-          <i class="ri-error-warning-fill"></i>
+          <i class="ri ri-error-warning-fill"></i>
           <div>
             <h6 class="alert-heading mb-1">Not sent.</h6>
             <p class="mb-0">{{ session('courier_error') }}</p>
@@ -80,7 +80,7 @@
                           {{ $courier->type === $provider ? 'border-primary' : '' }}"
                    style="{{ $courier->type === $provider ? 'background-color: rgba(105,108,255,.06);' : '' }}">
                   <div class="card-body d-flex align-items-center gap-3 py-3">
-                    <i class="ri-truck-line"></i>
+                    <i class="ri ri-truck-line"></i>
                     <div class="flex-grow-1 min-w-0">
                       <h6 class="mb-1">{{ $courier->label() }}</h6>
                       @if($courier->isReady())
@@ -92,7 +92,7 @@
                       @endif
                     </div>
                     @if($courier->type === $provider)
-                      <i class="ri-check-line"></i>
+                      <i class="ri ri-check-line"></i>
                     @endif
                   </div>
                 </a>
@@ -157,12 +157,12 @@
                  wrong and where to fix it, which is the entire reason for
                  previewing before sending. --}}
             <div class="alert alert-warning d-flex align-items-start gap-2 mb-0" role="alert">
-              <i class="ri-information-fill"></i>
+              <i class="ri ri-information-fill"></i>
               <div>
                 <p class="mb-2">{{ $preview['message'] }}</p>
                 <a href="{{ route('admin.order.edit', ['invoice_id' => $order->invoice_id]) }}"
                    class="btn btn-sm btn-outline-primary btn-square waves-effect">
-                  <i class="ri-edit-line me-1"></i> Open the order to fix it
+                  <i class="ri ri-edit-line me-1"></i> Open the order to fix it
                 </a>
               </div>
             </div>
@@ -183,7 +183,7 @@
                  consignment rather than merely disabled. --}}
             <div class="alert alert-info mb-0">
               <h6 class="alert-heading mb-2">
-                <i class="ri-information-fill me-1"></i>This order already has a consignment.
+                <i class="ri ri-information-fill me-1"></i>This order already has a consignment.
               </h6>
               <div class="table-responsive">
                 <table class="table table-sm mb-0">
@@ -227,7 +227,7 @@
               <div class="d-flex flex-column flex-sm-row gap-2">
                 <x-admin.button variant="primary" shape="square" ripple="true"
                                 type="submit" class="flex-grow-1" data-confirm-send>
-                  <i class="ri-truck-line me-1"></i>
+                  <i class="ri ri-truck-line me-1"></i>
                   Send to {{ $couriers->firstWhere('type', $provider)->label() ?? 'courier' }}
                 </x-admin.button>
 
@@ -242,7 +242,7 @@
             {{-- Nothing can be sent; panel 2 above already explains why. --}}
             <a href="{{ route('admin.order.edit', ['invoice_id' => $order->invoice_id]) }}"
                class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Back to the order
+              <i class="ri ri-arrow-left-line me-1"></i> Back to the order
             </a>
           @endif
         </div>
@@ -301,7 +301,7 @@
                       type="button"
                       data-copy-token="#fmWebhookToken"
                       aria-label="Copy webhook token">
-                <i class="ri-file-copy-line"></i>
+                <i class="ri ri-file-copy-line"></i>
               </button>
             </div>
 
@@ -340,7 +340,7 @@
 
                 function done() {
                     var original = button.innerHTML;
-                    button.innerHTML = '<i class="ri-check-line"></i>';
+                    button.innerHTML = '<i class="ri ri-check-line"></i>';
                     setTimeout(function () { button.innerHTML = original; }, 1500);
                 }
 

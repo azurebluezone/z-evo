@@ -7,10 +7,10 @@
     <h4 class="mb-0 text-uppercase fw-bold">Variant Ledger</h4>
     <div class="d-flex gap-2">
       <a href="{{ route('admin.inventory.adjustment', ['variant_id' => $variant->id]) }}" class="btn btn-primary btn-square waves-effect">
-        <i class="ri-settings-4-line me-1"></i> Adjust
+        <i class="ri ri-settings-4-line me-1"></i> Adjust
       </a>
       <a href="{{ route('admin.inventory.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-        <i class="ri-arrow-left-line me-1"></i> Back
+        <i class="ri ri-arrow-left-line me-1"></i> Back
       </a>
     </div>
   </div>
@@ -74,7 +74,7 @@
           </div>
           <div class="col-12">
             <x-admin.button variant="success" shape="square" ripple="true" type="submit">
-              <i class="ri-search-line me-1"></i> Filter
+              <i class="ri ri-search-line me-1"></i> Filter
             </x-admin.button>
           </div>
         </form>

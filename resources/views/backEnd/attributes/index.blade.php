@@ -7,7 +7,7 @@
     <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
         <h5 class="mb-0 text-uppercase fw-bold">Manage Attributes</h5>
         <a href="{{ route('admin.attributes.create') }}" class="btn btn-primary btn-square waves-effect">
-            <i class="ri-add-line me-1"></i> Create Attribute
+            <i class="ri ri-add-line me-1"></i> Create Attribute
         </a>
     </div>
 
@@ -47,7 +47,7 @@
                         <td class="text-end">
                             <div class="d-inline-flex justify-content-end align-items-center gap-1">
                                 <a href="{{ route('admin.attributes.values', $a->id) }}" class="btn btn-sm btn-outline-info btn-square waves-effect" title="Values">
-                                    <i class="ri-list-check"></i> Values
+                                    <i class="ri ri-list-check"></i> Values
                                 </a>
                                 @if(($a->kind ?? 'custom') !== 'system')
                                     <a href="{{ route('admin.attributes.edit', $a->id) }}" class="btn btn-icon btn-text-secondary btn-sm btn-square waves-effect" title="Edit">

@@ -10,7 +10,7 @@
                     <div class="text-muted small mt-1">{{ $attribute->slug ?? 'N/A' }}</div>
                 </div>
                 <a href="{{ route('admin.attributes.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-                    <i class="ri-arrow-left-line me-1"></i> Back to Attributes
+                    <i class="ri ri-arrow-left-line me-1"></i> Back to Attributes
                 </a>
             </div>
 
@@ -70,7 +70,7 @@
 
                     <div class="col-12 mt-4">
                         <x-admin.button variant="success" shape="square" ripple="true" type="submit">
-                            <i class="ri-save-line me-1"></i> Add Value
+                            <i class="ri ri-save-line me-1"></i> Add Value
                         </x-admin.button>
                     </div>
                 </form>

@@ -9,10 +9,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Coupon Edit</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('coupons.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="couponsForm">
-              <i class="ri-save-line me-1"></i> Update
+              <i class="ri ri-save-line me-1"></i> Update
             </x-admin.button>
           </div>
         </div>
@@ -24,7 +24,7 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <h4 class="mb-0">Coupon Edit</h4>
             <a href="{{ route('coupons.index') }}" class="btn btn-outline-secondary waves-effect">
-                <i class="ri-arrow-left-line me-1"></i> Manage
+                <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
         </div>
 
@@ -105,7 +105,7 @@
 
                     <div class="col-12">
                         <x-admin.button variant="success" ripple="true" type="submit">
-                            <i class="ri-save-line me-1"></i> Update Coupon
+                            <i class="ri ri-save-line me-1"></i> Update Coupon
                         </x-admin.button>
                     </div>
                 </form>

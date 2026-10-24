@@ -67,7 +67,7 @@
           <div class="mt-2 d-flex gap-2">
             <x-admin.button variant="primary" type="submit">Save</x-admin.button>
             <x-admin.button variant="outline-info" type="button" id="testSteadfastBtn" data-test-url="{{ route('admin.courier.test.steadfast') }}">
-              <i class="ri-test-tube-line me-1"></i>Test Connection
+              <i class="ri ri-test-tube-line me-1"></i>Test Connection
             </x-admin.button>
           </div>
         </form>
@@ -152,7 +152,7 @@
           <div class="mt-2 d-flex gap-2">
             <x-admin.button variant="primary" type="submit">Save</x-admin.button>
             <x-admin.button variant="outline-info" type="button" id="testPathaoBtn" data-test-url="{{ route('admin.courier.test.pathao') }}">
-              <i class="ri-test-tube-line me-1"></i>Test Connection
+              <i class="ri ri-test-tube-line me-1"></i>Test Connection
             </x-admin.button>
           </div>
         </form>

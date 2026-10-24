@@ -33,7 +33,7 @@
         <x-admin.button variant="outline-secondary" size="sm">Cancel</x-admin.button>
         <x-admin.button variant="text-danger" shape="icon" size="sm"
                         class="delete-confirm" title="Delete" onclick="return confirmDel()">
-            <i class="ri-delete-bin-line"></i>
+            <i class="ri ri-delete-bin-line"></i>
         </x-admin.button>
         <x-admin.button href="{{ route('orders.index') }}">All orders</x-admin.button>
 

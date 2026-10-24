@@ -8,7 +8,7 @@
         <h5 class="mb-0 text-uppercase fw-bold">Manage Coupons</h5>
         <div class="d-flex gap-2 align-items-center">
             <a href="{{ route('coupons.create') }}" class="btn btn-primary btn-square waves-effect">
-                <i class="ri-add-line me-1"></i> Create Coupon
+                <i class="ri ri-add-line me-1"></i> Create Coupon
             </a>
         </div>
     </div>

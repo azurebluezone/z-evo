@@ -10,10 +10,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Customer Edit</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="customersForm">
-              <i class="ri-save-line me-1"></i> Update
+              <i class="ri ri-save-line me-1"></i> Update
             </x-admin.button>
           </div>
         </div>
@@ -38,8 +38,8 @@
                 <h5 class="mb-1">{{$edit_data->name}}</h5>
                 <p class="text-muted mb-3">{{$edit_data->email}}</p>
                 <div class="d-flex justify-content-center gap-2">
-                    <a href="tel:{{$edit_data->phone}}" class="btn btn-success btn-sm"><i class="ri-phone-line me-1"></i>Call</a>
-                    <a href="mailto:{{$edit_data->email}}" class="btn btn-info btn-sm"><i class="ri-mail-send-line me-1"></i>Email</a>
+                    <a href="tel:{{$edit_data->phone}}" class="btn btn-success btn-sm"><i class="ri ri-phone-line me-1"></i>Call</a>
+                    <a href="mailto:{{$edit_data->email}}" class="btn btn-info btn-sm"><i class="ri ri-mail-send-line me-1"></i>Email</a>
                 </div>
             </div>
         </div>
@@ -47,10 +47,10 @@
         <div class="card mt-3">
             <div class="card-body">
                 <a href="{{route('customers.index')}}" class="btn btn-outline-secondary btn-sm w-100 mb-2">
-                    <i class="ri-arrow-left-line me-1"></i> Back to List
+                    <i class="ri ri-arrow-left-line me-1"></i> Back to List
                 </a>
                 <a href="{{route('customers.profile',['id'=>$edit_data->id])}}" class="btn btn-outline-primary btn-sm w-100">
-                    <i class="ri-eye-line me-1"></i> View Profile
+                    <i class="ri ri-eye-line me-1"></i> View Profile
                 </a>
             </div>
         </div>
@@ -146,7 +146,7 @@
 
                     <div class="col-12 mt-4">
                         <x-admin.button variant="primary" ripple="true" type="submit">
-                            <i class="ri-save-line me-2"></i>Save Changes
+                            <i class="ri ri-save-line me-2"></i>Save Changes
                         </x-admin.button>
                         <x-admin.button variant="outline-secondary" class="ms-2" type="reset">Reset</x-admin.button>
                     </div>

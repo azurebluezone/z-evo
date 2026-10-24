@@ -10,10 +10,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Category Edit</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('categories.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="categoriesForm">
-              <i class="ri-save-line me-1"></i> Update
+              <i class="ri ri-save-line me-1"></i> Update
             </x-admin.button>
           </div>
         </div>
@@ -25,7 +25,7 @@
         <h5 class="mb-0 text-uppercase fw-bold">Edit Category</h5>
         <div class="d-flex gap-2 align-items-center">
             <a href="{{ route('categories.index') }}" class="btn btn-primary btn-square waves-effect">
-                <i class="ri-list-check me-1"></i> Manage Categories
+                <i class="ri ri-list-check me-1"></i> Manage Categories
             </a>
         </div>
     </div>
@@ -98,7 +98,7 @@
 
             <div class="col-12 text-end border-top pt-3">
                 <x-admin.button variant="success" shape="square" class="px-5" type="submit">
-                    <i class="ri-refresh-line me-1"></i> Update Category
+                    <i class="ri ri-refresh-line me-1"></i> Update Category
                 </x-admin.button>
             </div>
         </form>

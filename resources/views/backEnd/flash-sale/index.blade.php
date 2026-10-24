@@ -8,7 +8,7 @@
         <h5 class="mb-0 text-uppercase fw-bold">Manage Flash Sales</h5>
         <div class="d-flex gap-2 align-items-center">
             <a href="{{ route('flash-sales.create') }}" class="btn btn-primary btn-square waves-effect">
-                <i class="ri-add-line me-1"></i> Create Flash Sale
+                <i class="ri ri-add-line me-1"></i> Create Flash Sale
             </a>
         </div>
     </div>

@@ -13,12 +13,12 @@
                             <input type="hidden" name="variant_id" value="{{ $filters['variant_id'] }}" />
                         @endif
                         <x-admin.button variant="outline-primary" shape="square" ripple="true" type="submit">
-                            <i class="ri-search-line me-1"></i> Filter
+                            <i class="ri ri-search-line me-1"></i> Filter
                         </x-admin.button>
                         <a href="{{ route('admin.inventory.adjustment') }}" class="btn btn-outline-secondary btn-square waves-effect">Reset</a>
                     </form>
                     <a href="{{ route('admin.inventory.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-                        <i class="ri-arrow-left-line me-1"></i> Back to Stock
+                        <i class="ri ri-arrow-left-line me-1"></i> Back to Stock
                     </a>
                 </div>
             </div>
@@ -26,7 +26,7 @@
             <div class="card-body mt-4">
                 <div class="card rounded-0 border-info shadow-none mb-4">
                     <div class="card-body text-info d-flex align-items-center">
-                        <i class="ri-information-line fs-4 me-2"></i>
+                        <i class="ri ri-information-line fs-4 me-2"></i>
                         <span>
                             <strong>What this does:</strong> Writes an <b>ADJUSTMENT</b> row to <code>inventory_movements</code>, updates <code>variant_stocks</code>, and syncs legacy <code>products.stock</code>.
                         </span>
@@ -69,7 +69,7 @@
                             <input type="number" name="qty_delta" id="qty_delta" class="form-control rounded-0 @error('qty_delta') is-invalid @enderror" value="{{ old('qty_delta') }}" placeholder="Qty Delta" />
                             <label for="qty_delta">Qty Delta *</label>
                         </div>
-                        <div class="form-text text-muted mt-1"><i class="ri-information-line"></i> Use positive to add stock, negative to reduce.</div>
+                        <div class="form-text text-muted mt-1"><i class="ri ri-information-line"></i> Use positive to add stock, negative to reduce.</div>
                         @error('qty_delta')
                             <span class="invalid-feedback d-block fw-semibold">{{ $message }}</span>
                         @enderror
@@ -87,7 +87,7 @@
 
                     <div class="col-12 mt-4">
                         <x-admin.button variant="success" shape="square" ripple="true" type="submit">
-                            <i class="ri-check-line me-1"></i> Apply Adjustment
+                            <i class="ri ri-check-line me-1"></i> Apply Adjustment
                         </x-admin.button>
                     </div>
                 </form>

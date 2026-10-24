@@ -10,7 +10,7 @@
     </div>
     <div class="d-flex gap-2">
       <x-admin.button variant="primary" shape="square" ripple="true" data-bs-toggle="modal" data-bs-target="#addProductModal">
-        <i class="ri-add-line me-1"></i> Add Product
+        <i class="ri ri-add-line me-1"></i> Add Product
       </x-admin.button>
     </div>
   </div>
@@ -103,7 +103,7 @@
         <h6 class="mb-2 fw-semibold text-primary">Quick Add Product</h6>
         <p class="mb-3 small">Search and add products to recommendations</p>
         <x-admin.button variant="primary" shape="square" ripple="true" class="w-100" data-bs-toggle="modal" data-bs-target="#addProductModal">
-          <i class="ri-add-line me-1"></i> Add New
+          <i class="ri ri-add-line me-1"></i> Add New
         </x-admin.button>
       </div>
     </div>
@@ -117,7 +117,7 @@
     <div class="d-flex gap-2 align-items-center">
       <form class="d-flex align-items-center gap-2" method="get" action="{{ route('admin.recommendations.index') }}">
         <div class="input-group">
-          <span class="input-group-text"><i class="ri-search-line"></i></span>
+          <span class="input-group-text"><i class="ri ri-search-line"></i></span>
           <input type="text" name="keyword" class="form-control" placeholder="Search products..." value="{{ request('keyword') }}" style="min-width: 200px;">
         </div>
         <x-admin.button variant="outline-primary" type="submit">Search</x-admin.button>
@@ -170,9 +170,9 @@
             </td>
             <td>
               @if($value->is_recommended == 1)
-                <span class="badge bg-label-success"><i class="ri-check-line me-1"></i>Active</span>
+                <span class="badge bg-label-success"><i class="ri ri-check-line me-1"></i>Active</span>
               @else
-                <span class="badge bg-label-danger"><i class="ri-close-line me-1"></i>Inactive</span>
+                <span class="badge bg-label-danger"><i class="ri ri-close-line me-1"></i>Inactive</span>
               @endif
             </td>
             <td class="text-end">
@@ -211,10 +211,10 @@
           <tr>
             <td colspan="6" class="text-center py-4">
               <div class="d-flex flex-column align-items-center">
-                <i class="ri-inbox-line ri-3x text-muted mb-2"></i>
+                <i class="ri ri-inbox-line ri-3x text-muted mb-2"></i>
                 <p class="text-muted mb-0">No recommended products found</p>
                 <x-admin.button variant="primary" size="sm" class="mt-2" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                  <i class="ri-add-line me-1"></i>Add Product
+                  <i class="ri ri-add-line me-1"></i>Add Product
                 </x-admin.button>
               </div>
             </td>
@@ -244,7 +244,7 @@
       </div>
       <div class="modal-body text-center">
         <div class="mb-3">
-          <i class="ri-error-warning-line ri-3x text-danger"></i>
+          <i class="ri ri-error-warning-line ri-3x text-danger"></i>
         </div>
         <h6 class="mb-2">Are you sure you want to remove this product?</h6>
         <p class="text-muted mb-0" id="deleteProductName"></p>
@@ -257,7 +257,7 @@
           <input type="hidden" name="is_recommended" value="0">
           <input type="hidden" name="recommended_sort_order" value="0">
           <x-admin.button variant="danger" type="submit">
-            <i class="ri-delete-bin-line me-1"></i>Yes, Remove
+            <i class="ri ri-delete-bin-line me-1"></i>Yes, Remove
           </x-admin.button>
         </form>
       </div>
@@ -281,11 +281,11 @@
             <div class="col-12">
               <label class="form-label fw-semibold">Search Product</label>
               <div class="input-group">
-                <span class="input-group-text"><i class="ri-search-line"></i></span>
+                <span class="input-group-text"><i class="ri ri-search-line"></i></span>
                 <input type="text" name="product_search" class="form-control" placeholder="Type product name or ID..." id="productSearchInput" autocomplete="off">
                 <input type="hidden" name="id" id="selectedProductId">
                 <x-admin.button variant="outline-primary" type="button" id="searchProductBtn">
-                  <i class="ri-search-line me-1"></i>Search
+                  <i class="ri ri-search-line me-1"></i>Search
                 </x-admin.button>
               </div>
               <div id="searchResults" class="list-group mt-2 border rounded" style="max-height: 250px; overflow-y: auto; display: none;"></div>
@@ -304,7 +304,7 @@
         <div class="modal-footer">
           <x-admin.button variant="outline-secondary" type="button" data-bs-dismiss="modal">Cancel</x-admin.button>
           <x-admin.button variant="primary" type="submit" id="addProductBtn">
-            <i class="ri-add-line me-1"></i>Add to Recommendations
+            <i class="ri ri-add-line me-1"></i>Add to Recommendations
           </x-admin.button>
         </div>
       </form>
@@ -355,11 +355,11 @@
                             resultsDiv.appendChild(btn);
                         });
                     } else {
-                        resultsDiv.innerHTML = '<div class="list-group-item text-muted py-3 text-center"><i class="ri-inbox-line ri-lg me-2"></i>No products found</div>';
+                        resultsDiv.innerHTML = '<div class="list-group-item text-muted py-3 text-center"><i class="ri ri-inbox-line ri-lg me-2"></i>No products found</div>';
                     }
                 })
                 .catch(function() {
-                    resultsDiv.innerHTML = '<div class="list-group-item text-danger py-3 text-center"><i class="ri-error-warning-line ri-lg me-2"></i>Search failed. Please try again.</div>';
+                    resultsDiv.innerHTML = '<div class="list-group-item text-danger py-3 text-center"><i class="ri ri-error-warning-line ri-lg me-2"></i>Search failed. Please try again.</div>';
                 });
         }
         

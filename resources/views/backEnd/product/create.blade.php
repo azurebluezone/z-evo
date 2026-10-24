@@ -10,7 +10,7 @@
           <h5 class="mb-0 text-uppercase fw-bold">Create Product</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('products.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-                <i class="ri-arrow-left-line me-1"></i> All Products
+                <i class="ri ri-arrow-left-line me-1"></i> All Products
             </a>
           </div>
         </div>
@@ -353,7 +353,7 @@
         </div>
         <div class="d-flex justify-content-end gap-2 mb-4">
           <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="productForm">
-              <i class="ri-save-line me-1"></i> Publish Product
+              <i class="ri ri-save-line me-1"></i> Publish Product
           </x-admin.button>
         </div>
         </form>

@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
-        setBtnLoading(steadfastBtn, true, '<i class="ri-loader-4-line spin me-1"></i>Testing...', steadfastBtn.innerHTML);
+        setBtnLoading(steadfastBtn, true, '<i class="ri ri-loader-4-line spin me-1"></i>Testing...', steadfastBtn.innerHTML);
         postJson(url, { api_key: apiKey, secret_key: secretKey, url: baseUrl })
           .then(function (res) {
             if (res && res.success) {
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.toastr) window.toastr.error('Connection test failed');
           })
           .finally(function () {
-            setBtnLoading(steadfastBtn, false, null, '<i class="ri-test-tube-line me-1"></i>Test Connection');
+            setBtnLoading(steadfastBtn, false, null, '<i class="ri ri-test-tube-line me-1"></i>Test Connection');
           });
       });
     }
@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
-        setBtnLoading(pathaoBtn, true, '<i class="ri-loader-4-line spin me-1"></i>Testing...', pathaoBtn.innerHTML);
+        setBtnLoading(pathaoBtn, true, '<i class="ri ri-loader-4-line spin me-1"></i>Testing...', pathaoBtn.innerHTML);
         postJson(url, { client_id: clientId, client_secret: clientSecret, username: username, password: password, url: baseUrl })
           .then(function (res) {
             if (res && res.success) {
@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.toastr) window.toastr.error('Connection test failed');
           })
           .finally(function () {
-            setBtnLoading(pathaoBtn, false, null, '<i class="ri-test-tube-line me-1"></i>Test Connection');
+            setBtnLoading(pathaoBtn, false, null, '<i class="ri ri-test-tube-line me-1"></i>Test Connection');
           });
       });
     }
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!url) return;
 
         var limit = (document.getElementById('syncLimit') || {}).value || 100;
-        setBtnLoading(syncBtn, true, '<i class="ri-loader-4-line spin me-1"></i>Syncing...', syncBtn.innerHTML);
+        setBtnLoading(syncBtn, true, '<i class="ri ri-loader-4-line spin me-1"></i>Syncing...', syncBtn.innerHTML);
 
         postJson(url, { limit: limit })
           .then(function (res) {
@@ -467,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.toastr) window.toastr.error('Sync failed');
           })
           .finally(function () {
-            setBtnLoading(syncBtn, false, null, '<i class="ri-refresh-line me-1"></i>Sync Orders');
+            setBtnLoading(syncBtn, false, null, '<i class="ri ri-refresh-line me-1"></i>Sync Orders');
           });
       });
     }

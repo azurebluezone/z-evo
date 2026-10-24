@@ -12,10 +12,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Landing Page Create</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('campaign.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="campaignForm">
-              <i class="ri-save-line me-1"></i> Submit
+              <i class="ri ri-save-line me-1"></i> Submit
             </x-admin.button>
           </div>
         </div>
@@ -175,7 +175,7 @@
                             <label for="image">Review Image *</label>
                             <div class="input-group">
                                 <input type="file" name="image[]" class="form-control @error('image') is-invalid @enderror" />
-                                <x-admin.button variant="outline-success" class="btn-increment" type="button"><i class="ri-add-line"></i></x-admin.button>
+                                <x-admin.button variant="outline-success" class="btn-increment" type="button"><i class="ri ri-add-line"></i></x-admin.button>
                                 @error('image')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -185,7 +185,7 @@
                             <div class="clone hide" style="display: none;">
                                 <div class="input-group mt-2">
                                     <input type="file" name="image[]" class="form-control" />
-                                    <x-admin.button variant="outline-danger" type="button"><i class="ri-delete-bin-line"></i></x-admin.button>
+                                    <x-admin.button variant="outline-danger" type="button"><i class="ri ri-delete-bin-line"></i></x-admin.button>
                                 </div>
                             </div>
                         </div>

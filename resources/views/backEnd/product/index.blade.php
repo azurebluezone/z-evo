@@ -98,11 +98,11 @@
         <div class="d-flex gap-2 align-items-center flex-wrap">
             
             <x-admin.button variant="primary" shape="square" ripple="true" class="{{ (isset($generalSetting) && $generalSetting->home_page_hot_deal_section == 1) ? 'btn-outline-success' : 'btn-outline-warning' }} change-confirm" type="button" onclick="document.getElementById('hotDealToggleForm').submit();">
-                <i class="ri-fire-line me-1"></i> {{ (isset($generalSetting) && $generalSetting->home_page_hot_deal_section == 1) ? 'Hide Hot Deals' : 'Show Hot Deals' }}
+                <i class="ri ri-fire-line me-1"></i> {{ (isset($generalSetting) && $generalSetting->home_page_hot_deal_section == 1) ? 'Hide Hot Deals' : 'Show Hot Deals' }}
             </x-admin.button>
 
             <a href="{{route('products.create')}}" class="btn btn-primary btn-square waves-effect">
-                <i class="ri-add-line me-1"></i> Add Product
+                <i class="ri ri-add-line me-1"></i> Add Product
             </a>
         </div>
     </div>
@@ -130,7 +130,7 @@
                 </div>
 
                 <x-admin.button variant="outline-secondary" shape="square" type="button" data-bs-toggle="offcanvas" data-bs-target="#productFilters" aria-controls="productFilters">
-                    <i class="ri-filter-3-line me-1"></i> Filters
+                    <i class="ri ri-filter-3-line me-1"></i> Filters
                 </x-admin.button>
             </div>
 

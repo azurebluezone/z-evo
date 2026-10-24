@@ -9,10 +9,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Promo Banner Create</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('promo_banners.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="promo-bannersForm">
-              <i class="ri-save-line me-1"></i> Submit
+              <i class="ri ri-save-line me-1"></i> Submit
             </x-admin.button>
           </div>
         </div>
@@ -75,7 +75,7 @@
 
                     <div class="col-12">
                         <x-admin.button variant="success" ripple="true" type="submit">
-                            <i class="ri-save-line me-1"></i> Save Promo Banner
+                            <i class="ri ri-save-line me-1"></i> Save Promo Banner
                         </x-admin.button>
                     </div>
                 </form>

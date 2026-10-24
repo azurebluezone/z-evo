@@ -9,10 +9,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Childcategory Create</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('childcategories.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="childcategoriesForm">
-              <i class="ri-save-line me-1"></i> Submit
+              <i class="ri ri-save-line me-1"></i> Submit
             </x-admin.button>
           </div>
         </div>
@@ -25,7 +25,7 @@
             <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
                 <h5 class="mb-0 text-uppercase fw-bold">Create Childcategory</h5>
                 <a href="{{ route('childcategories.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-                    <i class="ri-arrow-left-line me-1"></i> Back to Manage
+                    <i class="ri ri-arrow-left-line me-1"></i> Back to Manage
                 </a>
             </div>
 
@@ -94,7 +94,7 @@
 
                     <div class="col-12">
                         <x-admin.button variant="success" shape="square" ripple="true" class="mt-2" type="submit">
-                            <i class="ri-save-line me-1"></i> Save Childcategory
+                            <i class="ri ri-save-line me-1"></i> Save Childcategory
                         </x-admin.button>
                     </div>
                 </form>

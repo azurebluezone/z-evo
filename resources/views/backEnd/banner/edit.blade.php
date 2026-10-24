@@ -9,10 +9,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Banner Edit</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('banners.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="bannersForm">
-              <i class="ri-save-line me-1"></i> Update
+              <i class="ri ri-save-line me-1"></i> Update
             </x-admin.button>
           </div>
         </div>
@@ -24,7 +24,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
             <h4 class="mb-0">Banner Edit</h4>
             <a href="{{ route('banners.index') }}" class="btn btn-outline-secondary waves-effect">
-                <i class="ri-arrow-left-line me-1"></i> Manage
+                <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
         </div>
 
@@ -109,7 +109,7 @@
 
                     <div class="col-12">
                         <x-admin.button variant="success" ripple="true" type="submit">
-                            <i class="ri-save-line me-1"></i> Update Banner
+                            <i class="ri ri-save-line me-1"></i> Update Banner
                         </x-admin.button>
                     </div>
                 </form>

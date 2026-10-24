@@ -27,8 +27,8 @@
                 @endif
 
                 <div class="d-flex justify-content-center gap-2 mb-3">
-                    <a href="tel:{{$profile->phone}}" class="btn btn-success btn-sm"><i class="ri-phone-line me-1"></i>Call</a>
-                    <a href="mailto:{{$profile->email}}" class="btn btn-info btn-sm"><i class="ri-mail-send-line me-1"></i>Email</a>
+                    <a href="tel:{{$profile->phone}}" class="btn btn-success btn-sm"><i class="ri ri-phone-line me-1"></i>Call</a>
+                    <a href="mailto:{{$profile->email}}" class="btn btn-info btn-sm"><i class="ri ri-mail-send-line me-1"></i>Email</a>
                 </div>
 
                 <div class="text-start mt-3 border-top pt-3">
@@ -70,16 +70,16 @@
             <div class="card-body">
                 <div class="d-grid gap-2">
                     <a href="{{route('customers.index')}}" class="btn btn-outline-secondary btn-sm">
-                        <i class="ri-arrow-left-line me-1"></i> Back to List
+                        <i class="ri ri-arrow-left-line me-1"></i> Back to List
                     </a>
                     <a href="{{route('customers.edit',$profile->id)}}" class="btn btn-outline-primary btn-sm">
-                        <i class="ri-edit-line me-1"></i> Edit Profile
+                        <i class="ri ri-edit-line me-1"></i> Edit Profile
                     </a>
                     <form method="post" action="{{route('customers.adminlog')}}" target="_blank">
                         @csrf
                         <input type="hidden" value="{{$profile->id}}" name="hidden_id">
                         <x-admin.button variant="primary" size="sm" class="w-100" type="submit">
-                            <i class="ri-login-box-line me-1"></i> Login As Customer
+                            <i class="ri ri-login-box-line me-1"></i> Login As Customer
                         </x-admin.button>
                     </form>
                 </div>
@@ -181,7 +181,7 @@
                             @empty
                             <tr>
                                 <td colspan="6" class="text-center py-4 text-muted">
-                                    <i class="ri-shopping-bag-line me-1"></i> No orders found
+                                    <i class="ri ri-shopping-bag-line me-1"></i> No orders found
                                 </td>
                             </tr>
                             @endforelse

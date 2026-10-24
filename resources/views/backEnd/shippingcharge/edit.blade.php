@@ -10,10 +10,10 @@
           <h5 class="mb-0 text-uppercase fw-bold">Shipping Charge Edit</h5>
           <div class="d-flex align-items-center gap-2">
             <a href="{{ route('shippingcharges.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-              <i class="ri-arrow-left-line me-1"></i> Manage
+              <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="shippingchargesForm">
-              <i class="ri-save-line me-1"></i> Update
+              <i class="ri ri-save-line me-1"></i> Update
             </x-admin.button>
           </div>
         </div>

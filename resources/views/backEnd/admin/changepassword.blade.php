@@ -9,10 +9,10 @@
                 <h5 class="mb-0 text-uppercase fw-bold">Change Password</h5>
                 <div class="d-flex align-items-center gap-2">
                     <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-square waves-effect">
-                        <i class="ri-arrow-left-line me-1"></i> Dashboard
+                        <i class="ri ri-arrow-left-line me-1"></i> Dashboard
                     </a>
                     <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="changePasswordForm">
-                        <i class="ri-lock-password-line me-1"></i> Change Password
+                        <i class="ri ri-lock-password-line me-1"></i> Change Password
                     </x-admin.button>
                 </div>
             </div>

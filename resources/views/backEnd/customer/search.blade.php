@@ -8,7 +8,7 @@
                         <a href="{{route('customers.profile',['id'=>$value->id])}}" class="d-flex align-items-center text-decoration-none">
                             <div class="avatar avatar-sm me-2">
                                 <span class="avatar-initial bg-label-primary rounded-circle">
-                                    <i class="ri-user-line"></i>
+                                    <i class="ri ri-user-line"></i>
                                 </span>
                             </div>
                             <span class="fw-medium">{{$value->name}}</span>
@@ -24,6 +24,6 @@
     </div>
 @else
     <div class="text-center py-3 text-muted">
-        <i class="ri-search-line me-1"></i> No customers found
+        <i class="ri ri-search-line me-1"></i> No customers found
     </div>
 @endif

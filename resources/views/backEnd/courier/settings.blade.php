@@ -9,7 +9,7 @@
                  as admin.dashboard, which does not exist, so the page threw
                  RouteNotFoundException before rendering anything at all. --}}
             <a href="{{ route('dashboard') }}" class="btn btn-secondary btn-sm">
-                <i class="ri-arrow-left-line me-1"></i> Back
+                <i class="ri ri-arrow-left-line me-1"></i> Back
             </a>
         </div>
 
@@ -20,7 +20,7 @@
         <!-- SteadFast Settings -->
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="ri-truck-line me-2"></i>SteadFast Courier</h5>
+                <h5 class="mb-0"><i class="ri ri-truck-line me-2"></i>SteadFast Courier</h5>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="steadfastToggle" {{ ($steadfast->status ?? 0) ? 'checked' : '' }}>
                     <label class="form-check-label" for="steadfastToggle">{{ ($steadfast->status ?? 0) ? 'Enabled' : 'Disabled' }}</label>
@@ -49,10 +49,10 @@
                     </div>
                     
                     <x-admin.button variant="primary" type="submit">
-                        <i class="ri-save-line me-1"></i>Save SteadFast Settings
+                        <i class="ri ri-save-line me-1"></i>Save SteadFast Settings
                     </x-admin.button>
                     <x-admin.button variant="outline-info" class="ms-2" type="button" id="testSteadfastBtn">
-                        <i class="ri-test-tube-line me-1"></i>Test Connection
+                        <i class="ri ri-test-tube-line me-1"></i>Test Connection
                     </x-admin.button>
                 </form>
                 
@@ -65,7 +65,7 @@
         <!-- Pathao Settings -->
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="ri-road-map-line me-2"></i>Pathao Courier</h5>
+                <h5 class="mb-0"><i class="ri ri-road-map-line me-2"></i>Pathao Courier</h5>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="pathaoToggle" {{ ($pathao->status ?? 0) ? 'checked' : '' }}>
                     <label class="form-check-label" for="pathaoToggle">{{ ($pathao->status ?? 0) ? 'Enabled' : 'Disabled' }}</label>
@@ -105,10 +105,10 @@
                     </div>
                     
                     <x-admin.button variant="primary" type="submit">
-                        <i class="ri-save-line me-1"></i>Save Pathao Settings
+                        <i class="ri ri-save-line me-1"></i>Save Pathao Settings
                     </x-admin.button>
                     <x-admin.button variant="outline-info" class="ms-2" type="button" id="testPathaoBtn">
-                        <i class="ri-test-tube-line me-1"></i>Test Connection
+                        <i class="ri ri-test-tube-line me-1"></i>Test Connection
                     </x-admin.button>
                 </form>
                 
@@ -121,7 +121,7 @@
         <!-- Sync Orders Section -->
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="ri-refresh-line me-2"></i>Sync Orders with Courier Fraud Check</h5>
+                <h5 class="mb-0"><i class="ri ri-refresh-line me-2"></i>Sync Orders with Courier Fraud Check</h5>
             </div>
             <div class="card-body">
                 <p class="text-muted">
@@ -136,7 +136,7 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <x-admin.button variant="success" type="button" id="syncOrdersBtn">
-                            <i class="ri-refresh-line me-1"></i>Sync Orders
+                            <i class="ri ri-refresh-line me-1"></i>Sync Orders
                         </x-admin.button>
                     </div>
                 </div>
@@ -190,7 +190,7 @@
             var $form = $(this);
             var $btn = $form.find('button[type="submit"]');
             
-            $btn.prop('disabled', true).html('<i class="ri-loader-4-line spin me-1"></i>Saving...');
+            $btn.prop('disabled', true).html('<i class="ri ri-loader-4-line spin me-1"></i>Saving...');
             
             $.ajax({
                 url: $form.attr('action'),
@@ -207,7 +207,7 @@
                     toastr.error(msg);
                 },
                 complete: function() {
-                    $btn.prop('disabled', false).html('<i class="ri-save-line me-1"></i>Save SteadFast Settings');
+                    $btn.prop('disabled', false).html('<i class="ri ri-save-line me-1"></i>Save SteadFast Settings');
                 }
             });
         });
@@ -218,7 +218,7 @@
             var $form = $(this);
             var $btn = $form.find('button[type="submit"]');
             
-            $btn.prop('disabled', true).html('<i class="ri-loader-4-line spin me-1"></i>Saving...');
+            $btn.prop('disabled', true).html('<i class="ri ri-loader-4-line spin me-1"></i>Saving...');
             
             $.ajax({
                 url: $form.attr('action'),
@@ -235,7 +235,7 @@
                     toastr.error(msg);
                 },
                 complete: function() {
-                    $btn.prop('disabled', false).html('<i class="ri-save-line me-1"></i>Save Pathao Settings');
+                    $btn.prop('disabled', false).html('<i class="ri ri-save-line me-1"></i>Save Pathao Settings');
                 }
             });
         });
@@ -252,7 +252,7 @@
                 return;
             }
             
-            $btn.prop('disabled', true).html('<i class="ri-loader-4-line spin me-1"></i>Testing...');
+            $btn.prop('disabled', true).html('<i class="ri ri-loader-4-line spin me-1"></i>Testing...');
             
             $.ajax({
                 url: '{{ route("admin.courier.steadfast.update") }}',
@@ -272,7 +272,7 @@
                     toastr.error('Connection test failed');
                 },
                 complete: function() {
-                    $btn.prop('disabled', false).html('<i class="ri-test-tube-line me-1"></i>Test Connection');
+                    $btn.prop('disabled', false).html('<i class="ri ri-test-tube-line me-1"></i>Test Connection');
                 }
             });
         });
@@ -291,7 +291,7 @@
                 return;
             }
             
-            $btn.prop('disabled', true).html('<i class="ri-loader-4-line spin me-1"></i>Testing...');
+            $btn.prop('disabled', true).html('<i class="ri ri-loader-4-line spin me-1"></i>Testing...');
             
             $.ajax({
                 url: '{{ route("admin.courier.pathao.update") }}',
@@ -313,7 +313,7 @@
                     toastr.error('Connection test failed');
                 },
                 complete: function() {
-                    $btn.prop('disabled', false).html('<i class="ri-test-tube-line me-1"></i>Test Connection');
+                    $btn.prop('disabled', false).html('<i class="ri ri-test-tube-line me-1"></i>Test Connection');
                 }
             });
         });
@@ -323,7 +323,7 @@
             var $btn = $(this);
             var limit = $('#syncLimit').val();
             
-            $btn.prop('disabled', true).html('<i class="ri-loader-4-line spin me-1"></i>Syncing...');
+            $btn.prop('disabled', true).html('<i class="ri ri-loader-4-line spin me-1"></i>Syncing...');
             
             $.ajax({
                 url: '{{ route("admin.courier.sync.orders") }}',
@@ -340,7 +340,7 @@
                     
                     if (res.status === 'completed') {
                         $alert.removeClass('alert-danger').addClass('alert-success')
-                              .html('<i class="ri-check-line me-1"></i>Synced ' + res.processed + ' orders successfully');
+                              .html('<i class="ri ri-check-line me-1"></i>Synced ' + res.processed + ' orders successfully');
                         
                         // Show details table
                         if (res.results && res.results.length > 0) {
@@ -372,7 +372,7 @@
                     toastr.error(msg);
                 },
                 complete: function() {
-                    $btn.prop('disabled', false).html('<i class="ri-refresh-line me-1"></i>Sync Orders');
+                    $btn.prop('disabled', false).html('<i class="ri ri-refresh-line me-1"></i>Sync Orders');
                 }
             });
         });
@@ -385,7 +385,7 @@
             
             if (result.success) {
                 $alert.removeClass('alert-danger').addClass('alert-success')
-                      .html('<i class="ri-check-line me-1"></i>' + result.message);
+                      .html('<i class="ri ri-check-line me-1"></i>' + result.message);
                 
                 if (result.balance !== undefined) {
                     $alert.append('<br><strong>Balance:</strong> ৳' + result.balance);
@@ -395,7 +395,7 @@
                 }
             } else {
                 $alert.removeClass('alert-success').addClass('alert-danger')
-                      .html('<i class="ri-error-warning-line me-1"></i>' + result.message);
+                      .html('<i class="ri ri-error-warning-line me-1"></i>' + result.message);
             }
         }
     });
