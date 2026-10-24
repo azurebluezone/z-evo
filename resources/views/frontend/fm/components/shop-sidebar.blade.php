@@ -251,7 +251,7 @@
                 <span class="text-xs font-bold uppercase tracking-wider block mb-3 {{ $fmV2 ? 'fm-sidebar__label text-slate-500' : 'text-gray-900' }}">
                     {{ $fmV2 ? 'Departments' : 'Categories' }}
                 </span>
-                <div class="space-y-1.5 text-xs text-gray-700">
+                <div class="{{ $fmV2 ? 'space-y-[14px]' : 'space-y-1.5' }} text-xs text-gray-700">
 
                     @if($fmPathScopedCategories)
                         <a class="fm-check-row" href="{{ route('products.page') }}"
@@ -322,7 +322,9 @@
                             data-fm-price-pill data-min="500" data-max="">Over Tk 500</button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2 mt-3 {{ $fmV2 ? 'fm-amounts' : '' }}">
+                @unless($fmV2)
+                {{-- Min/Max precise inputs: only in v1; reference v2 omits them. --}}
+                <div class="grid grid-cols-2 gap-2 mt-3 fm-amounts">
                     <div>
                         <label class="text-xs font-bold text-gray-500 uppercase tracking-wider" for="fmMinPrice">Minimum</label>
                         <input type="number" min="0" step="10" id="fmMinPrice" name="min_price"
@@ -340,34 +342,57 @@
                                {{ $fmMaxPrice > 0 ? '' : 'disabled' }}>
                     </div>
                 </div>
+                @endunless
             </div>
 
-            {{-- Rating: only while published products actually carry reviews --}}
+            {{-- Rating: only while published products actually carry reviews.
+                 Reference shows 4.5 & up and 4.0 & up with star icons.
+                 14px vertical spacing for v2. --}}
             @if($fmShowRating)
                 <div class="pt-2 border-t border-gray-100 {{ $fmV2 ? 'fm-sidebar__group' : '' }}">
-                    <span class="text-xs font-bold text-gray-900 uppercase tracking-wider block mb-3">Rating</span>
-                    <div class="space-y-2 text-xs">
+                    <span class="text-xs font-bold uppercase tracking-wider block mb-3 {{ $fmV2 ? 'fm-sidebar__label' : 'text-gray-900' }}">Rating</span>
+                    <div class="{{ $fmV2 ? 'space-y-[14px]' : 'space-y-2' }} text-xs">
 
-                        @for($fmStars = 4; $fmStars >= 1; $fmStars--)
-                            <label class="fm-check-row">
-                                <input type="radio" name="rating" value="{{ $fmStars }}"
-                                       {{ $fmRating === $fmStars ? 'checked' : '' }}>
-                                <span class="fm-check-row__label">
-                                    <span class="text-amber-500 whitespace-nowrap">
-                                        @for($fmStar = 1; $fmStar <= 5; $fmStar++)
-                                            <i class="bi {{ $fmStar <= $fmStars ? 'bi-star-fill' : 'bi-star' }} text-xs"></i>
-                                        @endfor
-                                    </span>
-                                    <span class="font-bold text-gray-800 whitespace-nowrap">{{ $fmStars }}  & up</span>
+                        {{-- 4.5 & up --}}
+                        <label class="fm-check-row">
+                            <input type="radio" name="rating" value="4.5"
+                                   {{ $fmRating == 4.5 ? 'checked' : '' }}>
+                            <span class="fm-check-row__label">
+                                <span class="text-amber-500 whitespace-nowrap">
+                                    <i class="bi bi-star-fill text-xs"></i>
+                                    <i class="bi bi-star-fill text-xs"></i>
+                                    <i class="bi bi-star-fill text-xs"></i>
+                                    <i class="bi bi-star-fill text-xs"></i>
+                                    <i class="bi bi-star-half text-xs"></i>
                                 </span>
-                            </label>
-                        @endfor
+                                <span class="font-bold text-gray-800 whitespace-nowrap">4.5 & up</span>
+                            </span>
+                        </label>
+
+                        {{-- 4.0 & up --}}
+                        <label class="fm-check-row">
+                            <input type="radio" name="rating" value="4"
+                                   {{ $fmRating == 4 ? 'checked' : '' }}>
+                            <span class="fm-check-row__label">
+                                <span class="text-amber-500 whitespace-nowrap">
+                                    <i class="bi bi-star-fill text-xs"></i>
+                                    <i class="bi bi-star-fill text-xs"></i>
+                                    <i class="bi bi-star-fill text-xs"></i>
+                                    <i class="bi bi-star-fill text-xs"></i>
+                                    <i class="bi bi-star text-xs text-gray-300"></i>
+                                </span>
+                                <span class="font-bold text-gray-800 whitespace-nowrap">4.0 & up</span>
+                            </span>
+                        </label>
 
                     </div>
                 </div>
             @endif
 
-            {{-- Quick toggle: text left, control right --}}
+            {{-- Quick toggle: text left, control right.
+                 The reference mockup also shows a "Same-Day Express" checkbox, but no
+                 controller reads an `express` parameter, so shipping it would be a
+                 control that filters nothing. Omitted until the backend exists. --}}
             <div class="pt-2 border-t border-gray-100 {{ $fmV2 ? 'fm-sidebar__group' : '' }}">
                 <label class="fm-check-row fm-check-row--split">
                     <span class="fm-check-row__label text-xs font-bold text-gray-800">In stock only</span>

@@ -192,12 +192,16 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
             $query->where('new_price', '<=', $maxPrice);
         }
 
-        // A star filter is a floor: "4 and up" matches 4 and 5 star rows.
-        $minRating = (int) request('rating', 0);
-        if ($minRating >= 1 && $minRating <= 5) {
-            $query->whereHas('reviews', static function ($reviewQuery) use ($minRating) {
-                $reviewQuery->where('ratting', '>=', $minRating);
-            });
+        // A star filter is a floor on the product's AVERAGE rating: "4.5 and
+        // up" means the mean of all its reviews is >= 4.5, not "has at least
+        // one 4.5 review". Cast to float as well - the sidebar offers 4.5, and
+        // the old (int) cast silently collapsed it into the 4.0 bucket.
+        $minRating = (float) request('rating', 0);
+        if ($minRating > 0 && $minRating <= 5) {
+            $query->whereRaw(
+                '(SELECT AVG(r.ratting) FROM reviews r WHERE r.product_id = products.id) >= ?',
+                [$minRating]
+            );
         }
 
         if (request('in_stock') === '1') {
