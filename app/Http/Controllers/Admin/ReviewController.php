@@ -20,7 +20,13 @@ class ReviewController extends Controller
 
     public function index(Request $request)
     {
-        $show_data = Review::orderBy('id','DESC')->get();
+        // The list has to name the product and the moderation state: without
+        // them an admin cannot tell which product a row belongs to, or which
+        // rows are already live on the storefront.
+        $show_data = Review::with('product:id,name')
+            ->orderByDesc('id')
+            ->paginate(20);
+
         return view('backEnd.review.index',compact('show_data'));
     }
     public function create()
@@ -31,21 +37,28 @@ class ReviewController extends Controller
     }
     public function store(Request $request)
     {
+        // customer_id is optional on purpose: the common case is a walk-in
+        // buyer with no account, and the admin still has to be able to record
+        // their rating. A linked customer still wins over the typed name.
         $this->validate($request, [
-            'customer_id' => 'required',
-            'ratting' => 'required',
+            'customer_id' => 'nullable|exists:customers,id',
+            'name' => 'required_without:customer_id|nullable|string|max:191',
+            'email' => 'nullable|email|max:191',
+            'ratting' => 'required|integer|between:1,5',
             'review' => 'required',
-            'product_id' => 'required',
-            'status' => 'required',
+            'product_id' => 'required|exists:products,id',
+            'status' => 'nullable',
         ]);
-        // ->first() returns null for an unknown id, and reading ->name before
-        // the "N / A" fallback could be applied was a fatal error. The fallback
-        // was already intended - it just has to be reached.
-        $customer = Customer::where('id', $request->customer_id)->first();
-        $input = $request->all();
-        $input['name'] = $customer->name ?? 'N / A';
-        $input['email'] = $customer->email ?? 'N / A';
+
+        $customer = $request->filled('customer_id')
+            ? Customer::find($request->customer_id)
+            : null;
+
+        $input = $request->only(['ratting', 'review', 'product_id', 'customer_id', 'name', 'email']);
+        $input['name'] = $customer->name ?? ($request->input('name') ?: 'N / A');
+        $input['email'] = $customer->email ?? ($request->input('email') ?: 'N / A');
         $input['status'] = $request->status==1?'active':'pending';
+
         Review::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('reviews.index');
@@ -63,14 +76,15 @@ class ReviewController extends Controller
         
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required',
-            'ratting' => 'required',
+            'email' => 'required|email',
+            'ratting' => 'required|integer|between:1,5',
             'review' => 'required',
-            'product_id' => 'required',
+            'product_id' => 'required|exists:products,id',
+            'status' => 'nullable',
         ]);
         $input = $request->except('hidden_id');
         $input['status'] = $request->status==1?'active':'pending';
-        $update_data = Review::find($request->hidden_id);
+        $update_data = Review::findOrFail($request->hidden_id);
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');
@@ -82,26 +96,27 @@ class ReviewController extends Controller
         return view('backEnd.review.pending',compact('data'));
     }
     public function inactive(Request $request){
-        $inactive = Review::find($request->hidden_id);
+        $inactive = Review::findOrFail($request->hidden_id);
         $inactive->status = 'pending';
         $inactive->save();
         Toastr::success('Success','Data inactive successfully');
         return redirect()->back();
     }
     public function active(Request $request){
-        $active = Review::find($request->hidden_id);
+        // This used to increment products.ratting. That column does not exist
+        // (Schema::getColumnType('products','ratting') throws), so every
+        // approval was a 500. The storefront rating is AVG(reviews.ratting)
+        // over active rows, so flipping the status is the whole job.
+        $active = Review::findOrFail($request->hidden_id);
         $active->status = 'active';
         $active->save();
-        
-        $product = Product::select('id','ratting')->find($active->product_id);
-        $product->ratting += 1;
-        $product->save();
+
         Toastr::success('Success','Data active successfully');
         return redirect()->back();
     }
     public function destroy(Request $request)
     {
-        $delete_data = Review::find($request->hidden_id);
+        $delete_data = Review::findOrFail($request->hidden_id);
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();

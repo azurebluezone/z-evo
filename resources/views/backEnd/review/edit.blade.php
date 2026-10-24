@@ -79,7 +79,10 @@
                     <div class="w-100">
                       <label for="status" class="form-label fw-semibold d-block mb-2">Status</label>
                       <label class="switch">
-                        <input type="checkbox" value="1" name="status" @if($edit_data->status==1)checked @endif>
+                        {{-- status is the string 'active'/'pending', never 1: the old `== 1` check
+                             left an active review looking switched off, so any
+                             save sent it back to pending. --}}
+                        <input type="checkbox" value="1" name="status" @if($edit_data->status === 'active')checked @endif>
                         <span class="slider round"></span>
                       </label>
                       @error('status')

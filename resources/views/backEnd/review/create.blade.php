@@ -51,20 +51,44 @@
                   </div>
 
                   <div class="col-12 col-sm-6">
-                    <label for="customer_id" class="form-label fw-semibold">Customer *</label>
+                    <label for="customer_id" class="form-label fw-semibold">Customer (optional)</label>
                     <select
                       class="form-select rounded-0 select2-multiple @error('customer_id') is-invalid @enderror"
                       name="customer_id"
                       id="customer_id"
                       data-toggle="select2"
-                      data-placeholder="Choose ..."
-                      required>
-                      <option value="">Select..</option>
+                      data-placeholder="Choose ...">
+                      <option value="">Walk-in buyer (no account)</option>
                       @foreach ($customers as $value)
                         <option value="{{ $value->id }}" @if(old('customer_id') == $value->id) selected @endif>{{ $value->name }}</option>
                       @endforeach
                     </select>
+                    <div class="form-text">A linked customer's name and email win over the two fields below.</div>
                     @error('customer_id')
+                      <span class="invalid-feedback d-block fw-semibold" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror
+                  </div>
+
+                  <div class="col-12 col-sm-6">
+                    <div class="form-floating form-floating-outline">
+                      <input type="text" class="form-control rounded-0 @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" id="name" placeholder="Buyer Name" />
+                      <label for="name">Buyer Name</label>
+                    </div>
+                    @error('name')
+                      <span class="invalid-feedback d-block fw-semibold" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror
+                  </div>
+
+                  <div class="col-12 col-sm-6">
+                    <div class="form-floating form-floating-outline">
+                      <input type="email" class="form-control rounded-0 @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" id="email" placeholder="Buyer Email" />
+                      <label for="email">Buyer Email</label>
+                    </div>
+                    @error('email')
                       <span class="invalid-feedback d-block fw-semibold" role="alert">
                         <strong>{{ $message }}</strong>
                       </span>

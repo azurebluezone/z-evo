@@ -22,7 +22,9 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Review</th>
+                        <th>Product</th>
                         <th>Ratting</th>
+                        <th>Status</th>
                         <th class="text-end">Action</th>
                     </tr>
                 </thead>
@@ -38,6 +40,13 @@
                         <td>{{$value->email}}</td>
                         <td>{{Str::limit($value->review,50)}}</td>
                         <td>
+                            @if($value->product)
+                                {{ Str::limit($value->product->name, 40) }}
+                            @else
+                                <span class="text-muted">&mdash;</span>
+                            @endif
+                        </td>
+                        <td>
                             @php($rating = (int) ($value->ratting ?? 0))
                             <span class="d-inline-flex align-items-center gap-1" aria-label="Rating: {{ $rating }}">
                                 @for ($i = 1; $i <= 5; $i++)
@@ -49,6 +58,13 @@
                                 @endfor
                                 <span class="text-muted ms-1">({{ $rating }})</span>
                             </span>
+                        </td>
+                        <td>
+                            @if($value->status == 'active')
+                                <span class="badge bg-label-success">Active</span>
+                            @else
+                                <span class="badge bg-label-warning">Pending</span>
+                            @endif
                         </td>
                         <td class="text-end">
                             <div class="d-inline-flex justify-content-end align-items-center gap-1">
