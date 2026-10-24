@@ -337,7 +337,7 @@
             // 1) fetch with keepalive: works during unload and reports success.
             try {
                 if (window.fetch) {
-                    fetch('{{ url('/events/collect') }}', {
+                    fetch('/events/collect', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: body,
@@ -359,7 +359,7 @@
             try {
                 if (navigator.sendBeacon) {
                     var blob = new Blob([body], { type: 'application/json' });
-                    done(navigator.sendBeacon('{{ url('/events/collect') }}', blob) === true);
+                    done(navigator.sendBeacon('/events/collect', blob) === true);
                     return;
                 }
             } catch (e) {

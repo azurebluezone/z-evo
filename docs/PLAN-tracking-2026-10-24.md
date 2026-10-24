@@ -278,10 +278,37 @@ choice for 180 days; re-ask when the version changes.
 
 ## 8. Server-side GTM deployment (Google-hosted, no Stape)
 
+**Host decision (2026-10-24): derived from the environment, never a new domain.**
+The tracking host comes from the base URL in the environment (`APP_URL`), the same
+way every other URL in the app is built. There is no reason to buy or register an
+individual domain:
+
+- a *subdomain* of the existing registrable domain (`t.<APP_URL host>`) is still
+  first-party — same eTLD+1, so `SameSite` cookies, CORS and the ad-blocker
+  allowlist all behave exactly like the storefront;
+- a *separate* domain would be worse: different eTLD+1 means third-party cookie
+  rules, no shared cookie scope, and one more certificate to renew;
+- the browser endpoints we own are already host-independent — `/events/collect`
+  and `/api/facebook/track` are called with relative paths, so they follow
+  whatever host served the page.
+
+So the only real cost of step 2 is a DNS record plus TLS, not a domain:
+
+| Option | Host | DNS/TLS | Cookie scope | Route conflict |
+|---|---|---|---|---|
+| **A (default)** | `t.<host of APP_URL>` | one A/CNAME + cert (wildcard or per-host) | isolated subdomain — cleanest | none |
+| **B (no DNS change)** | same host, path prefix `/t/` | nothing new | shared with the storefront | the web server must route `/t/` to the container before PHP |
+| C (rejected) | a newly registered domain | new purchase + cert | third-party, worse | none |
+
+`config('tracking.host')` resolves to `null` (use the request host) unless
+`TRACKING_HOST` is set; when sGTM lands, `TRACKING_HOST` is set to
+`t.` + `parse_url(config('app.url'), PHP_URL_HOST)`. Until then the app needs no
+tracking domain at all, because the Conversions API call is made server-to-server.
+
 | Step | Detail | Acceptance |
 |---|---|---|
 | 1 | Create container `Jannat — Server` in the same Google account as GA4 | container id visible in Tag Manager |
-| 2 | Provision `https://t.<domain>` with a Google-managed or Let's Encrypt cert | `curl -I https://t.<domain>/healthy` → 200 |
+| 2 | Provision `t.<APP_URL host>` (option A) or `/t/` (option B) with a Google-managed or Let's Encrypt cert | `curl -I https://t.<host>/healthy` → 200 |
 | 3 | Point GA4 config + Meta CAPI tags at the container; store the Meta token **in the container**, never in the page | page source contains no `access_token` |
 | 4 | Allowlist the container origin to our storefront domains only | a request from another origin is rejected |
 | 5 | Send `event_id` from the outbox into the container as a tag parameter | Meta Events Manager shows one event per purchase, `event_id` matching `event_logs` |
