@@ -159,7 +159,7 @@
                             @endphp
                             @if($imgPath)
                             <img src="{{ asset($imgPath) }}" class="edit-image border" alt="" onerror="this.style.display='none'" />
-                            <a href="{{route('campaign.image.destroy',['id'=>$image->id])}}" class="btn btn-sm btn-danger waves-effect waves-light"><i class="ri-close-line"></i></a>
+                            <button type="submit" form="fmRemoveCampaignImage{{ $image->id }}" class="btn btn-sm btn-danger waves-effect waves-light delete-confirm" data-confirm-title="Remove this photo?" data-confirm-text="The row and its file are deleted immediately." data-confirm-ok="Yes, remove" title="Remove photo"><i class="ri-close-line"></i></button>
                             @endif
                             @endforeach
                         </div>
@@ -435,6 +435,16 @@
                     </div>
 
                 </form>
+
+                {{-- POST + CSRF delete forms live outside the edit form: the
+                     old remove control was a GET <a href>, which a third-party
+                     page could trigger with an <img> tag. --}}
+                @foreach($edit_data->images as $image)
+                    <form id="fmRemoveCampaignImage{{ $image->id }}" method="POST" action="{{ route('campaign.image.destroy') }}" class="d-none">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $image->id }}">
+                    </form>
+                @endforeach
 
                 </div> <!-- end card-body-->
             </div> <!-- end card-->

@@ -101,6 +101,10 @@ class AdminReviewTest extends TestCase
         $response->assertSee('Product');
         $response->assertSee('Status');
         $response->assertSee($this->product()->name);
+        // The product name links to the real edit screen (products.edit is
+        // GET admin/products/{id}/edit); an earlier commit wrongly claimed
+        // that route did not exist and printed plain text instead.
+        $response->assertSee(route('products.edit', $this->product()->id), false);
         $response->assertSee('Pending');
     }
 

@@ -371,11 +371,20 @@ class CampaignController extends Controller
         return redirect()->back();
     }
     public function imgdestroy(Request $request)
-    { 
-        $delete_data = CampaignReview::find($request->id);
-        File::delete($delete_data->image);
+    {
+        // POST + CSRF only (was a GET link). findOrFail: a stale id used to
+        // fatal on ->image. Deletion is confined to uploads/ so a corrupted
+        // row cannot aim File::delete outside the public upload directory.
+        $request->validate(['id' => 'required|integer']);
+        $delete_data = CampaignReview::findOrFail($request->input('id'));
+
+        $path = ltrim(preg_replace('~^public/~', '', (string) $delete_data->image), '/');
+        if ($path !== '' && str_starts_with($path, 'uploads/')) {
+            File::delete(public_path($path));
+        }
+
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();
-    } 
+    }
 }

@@ -65,6 +65,14 @@
 
     /** The form this control belongs to, if any. */
     function formOf(el) {
+        // A submit button can live outside its form and point at it with
+        // form="id" (a nested form is invalid HTML). Honour that first.
+        var formId = el.getAttribute ? el.getAttribute('form') : null;
+        if (formId) {
+            var explicit = document.getElementById(formId);
+            if (explicit) return explicit;
+        }
+
         var form = el.closest ? el.closest('form') : null;
         if (form) return form;
 

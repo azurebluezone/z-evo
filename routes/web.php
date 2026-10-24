@@ -94,8 +94,6 @@ Route::post('/admin/login', [LoginController::class, 'login'])->name('admin.logi
 
 Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refer', 'visitor_identify']], function () {
     Route::get('/', [FrontendController::class, 'frontendHome'])->name('home');
-    Route::get('/legacy-home', [FrontendController::class, 'index'])->name('legacy.home');
-    Route::get('/frontend-home', [FrontendController::class, 'frontendHome'])->name('frontend.home.preview');
 
     // Temporary design preview. Session scoped: it changes nothing for anyone
     // else, and it keeps the query string free for real filters such as brand=.
@@ -311,8 +309,6 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
             'maxPrice'
         ));
     })->name('products.page');
-
-    Route::get('products/search', [FrontendController::class, 'search'])->name('products.search');
 
     Route::get('compare-wishlist-cart-date', function () {
         $cartCount = 0;
@@ -753,9 +749,6 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
     Route::post('newsletter/subscribe', [\App\Http\Controllers\Frontend\FormController::class, 'newsletterSubscribe'])
         ->name('newsletter.subscribe');
 
-    Route::match(['get', 'post'], 'subscribe', [\App\Http\Controllers\Frontend\FormController::class, 'newsletterSubscribe'])
-        ->name('newsletter.subscribe.compat');
-
     Route::get('policy/cookie', function () {
         return redirect()->route('home');
     })->name('cookie.policy');
@@ -783,13 +776,13 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
     Route::get('products/{productId}/variant-images', [FrontendController::class, 'variantImages'])->name('products.variant-images');
     Route::get('products/check-stock', [FrontendController::class, 'checkStock'])->name('products.check-stock');
 
+    // Legacy template live search (public/assets/templates/basic/js/main.js:243
+    // posts here). Kept: it shares FrontendController@search with the /search
+    // route the current headers use.
+    Route::get('products/search', [FrontendController::class, 'search'])->name('products.search');
     Route::get('products/{slug}', [FrontendController::class, 'products'])->name('products');
 
     Route::get('hot-deals', [FrontendController::class, 'hotdeals'])->name('hotdeals');
-    Route::get('test-zombie-cards', function () {
-        $products = \App\Models\Product::where('status', 1)->with('image', 'prosizes', 'procolors')->limit(8)->get();
-        return view('frontend.layouts.pages.details_new', compact('products'));
-    })->name('test.zombie.cards');
     Route::get('livesearch', [FrontendController::class, 'livesearch'])->name('livesearch');
     Route::get('search', [FrontendController::class, 'search'])->name('search');
     Route::get('product/{id}', [FrontendController::class, 'details'])->name('product');
@@ -818,14 +811,7 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
         return view('frontend.partials.cart-sidebar-popup');
     })->name('sidebar.content');
 
-    // Compatibility endpoint for legacy frontend scripts
-    Route::get('cart-shortlist', function () {
-        return view('frontend.partials.cart-sidebar-popup');
-    })->name('cart.shortlist');
-
-    // Line items for the redesigned mini-cart offcanvas. Separate from
-    // cart-shortlist so the classic sidebar popup keeps answering the legacy
-    // pages completely untouched.
+    // Line items for the redesigned mini-cart offcanvas.
     Route::get('cart/mini-items', function () {
         return view('frontend.fm.partials.cart-items');
     })->name('cart.mini-items');
@@ -1015,7 +1001,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // permissions
     Route::get('permissions/manage', [PermissionController::class, 'index'])->name('permissions.index');
-    Route::get('permissions/{id}/show', [PermissionController::class, 'show'])->name('permissions.show');
     Route::get('permissions/create', [PermissionController::class, 'create'])->name('permissions.create');
     Route::post('permissions/save', [PermissionController::class, 'store'])->name('permissions.store');
     Route::get('permissions/{id}/edit', [PermissionController::class, 'edit'])->name('permissions.edit');
@@ -1027,7 +1012,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // DataTables feed for the grid this screen shows.
     Route::get('categories/manage/datatable', [CategoryController::class, 'datatable'])->name('category.datatable');
-    Route::get('categories/{id}/show', [CategoryController::class, 'show'])->name('categories.show');
     Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('categories/save', [CategoryController::class, 'store'])->name('categories.store');
     Route::get('categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
@@ -1042,7 +1026,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // Subcategories
     Route::get('subcategories/manage', [SubcategoryController::class, 'index'])->name('subcategories.index');
-    Route::get('subcategories/{id}/show', [SubcategoryController::class, 'show'])->name('subcategories.show');
     Route::get('subcategories/create', [SubcategoryController::class, 'create'])->name('subcategories.create');
     Route::post('subcategories/save', [SubcategoryController::class, 'store'])->name('subcategories.store');
     Route::get('subcategories/{id}/edit', [SubcategoryController::class, 'edit'])->name('subcategories.edit');
@@ -1054,7 +1037,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // Childcategories
     Route::get('childcategories/manage', [ChildcategoryController::class, 'index'])->name('childcategories.index');
-    Route::get('childcategories/{id}/show', [ChildcategoryController::class, 'show'])->name('childcategories.show');
     Route::get('childcategories/create', [ChildcategoryController::class, 'create'])->name('childcategories.create');
     Route::post('childcategories/save', [ChildcategoryController::class, 'store'])->name('childcategories.store');
     Route::get('childcategories/{id}/edit', [ChildcategoryController::class, 'edit'])->name('childcategories.edit');
@@ -1120,7 +1102,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // attribute
     Route::get('orderstatus/manage', [OrderStatusController::class, 'index'])->name('orderstatus.index');
-    Route::get('orderstatus/{id}/show', [OrderStatusController::class, 'show'])->name('orderstatus.show');
     Route::get('orderstatus/create', [OrderStatusController::class, 'create'])->name('orderstatus.create');
     Route::post('orderstatus/save', [OrderStatusController::class, 'store'])->name('orderstatus.store');
     Route::get('orderstatus/{id}/edit', [OrderStatusController::class, 'edit'])->name('orderstatus.edit');
@@ -1131,7 +1112,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // pixels
     Route::get('pixels/manage', [PixelsController::class, 'index'])->name('pixels.index');
-    Route::get('pixels/{id}/show', [PixelsController::class, 'show'])->name('pixels.show');
     Route::get('pixels/create', [PixelsController::class, 'create'])->name('pixels.create');
     Route::post('pixels/save', [PixelsController::class, 'store'])->name('pixels.store');
     Route::get('pixels/{id}/edit', [PixelsController::class, 'edit'])->name('pixels.edit');
@@ -1142,7 +1122,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // tag manager
     Route::get('tag-manager/manage', [TagManagerController::class, 'index'])->name('tagmanagers.index');
-    Route::get('tag-manager/{id}/show', [TagManagerController::class, 'show'])->name('tagmanagers.show');
     Route::get('tag-manager/create', [TagManagerController::class, 'create'])->name('tagmanagers.create');
     Route::post('tag-manager/save', [TagManagerController::class, 'store'])->name('tagmanagers.store');
     Route::get('tag-manager/{id}/edit', [TagManagerController::class, 'edit'])->name('tagmanagers.edit');
@@ -1156,7 +1135,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // DataTables feed for the grid this screen shows.
     Route::get('brands/manage/datatable', [BrandController::class, 'datatable'])->name('brand.datatable');
-    Route::get('brands/{id}/show', [BrandController::class, 'show'])->name('brands.show');
     Route::get('brands/create', [BrandController::class, 'create'])->name('brands.create');
 
     // homepage collections
@@ -1223,7 +1201,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // color
     Route::get('color/manage', [ColorController::class, 'index'])->name('colors.index');
-    Route::get('color/{id}/show', [ColorController::class, 'show'])->name('colors.show');
     Route::get('color/create', [ColorController::class, 'create'])->name('colors.create');
     Route::post('color/save', [ColorController::class, 'store'])->name('colors.store');
     Route::get('color/{id}/edit', [ColorController::class, 'edit'])->name('colors.edit');
@@ -1234,7 +1211,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // size
     Route::get('size/manage', [SizeController::class, 'index'])->name('sizes.index');
-    Route::get('size/{id}/show', [SizeController::class, 'show'])->name('sizes.show');
     Route::get('size/create', [SizeController::class, 'create'])->name('sizes.create');
     Route::post('size/save', [SizeController::class, 'store'])->name('sizes.store');
     Route::get('size/{id}/edit', [SizeController::class, 'edit'])->name('sizes.edit');
@@ -1250,7 +1226,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     // DataTables feed for the products grid. Declared after 'products/manage'
     // so the two patterns can never be confused for one another.
     Route::get('products/manage/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
-    Route::get('products/{id}/show', [ProductController::class, 'show'])->name('admin.products.show');
     Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('products/save', [ProductController::class, 'store'])->name('products.store');
     Route::get('products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
@@ -1262,7 +1237,7 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     // it inherits ProductController's permission list, which covers update.
     Route::post('products/quick-update', [ProductController::class, 'quick_update'])->name('products.quick_update');
     Route::post('products/destroy', [ProductController::class, 'destroy'])->name('products.destroy');
-    Route::get('products/image/destroy', [ProductController::class, 'imgdestroy'])->name('products.image.destroy');
+    Route::post('products/image/destroy', [ProductController::class, 'imgdestroy'])->name('products.image.destroy');
     Route::post('products/update-deals', [ProductController::class, 'update_deals'])->name('products.update_deals');
     Route::post('products/update-feature', [ProductController::class, 'update_feature'])->name('products.update_feature');
     Route::post('products/update-status', [ProductController::class, 'update_status'])->name('products.update_status');
@@ -1271,7 +1246,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // campaign
     Route::get('campaign/manage', [CampaignController::class, 'index'])->name('campaign.index');
-    Route::get('campaign/{id}/show', [CampaignController::class, 'show'])->name('campaign.show');
     Route::get('campaign/create', [CampaignController::class, 'create'])->name('campaign.create');
     Route::post('campaign/save', [CampaignController::class, 'store'])->name('campaign.store');
     Route::get('campaign/{id}/edit', [CampaignController::class, 'edit'])->name('campaign.edit');
@@ -1279,7 +1253,7 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::post('campaign/inactive', [CampaignController::class, 'inactive'])->name('campaign.inactive');
     Route::post('campaign/active', [CampaignController::class, 'active'])->name('campaign.active');
     Route::post('campaign/destroy', [CampaignController::class, 'destroy'])->name('campaign.destroy');
-    Route::get('campaign/image/destroy', [CampaignController::class, 'imgdestroy'])->name('campaign.image.destroy');
+    Route::post('campaign/image/destroy', [CampaignController::class, 'imgdestroy'])->name('campaign.image.destroy');
 
     // Landing Pages route 
     Route::get('landing-pages/manage', [LandingPageController::class, 'index'])->name('landing-pages.index');

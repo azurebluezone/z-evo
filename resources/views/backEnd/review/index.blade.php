@@ -41,7 +41,8 @@
                         <td>{{Str::limit($value->review,50)}}</td>
                         <td>
                             @if($value->product)
-                                {{ Str::limit($value->product->name, 40) }}
+                                {{-- products.edit exists: GET admin/products/{id}/edit --}}
+                                <a href="{{ route('products.edit', $value->product->id) }}" class="text-body">{{ Str::limit($value->product->name, 40) }}</a>
                             @else
                                 <span class="text-muted">&mdash;</span>
                             @endif

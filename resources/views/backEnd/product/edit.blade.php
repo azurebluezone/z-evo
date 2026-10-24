@@ -193,7 +193,7 @@
                             <div class="card-body p-2">
                               <input type="text" name="title[]" class="form-control form-control-sm rounded-0 mb-2" value="{{ $image->title ?? '' }}" placeholder="Image Title">
                               <input type="hidden" name="image[]" value="{{ $image->id ?? '' }}">
-                              <x-admin.button variant="danger" size="sm" shape="square" ripple="true" class="w-100 remove-image" type="button" data-image-id="{{ $image->id ?? '' }}"><i class="ri-delete-bin-line me-1"></i> Remove</x-admin.button>
+                              <x-admin.button variant="danger" size="sm" shape="square" ripple="true" class="w-100 remove-image delete-confirm" type="submit" form="fmRemoveProductImage{{ $image->id }}" data-confirm-title="Remove this photo?" data-confirm-text="The gallery row and its file are deleted immediately." data-confirm-ok="Yes, remove"><i class="ri-delete-bin-line me-1"></i> Remove</x-admin.button>
                             </div>
                         </div>
                         @endif
@@ -412,6 +412,19 @@
 
         </div>
         </form>
+
+        {{-- One POST form per gallery photo, outside the edit form because a
+             nested form is invalid HTML. The Remove button points here with
+             form="...", so the request carries only the image id plus the CSRF
+             token - not the whole product form. --}}
+        @if(isset($edit_data->images))
+          @foreach($edit_data->images as $image)
+            <form id="fmRemoveProductImage{{ $image->id }}" method="POST" action="{{ route('products.image.destroy') }}" class="d-none">
+              @csrf
+              <input type="hidden" name="id" value="{{ $image->id }}">
+            </form>
+          @endforeach
+        @endif
       </div>
     </div>
   </div>

@@ -777,8 +777,19 @@ class ProductController extends Controller
 
     public function imgdestroy(Request $request)
     {
-        $delete_data = Productimage::find($request->id);
-        File::delete($delete_data->image);
+        // POST + CSRF only (this was a GET link, so any page could fire an
+        // image deletion). findOrFail: an unknown id used to be a fatal error
+        // when ->image was read from null.
+        $request->validate(['id' => 'required|integer']);
+        $delete_data = Productimage::findOrFail($request->input('id'));
+
+        // `image` is a path relative to public/. Only ever delete inside
+        // uploads/, so a corrupted row cannot point File::delete at, say, .env.
+        $path = ltrim(preg_replace('~^public/~', '', (string) $delete_data->image), '/');
+        if ($path !== '' && str_starts_with($path, 'uploads/')) {
+            File::delete(public_path($path));
+        }
+
         $delete_data->delete();
         Toastr::success('Success', 'Data delete successfully');
         return redirect()->back();
