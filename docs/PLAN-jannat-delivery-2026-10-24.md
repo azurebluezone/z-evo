@@ -15,16 +15,13 @@ the live pages return the stated HTTP codes.
 
 ## 2. Client data (source of truth for settings)
 
-| Field | Value |
-|---|---|
-| Store name | Jannat Mini Mart |
-| Store address | 272-0107 Chiba-ken, Ichikawa-shi, Oshikiri 21-8, 101 Gyotoku Heights 1F |
-| Store email | jannatminimart2610@gmail.com |
-| Store phone | 08035979290 |
-| Owner | Gous Uddin |
-| Owner address | 272-0141 Chiba-ken, Ichikawa-shi, Kandori 1-10-24, 103 Front Islands Heights |
-| Owner phone | 08035979290 |
-| Owner email | jahangir314@gmail.com |
+| Party | Name | Phone | Email | Address |
+|---|---|---|---|---|
+| Store | Jannat Mini Mart | 08035979290 | jannatminimart2610@gmail.com | 272-0107 Chiba-ken, Ichikawa-shi, Oshikiri 21-8, 101 Gyotoku Heights 1F |
+| Owner | Gous Uddin | 08035979290 (same) | jahangir314@gmail.com | 272-0141 Chiba-ken, Ichikawa-shi, Kandori 1-10-24, 103 Front Islands Heights |
+
+One number serves both parties; the two emails and the two addresses are distinct
+— do not collapse them.
 
 Brand tokens: `#0F7A3D` primary, `#22A65B` secondary, `#F6F2E7` cream,
 `#12261B` ink, `#E8A33D` accent.
