@@ -1,8 +1,13 @@
 # STATUS — Arafat (Laravel) ফ্রন্ট-এন্ড আধুনিকায়ন
 
-**তারিখ:** ২০২৬-১০-০৮ (সর্বশেষ: কন্টাক্ট ও অ্যাবাউট পেজ + হেডার ৭৬৮–৯৯২px-এ কার্ট অফ-স্ক্রিন বাগ ফিক্স — §৬.৫;
-আগের সেশন: ২০২৬-১০-০৭ ইংরেজিকরণ + এআই-সার্চ কম্পোনেন্ট)
-**প্রকল্প:** `/home/sahon/Desktop/arafat` — Laravel 10.50.3, MySQL `adorazst` (~১২৪০ সক্রিয় পণ্য)
+> **Path correction (2026-10-28):** the project path was corrected from
+> `/home/sahon/Desktop/arafat` to `/home/sahon/Desktop/new evo`. The brand shown in-app is
+> **"GS Corporation"**. Historical backup paths under `/home/sahon/uds/hi/arafat_bak/` were
+> intentionally left unchanged.
+
+**তারিখ:** ২০২৬-১০-২৮ (সর্বশেষ: ফ্রন্টএন্ড ধাপ শেষ — colour variant + default asset + event tracking + admin Pages; §৬.৬;
+আগের সেশন: ২০২৬-১০-০৮ কন্টাক্ট/অ্যাবাউট + হেডার বাগ; ২০২৬-১০-০৭ ইংরেজিকরণ + এআই-সার্চ)
+**প্রকল্প:** `/home/sahon/Desktop/new evo` — Laravel 10.50.3, MySQL `z_evo` (৩০ সক্রিয় পণ্য; ব্র্যান্ড নাম ইন-অ্যাপ "GS Corporation")
 **ডিজাইন সোর্স:** `/home/sahon/Downloads/01/hi/` (Bootstrap 5 HTML ফাইল; হেডার/ফুটার/মোবাইল মেনুর
 ক্যাননিক্যাল উৎস `freshmart_homepage_index.html`)
 **এই ডকুমেন্টের উদ্দেশ্য:** একটি সম্পূর্ণ সেলফ-কন্টেইনড অনবোর্ডিং ডক — শুধু এই ফাইল পড়ে একজন নতুন
@@ -177,7 +182,7 @@ python3 tools/bangla_to_english.py --check   # অবশিষ্ট বাং�
 
 **ডেভ সার্ভার** (opcache ছাড়া ~১.১s/রিকোয়েস্ট — তাই হার্নেসে পোলিং, কোডে অপেক্ষা নয়):
 ```bash
-cd /home/sahon/Desktop/arafat
+cd "/home/sahon/Desktop/new evo"
 nohup php artisan serve --host=127.0.0.1 --port=8123 > /tmp/serve.log 2>&1 &
 php artisan view:clear          # blade এডিটের পরে অবশ্যই
 ```
@@ -711,13 +716,71 @@ Lens পিল ১০৬px জায়গা নিচ্ছিল, আর প�
 
 ---
 
+## ৬.৬. ২৮ অক্টোবর সেশন — ফ্রন্টএন্ড ধাপ শেষ (প্রমাণসহ)
+
+> **নতুন সেশনের জন্য দ্রুত প্রবেশ:** এই সেশনের সব দাবি একটি স্ক্রিপ্টে যাচাইযোগ্য —
+> `bash verify/session-proof-2026-10-28.sh` → **৩১/৩১ PASS, exit 0** (২০২৬-১০-২৮-এ সবুজ)।
+> ঘণ্টাব্যাপী পুনর্যাচাই নয়; স্ক্রিপ্ট ফেল করলে তবেই তথ্য পুনর্মূল্যায়ন।
+
+### ৬.৬.১. কী করা হয়েছে (দুটি delegated job + arbiter-এর ছোট ফিক্স)
+
+| # | কাজ | ফাইল (file:line) | অবস্থা |
+|---|---|---|---|
+| **A** | অ্যাডমিন সাইডবারে **Pages** dropdown (আগে orphan — URL টাইপ না করলে ঢোকা যেত না) | `resources/views/backEnd/layouts/partials/sidebar.blade.php` (links `pages.index` + `pages.create`) | ✅ browser click-through: `admin/page/manage` |
+| **A** | কুরিয়ারে "Incomplete" বদলে **"No API Connect"** + credential hint | `resources/views/backEnd/courier/index.blade.php`, `resources/views/backEnd/order/courier_send.blade.php` | ✅ লেখা দুই জায়গায় |
+| **A** | `STATUS.md`-এর ভুল প্রকল্প-পথ ও DB নাম সংশোধন | `STATUS.md` (header, §৫) | ✅ `arafat`→`new evo`, `adorazst`→`z_evo`, ১২৪০→৩০ পণ্য |
+| **B** | হোমপেজ event listener ৩টি: `logo_click` / `search` / `favorite` — **দুই emitter-এই** (`__EVENT_LAYER__` GTM + `__EVENT_LOGGER__` DB) | `resources/views/frontend/partials/event-layer-head.blade.php` | ✅ listener ৩টি grep-এ আছে; browser click → DB-তে `Click_Logo=1`, `Search=1` |
+| **B** | Analytics dashboard cache **৩ ঘণ্টা** (`Cache::remember` + `now()->addHours(3)`) | `app/Http/Controllers/Admin/AnalyticsDashboardController.php:267` | ✅ grep `addHours(3)` |
+| **C** | **Colour variant test data** (আগে একটি পণ্যেরেও colour ছিল না — gap ছিল এটাই) | DB: attribute `colour` (id=5), values id 15/16/17, variants id 6/7/8, stock 20 প্রতিটিতে | ✅ নিচে ৬.৬.২ |
+| **D** | **৩টি missing default asset** (প্রতি page load-এ 404) তৈরি | `public/uploads/default/no-image.png`, `public/uploads/category/default.png`, `public/uploads/settings/{default-logo,default-favicon}.webp` | ✅ চারটোই HTTP 200; console error ০ (আগে ৩) |
+
+**Job A/B-এর বিস্তারিত spec ও acceptance output:** `docs/specs/2026-10-28-job-a-admin-pages-sidebar-courier.md`,
+`docs/specs/2026-10-28-job-b-homepage-events-3h-cache.md`।
+
+### ৬.৬.২. Colour variant প্রমাণ (প্রতিটি রঙে আলাদা দাম/ছবি/স্টক)
+
+| Colour | value id | variant id | SKU | দাম | image | stock |
+|---|---|---|---|---|---|---|
+| Red | 15 | 6 | `P0001-RED` | ১১৫০ | `uploads/variant/variant-red.svg` | 20 |
+| Blue | 16 | 7 | `P0001-BLUE` | ১২৫০ | `uploads/variant/variant-blue.svg` | 20 |
+| Green | 17 | 8 | `P0001-GREEN` | ১৩৫০ | `uploads/variant/variant-green.svg` | 20 |
+
+- **Server:** `GET /products/1/variant-detail?attribute_values=[15|16|17]` → 200 + `"found":true` + উপরের SKU/দাম/ছবি।
+- **Browser:** প্রতিটি `.fm-attr-pill` click-এ `#fmDetailPrice` + `#fmDetailMainPhoto` + স্টক **একসাথে** বদলায় (৩টি `variant-detail` request, ০ console error)।
+- **Stock-out:** variant 8 (Green) `available=0` করে দেখা → "Out of stock" + `[data-fm-cta]` disabled → পরে **20-এ restore** (স্ক্রিপ্টে ধরা আছে)।
+
+**আর্কিটেকচার শেখা (ভুল ধরলে যেন না হয়):**
+- ডিটেইল পেজ আসলে `resources/views/frontend/fm/pages/product-details.blade.php` + `public/frontend/js/fm-product-detail.js` ব্যবহার করে — **পুরনো `product_details.js`/`attributeBtn` নয়**। JS একটিমাত্র `variant-detail` call-এ পুরো bundle নেয় (photo+price+stock আলাদা call-এ নয়, তাই অসঙ্গতি হয় না)।
+- `attributes_json` shape: `{"ids":{"colour":<valueId>},"attrs":{"colour":"Red"}}` — **ids map-এর key = attribute slug**, attribute_id নয়।
+- Swatch রঙ আসে `attribute_values.code` (`#RRGGBB`); variant image relative path (`uploads/variant/...`) → `MediaPath::url`।
+- `check-stock` route **GET-only**, query-তে `product_id` লাগে (JS `checkStockUrl`-এ বসানো)।
+- **DB guard:** `general_settings` টেবিলে logo/favicon path বসানো থাকে, কিন্তু `.gitignore:44` = `/public/uploads/*` তাই file commit-এ যায় না → deploy-এ 404। Asset যোগ করলে `.gitignore` বাদ দিতে হবে, নইলে পুনরায় হারাবে।
+
+### ৬.৬.৩. টেস্ট আর্টিফ্যাক্ট (ডিবিতে — সিদ্ধান্ত লাগবে)
+
+| artifact | অবস্থা | প্রস্তাব |
+|---|---|---|
+| অর্ডার `id=4` (invoice 40733, ১২৭০৳, Pending) | checkout end-to-end test-এ তৈরি | মুছে ফেলা যেতে পারে — ইউজারের সিদ্ধান্ত বাকি |
+| CMS page `id=2` "Terms and Conditions" | আসল কন্টেন্টসহ demo | ইচ্ছেমতো রাখা/মুছা — ইউজারের সিদ্ধান্ত বাকি |
+| Colour variant data (৬.৬.২) | স্থায়ী রাখা উচিত — এটাই variant feature-এর একমাত্র test fixture | রাখুন |
+
+### ৬.৬.৪. পরের ধাপ (backend phase — এখনো শুরু হয়নি)
+
+1. **কুরিয়ার status flow অ্যাডমিনে** — "No API Connect" badge কেবল দেখায়; কুরিয়ার যোগ/কনফিগার করলে কী হয়, সেই flow যাচাই ও সম্পাদনা।
+2. **Stock reservation visibility** — `inventory_reservations` (১৮০ মিনিট/৩ ঘণ্টা hold) অ্যাডমিনে কোথাও দেখা যায় না; expiry দেখার জায়গা লাগতে পারে।
+3. **Analytics/cookie data read-only** নিশ্চিত করা (admin-only modification) — policy হিসেবে যাচাই।
+4. **টেস্ট আর্টিফ্যাক্ট পরিষ্কার** (৬.৬.৩-এর দুটো সিদ্ধান্ত)।
+5. **Known issues (আগে থেকেই, §১০)** — toast `kind` ব্যবহার হয় না; `/cart-count` order-inversion; দুই সর্ট-ইমপ্লিমেন্টেশনের ড্রিফট ঝুঁকি — এগুলো backend ধাপে ভাবা যেতে পারে।
+
+---
+
 ## ৭. পেজ রূপান্তর — অবস্থা ও অগ্রাধিকার
 
 | অগ্রাধিকার | পেজ | রুট | অবস্থা |
 |---|---|---|---|
 | ১ | হোম | `home` | **শেষ ✅** |
 | ২ | প্রোডাক্ট লিস্ট | `products.page` (`/products`) | **শেষ ✅** |
-| ৩ | প্রোডাক্ট ডিটেইল | `product` (`/product/{id}`) | **শেষ ✅** |
+| ৩ | প্রোডাক্ট ডিটেইল | `product` (`/product/{id}`) | **শেষ ✅** — colour variant যাচাইসহ (§৬.৬.২); `verify/session-proof-2026-10-28.sh` |
 | ৪ | কার্ট পেজ | `cart.show` (`/shop/cart`) | **শেষ ✅** — `cart-check.mjs` ২৮/২৮ (দেখুন §৬.১) |
 | ৫ | ক্যাটাগরি/ব্র্যান্ড | `category`, `products.brand` | **শেষ ✅** — `category-check.mjs` ২৪/২৪ (দেখুন §৬.২); আসলে আগে থেকেই কনভার্টেড ছিল, ৪টি ত্রুটি ছিল |
 | ৬ | সার্চ রেজাল্ট | `search` | **শেষ ✅** — `fm/pages/search.blade.php` (দেখুন §৬.৪) |
@@ -783,8 +846,11 @@ Lens পিল ১০৬px জায়গা নিচ্ছিল, আর প�
 ## ৯. দ্রুত কমান্ড রেফারেন্স
 
 ```bash
+# ★ নতুন সেশনের প্রথম কমান্ড — ২৮ অক্টোবর সেশনের সব দাবি যাচাই (~১০ সেকেন্ড)
+bash verify/session-proof-2026-10-28.sh   # ৩১/৩১ PASS, exit 0 হতে হবে; ফেল হলে §৬.৬ দেখুন
+
 # ডেভ সার্ভার + ভিউ ক্যাশ
-cd /home/sahon/Desktop/arafat && php artisan serve --host=127.0.0.1 --port=8123
+cd "/home/sahon/Desktop/new evo" && php artisan serve --host=127.0.0.1 --port=8123
 php artisan view:clear
 
 # সেশন-স্কোপড প্রিভিউ
