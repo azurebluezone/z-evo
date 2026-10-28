@@ -149,14 +149,20 @@
         noteEl.classList.toggle('hidden', !text);
     }
 
-    function applyPrice(price) {
+    function applyPrice(price, oldPrice) {
         if (!priceEl) return;
         priceEl.textContent = money(price);
-        var showSave = CFG.baseOldPrice > 0 && CFG.baseOldPrice > price;
+        // The struck price prefers the variant's own old price (from the
+        // resolve bundle) so a variant-level discount shows the correct
+        // saving; it falls back to the product-level base old price.
+        var strike = (oldPrice !== null && oldPrice !== undefined && Number(oldPrice) > 0)
+            ? Number(oldPrice)
+            : CFG.baseOldPrice;
+        var showSave = strike > 0 && strike > price;
         if (showSave) {
-            var amount = CFG.baseOldPrice - price;
-            var pct = Math.round((amount * 100) / CFG.baseOldPrice);
-            oldPriceEl.textContent = money(CFG.baseOldPrice);
+            var amount = strike - price;
+            var pct = Math.round((amount * 100) / strike);
+            oldPriceEl.textContent = money(strike);
             saveAmountEl.textContent = String(amount);
             savePctEl.textContent = String(pct);
             oldPriceEl.classList.remove('hidden');
@@ -290,7 +296,7 @@
             if (bundle.image && mainPhoto) {
                 mainPhoto.src = bundle.image;
             }
-            applyPrice(bundle.price);
+            applyPrice(bundle.price, bundle.old_price);
             if (bundle.sku && skuEl) {
                 skuEl.textContent = bundle.sku;
             }

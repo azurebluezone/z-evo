@@ -2,82 +2,10 @@
 @section('title','Customer Manage')
 
 @section('content')
-<!-- Customer Statistics -->
-<div class="row g-4 mb-4">
-    <!-- Total Customers -->
-    <div class="col-sm-6 col-lg-3">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="avatar me-3">
-                        <span class="avatar-initial rounded-3 bg-label-primary">
-                            <i class="icon-base ri ri-user-line icon-24px"></i>
-                        </span>
-                    </div>
-                    <h4 class="mb-0">{{ number_format($show_data->total()) }}</h4>
-                </div>
-                <h6 class="mb-0 fw-normal">Total Customers</h6>
-            </div>
-        </div>
-    </div>
-
-    <!-- Active Customers -->
-    <div class="col-sm-6 col-lg-3">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="avatar me-3">
-                        <span class="avatar-initial rounded-3 bg-label-success">
-                            <i class="icon-base ri ri-user-follow-line icon-24px"></i>
-                        </span>
-                    </div>
-                    @php
-                        $activeCount = $show_data->getCollection()->where('status', 'active')->count();
-                    @endphp
-                    <h4 class="mb-0">{{ number_format($activeCount) }}</h4>
-                </div>
-                <h6 class="mb-0 fw-normal">Active Customers</h6>
-            </div>
-        </div>
-    </div>
-
-    <!-- Inactive Customers -->
-    <div class="col-sm-6 col-lg-3">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="avatar me-3">
-                        <span class="avatar-initial rounded-3 bg-label-warning">
-                            <i class="icon-base ri ri-user-unfollow-line icon-24px"></i>
-                        </span>
-                    </div>
-                    @php
-                        $inactiveCount = $show_data->getCollection()->where('status', '!=', 'active')->count();
-                    @endphp
-                    <h4 class="mb-0">{{ number_format($inactiveCount) }}</h4>
-                </div>
-                <h6 class="mb-0 fw-normal">Inactive Customers</h6>
-            </div>
-        </div>
-    </div>
-
-    <!-- This Page -->
-    <div class="col-sm-6 col-lg-3">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="avatar me-3">
-                        <span class="avatar-initial rounded-3 bg-label-info">
-                            <i class="icon-base ri ri-file-list-line icon-24px"></i>
-                        </span>
-                    </div>
-                    <h4 class="mb-0">{{ $show_data->count() }}</h4>
-                </div>
-                <h6 class="mb-0 fw-normal">Showing This Page</h6>
-            </div>
-        </div>
-    </div>
-</div>
+{{-- Customer totals live in the shared admin header
+     (backEnd/partials/stat-grid). They used to be counted from the ten
+     rows of the current paginator page, so "Active" changed when the
+     admin pressed Next. The header queries the whole table once. --}}
 
 <!-- Customer List -->
 <div class="card rounded-0">
@@ -108,6 +36,7 @@
                 ['label' => 'Actions', 'orderable' => false, 'class' => 'text-end'],
             ],
         ])
-</div>
+    </div>{{-- /card-body --}}
+</div>{{-- /card rounded-0 --}}
 
 @endsection

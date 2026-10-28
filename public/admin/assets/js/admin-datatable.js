@@ -117,6 +117,20 @@
                     head.checked = false;
                     head.indeterminate = false;
                 }
+
+                /*
+                 * The header's fourth card says "Showing This Page". Only the
+                 * table knows how many rows that is after a search, so the
+                 * number is written here on every draw. The server-rendered
+                 * initial value is the page size, not a claim about filters.
+                 */
+                var pageCard = document.querySelector('[data-stat="showing-this-page"]');
+                if (pageCard) {
+                    var info = this.api().page.info();
+                    var shown = info.recordsDisplay === 0 ? 0 : (info.end - info.start);
+                    pageCard.textContent = shown.toLocaleString();
+                    pageCard.title = info.recordsDisplay.toLocaleString() + ' matching record(s)';
+                }
             }
         });
     }

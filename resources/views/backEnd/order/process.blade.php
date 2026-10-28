@@ -216,7 +216,40 @@
 
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between">
-                    <h5 class="card-title mb-1">Courier history</h5>
+                    <h5 class="card-title mb-1">Courier events (this order)</h5>
+                    @if(!empty($hasCourierEvents) && $hasCourierEvents)
+                        <span class="badge bg-soft-primary text-primary">{{ $courierEvents->count() }} event(s)</span>
+                    @else
+                        <span class="badge bg-soft-secondary text-secondary">None</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    @if(!empty($hasCourierEvents) && $hasCourierEvents)
+                        <ul class="list-group list-group-flush">
+                            @foreach($courierEvents as $ev)
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="fw-semibold">{{ $ev->courier_status ?: '—' }}</span>
+                                        @if($ev->order_status_slug)
+                                            <span class="badge bg-label-secondary ms-1">→ {{ $ev->order_status_slug }}</span>
+                                        @endif
+                                        @if($ev->message)
+                                            <div class="text-muted small mt-1">{{ $ev->message }}</div>
+                                        @endif
+                                    </div>
+                                    <span class="text-muted small text-nowrap ms-3">{{ $ev->created_at?->format('d M Y, h:i A') }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <div class="text-muted">No courier events recorded for this order yet. Events appear here as the courier sends webhooks.</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between">
+                    <h5 class="card-title mb-1">Customer's other courier shipments</h5>
                     @if(!empty($hasCourierHistory) && $hasCourierHistory)
                         <span class="badge bg-soft-success text-success">Found</span>
                     @else

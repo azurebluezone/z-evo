@@ -722,8 +722,20 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
         return view('frontend.fm.pages.categories', compact('categories'));
     })->name('categories.page');
 
+    // B11: this used to be `return redirect()->route('home')` - but the header
+    // nav and the footer both link here ("Brands" / "All Brands"), so every
+    // visitor clicking Brands was silently dropped on the home page with no
+    // brand directory at all. It now renders the directory, in the same design
+    // language as the /categories page.
     Route::get('brands', function () {
-        return redirect()->route('home');
+        $brands = \App\Models\Brand::where('status', 1)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'image']);
+
+        return view('frontend.fm.pages.brands', [
+            'generalsetting' => \App\Models\GeneralSetting::first(),
+            'brands'         => $brands,
+        ]);
     })->name('brands.page');
 
     Route::get('offers', function () {
@@ -944,7 +956,6 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::get('refunds', [ReturnsRefundsController::class, 'refundsIndex'])->name('admin.refunds.index');
     Route::post('refunds/{orderId}/mark', [ReturnsRefundsController::class, 'markRefunded'])->name('admin.refunds.mark');
 
-    Route::get('attributes', [AttributeController::class, 'index'])->name('admin.attributes.soon');
     Route::get('attributes/manage', [AttributeController::class, 'index'])->name('admin.attributes.index');
     Route::get('attributes/create', [AttributeController::class, 'create'])->name('admin.attributes.create');
     Route::post('attributes', [AttributeController::class, 'store'])->name('admin.attributes.store');
@@ -1059,24 +1070,22 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::get('smsgeteway/manage', [ApiIntegrationController::class, 'sms_manage'])->name('smsgeteway.manage');
     Route::post('smsgeteway/save', [ApiIntegrationController::class, 'sms_update'])->name('smsgeteway.update');
 
-    // courierapi
-    Route::get('courierapi/manage', [ApiIntegrationController::class, 'courier_manage'])->name('courierapi.manage');
-    Route::post('courierapi/save', [ApiIntegrationController::class, 'courier_update'])->name('courierapi.update');
-    Route::post('courierapi/test-steadfast', [ApiIntegrationController::class, 'testSteadfastConnection'])->name('admin.courier.test.steadfast');
-    Route::post('courierapi/test-pathao', [ApiIntegrationController::class, 'testPathaoConnection'])->name('admin.courier.test.pathao');
-    Route::post('courierapi/sync-orders', [ApiIntegrationController::class, 'syncOrdersWithCourier'])->name('admin.courierapi.sync.orders');
+    // Courier API credentials live in exactly one screen: Courier -> API
+    // Settings. The old courierapi/manage page is kept as a redirect so
+    // bookmarks and the old master layout link cannot land on a second,
+    // divergent form again.
+    Route::get('courierapi/manage', fn () => redirect()->route('admin.courier.settings'))->name('courierapi.manage');
 
     // courier fraud checker
     Route::get('courier/fraud-checker', [CourierFraudCheckerController::class, 'index'])->name('admin.courier.fraud-checker');
     Route::post('courier/fraud-checker/check', [CourierFraudCheckerController::class, 'check'])->name('admin.courier.fraud-checker.check');
     Route::post('courier/fraud-checker/override', [CourierFraudCheckerController::class, 'override'])->name('admin.courier.fraud-checker.override');
 
-    // courier settings
+    // The canonical courier settings screen and the one operational action
+    // that is not credential editing (fraud-risk sync, surfaced on the Fraud
+    // Checker page where its results are read).
     Route::get('courier/settings', [CourierSettingsController::class, 'index'])->name('admin.courier.settings');
-    Route::post('courier/steadfast/update', [CourierSettingsController::class, 'updateSteadfast'])->name('admin.courier.steadfast.update');
-    Route::post('courier/pathao/update', [CourierSettingsController::class, 'updatePathao'])->name('admin.courier.pathao.update');
     Route::post('courier/sync-orders', [CourierSettingsController::class, 'syncOrdersWithCourier'])->name('admin.courier.sync.orders');
-    Route::post('courier/check-phone', [CourierSettingsController::class, 'checkPhoneViaCourier'])->name('admin.courier.check.phone');
 
     // ---------------------------------------------------------------------
     // courier module: overview, per-provider credentials, live connection
@@ -1350,6 +1359,9 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // Coupon routes
     Route::get('coupon/manage', [AdminCouponController::class, 'index'])->name('coupons.index');
+
+    // Per-coupon usage details (status, used today, used total).
+    Route::get('coupon/{id}/usage', [AdminCouponController::class, 'usage'])->name('coupons.usage');
 
     // DataTables feed for the grid this screen shows.
     Route::get('coupon/manage/datatable', [AdminCouponController::class, 'datatable'])->name('coupon.datatable');

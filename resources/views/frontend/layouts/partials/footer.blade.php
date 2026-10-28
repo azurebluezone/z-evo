@@ -20,7 +20,10 @@
                     $footerAboutText = trim((string) ($generalsetting->footer_about_text ?? ''));
                 @endphp
                 <img src="{{ asset($footerLogoPath) }}" class="footer-logo" alt="footer-logo">
-                <p class="mb-0">{{ $footerAboutText ?: "Z-Evo-Commerce brings you tons of products in over 20+ different categories, including men's fashion, women's fashion, baby fashion, and more." }}</p>
+                {{-- Clamped to 6 lines: the admin cap is 400 characters, but a
+                     long paragraph still stretched this column and broke the
+                     homepage grid, so the CSS limit is the second fence. --}}
+                <p class="mb-0 footer-about-text">{{ $footerAboutText ?: "Z-Evo-Commerce brings you tons of products in over 20+ different categories, including men's fashion, women's fashion, baby fashion, and more." }}</p>
             </div>
 
             <div class="newsletter-widget text-center">
@@ -138,23 +141,26 @@
                             </li>
                         @endforeach
                     @else
+                        {{-- Default icons shown when no social icon is saved
+                             yet. The links are placeholders ('#'): an older
+                             copy pointed at another shop's profiles. --}}
                         <li>
-                            <a href="https://www.twitter.com/visermart" target="_blank">
+                            <a href="#" aria-label="X (Twitter)">
                                 <i class="fa-brands fa-x-twitter"></i>
                             </a>
                         </li>
                         <li>
-                            <a href="https://www.instagram.com/visermart" target="_blank">
+                            <a href="#" aria-label="Instagram">
                                 <i class="fab fa-instagram"></i>
                             </a>
                         </li>
                         <li>
-                            <a href="https://www.linkedin.com/visermart" target="_blank">
+                            <a href="#" aria-label="LinkedIn">
                                 <i class="fab fa-linkedin-in"></i>
                             </a>
                         </li>
                         <li>
-                            <a href="https://www.facebook.com/visermart" target="_blank">
+                            <a href="#" aria-label="Facebook">
                                 <i class="fab fa-facebook-f"></i>
                             </a>
                         </li>

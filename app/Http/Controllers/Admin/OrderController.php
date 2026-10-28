@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Log;
 use Brian2694\Toastr\Facades\Toastr;
 use Session;
 use Cart;
+use Gloudemans\Shoppingcart\Exceptions\InvalidRowIDException;
 use Mail;
 
 class OrderController extends Controller
@@ -86,6 +87,47 @@ class OrderController extends Controller
             return $this->joinUrl($base, $path);
         }
         return $this->joinUrl($base, 'aladdin/' . $path);
+    }
+
+    /**
+     * Real parcel data for a Pathao order, derived from the order itself.
+     *
+     * B15: both Pathao send paths used to hardcode item_quantity=1,
+     * item_weight=0.5, a generic 'Special note...' item_description (and one
+     * used sender_name='Test' plus 'Order from Adora'). A multi-item order was
+     * therefore booked as a single 0.5kg parcel described as a note, and the
+     * customer's rider saw the wrong thing. This derives the values instead.
+     *
+     * Weight note: order_details stores no per-item weight, so 0.5kg remains the
+     * documented fallback until product weights are captured. Quantity and
+     * description ARE real.
+     *
+     * @return array{item_quantity:int, item_weight:float, item_description:string, sender_name:string}
+     */
+    private function pathaoParcelData(Order $order): array
+    {
+        $details = $order->orderdetails()->get(['product_name', 'qty']);
+
+        $qty = max(1, (int) $details->sum('qty'));
+
+        $description = mb_substr(
+            $details->pluck('product_name')->filter()->unique()->take(3)->implode(', '),
+            0,
+            200
+        );
+        if ($description === '') {
+            $description = 'Order #' . $order->invoice_id;
+        }
+
+        $senderName = \App\Models\GeneralSetting::query()->value('name');
+        $senderName = trim((string) $senderName) !== '' ? trim((string) $senderName) : 'Store';
+
+        return [
+            'item_quantity'    => $qty,
+            'item_weight'      => 0.5,
+            'item_description' => $description,
+            'sender_name'      => mb_substr($senderName, 0, 100),
+        ];
     }
 
     /**
@@ -601,6 +643,9 @@ class OrderController extends Controller
                 return $q->addSelect('status');
             })->first();
             if ($pathao_info) {
+                // B15: real parcel data instead of hardcoded qty/weight/description
+                // and sender_name='Test'.
+                $parcel = $this->pathaoParcelData($order);
                 $response = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $pathao_info->token,
                     'Accept' => 'application/json',
@@ -608,7 +653,7 @@ class OrderController extends Controller
                 ])->post($this->pathaoUrl($pathao_info->url, 'api/v1/orders'), [
                     'store_id' => $request->pathaostore,
                     'merchant_order_id' => $order->invoice_id,
-                    'sender_name' => 'Test',
+                    'sender_name' => $parcel['sender_name'],
                     'sender_phone' => $order->shipping ? $order->shipping->phone : '',
                     'recipient_name' => $order->shipping ? $order->shipping->name : '',
                     'recipient_phone' => $order->shipping ? $order->shipping->phone : '',
@@ -619,10 +664,10 @@ class OrderController extends Controller
                     'delivery_type' => 48,
                     'item_type' => 2,
                     'special_instruction' => 'Special note- product must be check after delivery',
-                    'item_quantity' => 1,
-                    'item_weight' => 0.5,
+                    'item_quantity' => $parcel['item_quantity'],
+                    'item_weight' => $parcel['item_weight'],
                     'amount_to_collect' => round($order->amount),
-                    'item_description' => 'Special note- product must be check after delivery',
+                    'item_description' => $parcel['item_description'],
                 ]);
             }
             if (!isset($response)) {
@@ -731,7 +776,22 @@ class OrderController extends Controller
 
         $hasCourierHistory = $previousCourierShipments->isNotEmpty();
 
-        return view('backEnd.order.process', compact('order', 'data', 'shippingcharge', 'orderstatus', 'previousCourierShipments', 'hasCourierHistory'));
+        /*
+         * B5: THIS order's own courier event timeline (append-only log), so the
+         * admin sees the parcel's real history - pending -> in_transit ->
+         * delivered -> returned - instead of only the last status or the
+         * customer's unrelated orders.
+         */
+        $courierEvents = collect();
+        if (Schema::hasTable('courier_events')) {
+            $courierEvents = \App\Models\CourierEvent::query()
+                ->where('order_id', $order->id)
+                ->orderBy('id')
+                ->get();
+        }
+        $hasCourierEvents = $courierEvents->isNotEmpty();
+
+        return view('backEnd.order.process', compact('order', 'data', 'shippingcharge', 'orderstatus', 'previousCourierShipments', 'hasCourierHistory', 'courierEvents', 'hasCourierEvents'));
     }
     
     public function order_process(Request $request)
@@ -747,7 +807,15 @@ class OrderController extends Controller
 
         $shipping_update = Shipping::where('order_id', $order->id)->first();
         $shippingfee = ShippingCharge::find($request->area);
-        if ($shippingfee->name != $request->area) {
+
+        /*
+         * A seeded/legacy order can exist WITHOUT a shipping row. This block
+         * used to write $shipping_update->name unconditionally, so editing such
+         * an order's status threw "Attempt to assign property on null" (HTTP 500)
+         * even though the status itself had already been saved. Guard the whole
+         * shipping update - the courier hook below only needs the order row.
+         */
+        if ($shipping_update && $shippingfee && $shippingfee->name != $request->area) {
             if ($order->shipping_charge > $shippingfee->amount) {
                 $total = $order->amount + ($shippingfee->amount - $order->shipping_charge);
                 $order->shipping_charge = $shippingfee->amount;
@@ -761,11 +829,13 @@ class OrderController extends Controller
             }
         }
 
-        $shipping_update->name = $request->name;
-        $shipping_update->phone = $request->phone;
-        $shipping_update->address = $request->address;
-        $shipping_update->area = $shippingfee->name;
-        $shipping_update->save();
+        if ($shipping_update && $shippingfee) {
+            $shipping_update->name = $request->name;
+            $shipping_update->phone = $request->phone;
+            $shipping_update->address = $request->address;
+            $shipping_update->area = $shippingfee->name;
+            $shipping_update->save();
+        }
 
         // Admin Approve Trigger: Pending -> On The Way
         if ($statusRow && (string) $statusRow->slug === 'on-the-way' && (int) $courier !== (int) $order->order_status) {
@@ -899,7 +969,19 @@ class OrderController extends Controller
             });
         }
 
-        if ($request->status == 5 && $courier != 5) {
+        /*
+         * Auto-send to SteadFast when an order becomes SHIPPED (id 3).
+         *
+         * This used to fire on status id 5, but 5 = Cancelled in the seeded
+         * order_statuses (see database/migrations/2026_10_18_000006). So
+         * cancelling an order booked a parcel and marking it shipped sent
+         * nothing. Shipped (3) is the status that means "the parcel goes out".
+         *
+         * Pathao is deliberately NOT auto-sent here: CourierOrderSender speaks
+         * only the SteadFast protocol. Pathao goes through its own bulk/per-order
+         * flow (OrderController::order_pathao_auto / the per-order courier screen).
+         */
+        if ((int) $request->status === 3 && (int) $courier !== 3) {
             $courierEnabledColumnExists = Schema::hasColumn('courier_apis', 'status');
             $steadfastQuery = Courierapi::query()->where('type', 'steadfast');
             if ($courierEnabledColumnExists) {
@@ -933,16 +1015,32 @@ class OrderController extends Controller
                         'reason'   => $processResult['message'],
                     ]);
 
-                    Toastr::error('Courier', $processResult['message']);
+                    Toastr::error($processResult['message'], 'Courier');
                 } else {
-                    Toastr::success('Courier', $processResult['message']);
+                    Toastr::success($processResult['message'], 'Courier');
                 }
             } else {
-                return "ok";
+                // B13: used to `return "ok"` here - the status was saved but the
+                // admin saw a bare "ok" body and no parcel was booked. Say so.
+                Toastr::warning(
+                    'Order marked Shipped, but SteadFast is not switched on. '
+                    . 'Enable it in Courier API Settings, or send this order from its courier screen.',
+                    'Courier not configured'
+                );
             }
             Toastr::success('Success', 'Order status change successfully');
             return redirect('admin/order/' . $link);
         }
+
+        /*
+         * Every other status (pending, processing, delivered, cancelled,
+         * returned) has no courier hook, but still must send the admin back
+         * with a confirmation. This method used to fall off the end and return
+         * null for those statuses, so the status WAS saved (line 747) yet the
+         * admin got an HTTP 500 error page instead of a redirect.
+         */
+        Toastr::success('Success', 'Order status change successfully');
+        return redirect('admin/order/' . $link);
     }
     
     public function destroy(Request $request){
@@ -1327,9 +1425,16 @@ public function order_status(Request $request)
             }
 
             try {
-                $courier = $order->order_status;
-                if ((int) $courier === 5) {
-                    $results[] = ['order_id' => $order_id, 'status' => 'skipped', 'message' => 'Order already delivered'];
+                $statusId = (int) $order->order_status;
+                // B2: skip the TERMINAL states - an order that is already
+                // delivered (4), cancelled (5) or returned (6) must never be
+                // booked to a courier. This guard used to check only id 5 and
+                // label it "delivered", but 5 = cancelled in the seeded
+                // order_statuses, so a cancelled order was mislabelled and a
+                // delivered one was not skipped at all.
+                if (in_array($statusId, [4, 5, 6], true)) {
+                    $label = [4 => 'delivered', 5 => 'cancelled', 6 => 'returned'][$statusId];
+                    $results[] = ['order_id' => $order_id, 'status' => 'skipped', 'message' => 'Order is already ' . $label];
                     continue;
                 }
 
@@ -1662,6 +1767,17 @@ public function order_status(Request $request)
             $order->note             = $request->note;
             $order->save();
 
+            // POS coupon usage log: the till session carries pos_coupon_code
+            // (set by cart_apply_coupon). Record it against this order so the
+            // admin coupon details page counts till sales too.
+            if ($posCouponCode = trim((string) Session::get('pos_coupon_code'))) {
+                if ($posCoupon = \App\Models\Coupon::where('code', $posCouponCode)->first()) {
+                    \App\Models\CouponUsage::record($posCoupon, $order->id, (float) (Session::get('pos_coupon_discount') ?: 0), 'pos');
+                }
+                Session::forget('pos_coupon_code');
+                Session::forget('pos_coupon_discount');
+            }
+
             // Save shipping data
             $shipping              =   new Shipping();
             $shipping->order_id    =   $order->id;
@@ -1839,43 +1955,97 @@ public function order_status(Request $request)
         $cartinfo = Cart::instance('pos_shopping')->content();
         $discount = 0;
         foreach($cartinfo as $cart){
-            $discount += $cart->options->product_discount*$cart->qty;
+            $discount += ($cart->options->product_discount ?? 0) * $cart->qty;
         }
         Session::put('product_discount',$discount);
         return view('backEnd.order.cart_details',compact('cartinfo'));
     }
     public function cart_increment(Request $request){
-        $qty = $request->qty + 1;
-        $cartinfo = Cart::instance('pos_shopping')->update($request->id, $qty);
+        $data = $request->validate([
+            'id' => 'required|string',
+            'qty' => 'required|integer|min:1',
+        ]);
+
+        try {
+            $cartinfo = Cart::instance('pos_shopping')->update($data['id'], $data['qty'] + 1);
+        } catch (InvalidRowIDException $e) {
+            return response()->json(['message' => 'That cart row is no longer in the cart.'], 404);
+        }
+
         return response()->json($cartinfo);
     }
+
     public function cart_decrement(Request $request){
-        $qty = $request->qty - 1;
-        $cartinfo = Cart::instance('pos_shopping')->update($request->id, $qty);
+        $data = $request->validate([
+            'id' => 'required|string',
+            'qty' => 'required|integer|min:1',
+        ]);
+
+        try {
+            // At one unit the minus button means "remove", not "quantity 0":
+            // a zero-quantity row would still be printed on the cart page.
+            if ($data['qty'] <= 1) {
+                Cart::instance('pos_shopping')->remove($data['id']);
+
+                return response()->json(Cart::instance('pos_shopping')->content());
+            }
+
+            $cartinfo = Cart::instance('pos_shopping')->update($data['id'], $data['qty'] - 1);
+        } catch (InvalidRowIDException $e) {
+            return response()->json(['message' => 'That cart row is no longer in the cart.'], 404);
+        }
+
         return response()->json($cartinfo);
     }
+
     public function cart_remove(Request $request){
-        $remove = Cart::instance('pos_shopping')->remove($request->id);
-        $cartinfo = Cart::instance('pos_shopping')->content();
-        return response()->json($cartinfo);
+        $data = $request->validate(['id' => 'required|string']);
+
+        try {
+            Cart::instance('pos_shopping')->remove($data['id']);
+        } catch (InvalidRowIDException $e) {
+            return response()->json(['message' => 'That cart row is no longer in the cart.'], 404);
+        }
+
+        return response()->json(Cart::instance('pos_shopping')->content());
     }
+
     public function product_discount(Request $request){
-        $discount = $request->discount;
-        $cart = Cart::instance('pos_shopping')->content()->where('rowId', $request->id)->first();
-        $cartinfo = Cart::instance('pos_shopping')->update($request->id, [
+        $data = $request->validate([
+            'id' => 'required|string',
+            'discount' => 'required|numeric|min:0',
+        ]);
+
+        $cart = Cart::instance('pos_shopping')->content()->where('rowId', $data['id'])->first();
+
+        if (! $cart) {
+            return response()->json(['message' => 'That cart row is no longer in the cart.'], 404);
+        }
+
+        $cartinfo = Cart::instance('pos_shopping')->update($data['id'], [
             'options' => [
                 'slug' => $cart->options->slug,
                 'image' => $cart->options->image,
                 'old_price' => $cart->options->old_price,
                 'purchase_price' => $cart->options->purchase_price,
-                'product_discount' => $request->discount,
+                'product_discount' => $data['discount'],
             ],
         ]);
+
         return response()->json($cartinfo);
     }
+
     public function cart_shipping(Request $request){
-         $shipping = ShippingCharge::where(['status'=>1,'id'=>$request->id])->first()->amount;
+        $data = $request->validate(['id' => 'required|integer']);
+
+        $shipping = ShippingCharge::where(['status' => 1, 'id' => $data['id']])->value('amount');
+
+        if ($shipping === null) {
+            return response()->json(['message' => 'That shipping charge is not available.'], 404);
+        }
+
         Session::put('pos_shipping', $shipping);
+
         return response()->json($shipping);
     }
 
@@ -2253,6 +2423,15 @@ public function order_status(Request $request)
             $location = $this->detectPathaoLocation($address, $token, $pathao_info->url);
 
             if (!$location) {
+                // B15: this used to fall back to the STORE's city/zone with no
+                // trace, so an unrecognised address silently booked the parcel to
+                // the shop's own area - the rider would deliver it to the wrong
+                // place. Log it loudly; the fallback still runs so the flow does
+                // not hard-fail, but it is no longer invisible.
+                Log::warning('Pathao location detection failed, using store location as recipient', [
+                    'order_id' => $order->id,
+                    'address'  => $address,
+                ]);
                 // Fallback: use store location as recipient location
                 $location = [
                     'city_id' => $store['city_id'] ?? 1,
@@ -2262,6 +2441,10 @@ public function order_status(Request $request)
             }
 
             // Create order
+            // B15: real parcel data instead of qty=1, weight=0.5 and
+            // item_description='Order from Adora'.
+            $parcel = $this->pathaoParcelData($order);
+
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $token,
                 'Accept' => 'application/json',
@@ -2278,10 +2461,10 @@ public function order_status(Request $request)
                 'delivery_type' => 48,
                 'item_type' => 2,
                 'special_instruction' => 'Special note- product must be check after delivery',
-                'item_quantity' => 1,
-                'item_weight' => 0.5,
+                'item_quantity' => $parcel['item_quantity'],
+                'item_weight' => $parcel['item_weight'],
                 'amount_to_collect' => round($order->amount),
-                'item_description' => 'Order from Adora',
+                'item_description' => $parcel['item_description'],
             ]);
 
             if ($response->status() === 200) {

@@ -1,11 +1,15 @@
 @extends('backEnd.layouts.app')
 @section('title','Fraud Checker')
 @section('content')
-<div class="container-fluid">
-    <div class="row">
+<div class="row">
         <div class="col-12">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                <h4 class="mb-0">Fraud Checker</h4>
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+                <div>
+                    <h4 class="mb-0">Fraud Checker</h4>
+                    <p class="text-muted mb-0 small">
+                        Look up a phone number against courier delivery history, or override the stored risk when the courier has no record.
+                    </p>
+                </div>
             </div>
 
             <div class="card mb-3">
@@ -54,6 +58,36 @@
                             <x-admin.button variant="warning" class="w-100" type="submit">Override</x-admin.button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            {{-- Operational action, not configuration: it fills in the risk
+                 columns of orders that have never been scored. Kept here,
+                 beside the results it writes, instead of on the API settings
+                 screen. --}}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="ri ri-refresh-line me-2"></i>Sync order risk</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        Checks unscored orders against courier delivery history and saves the result on the order.
+                        This does not send anything to a courier.
+                    </p>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-sm-6 col-md-4">
+                            <label class="form-label" for="syncLimit">Orders to check</label>
+                            <input type="number" id="syncLimit" class="form-control" value="50" min="1" max="100">
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <x-admin.button variant="outline-primary" class="w-100" type="button"
+                                            id="syncOrdersBtn"
+                                            data-sync-url="{{ route('admin.courier.sync.orders') }}">
+                                <i class="ri ri-refresh-line me-1"></i>Sync orders
+                            </x-admin.button>
+                        </div>
+                    </div>
+                    <div id="syncResults"></div>
                 </div>
             </div>
 
@@ -129,5 +163,4 @@
 
         </div>
     </div>
-</div>
 @endsection

@@ -31,21 +31,11 @@
                     @csrf
 
                     <div class="col-12">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control rounded-0 @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" id="name" placeholder="Enter Brand Name">
-                            <label for="name">Brand Name *</label>
-                        </div>
-                        @error('name')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.input name="name" label="Brand Name" :value="old('name')" placeholder="Enter Brand Name" required />
                     </div>
 
                     <div class="col-12">
-                        <label for="image" class="form-label fw-semibold">Brand Image</label>
-                        <input type="file" class="form-control rounded-0 js-dropify @error('image') is-invalid @enderror" name="image" id="image">
-                        @error('image')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.input name="image" label="Brand Image" type="file" class="js-dropify" />
                     </div>
 
                     <div class="col-12">
@@ -63,14 +53,7 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label class="form-label d-block fw-semibold">Status</label>
-                        <div class="form-check form-switch custom-switch-sharp">
-                            <input type="checkbox" class="form-check-input rounded-0" value="1" name="status" checked>
-                            <label class="form-check-label">Active</label>
-                        </div>
-                        @error('status')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.switch name="status" label="Active" :checked="true" />
                     </div>
                 </form>
             </div>

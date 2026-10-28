@@ -3,85 +3,18 @@
 
 @section('content')
 <!-- Page Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
   <div>
-    <h4 class="fw-bold mb-1">{{$order_status->name}} Order ({{isset($order_status->orders_count) ? $order_status->orders_count : 0}})</h4>
+    <h4 class="fw-bold mb-1">{{ $order_status->name }} orders</h4>
+    <p class="text-muted mb-0 small">
+      {{ isset($order_status->orders_count) ? $order_status->orders_count : 0 }} in this tab.
+      Use the filters for a narrower list.
+    </p>
   </div>
-  <div class="d-flex gap-2">
-    <a href="{{route('admin.order.create')}}" class="btn btn-primary btn-square waves-effect">
-      <i class="icon-base ri ri-add-line me-2"></i>Add Order
-    </a>
-  </div>
-</div>
-
-<!-- Order Statistics -->
-<div class="row g-3 mb-4">
-  <!-- Pending Payment / Orders -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card rounded-0 h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <div class="avatar me-4">
-            <span class="avatar-initial rounded-3 bg-label-primary">
-              <i class="icon-base ri ri-time-line icon-24px"></i>
-            </span>
-          </div>
-          <h4 class="mb-0">{{ isset($order_kpis) ? $order_kpis->pending : 0 }}</h4>
-        </div>
-        <h6 class="mb-0 fw-normal">Pending</h6>
-      </div>
-    </div>
-  </div>
-
-  <!-- Completed / Delivered -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card rounded-0 h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <div class="avatar me-4">
-            <span class="avatar-initial rounded-3 bg-label-success">
-              <i class="icon-base ri ri-check-double-line icon-24px"></i>
-            </span>
-          </div>
-          <h4 class="mb-0">{{ isset($order_kpis) ? $order_kpis->delivered : 0 }}</h4>
-        </div>
-        <h6 class="mb-0 fw-normal">Delivered</h6>
-      </div>
-    </div>
-  </div>
-
-  <!-- Total Orders -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card rounded-0 h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <div class="avatar me-4">
-            <span class="avatar-initial rounded-3 bg-label-info">
-              <i class="icon-base ri ri-file-list-3-line icon-24px"></i>
-            </span>
-          </div>
-          <h4 class="mb-0">{{ isset($order_kpis) ? $order_kpis->total : 0 }}</h4>
-        </div>
-        <h6 class="mb-0 fw-normal">Total Orders</h6>
-      </div>
-    </div>
-  </div>
-
-  <!-- Today Orders -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card rounded-0 h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <div class="avatar me-4">
-            <span class="avatar-initial rounded-3 bg-label-warning">
-              <i class="icon-base ri ri-calendar-todo-line icon-24px"></i>
-            </span>
-          </div>
-          <h4 class="mb-0">{{ isset($order_kpis) ? $order_kpis->today : 0 }}</h4>
-        </div>
-        <h6 class="mb-0 fw-normal">Today</h6>
-      </div>
-    </div>
+  <div class="d-flex flex-wrap gap-2">
+    <x-admin.button variant="primary" href="{{ route('admin.order.create') }}">
+      <i class="icon-base ri ri-add-line me-1"></i>Add order
+    </x-admin.button>
   </div>
 </div>
 

@@ -342,7 +342,10 @@ class CustomerController extends Controller
         // dd($request);
         $this->validate($request, [
             'name' => 'required',
-            'phone' => 'required',
+            // B4: format check only, no OTP (product decision). Matches the
+            // BD mobile pattern the courier sender enforces, so a garbage
+            // number is refused here instead of failing at the courier API.
+            'phone' => ['required', 'regex:/^01[3-9]\d{8}$/'],
             'address' => 'required',
             'area' => 'required',
         ]);
@@ -354,7 +357,6 @@ class CustomerController extends Controller
         $subtotal = Cart::instance('shopping')->subtotal();
         $subtotal = str_replace(',', '', $subtotal);
         $subtotal = str_replace('.00', '', $subtotal);
-        $discount = Session::get('discount');
 
         $shipping_area  = ShippingCharge::where('id', $request->area)->first();
         if (!$shipping_area) {
@@ -364,6 +366,33 @@ class CustomerController extends Controller
         $shippingfee = (float) $shipping_area->amount;
         Session::put('shipping', $shippingfee);
         Session::put('shipping_area_id', (int) $shipping_area->id);
+
+        /*
+         * Server-side coupon revalidation (B1 fix).
+         *
+         * The session's 'discount' value used to be trusted as-is, so a
+         * client-claimed subtotal at apply-time could freeze an oversized
+         * discount here. Recompute it from the REAL cart, re-check the usage
+         * limit (apply-time check can go stale before this order lands), and
+         * clamp so the discount can never exceed what the customer owes.
+         */
+        $discount = 0.0;
+        $couponId = (int) Session::get('coupon_id');
+        $coupon   = $couponId
+            ? \App\Models\Coupon::where('id', $couponId)->running()->first()
+            : null;
+
+        if ($coupon && $coupon->isUsageAvailable()) {
+            $discount = (float) $coupon->calculateDiscount((float) $subtotal);
+        } else {
+            // Gone, expired, or the limit was reached between apply and order.
+            Session::forget('coupon_id');
+            Session::forget('coupon_code');
+            Session::forget('discount');
+        }
+
+        $discount = max(0.0, $discount);
+        $discount = min($discount, (float) $subtotal + $shippingfee);
         // Resolve the account behind this order.
         //
         // This block used to be inline and was fatal for every guest order:
@@ -410,10 +439,31 @@ class CustomerController extends Controller
         // the storefront.
         $order->save();
 
+        // Coupon usage log: the checkout session carries coupon_id (set by
+        // Frontend\CouponController::apply). Record the use against this
+        // order so the admin coupon details page can count it.
+        // Coupon usage log: record the use against this order so the admin
+        // coupon details page can count it. Only records when the coupon
+        // survived the revalidation above (running + limit available).
+        if ($coupon) {
+            \App\Models\CouponUsage::record($coupon, $order->id, $discount, 'checkout');
+        }
+        Session::forget('coupon_id');
+        Session::forget('coupon_code');
+        Session::forget('discount');
+
         try {
             app(CourierFraudService::class)->checkAndAttachToOrder($order, (string) $request->phone, null, 'checkout', 720);
         } catch (\Throwable $e) {
-            // no-op
+            // B12: the fraud check is a non-blocking convenience, so a failure
+            // must not stop the order. But it used to be a bare `// no-op`,
+            // which hid real breakage. Log it so a broken fraud service is
+            // visible instead of silently reporting nothing.
+            Log::warning('Checkout fraud check failed', [
+                'order_id' => $order->id,
+                'phone'    => $request->phone,
+                'error'    => $e->getMessage(),
+            ]);
         }
 
         // shipping data save

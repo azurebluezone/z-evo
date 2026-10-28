@@ -59,6 +59,12 @@
                 <div class="content-wrapper">
                     <!-- Content -->
                     <div class="container-xxl flex-grow-1 container-p-y">
+                        {{-- Shared header: customer totals + this module's record
+                             count. Data comes from App\Services\Admin\PageStats
+                             via the view composer; the dashboard opts out in
+                             config/admin_stats.php. --}}
+                        @include('backEnd.partials.stat-grid')
+
                         @yield('content')
                     </div>
                     <!-- / Content -->

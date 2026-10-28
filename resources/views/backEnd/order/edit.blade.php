@@ -282,19 +282,25 @@
             is a plain link to the preview screen, which is what an admin wants
             before creating a billable consignment.
 
-            One button per courier: the preview screen carries the payload and the
-            confirm step, and it also lists every other courier, so an admin can
-            still switch. Previously there was a single button hardcoded to
-            SteadFast, which meant Pathao was unreachable from this page.
+            A single button for SteadFast: the preview screen carries the payload
+            and the confirm step, and it also lists the other couriers. Pathao is
+            not offered here because the sender only speaks SteadFast; it goes via
+            the bulk courier action instead (see note below the button).
           --}}
           <a href="{{ route('admin.order.courier.show', ['provider' => 'steadfast', 'order' => $order->id ?? request('invoice_id')]) }}"
              class="btn btn-outline-primary w-100 mt-2">
             <i class="ri ri-truck-line me-1"></i> Send to SteadFast
           </a>
-          <a href="{{ route('admin.order.courier.show', ['provider' => 'pathao', 'order' => $order->id ?? request('invoice_id')]) }}"
-             class="btn btn-outline-success w-100 mt-2">
-            <i class="ri ri-road-map-line me-1"></i> Send to Pathao
-          </a>
+          {{--
+            B3: only SteadFast is offered here. CourierOrderSender speaks only the
+            SteadFast protocol, so a per-order Pathao button (removed) always
+            failed - Pathao needs OAuth + store lookup, which the bulk "Send to
+            Pathao" action on the orders list handles. A button that can only
+            fail is worse than no button.
+          --}}
+          <div class="text-muted small mt-2">
+            Sending to Pathao is done from the bulk courier action on the orders list.
+          </div>
         </div>
       </div>
       

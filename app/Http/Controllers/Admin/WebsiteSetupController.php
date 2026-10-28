@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contact;
 use App\Models\GeneralSetting;
 use App\Models\SocialMedia;
 use Illuminate\Http\RedirectResponse;
@@ -12,16 +13,15 @@ use Toastr;
 
 class WebsiteSetupController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * The old landing page was a set of tabs labelled HeaderSoon /
+     * FooterSoon / AppearanceSoon, while the real pages lived one URL
+     * deeper. It was a dead end pretending to be a settings screen, so the
+     * hub now sends the admin to the first real page.
+     */
+    public function index(Request $request): RedirectResponse
     {
-        $tab = (string) $request->query('tab', 'header');
-        if (!in_array($tab, ['header', 'footer', 'appearance', 'seo'], true)) {
-            $tab = 'header';
-        }
-
-        $settings = GeneralSetting::first();
-
-        return view('backEnd.website-setup.index', compact('tab', 'settings'));
+        return redirect()->route('admin.website-setup.header');
     }
 
     private function getSettings(): GeneralSetting
@@ -148,7 +148,9 @@ class WebsiteSetupController extends Controller
     {
         $settings = $this->getSettings();
         $socials = SocialMedia::orderBy('id', 'DESC')->get();
-        return view('backEnd.website-setup.footer', compact('settings', 'socials'));
+        // Values shown in the storefront footer's Contact Us widget.
+        $contact = Contact::where('status', 1)->orderBy('id')->first();
+        return view('backEnd.website-setup.footer', compact('settings', 'socials', 'contact'));
     }
 
     public function updateFooter(Request $request): RedirectResponse
@@ -160,9 +162,15 @@ class WebsiteSetupController extends Controller
         }
 
         $this->validate($request, [
-            'footer_about_text' => 'nullable|string',
+            // Capped because the storefront prints this inside one footer
+            // column: an unbounded paragraph stretched the grid and broke
+            // the homepage layout (reported 2026-10-28). ~60 words fits.
+            'footer_about_text' => 'nullable|string|max:400',
             'footer_payment_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'copyright' => 'nullable|string|max:255',
+            'contact_address' => 'nullable|string|max:255',
+            'contact_phone' => 'nullable|string|max:50',
+            'contact_email' => 'nullable|email|max:190',
         ]);
 
         $input = [
@@ -175,6 +183,24 @@ class WebsiteSetupController extends Controller
         }
 
         $settings->update($input);
+
+        // The storefront footer reads address/phone/email from the active
+        // Contact row (AppServiceProvider shares it as $contact). Before
+        // this page existed, that row could only be written from the
+        // separate Contact Manager, so the footer silently showed fallback
+        // placeholder text. Save the row here so the footer form owns the
+        // values it displays.
+        $contact = Contact::where('status', 1)->orderBy('id')->first() ?? new Contact();
+        // phone/email/address are NOT NULL in the 2023 migration, so empty
+        // inputs are saved as '' rather than NULL; the storefront falls
+        // back to its placeholder text for blank values.
+        $contact->fill([
+            'address' => (string) $request->input('contact_address'),
+            'phone' => (string) $request->input('contact_phone'),
+            'email' => (string) $request->input('contact_email'),
+            'status' => 1,
+        ]);
+        $contact->save();
 
         Toastr::success('Success', 'Footer settings updated successfully');
         return redirect()->back();

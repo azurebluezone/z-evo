@@ -119,7 +119,7 @@
             <!-- col end -->
 
             <div>
-              <input type="submit" class="btn btn-success" value="Submit" />
+              <x-admin.button variant="success" type="submit">Submit</x-admin.button>
             </div>
           </form>
         </div>

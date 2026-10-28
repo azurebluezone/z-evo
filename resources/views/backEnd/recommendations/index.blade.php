@@ -29,87 +29,6 @@
     </div>
   @endif
 
-<!-- Statistics Cards -->
-<div class="row g-6 mb-6">
-  <!-- Total Recommended -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <div class="avatar me-4">
-            <span class="avatar-initial rounded-3 bg-label-primary">
-              <i class="icon-base ri ri-star-line icon-24px"></i>
-            </span>
-          </div>
-          <h4 class="mb-0">{{ $data->total() ?? count($data) }}</h4>
-        </div>
-        <h6 class="mb-0 fw-normal">Total Recommended</h6>
-        <p class="mb-0">
-          <small class="text-body-secondary">Products on homepage</small>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Active -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <div class="avatar me-4">
-            <span class="avatar-initial rounded-3 bg-label-success">
-              <i class="icon-base ri ri-check-double-line icon-24px"></i>
-            </span>
-          </div>
-          @php
-            $activeCount = $data instanceof \Illuminate\Support\Collection 
-              ? $data->where('is_recommended', 1)->count() 
-              : count(array_filter($data->items() ?? [], fn($i) => $i->is_recommended == 1));
-          @endphp
-          <h4 class="mb-0">{{ $activeCount }}</h4>
-        </div>
-        <h6 class="mb-0 fw-normal">Active</h6>
-        <p class="mb-0">
-          <small class="text-body-secondary">Currently showing</small>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- This Page -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <div class="avatar me-4">
-            <span class="avatar-initial rounded-3 bg-label-info">
-              <i class="icon-base ri ri-file-list-line icon-24px"></i>
-            </span>
-          </div>
-          <h4 class="mb-0">{{ count($data) }}</h4>
-        </div>
-        <h6 class="mb-0 fw-normal">This Page</h6>
-        <p class="mb-0">
-          <small class="text-body-secondary">Items displayed</small>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Add -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card h-100 bg-label-primary border-primary">
-      <div class="card-body">
-        <h6 class="mb-2 fw-semibold text-primary">Quick Add Product</h6>
-        <p class="mb-3 small">Search and add products to recommendations</p>
-        <x-admin.button variant="primary" shape="square" ripple="true" class="w-100" data-bs-toggle="modal" data-bs-target="#addProductModal">
-          <i class="ri ri-add-line me-1"></i> Add New
-        </x-admin.button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Product List Card -->
 <div class="card rounded-0">
   <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
@@ -122,6 +41,9 @@
         </div>
         <x-admin.button variant="outline-primary" type="submit">Search</x-admin.button>
       </form>
+      <x-admin.button variant="primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+        <i class="ri ri-add-line me-1"></i>Add product
+      </x-admin.button>
     </div>
   </div>
 

@@ -71,6 +71,23 @@ class AppServiceProvider extends ServiceProvider
             // for a view folder, which shows up as "Unable to locate a class or
             // view for component [admin.button]" on the first render.
             $blade->component('backEnd.components.button', 'admin.button');
+
+            // The rest of the form language: one field, one dropdown, one
+            // textarea, one switch. Each owns its label/for/id pairing, old()
+            // value and validation message, so a form cannot drift into a
+            // different (broken) copy of the same field.
+            $blade->component('backEnd.components.input', 'admin.input');
+            $blade->component('backEnd.components.select', 'admin.select');
+            $blade->component('backEnd.components.textarea', 'admin.textarea');
+            $blade->component('backEnd.components.switch', 'admin.switch');
+        });
+
+        // The admin header's four numbers. One service, bound to the layout, so
+        // every admin page (169 of them) renders the same cards and a new page
+        // inherits them. The closure is lazy: nothing is queried until a page
+        // that actually extends backEnd.layouts.app is rendered.
+        view()->composer('backEnd.layouts.app', function ($view) {
+            $view->with('adminStats', app(\App\Services\Admin\PageStats::class)->cards());
         });
 
         // Don't load data from database during console commands or when database isn't ready.

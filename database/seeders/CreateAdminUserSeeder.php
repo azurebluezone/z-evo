@@ -26,7 +26,9 @@ class CreateAdminUserSeeder extends Seeder
 
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
-            ['name' => 'Admin', 'password' => bcrypt('123456'), 'status' => 1]
+            // Matches the actual local admin password (README + live login). The
+            // old seeded default 123456 no longer works - it was changed to 105585.
+            ['name' => 'Admin', 'password' => bcrypt('105585'), 'status' => 1]
         );
         $adminUser->assignRole([$adminRole->id]);
 

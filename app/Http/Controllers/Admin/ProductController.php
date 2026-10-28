@@ -309,14 +309,12 @@ class ProductController extends Controller
                 $save_data->updateSeoMeta($this->extractSeoMeta($request));
             }
 
-            // Attach sizes and colors (if any)
-            if ($request->has('proSize')) {
-                $save_data->sizes()->attach($request->proSize);
-            }
-
-            if ($request->has('proColor')) {
-                $save_data->colors()->attach($request->proColor);
-            }
+            // B16: the old sizes()/colors() attach branches were removed here.
+            // No form or script posts `proSize`/`proColor` (verified across all
+            // views, JS and routes), and store()/update() strip them from the
+            // mass-assign input anyway, so the `if ($request->has('proSize'))`
+            // branches could never fire. Product variants are handled by the
+            // product_variants flow below, not this vestigial pivot.
 
             // Handle image uploads with titles
             $images = $request->file('image');
@@ -337,7 +335,18 @@ class ProductController extends Controller
                     $pimage = new Productimage();
                     $pimage->product_id = $save_data->id;
                     $pimage->image = $imageUrl;
-                    $pimage->title = $titles[$key] ?? ''; // Assign title to corresponding image
+                    /*
+                     * B9: the create form has no per-image title[] input (a
+                     * `multiple` gallery upload cannot be paired with a fixed
+                     * set of title fields), so $titles was always null here and
+                     * EVERY created image got title=''. Use a provided title when
+                     * present, otherwise fall back to the original filename so an
+                     * image is never untitled.
+                     */
+                    $providedTitle = is_array($titles) ? trim((string) ($titles[$key] ?? '')) : '';
+                    $pimage->title = $providedTitle !== ''
+                        ? $providedTitle
+                        : pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
                     $pimage->save();
                 }
             }
@@ -662,8 +671,10 @@ class ProductController extends Controller
         if ($request->has('seo_meta')) {
             $update_data->updateSeoMeta($this->extractSeoMeta($request));
         }
-        $update_data->sizes()->sync($request->proSize);
-        $update_data->colors()->sync($request->proColor);
+        // B16: removed the vestigial `$update_data->sizes()->sync($request->proSize)`
+        // and colors() sync. No form posts those keys, so they always synced to
+        // null on every product update - a pointless write clearing an empty
+        // pivot. Variants are handled by the product_variants flow.
 
         $couponIds = $request->input('coupon_ids', []);
         if (is_array($couponIds)) {

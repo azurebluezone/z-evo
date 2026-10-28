@@ -26,34 +26,38 @@ class AdminCourierPagesTest extends TestCase
         return $admin;
     }
 
-    public function test_courier_index_renders_with_its_script_inside_the_document(): void
+    public function test_courier_index_is_an_overview_without_a_second_credentials_form(): void
     {
         $response = $this->actingAs($this->admin())->get(route('admin.courier.index'));
 
         $response->assertOk();
         $response->assertSee('Steadfast', false);
+        $response->assertSee('API settings', false);
 
-        $html = (string) $response->getContent();
-        $this->assertScriptInsideDocument($html, '.js-courier-test');
+        // The keys belong to the one settings screen now. Their field names
+        // must not appear in an overview table.
+        $response->assertDontSee('name="api_key"', false);
+        $response->assertDontSee('name="client_secret"', false);
     }
 
-    public function test_courier_edit_renders_with_its_script_inside_the_document(): void
+    public function test_courier_edit_redirects_to_the_one_settings_screen(): void
     {
         $response = $this->actingAs($this->admin())->get(route('admin.courier.edit', 'steadfast'));
 
-        $response->assertOk();
-
-        $html = (string) $response->getContent();
-        $this->assertScriptInsideDocument($html, '.js-courier-test');
+        $response->assertRedirect(route('admin.courier.settings') . '#courier-steadfast');
     }
 
-    public function test_courier_settings_page_renders_dynamic_credentials(): void
+    public function test_courier_settings_page_renders_both_forms_and_its_test_script(): void
     {
         $response = $this->actingAs($this->admin())->get(route('admin.courier.settings'));
 
         $response->assertOk();
         $response->assertSee('Steadfast', false);
         $response->assertSee('Pathao', false);
+        $response->assertSee('name="api_key"', false);
+        $response->assertSee('name="client_secret"', false);
+
+        $this->assertScriptInsideDocument((string) $response->getContent(), '.js-courier-test');
     }
 
     public function test_courier_fraud_checker_page_renders(): void
@@ -70,11 +74,11 @@ class AdminCourierPagesTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_courier_manage_api_page_renders(): void
+    public function test_legacy_courier_api_page_redirects_to_api_settings(): void
     {
         $response = $this->actingAs($this->admin())->get('/admin/courierapi/manage');
 
-        $response->assertOk();
+        $response->assertRedirect(route('admin.courier.settings'));
     }
 
     public function test_single_shipment_page_renders_with_copy_script(): void

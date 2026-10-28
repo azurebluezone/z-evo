@@ -42,11 +42,15 @@ class SocialMediaController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required',
-            'icon' => 'required',
-            'status' => 'required',
+            'title' => 'required|string|max:155',
+            'icon' => 'required|string|max:155',
+            'link' => 'required|string|max:255',
+            'color' => 'nullable|string|max:20',
         ]);
-        $input = $request->except(['redirect_to']);
+
+        $input = $request->only(['title', 'icon', 'link', 'color']);
+        $input['status'] = $request->boolean('status') ? 1 : 0;
+
         SocialMedia::create($input);
         Toastr::success('Success','Data insert successfully');
         return $this->redirectAfter($request, 'socialmedias.index');
@@ -61,11 +65,17 @@ class SocialMediaController extends Controller
     public function update(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required',
-            'icon' => 'required',
+            'title' => 'required|string|max:155',
+            'icon' => 'required|string|max:155',
+            'link' => 'required|string|max:255',
+            'color' => 'nullable|string|max:20',
         ]);
-        $input = $request->except(['redirect_to']);
-        $update_data = SocialMedia::find($request->id);
+
+        $input = $request->only(['title', 'icon', 'link', 'color']);
+        // An unchecked box is absent from the request, and that means "off".
+        $input['status'] = $request->boolean('status') ? 1 : 0;
+
+        $update_data = SocialMedia::findOrFail($request->id);
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');

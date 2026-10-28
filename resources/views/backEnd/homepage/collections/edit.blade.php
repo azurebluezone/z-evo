@@ -111,7 +111,7 @@
                         </div>
 
                         <div>
-                            <input type="submit" class="btn btn-success" value="Update">
+                            <x-admin.button variant="success" type="submit">Update</x-admin.button>
                         </div>
 
                     </form>

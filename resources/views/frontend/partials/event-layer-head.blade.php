@@ -548,6 +548,114 @@
             }
         }
 
+        /**
+         * Logo click: the visitor clicked the brand/logo anchor inside the
+         * header. Matched defensively: any <a href> that sits inside a header
+         * container and contains an <img>, so it also covers the fm header and
+         * the mobile logo twin.
+         */
+        function bindLogoClick() {
+            try {
+                document.addEventListener('click', function (e) {
+                    var el = e.target;
+                    if (!el) return;
+                    var a = el.closest ? el.closest('a[href]') : null;
+                    if (!a) return;
+
+                    var inHeader = a.closest
+                        ? a.closest('header, [role=banner], .navbar, .fm-header, .header')
+                        : null;
+                    if (!inHeader || !a.querySelector('img')) return;
+
+                    try {
+                        if (window.__EVENT_LAYER__ && typeof window.__EVENT_LAYER__.push === 'function') {
+                            window.__EVENT_LAYER__.push('logo_click', {
+                                target_href: a.getAttribute('href')
+                            });
+                        }
+                        if (window.__EVENT_LOGGER__ && typeof window.__EVENT_LOGGER__.queue === 'function') {
+                            window.__EVENT_LOGGER__.queue('Click_Logo', {
+                                url: location.href,
+                                click_target: a.getAttribute('href')
+                            });
+                        }
+                    } catch (err) {}
+                }, true);
+            } catch (e) {}
+        }
+
+        /**
+         * Search: the visitor submitted a product search. Delegated submit so
+         * both the header bar and the mobile drawer form are covered. The form
+         * is NOT blocked - it navigates normally, the event just rides along.
+         */
+        function bindSearchSubmit() {
+            try {
+                document.addEventListener('submit', function (e) {
+                    var form = e.target;
+                    if (!form || !form.getAttribute) return;
+                    if ((form.getAttribute('action') || '').indexOf('/search') === -1) return;
+                    if (form.method && String(form.method).toUpperCase() === 'POST') return;
+
+                    var input = form.querySelector ? form.querySelector('input[name="q"]') : null;
+                    var q = input ? String(input.value || '').trim() : '';
+                    if (!q) return;
+
+                    try {
+                        if (window.__EVENT_LAYER__ && typeof window.__EVENT_LAYER__.push === 'function') {
+                            window.__EVENT_LAYER__.push('search', { query: q });
+                        }
+                        if (window.__EVENT_LOGGER__ && typeof window.__EVENT_LOGGER__.queue === 'function') {
+                            window.__EVENT_LOGGER__.queue('Search', {
+                                url: location.href,
+                                click_target: 'search#' + q.slice(0, 60)
+                            });
+                        }
+                    } catch (err) {}
+                }, true);
+            } catch (e) {}
+        }
+
+        /**
+         * Favorite / wishlist clicks, forward-compatible: the homepage has no
+         * wishlist control today, so this listener is bound but usually silent.
+         * Product grids use .product-wishlist-btn, the footer links to the
+         * wishlist route; both selectors are covered here.
+         */
+        function bindFavoriteClick() {
+            try {
+                document.addEventListener('click', function (e) {
+                    var el = e.target;
+                    if (!el) return;
+                    var trigger = el.closest
+                        ? el.closest('.wishlist-btn, .add-to-wishlist, [data-favorite], [data-wishlist], a[href*="wishlist"], .product-wishlist-btn')
+                        : null;
+                    if (!trigger) return;
+
+                    var target = trigger.getAttribute('data-favorite')
+                        || trigger.getAttribute('data-wishlist')
+                        || trigger.getAttribute('href')
+                        || trigger.className
+                        || 'wishlist';
+                    if (typeof target !== 'string') {
+                        target = String(target);
+                    }
+
+                    try {
+                        if (window.__EVENT_LAYER__ && typeof window.__EVENT_LAYER__.push === 'function') {
+                            window.__EVENT_LAYER__.push('favorite', { target: target.slice(0, 120) });
+                        }
+                        if (window.__EVENT_LOGGER__ && typeof window.__EVENT_LOGGER__.queue === 'function') {
+                            window.__EVENT_LOGGER__.queue('Click_Wishlist', {
+                                url: location.href,
+                                click_target: 'favorite#' + target.slice(0, 60)
+                            });
+                        }
+                    } catch (err) {}
+                }, true);
+            } catch (e) {}
+        }
+
         try {
             document.addEventListener('visibilitychange', function () {
                 if (document.visibilityState === 'hidden') {
@@ -564,6 +672,9 @@
         bindAddToCartFlush();
         bindScrollDepth();      // journey: scroll milestones
         bindOutboundClicks();   // journey: drop-off legs to external hosts
+        bindLogoClick();        // journey: header logo clicks
+        bindSearchSubmit();     // product search submissions
+        bindFavoriteClick();    // wishlist/favorite clicks (forward-compatible)
         startActivityMonitoring(); // 30-second idle flush trigger (Section 2)
 
         return {

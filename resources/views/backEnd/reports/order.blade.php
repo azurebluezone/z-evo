@@ -6,9 +6,14 @@
     Order Report (Sales Report)
 
     Structure follows the Materialize/Materio admin template:
-      - a KPI widget card   (app-invoice-list.html -> "Invoice List Widget")
+      - one shared stat header (rendered by the layout, per-page data)
       - a filter card       (app-ecommerce-product-list.html -> "Product List Table")
       - a datatable card    (card-datatable table-responsive)
+      - a totals strip under the table (filter totals, not per-page totals)
+
+    Money totals were previously printed in a second band of four KPI cards
+    directly under the shared stat header, so every visit showed two sets of
+    overview cards. They now live beside the table they describe.
 
     The page title uses the template's card-header pattern (card rounded-0 +
     card-header + text-uppercase fw-bold), which is the house style already
@@ -23,81 +28,12 @@
       - $total_sales, which the footer referenced but the controller never passed
 --}}
 
-{{-- ============================ KPI WIDGET ============================ --}}
-<div class="row g-3 mb-4">
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card rounded-0 h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1">Total Sales</p>
-                        <h4 class="mb-0">{{ number_format((float)($total_sales ?? 0), 2) }}</h4>
-                        <small class="text-muted">Delivered orders</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded-3 bg-label-success">
-                            <i class="icon-base ri ri-money-dollar-circle-line icon-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card rounded-0 h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1">Total Purchase</p>
-                        <h4 class="mb-0">{{ number_format((float)($total_purchase ?? 0), 2) }}</h4>
-                        <small class="text-muted">Cost of goods</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded-3 bg-label-primary">
-                            <i class="icon-base ri ri-database-2-line icon-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card rounded-0 h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1">Total Profit</p>
-                        <h4 class="mb-0 {{ ((float)($total_sales ?? 0) - (float)($total_purchase ?? 0)) >= 0 ? 'text-success' : 'text-danger' }}">
-                            {{ number_format((float)($total_sales ?? 0) - (float)($total_purchase ?? 0), 2) }}
-                        </h4>
-                        <small class="text-muted">Sales minus purchase</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded-3 bg-label-info">
-                            <i class="icon-base ri ri-percent-line icon-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card rounded-0 h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1">Items Sold</p>
-                        <h4 class="mb-0">{{ number_format((float)($total_item ?? 0)) }}</h4>
-                        <small class="text-muted">Total quantity</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded-3 bg-label-warning">
-                            <i class="icon-base ri ri-box-3-line icon-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+    <div>
+        <h4 class="mb-0">Order Report</h4>
+        <p class="text-muted mb-0 small">
+            Delivered order lines, with the money totals for the current filter.
+        </p>
     </div>
 </div>
 
@@ -201,6 +137,18 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    {{-- Totals belong with the table they describe, not in a second band of
+         cards above it. Values cover the FILTER, not just this page. --}}
+    <div class="border-top px-3 py-3 d-flex flex-wrap align-items-center gap-4 small">
+        <span class="text-muted">
+            Filtered totals · {{ number_format($orders->total()) }} lines
+        </span>
+        <span><span class="text-muted">Purchase:</span> <strong>{{ number_format((float) ($total_purchase ?? 0), 2) }}</strong></span>
+        <span><span class="text-muted">Sales:</span> <strong>{{ number_format((float) ($total_sales ?? 0), 2) }}</strong></span>
+        <span><span class="text-muted">Profit:</span> <strong class="{{ ((float) ($total_sales ?? 0) - (float) ($total_purchase ?? 0)) >= 0 ? 'text-success' : 'text-danger' }}">{{ number_format((float) ($total_sales ?? 0) - (float) ($total_purchase ?? 0), 2) }}</strong></span>
+        <span><span class="text-muted">Items:</span> <strong>{{ number_format((float) ($total_item ?? 0)) }}</strong></span>
     </div>
 
     @if($orders->hasPages())

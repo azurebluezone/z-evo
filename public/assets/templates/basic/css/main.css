@@ -970,6 +970,17 @@ input[type="submit"] {
   margin-bottom: 1rem;
 }
 
+/* The footer about text comes from the admin (max 400 chars). Clamped to
+   6 lines so a long paragraph grows the column height instead of pushing
+   the footer grid apart (reported 2026-10-28). */
+.footer-about-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
 .footer-widget .title,
 .widget-contact .title {
   margin: 0;

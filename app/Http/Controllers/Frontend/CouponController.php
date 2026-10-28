@@ -14,7 +14,17 @@ class CouponController extends Controller
     {
         $codeRaw = (string) ($request->input('coupon_code') ?? $request->input('code') ?? '');
         $code = strtoupper(trim($codeRaw));
-        $subtotal = (float) $request->input('subtotal', 0);
+
+        /*
+         * NEVER trust a client-sent subtotal.
+         *
+         * This used to read $request->input('subtotal'), which the browser JS
+         * sends, so anyone could claim "my cart is ৳50000" on a real ৳890 cart
+         * and receive a ৳25000 discount -> a negative-amount order. The only
+         * honest subtotal is the server-side cart this session actually holds.
+         */
+        $cartRaw = str_replace(',', '', (string) Cart::instance('shopping')->subtotal());
+        $subtotal = (float) str_replace('.00', '', $cartRaw);
 
         if ($code === '') {
             return response()->json([

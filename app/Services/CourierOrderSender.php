@@ -83,6 +83,22 @@ class CourierOrderSender
      */
     public function preview(Order $order, string $provider): array
     {
+        /*
+         * B3: this sender speaks ONLY the SteadFast protocol (Api-Key /
+         * Secret-Key headers, POST {url}/create_order). Pathao needs an OAuth
+         * token + store lookup + a different payload, and its real flow lives in
+         * OrderController::order_pathao_auto (bulk). Accepting 'pathao' here used
+         * to build a SteadFast payload and POST it to the Pathao URL with empty
+         * SteadFast headers - a guaranteed wrong-protocol failure once keys exist.
+         * Refuse it honestly instead.
+         */
+        if ($provider === 'pathao') {
+            return $this->fail(
+                'Per-order Pathao sending is not supported by this screen. '
+                . 'Use the bulk "Send to Pathao" action, which handles Pathao auth and stores.'
+            );
+        }
+
         $config = Courierapi::where('type', $provider)->first();
 
         if (! $config) {

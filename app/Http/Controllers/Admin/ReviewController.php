@@ -92,8 +92,15 @@ class ReviewController extends Controller
     }
  
     public function pending(){
-        $data = Review::where('status','pending')->get();
-        return view('backEnd.review.pending',compact('data'));
+        // The list names the product and the customer, so the moderator can
+        // decide without opening each review. Eager-loaded to avoid one query
+        // per row.
+        $data = Review::with('product:id,name')
+            ->where('status', 'pending')
+            ->orderByDesc('id')
+            ->get();
+
+        return view('backEnd.review.pending', compact('data'));
     }
     public function inactive(Request $request){
         $inactive = Review::findOrFail($request->hidden_id);

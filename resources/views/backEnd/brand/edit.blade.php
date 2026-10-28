@@ -35,17 +35,10 @@
                     <input type="hidden" value="{{ $edit_data->id }}" name="id">
 
                     <div class="col-12">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control rounded-0 @error('name') is-invalid @enderror" name="name" value="{{ $edit_data->name ?? '' }}" id="name" placeholder="Enter Brand Name">
-                            <label for="name">Brand Name *</label>
-                        </div>
-                        @error('name')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.input name="name" label="Brand Name" :value="$edit_data->name ?? ''" placeholder="Enter Brand Name" required />
                     </div>
 
                     <div class="col-12">
-                        <label for="image" class="form-label fw-semibold">Brand Image</label>
                         @php
                             $brandImg = $edit_data->image ?? null;
                             $brandImgPath = $brandImg ? preg_replace('~^public/~', '', $brandImg) : null;
@@ -54,11 +47,8 @@
                             $fallbackImg = preg_replace('~^public/~', '', $fallbackImg);
                             $fallbackImg = ltrim($fallbackImg, '/');
                         @endphp
-                        <input type="file" class="form-control rounded-0 js-dropify @error('image') is-invalid @enderror" name="image" id="image" 
-                            data-default-file="{{ $brandImgPath && file_exists(public_path($brandImgPath)) ? asset($brandImgPath) : asset($fallbackImg) }}">
-                        @error('image')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.input name="image" label="Brand Image" type="file" class="js-dropify"
+                                       data-default-file="{{ $brandImgPath && file_exists(public_path($brandImgPath)) ? asset($brandImgPath) : asset($fallbackImg) }}" />
                     </div>
 
                     <div class="col-12">
@@ -76,14 +66,7 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label class="form-label d-block fw-semibold">Status</label>
-                        <div class="form-check form-switch custom-switch-sharp">
-                            <input type="checkbox" class="form-check-input rounded-0" value="1" name="status" {{ ((int) ($edit_data->status ?? 0) === 1) ? 'checked' : '' }}>
-                            <label class="form-check-label">Active</label>
-                        </div>
-                        @error('status')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.switch name="status" label="Active" :checked="((int) ($edit_data->status ?? 0) === 1)" />
                     </div>
 
                     <div class="col-12">

@@ -71,7 +71,7 @@
                                 id="description-editor"
                                 class="js-quill-editor"
                                 data-quill-theme="snow"
-                                data-quill-toolbar-preset="mini"
+                                data-quill-toolbar-preset="full"
                                 data-quill-target="#description"
                                 data-quill-placeholder="Write page description..."
                                 data-quill-initial-html="{{ e((string) old('description')) }}"
@@ -106,7 +106,13 @@
                     </div>
                     <!-- col end -->
                     <div>
-                        <input type="submit" class="btn btn-success" value="Submit">
+                        {{-- Was <input type="submit" class="btn btn-success">. Node-waves
+                             rewrites input buttons to class "waves-button-input" and
+                             strips the btn styling, so it rendered as an unstyled box.
+                             A <button> element is not touched by that path. --}}
+                        <x-admin.button variant="success" type="submit">
+                            <i class="ri ri-save-line me-1"></i> Submit
+                        </x-admin.button>
                     </div>
 
                 </form>

@@ -34,32 +34,13 @@
                     @csrf
 
                     <div class="col-12">
-                        <div class="form-floating form-floating-outline">
-                            <select class="form-select rounded-0 @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
-                                <option value="">Select Category..</option>
-                                @if(isset($categories) && count($categories) > 0)
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id ?? '' }}" {{ (old('category_id') == ($category->id ?? '')) ? 'selected' : '' }}>{{ $category->name ?? 'N/A' }}</option>
-                                    @endforeach
-                                @else
-                                    <option value="" disabled>No Categories Available</option>
-                                @endif
-                            </select>
-                            <label for="category_id">Category *</label>
-                        </div>
-                        @error('category_id')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.select name="category_id" label="Category"
+                                        :options="($categories ?? collect())->pluck('name', 'id')->all()"
+                                        placeholder="Select Category.." required />
                     </div>
 
                     <div class="col-12">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control rounded-0 @error('subcategoryName') is-invalid @enderror" name="subcategoryName" value="{{ old('subcategoryName') }}" id="subcategoryName" placeholder="Enter Subcategory Name">
-                            <label for="subcategoryName">Subcategory Name *</label>
-                        </div>
-                        @error('subcategoryName')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.input name="subcategoryName" label="Subcategory Name" :value="old('subcategoryName')" placeholder="Enter Subcategory Name" required />
                     </div>
 
                     <div class="col-12">
@@ -77,14 +58,7 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label class="form-label d-block fw-semibold">Status</label>
-                        <div class="form-check form-switch custom-switch-sharp">
-                            <input type="checkbox" class="form-check-input rounded-0" value="1" name="status" checked>
-                            <label class="form-check-label">Active</label>
-                        </div>
-                        @error('status')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.switch name="status" label="Active" :checked="true" />
                     </div>
 
                     <div class="col-12">

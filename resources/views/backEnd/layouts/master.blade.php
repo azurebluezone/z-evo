@@ -414,7 +414,7 @@
                     <a href="{{route('smsgeteway.manage')}}"><i data-feather="file-plus"></i> SMS Gateway</a>
                   </li>
                   <li>
-                    <a href="{{route('courierapi.manage')}}"><i data-feather="file-plus"></i> Courier API</a>
+                    <a href="{{route('admin.courier.settings')}}"><i data-feather="file-plus"></i> Courier API</a>
                   </li>
                 </ul>
               </div>

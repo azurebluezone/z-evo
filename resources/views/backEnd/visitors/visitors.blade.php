@@ -5,12 +5,12 @@
 <!-- Page Header -->
 <div class="row mb-6">
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h4 class="fw-bold mb-1"><i class="icon-base ri ri-user-search-line me-2"></i>All Visitors</h4>
                 <p class="text-muted mb-0">Website visitor list and management</p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
                 <a href="{{ route('admin.visitors.blocked') }}" class="btn btn-outline-danger waves-effect">
                     <i class="icon-base ri ri-shield-cross-line me-2"></i>Blocked Visitors
                 </a>

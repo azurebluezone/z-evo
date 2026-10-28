@@ -108,6 +108,39 @@ class AdminReviewTest extends TestCase
         $response->assertSee('Pending');
     }
 
+    public function test_pending_page_lists_the_product_and_an_approve_action(): void
+    {
+        $review = $this->pendingReview();
+
+        $response = $this->actingAs($this->admin())->get('/admin/review/pending');
+
+        $response->assertOk();
+        $response->assertSee('Pending reviews');
+        $response->assertSee('Customer');
+        $response->assertSee('Rating');
+        $response->assertSee($review->name);
+        $response->assertSee($this->product()->name);
+        $response->assertSee('Approve');
+        $response->assertSee(route('reviews.edit', $review->id), false);
+    }
+
+    public function test_pending_page_has_a_clear_empty_state(): void
+    {
+        // The dev database is shared with the browser, so any real pending rows
+        // are parked for the duration of this render and restored afterwards.
+        $parked = Review::where('status', 'pending')->pluck('id');
+        Review::whereIn('id', $parked)->update(['status' => 'active']);
+
+        try {
+            $response = $this->actingAs($this->admin())->get('/admin/review/pending');
+
+            $response->assertOk();
+            $response->assertSee('No reviews are waiting');
+        } finally {
+            Review::whereIn('id', $parked)->update(['status' => 'pending']);
+        }
+    }
+
     public function test_create_form_offers_a_guest_buyer(): void
     {
         $response = $this->actingAs($this->admin())->get('/admin/review/create');

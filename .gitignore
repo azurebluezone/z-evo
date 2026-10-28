@@ -82,3 +82,12 @@ Thumbs.db
 
 # Local responsive QA harness (iframe viewport tests), never shipped
 /public/__qa/
+
+# ---------- session backups / machine-local symlinks ----------
+# Ad-hoc zip archive of the whole tree (60MB), a manual backup — not source.
+/new evo.zip
+# The `php artisan storage:link` symlink. It points at an ABSOLUTE local path,
+# so committing it would break every clone (dangling link). Each install makes
+# its own with `php artisan storage:link`. The tracked public/storage/.gitignore
+# was removed along with the directory it lived in.
+/public/storage

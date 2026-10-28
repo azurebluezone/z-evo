@@ -26,11 +26,10 @@
                     <thead>
                         <tr>
                             <th style="width:5%">SL</th>
-                                    </div></th>
                             <th style="width:50%">Name</th>
                             <th style="width:15%">Old Price</th>
                             <th style="width:15%">New Price</th>
-                            <th style="width:15%">Stock</th></th>
+                            <th style="width:15%">Stock</th>
                         </tr>
                     </thead>               
                 

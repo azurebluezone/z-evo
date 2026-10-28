@@ -11,6 +11,7 @@ use App\Services\Analytics\TrafficSourceResolver;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -258,14 +259,27 @@ class AnalyticsDashboardController extends Controller
      */
     private function buildDashboardData(array $filters): array
     {
-        return [
-            'kpi' => $this->kpiData($filters),
-            'location' => $this->locationData($filters),
-            'attribution' => $this->attributionData($filters),
-            'journey' => $this->journeyData($filters),
-            'trend' => $this->trendData($filters),
-            'live' => $this->liveData($filters),
-        ];
+        // Requirement: analytics summary cached for 3 hours (10800s).
+        // The cache key includes the resolved filter set so every filter
+        // combination gets its own cached payload instead of one shared one.
+        $cacheKey = 'admin.analytics.summary_3h.' . md5(json_encode($filters));
+
+        $payload = Cache::remember($cacheKey, now()->addHours(3), function () use ($filters) {
+            // The "live" feed is intentionally NOT cached: it is the
+            // what-is-happening-now surface and a 3-hour-old live table
+            // would be misleading.
+            return [
+                'kpi' => $this->kpiData($filters),
+                'location' => $this->locationData($filters),
+                'attribution' => $this->attributionData($filters),
+                'journey' => $this->journeyData($filters),
+                'trend' => $this->trendData($filters),
+            ];
+        });
+
+        $payload['live'] = $this->liveData($filters);
+
+        return $payload;
     }
 
     // -------------------------------------------------------------- KPI cards

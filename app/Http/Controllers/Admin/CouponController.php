@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Admin\Concerns\InteractsWithDataTable;
 use App\Models\Coupon;
+use App\Models\CouponUsage;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Toastr;
@@ -16,6 +17,33 @@ class CouponController extends Controller
     {
         $coupons = Coupon::orderByDesc('id')->get();
         return view('backEnd.coupon.index', compact('coupons'));
+    }
+
+    /**
+     * Usage details for one coupon: status, how many times it was used
+     * today, and how many times in total. Counts come from the
+     * coupon_usages log (one row per real order, checkout or POS).
+     */
+    public function usage($id)
+    {
+        $coupon = Coupon::find($id);
+        if (!$coupon) {
+            Toastr::error('Error', 'Coupon not found');
+            return redirect()->route('coupons.index');
+        }
+
+        $today = CouponUsage::where('coupon_id', $coupon->id)
+            ->whereDate('created_at', today())
+            ->count();
+        $total = CouponUsage::where('coupon_id', $coupon->id)->count();
+
+        $recent = CouponUsage::where('coupon_id', $coupon->id)
+            ->with('order')
+            ->latest('id')
+            ->limit(50)
+            ->get();
+
+        return view('backEnd.coupon.usage', compact('coupon', 'today', 'total', 'recent'));
     }
 
     public function create()

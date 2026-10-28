@@ -307,7 +307,7 @@
           @method('POST')
 
           <!-- Nav tabs -->
-          <ul class="nav nav-tabs nav-fill mb-4" role="tablist">
+          <ul class="nav nav-tabs nav-fill flex-nowrap overflow-auto mb-4" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link active d-flex align-items-center gap-1" id="facebook-tab" data-bs-toggle="tab" data-bs-target="#facebook-settings" type="button" role="tab" aria-controls="facebook-settings" aria-selected="true">
                 <i class="icon-base ri ri-facebook-fill" style="color: #1877f2;"></i>Facebook

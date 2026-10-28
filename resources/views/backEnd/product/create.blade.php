@@ -93,6 +93,9 @@
                 <div class="col-12 col-sm-6">
                   <label for="image" class="form-label fw-semibold">Main Image *</label>
                   <input type="file" name="image[]" class="form-control rounded-0" />
+                  {{-- Optional title for the main image (pairs with image[0] as title[0]);
+                       gallery images fall back to their filename in the controller. --}}
+                  <input type="text" name="title[]" class="form-control rounded-0 mt-2" placeholder="Image Title (optional)" />
                   @error('image')
                   <span class="invalid-feedback d-block fw-semibold" role="alert">
                     <strong>{{ $message }}</strong>

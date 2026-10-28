@@ -21,6 +21,8 @@ class SocialMedia extends Model
     protected $fillable = [
         'title',
         'icon',
+        'link',
+        'color',
         'status',
     ];
 }

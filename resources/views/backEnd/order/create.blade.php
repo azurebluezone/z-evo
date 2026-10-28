@@ -233,7 +233,7 @@
        </div>
       </div>
       <div>
-       <input type="submit" class="btn btn-success" value="Order Submit" />
+       <x-admin.button variant="success" type="submit">Order Submit</x-admin.button>
       </div>
          </div>
         </div>

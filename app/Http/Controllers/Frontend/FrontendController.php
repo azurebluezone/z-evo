@@ -171,7 +171,7 @@ class FrontendController extends Controller
         $variants = DB::table('product_variants')
             ->where('product_id', $productId)
             ->where('status', 1)
-            ->get(['id', 'sku', 'price_override', 'image', 'attributes_json']);
+            ->get(['id', 'sku', 'price_override', 'discount_price', 'image', 'attributes_json']);
 
         $matched = null;
         foreach ($variants as $v) {
@@ -221,10 +221,30 @@ class FrontendController extends Controller
         $availableToPromise = max(0, $available - $reserved);
 
         $price = $matched->price_override !== null ? (float) $matched->price_override : (float) ($product->new_price ?? 0);
-        $oldOk = !empty($product->old_price) && (float) $product->old_price > $price;
+
+        /*
+         * B10: a variant-level discount_price, when set and lower than the base
+         * price, IS the selling price; the base price becomes the struck old
+         * price (mirroring products.old_price -> products.new_price). Without
+         * this the discount_price column was written but never read.
+         */
+        $variantDiscount = $matched->discount_price !== null && $matched->discount_price !== ''
+            ? (float) $matched->discount_price
+            : null;
+        $basePrice = $price;
+        if ($variantDiscount !== null && $variantDiscount < $price) {
+            $price = $variantDiscount;
+        }
+
+        $oldOk = ($variantDiscount !== null && $variantDiscount < $basePrice)
+            ? true
+            : (!empty($product->old_price) && (float) $product->old_price > $price);
+        $oldShown = ($variantDiscount !== null && $variantDiscount < $basePrice)
+            ? $basePrice
+            : (float) ($product->old_price ?? 0);
         $formatted = '৳ ' . $price;
         if ($oldOk) {
-            $formatted .= ' <del>৳ ' . e($product->old_price) . '</del>';
+            $formatted .= ' <del>৳ ' . e($oldShown) . '</del>';
         }
 
         return response()->json([
@@ -307,7 +327,7 @@ class FrontendController extends Controller
         $variants = DB::table('product_variants')
             ->where('product_id', $productId)
             ->where('status', 1)
-            ->get(['id', 'sku', 'title', 'image', 'price_override', 'attributes_json']);
+            ->get(['id', 'sku', 'title', 'image', 'price_override', 'discount_price', 'attributes_json']);
 
         $matched = null;
         foreach ($variants as $v) {
@@ -345,11 +365,28 @@ class FrontendController extends Controller
 
         $availableToPromise = max(0, $available - $reserved);
 
-        $price = $matched->price_override !== null && $matched->price_override !== ''
+        $basePriceVariant = $matched->price_override !== null && $matched->price_override !== ''
             ? (float) $matched->price_override
             : $basePrice;
 
-        $oldPrice = (float) ($product->old_price ?? 0);
+        $price = $basePriceVariant;
+
+        /*
+         * B10: same discount rule as checkStock - a set discount_price lower
+         * than the base becomes the selling price, and the base becomes the
+         * struck old_price the JS renders. The variant's own old price wins
+         * over the product-level one so the save badge is accurate per pick.
+         */
+        $variantDiscount = $matched->discount_price !== null && $matched->discount_price !== ''
+            ? (float) $matched->discount_price
+            : null;
+        if ($variantDiscount !== null && $variantDiscount < $basePriceVariant) {
+            $price = $variantDiscount;
+        }
+
+        $productOldPrice = (float) ($product->old_price ?? 0);
+        $hasVariantSaving = $variantDiscount !== null && $variantDiscount < $basePriceVariant;
+        $oldPrice = $hasVariantSaving ? $basePriceVariant : $productOldPrice;
         $hasSaving = $oldPrice > 0 && $oldPrice > $price;
 
         // Turn the stored attribute map back into labels the page can show on

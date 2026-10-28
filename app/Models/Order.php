@@ -35,6 +35,20 @@ class Order extends Model
     {
         return $this->belongsTo(OrderDetails::class, 'id', 'order_id')->select('id','order_id','product_id');
     }
+    /**
+     * orders.order_status is a varchar that must hold the status id. Older
+     * writers stored the slug ("pending"); normalise on write so no new row
+     * can disappear from the admin tabs that filter by id.
+     */
+    public function setOrderStatusAttribute($value): void
+    {
+        if (is_string($value) && $value !== '' && ! is_numeric($value)) {
+            $value = OrderStatus::query()->where('slug', $value)->value('id') ?? $value;
+        }
+
+        $this->attributes['order_status'] = $value;
+    }
+
     public function status()
     {
         return $this->belongsTo(OrderStatus::class, 'order_status');

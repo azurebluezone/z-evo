@@ -62,8 +62,8 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'link' => 'required',
-            'title' => 'required',
+            'link' => 'nullable|string|max:255',
+            'title' => 'nullable|string|max:255',
             'media_type' => 'nullable|in:image,video',
         ]);
 
@@ -174,8 +174,8 @@ class BannerController extends Controller
     public function update(Request $request)
     {
         $this->validate($request, [
-            'link' => 'required',
-            'title' => 'required',
+            'link' => 'nullable|string|max:255',
+            'title' => 'nullable|string|max:255',
             'media_type' => 'nullable|in:image,video',
         ]);
 

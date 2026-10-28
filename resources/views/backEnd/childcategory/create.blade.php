@@ -34,6 +34,11 @@
                     @csrf
 
                     <div class="col-12">
+                        {{-- The subcategory dropdown keeps its hand-written markup:
+                             it is a GROUPED select (a disabled "-- Category --"
+                             header before each category's subcategories), and
+                             x-admin.select only emits a flat key=>value list, so
+                             it cannot express this without losing the grouping. --}}
                         <div class="form-floating form-floating-outline">
                             <select class="form-select rounded-0 @error('subcategory_id') is-invalid @enderror" id="subcategory_id" name="subcategory_id">
                                 <option value="">Select Subcategory..</option>
@@ -58,13 +63,7 @@
                     </div>
 
                     <div class="col-12">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control rounded-0 @error('childcategoryName') is-invalid @enderror" name="childcategoryName" value="{{ old('childcategoryName') }}" id="childcategoryName" placeholder="Enter Childcategory Name">
-                            <label for="childcategoryName">Childcategory Name *</label>
-                        </div>
-                        @error('childcategoryName')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.input name="childcategoryName" label="Childcategory Name" :value="old('childcategoryName')" placeholder="Enter Childcategory Name" required />
                     </div>
 
                     <div class="col-12">
@@ -82,14 +81,7 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label class="form-label d-block fw-semibold">Status</label>
-                        <div class="form-check form-switch custom-switch-sharp">
-                            <input type="checkbox" class="form-check-input rounded-0" value="1" name="status" checked>
-                            <label class="form-check-label">Active</label>
-                        </div>
-                        @error('status')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.switch name="status" label="Active" :checked="true" />
                     </div>
 
                     <div class="col-12">

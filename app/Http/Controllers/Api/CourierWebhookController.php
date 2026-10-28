@@ -194,6 +194,30 @@ class CourierWebhookController extends Controller
 
         $slug = $this->mapCourierStatusToOrderStatusSlug($provider, $raw);
 
+        /*
+         * B5: append this callback to the event log BEFORE anything can
+         * overwrite the shipment's single raw_payload. The log is append-only,
+         * so a delivered -> returned transition keeps both steps instead of
+         * leaving only the last one.
+         */
+        try {
+            \App\Models\CourierEvent::create([
+                'shipment_id'       => (int) $shipment->id,
+                'order_id'          => (int) $shipment->order_id,
+                'provider'          => $provider,
+                'consignment_id'    => $shipment->consignment_id,
+                'courier_status'    => $raw !== '' ? $raw : null,
+                'order_status_slug' => $slug,
+                'payload'           => $payload,
+                'message'           => $message !== '' ? mb_substr($message, 0, 255) : null,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Courier event log write failed', [
+                'shipment_id' => $shipment->id,
+                'error'       => $e->getMessage(),
+            ]);
+        }
+
         if ($slug === null) {
             // Unknown word: recorded on the shipment, but the ORDER is left
             // alone rather than being guessed at.
@@ -279,9 +303,12 @@ class CourierWebhookController extends Controller
             // --- cancelled / returned --------------------------------------
             'cancelled' => 'cancelled',
             'cancelled_approval_pending' => 'cancelled',
-            'returned' => 'cancelled',
-            'return_dispatched' => 'cancelled',
-            'return_approval_pending' => 'cancelled',
+            // B6: these used to map to 'cancelled', so a returned parcel was
+            // recorded as cancelled and the local 'returned' status (id 6) could
+            // never be produced from courier data. They now map to 'returned'.
+            'returned' => 'returned',
+            'return_dispatched' => 'returned',
+            'return_approval_pending' => 'returned',
 
             // --- failed / on hold -------------------------------------------
             'failed' => 'pending',
@@ -316,7 +343,7 @@ class CourierWebhookController extends Controller
         }
 
         $terminal = OrderStatus::query()
-            ->whereIn('slug', ['delivered', 'cancelled'])
+            ->whereIn('slug', ['delivered', 'cancelled', 'returned'])
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
             ->all();

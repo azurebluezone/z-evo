@@ -66,6 +66,11 @@ class DemoOrderDetailsSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
+        // orders.order_status holds the status id, not its slug: every admin
+        // tab and KPI counts by id. Seeding the slug is what made the demo
+        // order invisible on the Pending tab.
+        $pendingStatusId = DB::table('order_statuses')->where('slug', 'pending')->value('id') ?? 1;
+
         // Create an order
         $orderId = DB::table('orders')->insertGetId([
             'invoice_id' => 'INV-' . time(),
@@ -73,7 +78,7 @@ class DemoOrderDetailsSeeder extends Seeder
             'discount' => 0,
             'shipping_charge' => 0,
             'customer_id' => 0,
-            'order_status' => 'pending',
+            'order_status' => $pendingStatusId,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

@@ -35,32 +35,14 @@
                     <input type="hidden" value="{{ $edit_data->id }}" name="id">
 
                     <div class="col-12">
-                        <div class="form-floating form-floating-outline">
-                            <select class="form-select rounded-0 @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
-                                <option value="">Select Category..</option>
-                                @if(isset($categories) && count($categories) > 0)
-                                    @foreach($categories as $value)
-                                        <option value="{{ $value->id ?? '' }}" {{ ((int) ($value->id ?? 0) === (int) ($edit_data->category_id ?? 0)) ? 'selected' : '' }}>{{ $value->name ?? 'N/A' }}</option>
-                                    @endforeach
-                                @else
-                                    <option value="" disabled>No Categories Available</option>
-                                @endif
-                            </select>
-                            <label for="category_id">Category *</label>
-                        </div>
-                        @error('category_id')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.select name="category_id" label="Category"
+                                        :options="($categories ?? collect())->pluck('name', 'id')->all()"
+                                        :selected="$edit_data->category_id ?? null"
+                                        placeholder="Select Category.." required />
                     </div>
 
                     <div class="col-12">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control rounded-0 @error('subcategoryName') is-invalid @enderror" name="subcategoryName" value="{{ $edit_data->subcategoryName ?? '' }}" id="subcategoryName" placeholder="Enter Subcategory Name">
-                            <label for="subcategoryName">Subcategory Name *</label>
-                        </div>
-                        @error('subcategoryName')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.input name="subcategoryName" label="Subcategory Name" :value="$edit_data->subcategoryName ?? ''" placeholder="Enter Subcategory Name" required />
                     </div>
 
                     <div class="col-12">
@@ -78,14 +60,7 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label class="form-label d-block fw-semibold">Status</label>
-                        <div class="form-check form-switch custom-switch-sharp">
-                            <input type="checkbox" class="form-check-input rounded-0" value="1" name="status" {{ ((int) ($edit_data->status ?? 0) === 1) ? 'checked' : '' }}>
-                            <label class="form-check-label">Active</label>
-                        </div>
-                        @error('status')
-                            <span class="invalid-feedback d-block fw-semibold" role="alert"><strong>{{ $message }}</strong></span>
-                        @enderror
+                        <x-admin.switch name="status" label="Active" :checked="((int) ($edit_data->status ?? 0) === 1)" />
                     </div>
 
                     <div class="col-12">

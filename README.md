@@ -4,8 +4,8 @@ A complete e-commerce stack on **Laravel 10**: storefront, admin panel and REST 
 Catalog with variants, order lifecycle, courier integration, bKash/ShurjoPay checkout, marketing
 pixels and built-in analytics.
 
-> Measured from the codebase: **544 route definitions**, **82 controllers**, **54 models**,
-> **466 Blade views**, **116 migrations**.
+> Measured from the codebase: **551 route definitions**, **83 controllers**, **57 models**,
+> **478 Blade views**, **122 migrations**.
 
 ---
 
@@ -36,7 +36,7 @@ pixels and built-in analytics.
 | Framework | Laravel 10.50.3 |
 | Runtime | PHP **>= 8.2** (enforced by `vendor/composer/platform_check.php`) |
 | Database | MySQL / MariaDB |
-| Views | Blade, custom front-end theme `fm` (120 views) |
+| Views | Blade, custom front-end theme `fm` (123 views) |
 | Permissions | `spatie/laravel-permission` (roles + permissions) |
 | Media | `spatie/laravel-medialibrary`, `intervention/image` |
 | Cart | `hardevine/shoppingcart` |
@@ -206,7 +206,7 @@ Created by `CreateAdminUserSeeder` **only for local development**:
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@gmail.com` | `123456` |
+| Admin | `admin@gmail.com` | `105585` (changed from the seeded `123456`; this is the working local password) |
 | Manager | `manager@gmail.com` | `123456` |
 | Support | `support@gmail.com` | `123456` |
 
@@ -223,16 +223,16 @@ app/
     Api/        3 JSON/token endpoints
     Auth/       login, register, password reset, verification
     Frontend/   storefront, cart, checkout, payments, landing pages
-  Models/       54 Eloquent models
+  Models/       57 Eloquent models
 database/
-  migrations/   116 schema migrations
+  migrations/   122 schema migrations
   seeders/      settings, roles, demo storefront, Shinjuku catalogue
 resources/views/
   backEnd/      admin screens
   frontend/
     fm/         current theme (sections, partials, components)
     pages/      static and landing pages
-routes/web.php  544 route definitions
+routes/web.php  551 route definitions
 public/         assets and uploads (product images under uploads/product/)
 ```
 

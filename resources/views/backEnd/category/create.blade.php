@@ -29,25 +29,11 @@
             @csrf
 
             <div class="col-12 col-md-6">
-                <div class="form-floating form-floating-outline">
-                    <input type="text" class="form-control rounded-0 @error('name') is-invalid @enderror" name="name" value="{{ old('name') ?? '' }}" id="name" placeholder="Enter Category Name">
-                    <label for="name">Name *</label>
-                </div>
-                @error('name')
-                    <span class="invalid-feedback d-block fw-semibold" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
+                <x-admin.input name="name" label="Name" placeholder="Enter Category Name" required />
             </div>
 
             <div class="col-12 col-md-6">
-                <label for="image" class="form-label fw-semibold">Category Image *</label>
-                <input type="file" class="form-control js-dropify rounded-0 @error('image') is-invalid @enderror" name="image" id="image">
-                @error('image')
-                    <span class="invalid-feedback d-block fw-semibold" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
+                <x-admin.input name="image" label="Category Image" type="file" required class="js-dropify" />
             </div>
 
             <div class="col-12">
@@ -60,29 +46,11 @@
             </div>
 
             <div class="col-12 col-md-6">
-                <label class="form-label d-block fw-semibold flex-shrink-0">Status</label>
-                <div class="form-check form-switch custom-switch-sharp">
-                    <input type="checkbox" class="form-check-input rounded-0" value="1" name="status" {{ old('status', 1) ? 'checked' : '' }}>
-                    <label class="form-check-label">Active</label>
-                </div>
-                @error('status')
-                    <span class="invalid-feedback d-block fw-semibold" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
+                <x-admin.switch name="status" label="Active" :checked="true" />
             </div>
 
             <div class="col-12 col-md-6">
-                <label class="form-label d-block fw-semibold">Front View</label>
-                <div class="form-check form-switch custom-switch-sharp">
-                    <input type="checkbox" class="form-check-input rounded-0" value="1" name="front_view" {{ old('front_view') ? 'checked' : '' }}>
-                    <label class="form-check-label">Visible</label>
-                </div>
-                @error('front_view')
-                    <span class="invalid-feedback d-block fw-semibold" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
+                <x-admin.switch name="front_view" label="Front View (Visible)" :checked="(bool) old('front_view')" />
             </div>
 
           </form>

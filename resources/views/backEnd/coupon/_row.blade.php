@@ -40,6 +40,10 @@
     </td>
     <td class="text-end">
         <div class="d-inline-flex justify-content-end align-items-center gap-1">
+            <a href="{{ route('coupons.usage', $value->id) }}" class="btn btn-sm btn-icon btn-text-secondary" title="Usage details">
+                <i class="icon-base ri ri-bar-chart-line"></i>
+            </a>
+
             <a href="{{route('coupons.edit',$value->id)}}" class="btn btn-sm btn-icon btn-text-secondary" title="Edit">
                 <i class="icon-base ri ri-edit-line"></i>
             </a>

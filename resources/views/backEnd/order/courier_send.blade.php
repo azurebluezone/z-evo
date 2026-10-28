@@ -88,7 +88,11 @@
                       @elseif($courier->status)
                         <span class="badge bg-label-warning">On, credentials missing</span>
                       @else
-                        <span class="badge bg-label-secondary">Switched off</span>
+                        @if(! $courier->isConfigured())
+                          <span class="badge bg-label-danger">No API Connect</span>
+                        @else
+                          <span class="badge bg-label-secondary">Switched off</span>
+                        @endif
                       @endif
                     </div>
                     @if($courier->type === $provider)

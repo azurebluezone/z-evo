@@ -29,72 +29,18 @@
     </form>
 @endif
 
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="card rounded-0">
-            <div class="card-body card-widget-separator p-0">
-                <div class="row gy-4 gy-sm-1 m-0">
-                    <div class="col-sm-6 col-lg-3 p-3">
-                        <div class="d-flex justify-content-between align-items-start border-end pb-4 pb-sm-0 pe-3">
-                            <div>
-                                <h4 class="mb-0 fw-bold">{{ isset($product_kpis) ? $product_kpis->total : 0 }}</h4>
-                                <p class="mb-0 text-muted">Total Products</p>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded-0 bg-label-primary text-primary">
-                                    <i class="icon-base ri ri-box-3-line icon-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-3 p-3">
-                        <div class="d-flex justify-content-between align-items-start border-end pb-4 pb-sm-0 pe-3">
-                            <div>
-                                <h4 class="mb-0 fw-bold">{{ isset($product_kpis) ? $product_kpis->active : 0 }}</h4>
-                                <p class="mb-0 text-muted">Active</p>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded-0 bg-label-success text-success">
-                                    <i class="icon-base ri ri-check-double-line icon-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-3 p-3">
-                        <div class="d-flex justify-content-between align-items-start border-end pb-4 pb-sm-0 pe-3">
-                            <div>
-                                <h4 class="mb-0 fw-bold">{{ isset($product_kpis) ? $product_kpis->inactive : 0 }}</h4>
-                                <p class="mb-0 text-muted">Inactive</p>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded-0 bg-label-danger text-danger">
-                                    <i class="icon-base ri ri-close-circle-line icon-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-3 p-3">
-                        <div class="d-flex justify-content-between align-items-start pe-3">
-                            <div>
-                                <h4 class="mb-0 fw-bold">{{ isset($product_kpis) ? $product_kpis->hot_deals : 0 }}</h4>
-                                <p class="mb-0 text-muted">Hot Deals</p>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded-0 bg-label-warning text-warning">
-                                    <i class="icon-base ri ri-fire-line icon-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{{-- One KPI band only: the shared stat-grid (backEnd/partials/stat-grid,
+     included by the layout) already shows Total/Active/Inactive for this
+     module. The page-local card-widget-separator band that repeated the
+     same three numbers (plus Hot Deals) was removed 2026-10-28; the Hot
+     Deals count stays visible in the card-header badge below. --}}
 
 <div class="card rounded-0">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3">
-        <h5 class="mb-0 text-uppercase fw-bold">Manage Products</h5>
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="mb-0 text-uppercase fw-bold">Manage Products</h5>
+            <span class="badge bg-label-warning">{{ isset($product_kpis) ? $product_kpis->hot_deals : 0 }} hot deals</span>
+        </div>
         <div class="d-flex gap-2 align-items-center flex-wrap">
             
             <x-admin.button variant="primary" shape="square" ripple="true" class="{{ (isset($generalSetting) && $generalSetting->home_page_hot_deal_section == 1) ? 'btn-outline-success' : 'btn-outline-warning' }} change-confirm" type="button" onclick="document.getElementById('hotDealToggleForm').submit();">

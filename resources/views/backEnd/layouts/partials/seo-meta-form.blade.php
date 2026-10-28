@@ -1,95 +1,72 @@
 @php
     $seoAdvancedCollapseId = 'seoAdvancedCollapse_' . substr(md5((string) get_class($model) . '|' . (string) ($model->id ?? 'new')), 0, 10);
+
+    // The field names are array keys (seo_meta[meta_title]). The x-admin
+    // components resolve old()/errors by the literal name, and Laravel's
+    // old() reads dot notation, so the previous value is resolved here and
+    // passed in as :value / :selected. There are no validation rules on
+    // these fields today, so the bracket name cannot miss a message.
+    $seoValue = function (string $key, $default = '') use ($model) {
+        return old('seo_meta.' . $key, $model->seoMeta->{$key} ?? $default);
+    };
 @endphp
 
 <div class="row">
     <div class="col-md-12">
-        <div class="mb-3">
-            <label for="meta_title" class="form-label">Meta Title</label>
-            <input type="text"
-                   name="seo_meta[meta_title]"
-                   id="meta_title"
-                   class="form-control"
-                   value="{{ old('seo_meta.meta_title', $model->seoMeta->meta_title ?? '') }}"
-                   maxlength="60"
-                   placeholder="e.g. Premium Wireless Bluetooth Headphones">
-            <div class="form-text"></div>
-        </div>
+        <x-admin.input name="seo_meta[meta_title]" id="meta_title" label="Meta Title"
+                       :value="$seoValue('meta_title')"
+                       maxlength="60"
+                       placeholder="e.g. Premium Wireless Bluetooth Headphones" />
     </div>
 
     <div class="col-md-12">
-        <div class="mb-3">
-            <label for="meta_description" class="form-label">Meta Description</label>
-            <textarea name="seo_meta[meta_description]"
-                      id="meta_description"
-                      class="form-control"
-                      rows="3"
-                      maxlength="160"
-                      placeholder="e.g. High-quality Bluetooth headphones with noise cancellation and premium sound quality.">{{ old('seo_meta.meta_description', $model->seoMeta->meta_description ?? '') }}</textarea>
-            <div class="form-text"></div>
-        </div>
+        <x-admin.textarea name="seo_meta[meta_description]" id="meta_description" label="Meta Description"
+                          :value="$seoValue('meta_description')"
+                          rows="3" maxlength="160"
+                          placeholder="e.g. High-quality Bluetooth headphones with noise cancellation and premium sound quality." />
     </div>
 
     <div class="col-md-6">
-        <div class="mb-3">
-            <label for="meta_keywords" class="form-label">Meta Keywords</label>
-            <input type="text"
-                   name="seo_meta[meta_keywords]"
-                   id="meta_keywords"
-                   class="form-control"
-                   value="{{ old('seo_meta.meta_keywords', $model->seoMeta->meta_keywords ?? '') }}"
-                   placeholder="e.g. headphones, bluetooth, wireless, audio">
-            <div class="form-text">Comma-separated keywords for SEO</div>
-        </div>
+        <x-admin.input name="seo_meta[meta_keywords]" id="meta_keywords" label="Meta Keywords"
+                       :value="$seoValue('meta_keywords')"
+                       help="Comma-separated keywords for SEO"
+                       placeholder="e.g. headphones, bluetooth, wireless, audio" />
     </div>
 
     <div class="col-md-6">
-        <div class="mb-3">
-            <label for="robots" class="form-label">Robots</label>
-            <select name="seo_meta[robots]" id="robots" class="form-control">
-                <option value="index,follow" {{ (old('seo_meta.robots', $model->seoMeta->robots ?? 'index,follow') == 'index,follow') ? 'selected' : '' }}>Index, Follow</option>
-                <option value="noindex,follow" {{ (old('seo_meta.robots', $model->seoMeta->robots ?? '') == 'noindex,follow') ? 'selected' : '' }}>No Index, Follow</option>
-                <option value="index,nofollow" {{ (old('seo_meta.robots', $model->seoMeta->robots ?? '') == 'index,nofollow') ? 'selected' : '' }}>Index, No Follow</option>
-                <option value="noindex,nofollow" {{ (old('seo_meta.robots', $model->seoMeta->robots ?? '') == 'noindex,nofollow') ? 'selected' : '' }}>No Index, No Follow</option>
-            </select>
-            <div class="form-text">Search engine crawling instructions</div>
-        </div>
+        <x-admin.select name="seo_meta[robots]" id="robots" label="Robots"
+                        :options="[
+                            'index,follow' => 'Index, Follow',
+                            'noindex,follow' => 'No Index, Follow',
+                            'index,nofollow' => 'Index, No Follow',
+                            'noindex,nofollow' => 'No Index, No Follow',
+                        ]"
+                        :selected="$seoValue('robots', 'index,follow')"
+                        help="Search engine crawling instructions" />
     </div>
 
     <div class="col-md-6">
-        <div class="mb-3">
-            <label for="meta_image" class="form-label">Meta Image</label>
-            <input type="file"
-                   name="seo_meta[meta_image]"
-                   id="meta_image"
-                   class="form-control"
-                   accept="image/*">
-            <div class="form-text">Image for social sharing (recommended: 1200x630 pixels)</div>
+        <x-admin.input name="seo_meta[meta_image]" id="meta_image" label="Meta Image" type="file"
+                       accept="image/*"
+                       help="Image for social sharing (recommended: 1200x630 pixels)" />
 
-            @if($model->seoMeta->meta_image ?? false)
-                <div class="mt-2">
-                    <img src="{{ asset($model->seoMeta->meta_image) }}"
-                         alt="Current SEO image"
-                         class="img-thumbnail"
-                         style="max-width: 200px;">
-                    <br>
-                    <small class="text-muted">Current image</small>
-                </div>
-            @endif
-        </div>
+        @if($model->seoMeta->meta_image ?? false)
+            <div class="mt-2">
+                <img src="{{ asset($model->seoMeta->meta_image) }}"
+                     alt="Current SEO image"
+                     class="img-thumbnail"
+                     style="max-width: 200px;">
+                <br>
+                <small class="text-muted">Current image</small>
+            </div>
+        @endif
     </div>
 
     <div class="col-md-6">
-        <div class="mb-3">
-            <label for="canonical_url" class="form-label">Canonical URL</label>
-            <input type="url"
-                   name="seo_meta[canonical_url]"
-                   id="canonical_url"
-                   class="form-control"
-                   value="{{ old('seo_meta.canonical_url', $model->seoMeta->canonical_url ?? '') }}"
-                   placeholder="https://example.com/page">
-            <div class="form-text">Preferred URL for this content</div>
-        </div>
+        <x-admin.input name="seo_meta[canonical_url]" id="canonical_url" label="Canonical URL" type="url"
+                       :value="$seoValue('canonical_url')"
+                       help="Preferred URL for this content"
+                       placeholder="https://example.com/page" />
     </div>
 
     <div class="col-12">
@@ -113,38 +90,22 @@
                 </div>
 
                 <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="og_title" class="form-label">OG Title</label>
-                        <input type="text"
-                               name="seo_meta[og_title]"
-                               id="og_title"
-                               class="form-control"
-                               value="{{ old('seo_meta.og_title', $model->seoMeta->og_title ?? '') }}"
-                               placeholder="Title for social sharing">
-                    </div>
+                    <x-admin.input name="seo_meta[og_title]" id="og_title" label="OG Title"
+                                   :value="$seoValue('og_title')"
+                                   placeholder="Title for social sharing" />
                 </div>
 
                 <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="og_image" class="form-label">OG Image</label>
-                        <input type="text"
-                               name="seo_meta[og_image]"
-                               id="og_image"
-                               class="form-control"
-                               value="{{ old('seo_meta.og_image', $model->seoMeta->og_image ?? '') }}"
-                               placeholder="URL to social image">
-                    </div>
+                    <x-admin.input name="seo_meta[og_image]" id="og_image" label="OG Image"
+                                   :value="$seoValue('og_image')"
+                                   placeholder="URL to social image" />
                 </div>
 
                 <div class="col-md-12">
-                    <div class="mb-3">
-                        <label for="og_description" class="form-label">OG Description</label>
-                        <textarea name="seo_meta[og_description]"
-                                  id="og_description"
-                                  class="form-control"
-                                  rows="2"
-                                  placeholder="Description for social sharing">{{ old('seo_meta.og_description', $model->seoMeta->og_description ?? '') }}</textarea>
-                    </div>
+                    <x-admin.textarea name="seo_meta[og_description]" id="og_description" label="OG Description"
+                                      :value="$seoValue('og_description')"
+                                      rows="2"
+                                      placeholder="Description for social sharing" />
                 </div>
 
                 <div class="col-12">
@@ -153,38 +114,22 @@
                 </div>
 
                 <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="twitter_title" class="form-label">Twitter Title</label>
-                        <input type="text"
-                               name="seo_meta[twitter_title]"
-                               id="twitter_title"
-                               class="form-control"
-                               value="{{ old('seo_meta.twitter_title', $model->seoMeta->twitter_title ?? '') }}"
-                               placeholder="Title for Twitter cards">
-                    </div>
+                    <x-admin.input name="seo_meta[twitter_title]" id="twitter_title" label="Twitter Title"
+                                   :value="$seoValue('twitter_title')"
+                                   placeholder="Title for Twitter cards" />
                 </div>
 
                 <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="twitter_image" class="form-label">Twitter Image</label>
-                        <input type="text"
-                               name="seo_meta[twitter_image]"
-                               id="twitter_image"
-                               class="form-control"
-                               value="{{ old('seo_meta.twitter_image', $model->seoMeta->twitter_image ?? '') }}"
-                               placeholder="URL to Twitter image">
-                    </div>
+                    <x-admin.input name="seo_meta[twitter_image]" id="twitter_image" label="Twitter Image"
+                                   :value="$seoValue('twitter_image')"
+                                   placeholder="URL to Twitter image" />
                 </div>
 
                 <div class="col-md-12">
-                    <div class="mb-3">
-                        <label for="twitter_description" class="form-label">Twitter Description</label>
-                        <textarea name="seo_meta[twitter_description]"
-                                  id="twitter_description"
-                                  class="form-control"
-                                  rows="2"
-                                  placeholder="Description for Twitter cards">{{ old('seo_meta.twitter_description', $model->seoMeta->twitter_description ?? '') }}</textarea>
-                    </div>
+                    <x-admin.textarea name="seo_meta[twitter_description]" id="twitter_description" label="Twitter Description"
+                                      :value="$seoValue('twitter_description')"
+                                      rows="2"
+                                      placeholder="Description for Twitter cards" />
                 </div>
             </div>
         </div>

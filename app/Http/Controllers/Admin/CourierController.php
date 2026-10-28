@@ -44,15 +44,17 @@ class CourierController extends Controller
     }
 
     /**
-     * Credentials form for one courier.
+     * Legacy per-courier credentials URL.
+     *
+     * The form used to live here as a third copy of the same fields. It now
+     * redirects to the one canonical screen, deep-linked to the provider card,
+     * so an old bookmark cannot reopen a second editor.
      */
     public function edit(string $type)
     {
         $type = $this->guardType($type);
 
-        $courier = Courierapi::query()->firstOrNew(['type' => $type]);
-
-        return view('backEnd.courier.edit', compact('courier', 'type'));
+        return redirect()->to(route('admin.courier.settings') . '#courier-' . $type);
     }
 
     /**
@@ -101,7 +103,7 @@ class CourierController extends Controller
         $result = $tester->test($courier);
 
         return redirect()
-            ->route('admin.courier.index')
+            ->to(route('admin.courier.settings') . '#courier-' . $type)
             ->with('success', 'Settings saved for ' . ucfirst($type) . '.')
             ->with('connection_test', $result);
     }
@@ -169,11 +171,13 @@ class CourierController extends Controller
 
         Log::info('Courier webhook token rotated', ['type' => $type]);
 
-        return redirect()->route('admin.courier.index')->with(
-            'success',
-            'A new webhook token was generated for ' . ucfirst($type)
-                . '. Copy it to the courier portal now - the old token stops working immediately.'
-        );
+        return redirect()
+            ->to(route('admin.courier.settings') . '#courier-' . $type)
+            ->with(
+                'success',
+                'A new webhook token was generated for ' . ucfirst($type)
+                    . '. Copy it to the courier portal now - the old token stops working immediately.'
+            );
     }
 
     /**

@@ -150,8 +150,8 @@
                         <div>Brands</div>
                     </a>
                 </li>
-                <li class="menu-item {{ request()->routeIs('admin.attributes.soon') ? 'active' : '' }}">
-                    <a href="{{ route('admin.attributes.soon') }}" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.attributes.index') }}" class="menu-link">
                         <div>Attributes</div>
                     </a>
                 </li>
@@ -194,6 +194,26 @@
                 <li class="menu-item {{ request()->routeIs('campaign.index') ? 'active' : '' }}">
                     <a href="{{ route('campaign.index') }}" class="menu-link">
                         <div>Campaign</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Pages (static CMS) -->
+        <li class="menu-item {{ request()->routeIs('pages.*') ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base ri ri-file-text-line"></i>
+                <div>Pages</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('pages.index') ? 'active' : '' }}">
+                    <a href="{{ route('pages.index') }}" class="menu-link">
+                        <div>Manage Pages</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('pages.create') ? 'active' : '' }}">
+                    <a href="{{ route('pages.create') }}" class="menu-link">
+                        <div>Create Page</div>
                     </a>
                 </li>
             </ul>
@@ -256,7 +276,7 @@
             <ul class="menu-sub">
                 {{-- Overview first: it is the screen that answers "is my
                      courier working?", which is the question this menu is for. --}}
-                <li class="menu-item {{ request()->routeIs('admin.courier.index') || request()->routeIs('admin.courier.edit') ? 'active' : '' }}">
+                <li class="menu-item {{ request()->routeIs('admin.courier.index') ? 'active' : '' }}">
                     <a href="{{ route('admin.courier.index') }}" class="menu-link">
                         <div>Couriers</div>
                     </a>
@@ -266,19 +286,14 @@
                         <div>Shipments</div>
                     </a>
                 </li>
-                <li class="menu-item {{ request()->routeIs('courierapi.manage') ? 'active' : '' }}">
-                    <a href="{{ route('courierapi.manage') }}" class="menu-link">
-                        <div>Settings</div>
+                <li class="menu-item {{ request()->routeIs('admin.courier.settings') || request()->routeIs('courierapi.manage') ? 'active' : '' }}">
+                    <a href="{{ route('admin.courier.settings') }}" class="menu-link">
+                        <div>API Settings</div>
                     </a>
                 </li>
                 <li class="menu-item {{ request()->routeIs('admin.courier.fraud-checker') ? 'active' : '' }}">
                     <a href="{{ route('admin.courier.fraud-checker') }}" class="menu-link">
                         <div>Fraud Checker</div>
-                    </a>
-                </li>
-                <li class="menu-item {{ request()->routeIs('admin.courier.settings') ? 'active' : '' }}">
-                    <a href="{{ route('admin.courier.settings') }}" class="menu-link">
-                        <div>API Settings</div>
                     </a>
                 </li>
                 <li class="menu-item">
