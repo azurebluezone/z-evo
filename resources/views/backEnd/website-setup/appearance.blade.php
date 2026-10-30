@@ -41,16 +41,38 @@
                         <div class="col-lg-6 mb-3">
                             <label class="form-label">Frontend Empty/Fallback Image</label>
                             <input type="file" name="frontend_empty_image" class="form-control" accept="image/*">
-                            @php
-                                $fallbackImage = $settings->frontend_empty_image ?? 'assets/images/empty.png';
-                                $fallbackImage = preg_replace('~^public/~', '', (string) $fallbackImage);
-                                $fallbackImage = ltrim($fallbackImage, '/');
-                                if (empty($fallbackImage) || !\Illuminate\Support\Facades\File::exists(public_path($fallbackImage))) {
-                                    $fallbackImage = 'assets/images/empty.png';
-                                }
-                            @endphp
-                            <div class="mt-2">
-                                <img src="{{ asset($fallbackImage) }}" alt="Fallback" style="max-width: 220px; height: auto; border: 1px solid #eee; border-radius: 6px;">
+                            <div class="form-text">
+                                Every missing image on the storefront <strong>and</strong> in the admin
+                                falls back to this file. Leave it empty and the bundled placeholder is used.
+                            </div>
+
+                            <div class="row g-3 mt-1">
+                                <div class="col-sm-6">
+                                    <span class="badge bg-label-primary mb-2">Frontend preview</span>
+                                    <div class="border rounded p-2 bg-white text-center">
+                                        <img src="{{ $fallbackUrl }}" alt="Frontend fallback preview"
+                                             style="width:100%; max-width:220px; height:auto; border-radius:6px;">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="badge bg-label-secondary mb-2">Admin preview</span>
+                                    <div class="border rounded p-2 bg-white">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="{{ $fallbackUrl }}" alt="Admin fallback preview"
+                                                 style="width:56px; height:56px; object-fit:cover; border-radius:6px;">
+                                            <div class="small text-muted">List thumbnail used when a row has no image</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="small text-muted mt-2">
+                                Active file: <code>{{ $fallbackPath }}</code>
+                                @if(($usage['frontend']['central'] ?? 0) + ($usage['backEnd']['central'] ?? 0) > 0)
+                                    · central fallback points: frontend {{ $usage['frontend']['central'] ?? 0 }},
+                                    admin {{ $usage['backEnd']['central'] ?? 0 }}
+                                @endif
+                                · full list: <code>php artisan images:audit</code>
                             </div>
                         </div>
 

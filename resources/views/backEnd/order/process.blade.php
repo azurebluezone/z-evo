@@ -53,9 +53,7 @@
                                         $prodImg = $product->image && $product->image->image ? $product->image->image : null;
                                         $prodImgPath = $prodImg ? preg_replace('~^public/~', '', $prodImg) : null;
                                         $prodImgPath = $prodImgPath ? ltrim($prodImgPath, '/') : null;
-                                        $fallbackImg = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
-                                        $fallbackImg = preg_replace('~^public/~', '', $fallbackImg);
-                                        $fallbackImg = ltrim($fallbackImg, '/');
+                                        $fallbackImg = \App\Support\MediaPath::fallbackPath();
                                         $imgPath = $prodImgPath && file_exists(public_path($prodImgPath)) ? asset($prodImgPath) : asset($fallbackImg);
                                     @endphp
                                     <tr>
@@ -189,9 +187,7 @@
                     <div class="d-flex justify-content-start align-items-center mb-3">
                         <div class="avatar me-3">
                             @php
-                                $custFallback = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
-                                $custFallback = preg_replace('~^public/~', '', $custFallback);
-                                $custFallback = ltrim($custFallback, '/');
+                                $custFallback = \App\Support\MediaPath::fallbackPath();
                             @endphp
                             <img src="{{ asset($custFallback) }}" alt="" class="rounded-circle" style="height: 40px; width: 40px; object-fit: cover;" onerror="this.src='{{ asset('assets/images/empty.png') }}'" />
                         </div>

@@ -1063,17 +1063,15 @@ class FrontendController extends Controller
             ->limit(6)
             ->get();
 
-        // The FM (modern) layout owns the home page now: frontend/fm/pages/
-        // home.blade.php, the redesigned body. This controller already built
-        // every variable that page reads ($sections, $banners, the four product
-        // rails, the collections and the brands) - it was feeding them to a
-        // view nobody was rendering any more, which is why the shop's front
-        // door still wore the classic layout and its classic footer while the
-        // rest of the redesign sat one click away.
-        //
-        // The classic home - frontend/home.blade.php on frontend.layouts.app -
-        // is untouched on disk; change the name below back to restore it.
-        return view('frontend.fm.pages.home', compact(
+        // The classic name is served and the registry decides which set
+        // answers: ThemeViewFinder -> FrontendTheme::resolve() rewrites it to
+        // frontend.fm.pages.home when modern is active/previewing, and keeps
+        // frontend.home otherwise. Never hardcode an fm* view name here: that
+        // would bypass the theme switch (preview/save would not affect `/`).
+        // Both views read the same variables ($sections, the product rails,
+        // $banners, the collections and the brands) - frontend.home guards
+        // every section with isset()/?? true, so both render from this data.
+        return view('frontend.home', compact(
             'collections',
             'homeCategoryCollections',
             'banners',

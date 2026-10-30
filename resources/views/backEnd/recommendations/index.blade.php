@@ -69,9 +69,7 @@
                 $recImg = $value->image && $value->image->image ? $value->image->image : null;
                 $recImgPath = $recImg ? preg_replace('~^public/~', '', $recImg) : null;
                 $recImgPath = $recImgPath ? ltrim($recImgPath, '/') : null;
-                $fallbackImg = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
-                $fallbackImg = preg_replace('~^public/~', '', $fallbackImg);
-                $fallbackImg = ltrim($fallbackImg, '/');
+                $fallbackImg = \App\Support\MediaPath::fallbackPath();
               @endphp
               <img
                 src="{{ $recImgPath && file_exists(public_path($recImgPath)) ? asset($recImgPath) : asset($fallbackImg) }}"

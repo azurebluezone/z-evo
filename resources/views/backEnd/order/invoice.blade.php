@@ -47,9 +47,7 @@
     $logoImg = $generalsetting && $generalsetting->white_logo ? $generalsetting->white_logo : null;
     $logoImgPath = $logoImg ? preg_replace('~^public/~', '', $logoImg) : null;
     $logoImgPath = $logoImgPath ? ltrim($logoImgPath, '/') : null;
-    $fallbackLogo = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
-    $fallbackLogo = preg_replace('~^public/~', '', $fallbackLogo);
-    $fallbackLogo = ltrim($fallbackLogo, '/');
+    $fallbackLogo = \App\Support\MediaPath::fallbackPath();
     $logoPath = $logoImgPath && file_exists(public_path($logoImgPath)) ? asset($logoImgPath) : asset($fallbackLogo);
 
     $subtotal = 0;

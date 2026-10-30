@@ -108,6 +108,10 @@
                 shop's own name in the first row. "Partner Farmers" and "Soil
                 Regeneration" have no page of their own yet, so they point at
                 the about page rather than at a "#" that goes nowhere.
+
+                When the admin has saved links in the "Site Links" group on
+                Website Setup -> Footer, those rows replace this default list.
+                The "Terms & Policies" group is rendered in the bottom bar.
             */
             $fmCompanyLinks = [
                 ['label' => 'About ' . $fmShopName, 'url' => route('about.us')],
@@ -116,6 +120,41 @@
                 ['label' => 'FAQ & Help Center',    'url' => route('faq')],
                 ['label' => 'Contact Us',           'url' => route('contact')],
             ];
+
+            $fmManagedLinks = is_array($generalsetting->footer_links ?? null)
+                ? $generalsetting->footer_links
+                : [];
+            $fmManagedByGroup = [];
+
+            foreach ($fmManagedLinks as $fmManagedRow) {
+                if (! is_array($fmManagedRow)) {
+                    continue;
+                }
+
+                $fmManagedLabel = trim((string) ($fmManagedRow['label'] ?? ''));
+                $fmManagedUrl = trim((string) ($fmManagedRow['url'] ?? ''));
+
+                if ($fmManagedLabel === '' || $fmManagedUrl === '') {
+                    continue;
+                }
+
+                $fmManagedGroup = (string) ($fmManagedRow['group'] ?? 'other');
+                if (! in_array($fmManagedGroup, ['terms', 'site', 'useful', 'other'], true)) {
+                    $fmManagedGroup = 'other';
+                }
+
+                $fmManagedByGroup[$fmManagedGroup][] = [
+                    'label' => $fmManagedLabel,
+                    'url' => $fmManagedUrl,
+                    'new_tab' => (int) ($fmManagedRow['new_tab'] ?? 0) === 1,
+                ];
+            }
+
+            if (! empty($fmManagedByGroup['site'])) {
+                $fmCompanyLinks = $fmManagedByGroup['site'];
+            }
+
+            $fmPolicyLinks = $fmManagedByGroup['terms'] ?? [];
 
             /*
                 Customer support. Merchant data first, reference copy as the
@@ -189,22 +228,17 @@
             $fmSocialRows = ($socials ?? \App\Models\SocialMedia::query()->where('status', 1)->get());
 
             /*
-                The payment methods image. The path check is the classic
-                footer's own guard: a file deleted from /public falls back to
-                the bundled placeholder rather than showing a broken <img>.
-            */
-            $fmPaymentPath = preg_replace('~^public/~', '', (string) ($generalsetting->footer_payment_image ?? ''));
-            $fmPaymentPath = ltrim($fmPaymentPath, '/');
-            if ($fmPaymentPath === '' || ! \Illuminate\Support\Facades\File::exists(public_path($fmPaymentPath))) {
-                $fmPaymentPath = 'assets/images/frontend/footer/637cd4514c0c21669125201.png';
-            }
-
-            /*
                 Copyright. Merchant copy first (it may carry links / HTML, the
                 way the classic footer allows), the reference line as fallback
-                so the bar is never empty.
+                so the bar is never empty. The payment strip below is rendered
+                by frontend.partials.payment-methods, the same partial the
+                classic footer uses.
             */
             $fmCopyright = trim((string) ($generalsetting->copyright ?? ''));
+
+            // Quill HTML, sanitized again at render for rows saved before the
+            // editor existed (the controller already sanitizes on write).
+            $fmAboutHtml = \App\Support\HtmlSanitizer::inline((string) ($generalsetting->footer_about_text ?? ''));
         @endphp
 
         {{--
@@ -241,19 +275,31 @@
                     @endif
                 </div>
 
-                <p class="small m-0 fm-footer-brand__text">
-                    {{ $generalsetting->footer_about_text ?: 'FreshMart connects conscious households directly with regional regenerative farmers. Harvested at sunrise, inspected by AI, delivered to your door.' }}
-                </p>
+                {{-- A div: the editor returns paragraphs, and a <p> here would
+                     nest them. --}}
+                <div class="small m-0 fm-footer-brand__text">
+                    {!! $fmAboutHtml !== '' ? $fmAboutHtml : 'FreshMart connects conscious households directly with regional regenerative farmers. Harvested at sunrise, inspected by AI, delivered to your door.' !!}
+                </div>
 
                 <div class="d-flex gap-2 mt-3 fm-footer-brand__social">
                     @forelse($fmSocialRows->take(3) as $fmSocial)
                         @php
                             $fmKey  = strtolower($fmSocial->title ?? ($fmSocial->icon ?? ''));
-                            $fmIcon = $fmBiIcons[$fmKey] ?? 'bi bi-globe2';
+                            // Stored Font Awesome class -> Bootstrap Icons via the
+                            // shared catalog; the old title map stays as fallback
+                            // for rows saved before the catalog existed.
+                            $fmIcon = \App\Support\SocialIcons::entryForFa($fmSocial->icon)['bi']
+                                ?? $fmBiIcons[$fmKey]
+                                ?? 'bi bi-globe2';
                             $fmLink = (string) ($fmSocial->link ?? '#');
                             $fmHref = str_contains($fmLink, '@') ? 'mailto:' . $fmLink : $fmLink;
+                            // External links open in a new tab and never leak
+                            // the opener; mailto: links stay in the same tab.
+                            $fmExternal = str_starts_with($fmHref, 'http');
                         @endphp
-                        <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="{{ $fmHref }}" target="_blank" rel="noopener" aria-label="{{ $fmSocial->title ?? 'social' }}"><i class="{{ $fmIcon }}"></i></a>
+                        <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="{{ $fmHref }}"
+                           @if($fmExternal) target="_blank" rel="noopener" @endif
+                           aria-label="{{ $fmSocial->title ?? 'social' }}"><i class="{{ $fmIcon }}"></i></a>
                     @empty
                         <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="#fb" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                         <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="#ig" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
@@ -279,7 +325,12 @@
                 <h6>Company</h6>
                 <ul class="list-unstyled d-flex flex-column gap-2 small m-0">
                     @foreach ($fmCompanyLinks as $fmCompanyLink)
-                        <li><a href="{{ $fmCompanyLink['url'] }}">{{ $fmCompanyLink['label'] }}</a></li>
+                        <li>
+                            <a href="{{ $fmCompanyLink['url'] }}"
+                               @if(!empty($fmCompanyLink['new_tab'])) target="_blank" rel="noopener" @endif>
+                                {{ $fmCompanyLink['label'] }}
+                            </a>
+                        </li>
                     @endforeach
                 </ul>
             </div>
@@ -300,18 +351,36 @@
         </div>
 
         {{--
-            THE BOTTOM BAR: menu | payment methods | copyright.
-
-            A 3-cell grid, not a flex row, so the payment image is centred on
-            the BAR and not on "whatever is left after the two sides" - a long
-            menu on the left would push a flex-centred payment strip off centre.
-
-            Below lg the bar ships THIN: the footer menu is hidden, and the
-            payment strip is the disclosure trigger. Tapping it reveals the
-            copyright + policy block (fm-app.js); the phone-only tab bar below
-            takes over the primary navigation.
+            THE BOTTOM BAR: copyright | accepted payment methods.
+            One shared partial renders the payment strip so this footer and
+            the classic one can never show different badges.
         --}}
-    
+        <div class="fm-footer-bottom d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
+            <div class="fm-footer-bottom__legal">
+                <p class="small m-0">
+                    {!! $fmCopyright !== '' ? $fmCopyright : ('&copy; ' . date('Y') . ' ' . e($fmShopName) . '. All rights reserved.') !!}
+                </p>
+
+                {{-- Terms & Policies group from Website Setup -> Footer. The
+                     classic footer renders the same rows as its own column. --}}
+                @if(!empty($fmPolicyLinks))
+                    <ul class="list-inline small mb-0 mt-1">
+                        @foreach($fmPolicyLinks as $fmPolicyLink)
+                            <li class="list-inline-item">
+                                <a href="{{ $fmPolicyLink['url'] }}"
+                                   @if(!empty($fmPolicyLink['new_tab'])) target="_blank" rel="noopener" @endif>
+                                    {{ $fmPolicyLink['label'] }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+            <div class="fm-footer-payment">
+                @include('frontend.partials.payment-methods')
+            </div>
+        </div>
+
     </div>
 </footer>
 <!-- END: MainFooter -->

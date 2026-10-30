@@ -150,7 +150,20 @@ class WebsiteSetupController extends Controller
         $socials = SocialMedia::orderBy('id', 'DESC')->get();
         // Values shown in the storefront footer's Contact Us widget.
         $contact = Contact::where('status', 1)->orderBy('id')->first();
-        return view('backEnd.website-setup.footer', compact('settings', 'socials', 'contact'));
+
+        // One catalog for the add form, the edit modal and both storefronts.
+        // The admin renders the ri class (its icon set), the storefront uses
+        // fa (classic) / bi (fm), all from this same list.
+        $socialPresets = \App\Support\SocialIcons::all();
+        $socialPresetMap = collect($socialPresets)->keyBy('fa');
+
+        return view('backEnd.website-setup.footer', compact(
+            'settings',
+            'socials',
+            'contact',
+            'socialPresets',
+            'socialPresetMap'
+        ));
     }
 
     public function updateFooter(Request $request): RedirectResponse
@@ -162,21 +175,40 @@ class WebsiteSetupController extends Controller
         }
 
         $this->validate($request, [
-            // Capped because the storefront prints this inside one footer
-            // column: an unbounded paragraph stretched the grid and broke
-            // the homepage layout (reported 2026-10-28). ~60 words fits.
-            'footer_about_text' => 'nullable|string|max:400',
+            // Raw HTML from Quill can be longer than the visible text; the
+            // 400-character rule is enforced against the visible length below.
+            'footer_about_text' => 'nullable|string|max:10000',
             'footer_payment_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'copyright' => 'nullable|string|max:255',
             'contact_address' => 'nullable|string|max:255',
             'contact_phone' => 'nullable|string|max:50',
             'contact_email' => 'nullable|email|max:190',
+            'footer_links' => 'nullable|array|max:30',
+            'footer_links.*.group' => 'nullable|in:terms,site,useful,other',
+            'footer_links.*.label' => 'nullable|string|max:100',
+            'footer_links.*.url' => ['nullable', 'string', 'max:255', 'regex:~^(https?://|/)~i'],
+            'footer_links.*.new_tab' => 'nullable|in:0,1',
         ]);
 
+        $aboutHtml = \App\Support\HtmlSanitizer::inline($request->input('footer_about_text'));
+
+        if (\App\Support\HtmlSanitizer::visibleLength($aboutHtml) > 400) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'footer_about_text' => 'The footer about text must be 400 visible characters or fewer.',
+            ]);
+        }
+
         $input = [
-            'footer_about_text' => $request->input('footer_about_text'),
+            'footer_about_text' => $aboutHtml,
             'copyright' => $request->input('copyright'),
         ];
+
+        // The form always submits the repeater (a marker field plus one row
+        // per link), so a missing marker means "leave the stored links
+        // alone" rather than "delete them all".
+        if ($request->has('footer_links') || $request->boolean('footer_links_present')) {
+            $input['footer_links'] = $this->normalizeFooterLinks($request->input('footer_links', []));
+        }
 
         if ($request->file('footer_payment_image')) {
             $input['footer_payment_image'] = $this->storeImageAsWebp($request->file('footer_payment_image'), 'uploads/settings');
@@ -206,10 +238,74 @@ class WebsiteSetupController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Footer link rows as stored in general_settings.footer_links.
+     *
+     * Drops blank/incomplete rows (the repeater always posts one empty row
+     * for the "Add link" affordance), clamps the list at 30 and stores
+     * new_tab as an int so Blade can use it without re-parsing strings.
+     *
+     * @param  mixed  $rows
+     * @return array<int, array{group:string,label:string,url:string,new_tab:int}>
+     */
+    private function normalizeFooterLinks($rows): array
+    {
+        if (! is_array($rows)) {
+            return [];
+        }
+
+        $allowedGroups = ['terms', 'site', 'useful', 'other'];
+        $clean = [];
+
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            $label = trim((string) ($row['label'] ?? ''));
+            $url = trim((string) ($row['url'] ?? ''));
+
+            // A row is only usable when both halves exist; the disabled
+            // new-tab checkbox posts nothing, so new_tab is optional.
+            if ($label === '' || $url === '') {
+                continue;
+            }
+
+            $group = (string) ($row['group'] ?? 'site');
+
+            $clean[] = [
+                'group' => in_array($group, $allowedGroups, true) ? $group : 'other',
+                'label' => mb_substr($label, 0, 100),
+                'url' => mb_substr($url, 0, 255),
+                'new_tab' => (int) ($row['new_tab'] ?? 0) === 1 ? 1 : 0,
+            ];
+
+            if (count($clean) >= 30) {
+                break;
+            }
+        }
+
+        return $clean;
+    }
+
     public function appearance(): \Illuminate\View\View
     {
         $settings = $this->getSettings();
-        return view('backEnd.website-setup.appearance', compact('settings'));
+
+        // The one image every empty slot falls back to, plus how many places
+        // the scanner found in each template set. The screen shows both
+        // previews (storefront card + admin table cell) from this URL, so the
+        // admin can see exactly what visitors and staff will get.
+        $fallbackUrl = \App\Support\MediaPath::fallbackUrl();
+        $fallbackPath = \App\Support\MediaPath::fallbackPath();
+        $usage = \App\Support\ImageUsage::counts();
+
+        return view('backEnd.website-setup.appearance', compact(
+            'settings',
+            'fallbackUrl',
+            'fallbackPath',
+            'usage'
+        ));
     }
 
     public function updateAppearance(Request $request): RedirectResponse
@@ -246,6 +342,10 @@ class WebsiteSetupController extends Controller
         }
 
         $settings->update($input);
+
+        // The fallback path was memoised while this request rendered the
+        // screen; drop it so a replaced upload answers immediately.
+        \App\Support\MediaPath::forgetFallback();
 
         Toastr::success('Success', 'Appearance settings updated successfully');
         return redirect()->back();

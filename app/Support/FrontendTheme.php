@@ -59,7 +59,8 @@ final class FrontendTheme
     private static ?string $active = null;
 
     /**
-     * Human readable metadata for the admin template picker.
+     * Human readable metadata for the admin template picker. Names only:
+     * the screen shows the label and two actions, nothing else.
      *
      * @return array<string, array<string, string>>
      */
@@ -68,15 +69,11 @@ final class FrontendTheme
         return [
             self::CLASSIC => [
                 'key' => self::CLASSIC,
-                'name' => 'Classic (current design)',
-                'summary' => 'The previous design, exactly as it always worked. No risk.',
-                'root' => self::ROOT[self::CLASSIC],
+                'name' => 'Classic',
             ],
             self::MODERN => [
                 'key' => self::MODERN,
-                'name' => 'Modern (new design)',
-                'summary' => 'New design built on Bootstrap 5. Responsive, fast and modern.',
-                'root' => self::ROOT[self::MODERN],
+                'name' => 'Modern',
             ],
         ];
     }

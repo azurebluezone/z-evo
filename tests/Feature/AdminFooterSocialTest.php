@@ -47,8 +47,16 @@ class AdminFooterSocialTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Social icons');
-        $response->assertSee('Add a social icon');
+        $response->assertSee('Add icon');
         $response->assertSee('name="link"', false);
+
+        // The rebuilt screen is one shared form: the icon picker renders the
+        // real catalog, and the links repeater posts into the same request.
+        $response->assertSee('data-icon-value="fab fa-facebook-f"', false);
+        $response->assertSee('id="footer-about-count"', false);
+        $response->assertSee('id="footerLinkCountBadge"', false);
+        $response->assertSee('form="footerContentAdminForm"', false);
+        $response->assertSee('name="footer_links_present"', false);
     }
 
     public function test_creating_an_icon_stores_link_and_colour(): void
@@ -134,6 +142,17 @@ class AdminFooterSocialTest extends TestCase
             'color' => '#1877f2',
             'status' => 1,
         ]);
+
+        $this->assertDatabaseHas('social_media', [
+            'title' => self::TITLE_PREFIX . ' Storefront',
+            'link' => 'https://facebook.com/qa-footer-storefront',
+            'status' => 1,
+        ]);
+
+        // AppServiceProvider shares $socialicons at boot, and a PHPUnit
+        // process keeps one booted app across tests. Reboot so this request
+        // sees the row created above instead of the boot-time snapshot.
+        $this->refreshApplication();
 
         $response = $this->get('/');
 

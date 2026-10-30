@@ -970,15 +970,20 @@ input[type="submit"] {
   margin-bottom: 1rem;
 }
 
-/* The footer about text comes from the admin (max 400 chars). Clamped to
-   6 lines so a long paragraph grows the column height instead of pushing
-   the footer grid apart (reported 2026-10-28). */
+/* The footer about text comes from the admin (max 400 visible chars). It is a
+   div because the editor returns paragraphs; six lines is the height budget,
+   so a long blurb does not push the footer grid apart (reported 2026-10-28). */
 .footer-about-text {
-  display: -webkit-box;
-  -webkit-line-clamp: 6;
-  -webkit-box-orient: vertical;
   overflow: hidden;
   overflow-wrap: anywhere;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  max-height: 8.925rem; /* 6 lines at the font/line-height above */
+  color: hsl(var(--white) / 0.6);
+}
+
+.footer-about-text p {
+  margin-bottom: 0;
 }
 
 .footer-widget .title,

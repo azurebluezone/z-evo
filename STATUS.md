@@ -58,7 +58,7 @@
 | `app/Providers/AppServiceProvider.php` | `view.finder` এক্সটেনশন + `fm` অ্যাননিমাস কম্পোনেন্ট নেমস্পেস (`<x-fm::...>`) |
 | `database/migrations/2026_10_06_000001_add_frontend_theme_to_general_settings_table.php` | `frontend_theme` varchar(32) ডিফল্ট `classic` — রান হয়েছে |
 | `app/Http/Controllers/Admin/FrontendThemeController.php` | অ্যাডমিন স্ক্রিন + সেভ + প্রিভিউ |
-| `resources/views/backEnd/.../frontend-theme/*.blade.php` | অ্যাডমিন স্ক্রিন: ২টি থিম কার্ড + ৩৯টি কভারেজ রো |
+| `resources/views/backEnd/website-setup/frontend-theme.blade.php` | অ্যাডমিন স্ক্রিন: ২টি থিম কার্ড — শুধু নাম + Live/Previewing ব্যাজ + প্রতি কার্ডে Preview ও Use-this-template; সামারি/পথ/ব্যাখ্যা-লেখা ও ৪০-সারির কভারেজ টেবিল সরানো (২০২৬-১০-৩১, সিবলিং অ্যাডমিন প্যাটার্নে); `FrontendTheme::coverage()` সাপোর্ট ক্লাসে আছে, শুধু স্ক্রিনে নেই |
 | `resources/views/backEnd/layouts/partials/sidebar.blade.php` | সাইডবার আইটেম "Front-end Template" |
 
 **রুট:**
@@ -74,8 +74,18 @@
 - যে ভিউ মডার্নে নেই, সে ক্লাসিকে ফলব্যাক করে, লেআউট ম্যাপ করা হয় না —
   মডার্ন পেজগুলো নিজে `@extends('frontend.fm.layouts')` করে।
 
+**চুক্তি (প্রতিটি কন্ট্রোলার মানবে):** কন্ট্রোলার সবসময় **ক্লাসিক ভিউ-নাম** দেয়
+(`frontend.home`, `frontend.pages.*`) — মডার্ন/ক্লাসিক সিদ্ধান্ত একমাত্র
+`ThemeViewFinder → FrontendTheme::resolve()` করে। **হার্ডকোড `frontend.fm.*` কন্ট্রোলারে
+দেওয়া যাবে না** — তাইলে থিম সুইচ সেই রুটকে নিয়ন্ত্রণ করে না (১০-৩১-২০২৬ হোমপেজে এভাবেই
+ভাঙা ছিল: `frontendHome()` মডার্ন নাম হার্ডকোড করেছিল, তাই প্রিভিউ/সেভ হোমপেজ বদলাত না;
+সমাধান: `frontend.home` ফিরিয়ে দেওয়া হয়েছিল)।
+
 **ভেরিফাই (যা প্রমাণিত):** `save('modern')` → `/` = ~৩৮২ KB মডার্ন মার্কারসহ; `save('classic')` →
 `/` = ~৮২৬ KB ও ০টি মডার্ন মার্কার। প্রিভিউ আসে শুধু নিজের ব্রাউজারের সেশনে।
+আপডেট (১০-৩১-২০২৬): প্রিভিউও এবার live যাচাই করা হয়েছিল —
+`/site/theme/classic/preview` সেসনে `/` ক্লাসিক রেন্ডার করে (owl-carousel/preloader, fm-marker ০),
+`/site/theme/modern/preview` সেসনে fm মার্কারসহ।
 
 ---
 
@@ -771,6 +781,54 @@ Lens পিল ১০৬px জায়গা নিচ্ছিল, আর প�
 3. **Analytics/cookie data read-only** নিশ্চিত করা (admin-only modification) — policy হিসেবে যাচাই।
 4. **টেস্ট আর্টিফ্যাক্ট পরিষ্কার** (৬.৬.৩-এর দুটো সিদ্ধান্ত)।
 5. **Known issues (আগে থেকেই, §১০)** — toast `kind` ব্যবহার হয় না; `/cart-count` order-inversion; দুই সর্ট-ইমপ্লিমেন্টেশনের ড্রিফট ঝুঁকি — এগুলো backend ধাপে ভাবা যেতে পারে।
+
+---
+
+## ৬.৭. ফুটার অ্যাডমিন পুনর্নির্মাণ ও ইমেজ ফলব্যাক (৩১ অক্টোবর)
+
+### ৬.৭.১. স্ক্রিন কনট্রাক্ট (তিনটি কার্ড, একটি ফর্ম)
+
+`GET /admin/website-setup/footer` (`admin.website-setup.footer`) এখন তিনটি কার্ড; লেখা/কন্টাক্ট/লিংক একই `footerContentAdminForm`-এ পোস্ট করে।
+
+| কার্ড | কী আছে | কোথায় জমা হয় | যাচাই |
+|---|---|---|---|
+| **Footer content** | Quill about editor (live visible-length counter, 400-এর বেশি হলে submit আটকায়), copyright, contact address/phone/email | `general_settings.footer_about_text`, `copyright`; `contacts`-এর active row (`updateOrCreate`) | `AdminFooterContentTest` ৩টি টেস্ট |
+| **Footer links** | repeater: group (`terms`/`site`/`useful`/`other`), label, URL (`https?://` বা `/`), new-tab; সর্বোচ্চ ৩০; ফাঁকা row বাদ | `general_settings.footer_links` (JSON) + marker `footer_links_present` | normalize/skip/marker-clear টেস্ট + storefront গ্রুপিং |
+| **Social icons** | custom Bootstrap dropdown icon-grid: ১৬টি preset + custom FA class; add form ও edit modal একই picker | `social_media` (`title`,`icon`,`link`,`color`,`status`) | `AdminFooterSocialTest` ৫টি টেস্ট |
+
+**UI সিদ্ধান্ত (কেন এমন):**
+- helper-text-এর দেয়াল সরানো হয়েছে; প্রতিটি কার্ডে শুধু কাজের লেবেল, counter আর badge (`2 links`, `16 total`)।
+- লিংকের ইনপুট কার্ডের `<form>`-এর বাইরে, তাই HTML5 `form="footerContentAdminForm"` দিয়ে associate করা — দুই Save বাটনই একই request পাঠায়।
+- `#footer-about-editor .ql-editor`-এর `min-block-size: 7.5rem` — shared Quill CSS-এর 15rem ৪০০ অক্ষরের জন্য অপ্রয়োজনীয়।
+- **Bootstrap 12-কলাম:** form-এ তিন ফিল্ডের row `col-md-4` (৩টি = ১২), জোড়া `col-md-6` (২টি = ১২); `col-lg` বাদ, তাই ৭৬৮px থেকেই ভাগ হয়। Picker menu `row row-cols-2 row-cols-lg-3 g-1` — ৯৯২px-এর নিচে ২ কলাম (কন্ট্রোল ~২৩৫px, ৩ কলামে লেবেল কাটে), ৯৯২px+ এ ৩ কলাম (মেনু ~৩৫৬px); পুরনো custom `.icon-picker__grid` CSS সরানো।
+- **Picker control agora `.form-select`:** template-এর পিকার select, আমাদেরটা আগে `.btn` ছিল — তাই ৩৮px (input ৪৮px) আর left inset ২২px (input ১৫px), টেক্সট কখনোই Name/Link-এর সাথে বসত না। এখন `.form-select`-এ ৪৮px height, ১৬px text offset (১px border + ১৫px padding), ৮px radius, একই border colour, theme caret — 1440/800/375 তিনটিতেই input-এর সাথে হুবহু। শুধু `text-align: start` লোকাল, কারণ এটা `<button>`।
+- **About text:** classic ও fm — Quill-এর `<p>`-এর ভিতরে `<p>` nesting বাদ দিয়ে `<div class="…-about-text">`; classic-এ ৬ লাইনের বাজেট `max-height: 8.925rem` (line-clamp block children-এ কাজ করে না)। DB-তে একবার escaped `<p>&lt;p&gt;…` save হয়েছিল (data, render bug নয়) — পরিষ্কার HTML দিয়ে rewrite করা।
+- `<576px`-এ shared `.card-header.d-flex` column করে দেয়; এই তিন হেডারে শুধু title + ছোট badge, তাই locally `flex-direction: row` ফিরিয়ে এক লাইনে রাখা হয়েছে। লিংক টেবিলের wrapper-এ `position-relative` — নইলে visually-hidden header span ৩৭৫px-এ page-wide horizontal scroll বানায়।
+
+**Icon catalog:** `App\Support\SocialIcons::all()`-এ ১৬টি entry; প্রতিটির `fa` (DB + classic storefront), `ri` (admin), `bi` (fm), brand `color`। প্রতিটি `ri` `public/admin/assets/vendor/fonts/iconify-icons.css`-এ এবং প্রতিটি `bi` Bootstrap Icons 1.11.3 CDN-এ আছে — স্ক্রিপ্টে যাচাই করা।
+
+### ৬.৭.২. প্রমাণ (real run)
+
+| চেক | কমান্ড | ফলাফল |
+|---|---|---|
+| Feature tests | `php artisan test --filter='AdminFooter'` | **8 passed (57 assertions)** |
+| Acceptance gate | `bash /tmp/opencode/picker-size-check.sh` | **`PICKER_SIZE_CHECK: PASS`**, exit 0 |
+| Gate যা মাপে | Chromium + computed style | 1440/800/375: picker ও input দুটোই `48px`, text offset `16px`, radius `8px`, একই font/border colour; menu = control width ও same left edge; 16 option, 0 clipped, overflow নেই |
+| Rendered screen | authentic Blade render (tinker, logged-in user) | 132,986 bytes; ২টি picker × ১৬ option; `footer_links_present` ও `form="footerContentAdminForm"` আছে; পুরনো helper-text দেয়াল নেই |
+| Picker interaction | real Chromium session | option click → hidden `icon=fab fa-facebook-f`, label `Facebook`, colour `#1877f2`, menu বন্ধ |
+| DB write path | real controller action (`updateFooter`, `SocialMediaController@store`) | about/copyright/`footer_links` JSON/contact ও `social_media` row (id 129) সত্যিই DB-তে গেছে |
+| Storefront | `GET /` → 200 | `<div class="mb-0 footer-about-text"><p>…</p></div>`, `Proof Home`, `Proof Terms`, `<i class="fab fa-facebook-f"></i>`; `&lt;p&gt;` count **0** |
+| Restore | একই controller action | about আসল বাক্যে ফিরেছে, `footer_links=[]`, probe row মুছে (`social_rows=0`); `GET /` 200, escaped markup নেই |
+
+**Live HTTP (৩১ অক্টো, owner-দেওয়া admin account):** `/admin/login` → `/admin/dashboard`; `/admin/website-setup/footer` 200; ফর্মে Name `Facebook` + picker option `fab fa-facebook-f` + link দিয়ে আসল submit → DB `social_media id=162`; admin table `1 Facebook Facebook https://facebook.com/jannatminimart Active`; `GET /` 200, 720,370 bytes, footer-এ `<i class="fab fa-facebook-f"></i>`; 1440/800/375-এ input ও picker দুটোই `h=48`, same width, overflow নেই। স্ক্রিনশট `/tmp/opencode/shots/`। পাসওয়ার্ড কোথাও লেখা নেই।
+
+### ৬.৭.৩. ইমেজ ফলব্যাক (আগের ধাপ, একই সেশনে ডকুমেন্টেড)
+
+- `general_settings.frontend_empty_image` upload (`appearance()`), `App\Support\MediaPath::fallbackPath/fallbackUrl/forgetFallback` — একটাই fallback SSOT; theme/section আলাদা default বানায় না।
+- `php artisan images:audit [--area=frontend|backEnd] [--json] [--limit=N]` — `App\Support\ImageUsage` live scan; কোন `<img>` এখনো `MediaPath` দিয়ে যায় না তা দেখায়।
+- বিস্তারিত: `docs/ADMIN-footer-2026-10-31.md`।
+
+**ডেটা অবস্থা:** `general_settings.footer_about_text = <p>Jannat Mini Mart brings you quality products at the best price, delivered across Bangladesh.</p>` (escaped `&lt;p&gt;` নেই), `copyright = © 2026 Jannat Mini Mart`, `footer_links = []`, `frontend_empty_image = NULL`; `social_media` খালি (proof row id 129 মুছে ফেলা); contact = House 12, Road 3, Barishal / +8801700000000 / info@jannatminimart.com।
 
 ---
 

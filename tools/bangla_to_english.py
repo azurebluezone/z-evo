@@ -68,7 +68,7 @@ PHRASE_MAP = {
     "'ক্লাসিক (বর্তমান ডিজাইন)'": "'Classic (current design)'",
     "'আগের ডিজাইন, হুবহু আগের মতোই কাজ করছে। ঝুঁকি নেই।'": "'The previous design, exactly as it always worked. No risk.'",
     "'মডার্ন (নতুন ডিজাইন)'": "'Modern (new design)'",
-    "'Bootstrap 5 ভিত্তিক নতুন ডিজাইন। রেসপন্সিভ, দ্রুত, আধুনিক।'": "'New design built on Bootstrap 5. Responsive, fast and modern.'",
+    "'Bootstrap 5 ভিত্তিক নতুন ডিজাইন। রেসপন্সিভ, দ্রুত, আধুনিক।'": "''",
 
     # ------------------------------------------------------------------
     # app/Support/ShopPromises.php  (shared promise strip)

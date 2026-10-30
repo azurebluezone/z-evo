@@ -127,6 +127,10 @@
     color: #ffffff;
 }
 
+.app-footer .fm-footer-brand__text p {
+    margin: 0;
+}
+
 .app-footer .fm-footer-support__list,
 .app-footer .fm-footer-support__list li {
     color: #ffffff;

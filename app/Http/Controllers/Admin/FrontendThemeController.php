@@ -23,8 +23,6 @@ class FrontendThemeController extends Controller
             'stored' => FrontendTheme::stored(),
             'preview' => FrontendTheme::previewing(),
             'catalog' => FrontendTheme::catalog(),
-            'coverage' => FrontendTheme::coverage(),
-            'home' => url('/'),
             'previewUrls' => [
                 FrontendTheme::CLASSIC => FrontendTheme::previewRoute(FrontendTheme::CLASSIC),
                 FrontendTheme::MODERN => FrontendTheme::previewRoute(FrontendTheme::MODERN),

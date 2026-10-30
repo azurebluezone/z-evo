@@ -155,9 +155,7 @@
                   @php
                     $imgPath = preg_replace('~^public/~', '', (string) ($value->options->image ?? ''));
                     $imgPath = ltrim($imgPath, '/');
-                    $fallbackImg = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
-                    $fallbackImg = preg_replace('~^public/~', '', (string) $fallbackImg);
-                    $fallbackImg = ltrim($fallbackImg, '/');
+                    $fallbackImg = \App\Support\MediaPath::fallbackPath();
                     $imgSrc = $imgPath ? asset($imgPath) : asset($fallbackImg);
                   @endphp
                   <td><img height="40" src="{{ $imgSrc }}" class="rounded" onerror="this.src='{{ asset($fallbackImg) }}'"></td>

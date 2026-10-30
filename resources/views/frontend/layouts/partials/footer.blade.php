@@ -17,13 +17,89 @@
                         ?? 'assets/images/frontend/footer/67715a0cd06bf1735481868.png';
                     $footerLogoPath = preg_replace('~^public/~', '', (string) $footerLogoPath);
 
-                    $footerAboutText = trim((string) ($generalsetting->footer_about_text ?? ''));
+                    // Quill stores HTML now. Sanitizing again at render keeps
+                    // rows written before the editor existed safe to print.
+                    $footerAboutText = \App\Support\HtmlSanitizer::inline((string) ($generalsetting->footer_about_text ?? ''));
+
+                    // Footer links managed on Website Setup -> Footer. A group
+                    // with no managed rows keeps the designed defaults, so a
+                    // fresh install still shows a complete footer.
+                    $footerManagedLinks = is_array($generalsetting->footer_links ?? null)
+                        ? $generalsetting->footer_links
+                        : [];
+                    $footerManagedByGroup = [];
+
+                    foreach ($footerManagedLinks as $footerLinkRow) {
+                        if (! is_array($footerLinkRow)) {
+                            continue;
+                        }
+
+                        $footerLinkLabel = trim((string) ($footerLinkRow['label'] ?? ''));
+                        $footerLinkUrl = trim((string) ($footerLinkRow['url'] ?? ''));
+
+                        if ($footerLinkLabel === '' || $footerLinkUrl === '') {
+                            continue;
+                        }
+
+                        $footerLinkGroup = (string) ($footerLinkRow['group'] ?? 'other');
+                        if (! in_array($footerLinkGroup, ['terms', 'site', 'useful', 'other'], true)) {
+                            $footerLinkGroup = 'other';
+                        }
+
+                        $footerManagedByGroup[$footerLinkGroup][] = [
+                            'label' => $footerLinkLabel,
+                            'url' => $footerLinkUrl,
+                            'new_tab' => (int) ($footerLinkRow['new_tab'] ?? 0) === 1,
+                        ];
+                    }
+
+                    $footerLinkGroups = [
+                        'terms' => [
+                            'title' => 'Terms & Policies',
+                            'links' => $footerManagedByGroup['terms'] ?? [
+                                ['label' => 'Cookie Policy', 'url' => route('cookie.policy')],
+                                ['label' => 'Return Policy', 'url' => route('return.policy')],
+                                ['label' => 'Privacy Policy', 'url' => route('privacy.policy')],
+                                ['label' => 'Terms and Conditions', 'url' => route('terms.conditions')],
+                            ],
+                        ],
+                        'site' => [
+                            'title' => 'Site Links',
+                            'links' => $footerManagedByGroup['site'] ?? [
+                                ['label' => 'Home', 'url' => route('home')],
+                                ['label' => 'Contact', 'url' => route('contact')],
+                                ['label' => 'Offers', 'url' => route('offers.index')],
+                                ['label' => 'About Us', 'url' => route('about.us')],
+                            ],
+                        ],
+                        'useful' => [
+                            'title' => 'Useful Links',
+                            'links' => $footerManagedByGroup['useful'] ?? [
+                                ['label' => 'Sign Up', 'url' => route('register')],
+                                ['label' => 'Login', 'url' => route('login')],
+                                ['label' => 'Track Order', 'url' => route('track.order')],
+                                ['label' => 'FAQ', 'url' => route('faq')],
+                            ],
+                        ],
+                        'other' => [
+                            'title' => 'Other Links',
+                            'links' => $footerManagedByGroup['other'] ?? [
+                                ['label' => 'Products', 'url' => url('/products')],
+                                ['label' => 'All Categories', 'url' => url('/categories')],
+                                ['label' => 'All Brands', 'url' => url('/brands')],
+                                ['label' => 'Wishlist', 'url' => route('wishlist')],
+                            ],
+                        ],
+                    ];
                 @endphp
                 <img src="{{ asset($footerLogoPath) }}" class="footer-logo" alt="footer-logo">
                 {{-- Clamped to 6 lines: the admin cap is 400 characters, but a
                      long paragraph still stretched this column and broke the
                      homepage grid, so the CSS limit is the second fence. --}}
-                <p class="mb-0 footer-about-text">{{ $footerAboutText ?: "Z-Evo-Commerce brings you tons of products in over 20+ different categories, including men's fashion, women's fashion, baby fashion, and more." }}</p>
+                {{-- A block wrapper, not a <p>: Quill already returns paragraphs,
+                     and nesting <p> inside <p> makes the browser split the
+                     footer widget. --}}
+                <div class="mb-0 footer-about-text">{!! $footerAboutText !== '' ? $footerAboutText : "Z-Evo-Commerce brings you tons of products in over 20+ different categories, including men's fashion, women's fashion, baby fashion, and more." !!}</div>
             </div>
 
             <div class="newsletter-widget text-center">
@@ -61,45 +137,23 @@
 
         {{-- Footer Middle --}}
         <div class="footer-middle">
-            <div class="footer-widget widget-link">
-                <h6 class="title">Terms & Policies</h6>
-                <ul>
-                    <li><a href="{{ route('cookie.policy') }}">Cookie Policy</a></li>
-                    <li><a href="{{ route('return.policy') }}">Return Policy</a></li>
-                    <li><a href="{{ route('privacy.policy') }}">Privacy Policy</a></li>
-                    <li><a href="{{ route('terms.conditions') }}">Terms and Conditions</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-widget widget-link">
-                <h6 class="title">Site Links</h6>
-                <ul>
-                    <li><a href="{{ route('home') }}">Home</a></li>
-                    <li><a href="{{ route('contact') }}">Contact</a></li>
-                    <li><a href="{{ route('offers.index') }}">Offers</a></li>
-                    <li><a href="{{ route('about.us') }}">About Us</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-widget widget-link">
-                <h6 class="title">Useful Links</h6>
-                <ul>
-                    <li><a href="{{ route('register') }}">Sign Up</a></li>
-                    <li><a href="{{ route('login') }}">Login</a></li>
-                    <li><a href="{{ route('track.order') }}">Track Order</a></li>
-                    <li><a href="{{ route('faq') }}">FAQ</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-widget widget-link">
-                <h6 class="title">Other Links</h6>
-                <ul>
-                    <li><a href="{{ url('/products') }}">Products</a></li>
-                    <li><a href="{{ url('/categories') }}">All Categories</a></li>
-                    <li><a href="{{ url('/brands') }}">All Brands</a></li>
-                    <li><a href="{{ route('wishlist') }}">Wishlist</a></li>
-                </ul>
-            </div>
+            {{-- The four managed columns. A group renders the admin's rows
+                 when it has any, otherwise its designed defaults. --}}
+            @foreach($footerLinkGroups as $footerLinkGroupKey => $footerLinkGroup)
+                <div class="footer-widget widget-link">
+                    <h6 class="title">{{ $footerLinkGroup['title'] }}</h6>
+                    <ul>
+                        @foreach($footerLinkGroup['links'] as $footerLink)
+                            <li>
+                                <a href="{{ $footerLink['url'] }}"
+                                   @if(!empty($footerLink['new_tab'])) target="_blank" rel="noopener" @endif>
+                                    {{ $footerLink['label'] }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endforeach
 
             <div class="footer-widget widget-link">
                 <h6 class="title">Top Categories</h6>
@@ -168,14 +222,7 @@
                 </ul>
 
                 <div class="right">
-                    @php
-                        $paymentImagePath = preg_replace('~^public/~', '', (string) ($generalsetting->footer_payment_image ?? ''));
-                        $paymentImagePath = ltrim($paymentImagePath, '/');
-                        if (empty($paymentImagePath) || !\Illuminate\Support\Facades\File::exists(public_path($paymentImagePath))) {
-                            $paymentImagePath = 'assets/images/frontend/footer/637cd4514c0c21669125201.png';
-                        }
-                    @endphp
-                    <img src="{{ asset($paymentImagePath) }}" alt="payment-methods">
+                    @include('frontend.partials.payment-methods')
                 </div>
             </div>
         </div>

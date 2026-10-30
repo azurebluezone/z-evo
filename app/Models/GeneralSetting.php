@@ -45,6 +45,7 @@ class GeneralSetting extends Model
         'copyright',
         'footer_about_text',
         'footer_payment_image',
+        'footer_links',
         'primary_color',
         'secondary_color',
         'frontend_empty_image',
@@ -83,6 +84,7 @@ class GeneralSetting extends Model
     ];
 
     protected $casts = [
+        'footer_links' => 'array',
         'facebook_server_side_tracking' => 'boolean',
         'facebook_enhanced_ecommerce' => 'boolean',
         'order_whatsapp_enabled' => 'boolean',
