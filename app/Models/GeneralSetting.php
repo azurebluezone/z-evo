@@ -40,6 +40,7 @@ class GeneralSetting extends Model
         'tiktok_server_side_tracking',
         'tiktok_browser_tracking',
         'tiktok_test_mode',
+        'tiktok_test_event_code',
         'order_whatsapp_enabled',
         'order_whatsapp_number',
         'copyright',

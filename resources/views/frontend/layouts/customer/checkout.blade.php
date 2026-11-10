@@ -571,13 +571,13 @@
                   <input type="radio" name="payment_method" value="Cash On Delivery" id="codRadio" checked> 
                   <label for="codRadio">💵 Cash On Delivery</label>
                 </div>
-                @if($bkash_gateway)
+                @if(!empty($bkash_gateway))
                 <div class="bd-ck-radio-item" data-method="bkash">
                   <input type="radio" name="payment_method" value="bkash" id="bkashRadio"> 
                   <label for="bkashRadio">📱 bKash</label>
                 </div>
                 @endif
-                @if($shurjopay_gateway)
+                @if(!empty($shurjopay_gateway))
                 <div class="bd-ck-radio-item" data-method="shurjopay">
                   <input type="radio" name="payment_method" value="shurjopay" id="shurjoRadio"> 
                   <label for="shurjoRadio">💳 Shurjopay</label>

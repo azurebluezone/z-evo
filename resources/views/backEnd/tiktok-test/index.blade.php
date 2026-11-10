@@ -14,11 +14,11 @@
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info">
-                        <strong>ℹ️ টেস্ট করার আগে:</strong>
+                        <strong>ℹ️ Before you test:</strong>
                         <ul style="margin-top: 8px; margin-left: 20px;">
-                            <li><code>/admin/social-events</code> এ গিয়ে TikTok Pixel ID এবং Access Token সেট করুন</li>
-                            <li>TikTok Server-Side Tracking enable করুন</li>
-                            <li>Test Mode enable থাকলে ইভেন্টগুলো শুধুমাত্র test হিসেবে যাবে (real events যাবে না)</li>
+                            <li>Open <code>/admin/social-events</code> and set the TikTok Pixel ID and Access Token.</li>
+                            <li>Enable TikTok Server-Side Tracking.</li>
+                            <li>With Test Mode on, events are sent as tests only (no real events are recorded).</li>
                         </ul>
                     </div>
 
@@ -154,122 +154,7 @@
 @endsection
 
 @section('script')
-<script>
-function testConnection() {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="icon-base ri ri-loader-line spinner-icon"></i> Testing...';
-
-    fetch('{{ route("admin.tiktok-test.connection") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const resultDiv = document.getElementById('connection-result');
-        if (data.success) {
-            resultDiv.innerHTML = `
-                <div class="alert alert-success">
-                    <strong>✓ Connection Successful!</strong><br>
-                    ${data.message || ''}
-                </div>
-            `;
-        } else {
-            resultDiv.innerHTML = `
-                <div class="alert alert-danger">
-                    <strong>✗ Connection Failed</strong><br>
-                    ${data.message || 'Unknown error'}
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        resultDiv.innerHTML = `
-            <div class="alert alert-danger">
-                <strong>✗ Error</strong><br>
-                ${error.message}
-            </div>
-        `;
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="icon-base ri ri-wifi-line"></i> Test Connection';
-    });
-}
-
-function sendTestEvent(eventName) {
-    const btn = event.target.closest('button');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="icon-base ri ri-loader-line spinner-icon"></i> Sending...';
-
-    fetch('{{ route("admin.tiktok-test.send-event") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ event_name: eventName })
-    })
-    .then(response => response.json())
-    .then(data => {
-        const resultDiv = document.getElementById('event-result');
-        if (data.success) {
-            resultDiv.innerHTML = `
-                <div class="alert alert-success">
-                    <strong>✓ Event Sent Successfully!</strong><br>
-                    Event: ${data.event}<br>
-                    ${data.message || ''}
-                </div>
-            `;
-        } else {
-            resultDiv.innerHTML = `
-                <div class="alert alert-danger">
-                    <strong>✗ Failed to Send Event</strong><br>
-                    ${data.message || 'Unknown error'}
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        resultDiv.innerHTML = `
-            <div class="alert alert-danger">
-                <strong>✗ Error</strong><br>
-                ${error.message}
-            </div>
-        `;
-    })
-    .finally(() => {
-        btn.disabled = false;
-        
-        // Reset button text based on event type
-        const eventNames = {
-            'PageView': 'PageView',
-            'ViewContent': 'ViewContent',
-            'AddToCart': 'AddToCart',
-            'InitiateCheckout': 'InitiateCheckout',
-            'Purchase': 'Purchase'
-        };
-        btn.innerHTML = `<i class="icon-base ri ri-check-line"></i><br>${eventNames[eventName] || eventName}`;
-        
-        setTimeout(() => {
-            location.reload();
-        }, 2000);
-    });
-}
-</script>
-
-<style>
-.spinner-icon {
-    animation: spinner-border .75s linear infinite;
-}
-
-@keyframes spinner-border {
-    to {
-        transform: rotate(360deg);
-    }
-}
-</style>
+<div class="d-none" data-connection-url="{{ route('admin.tiktok-test.connection') }}" data-send-event-url="{{ route('admin.tiktok-test.send-event') }}"></div>
+<script src="{{ asset('admin/assets/js/admin-page-tiktok-test.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-tiktok-test-index.css') }}">
 @endsection

@@ -2,14 +2,7 @@
 @section('title', 'Front-end Template')
 
 @section('content')
-<style>
-    /* Scoped to this screen; only the selected-state highlight, the rest is
-       Bootstrap utilities so the screen matches its sibling admin pages. */
-    .fm-theme-active {
-        border-color: #16a34a;
-        box-shadow: 0 0 0 3px rgba(22, 163, 74, .15);
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-website-setup-frontend-theme.css') }}">
 
 <div class="row">
     <div class="col-12">

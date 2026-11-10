@@ -19,7 +19,7 @@
             <div class="d-flex align-items-center justify-content-between">
               <div>
                 <div class="fw-semibold">RefundsSoon</div>
-                <div class="text-muted">এই মডিউলটি পরবর্তী ধাপে ডেভেলপ হবে (payment reconciliation + audit log)।</div>
+                <div class="text-muted">This module is planned for the next phase (payment reconciliation + audit log).</div>
               </div>
               <span class="badge text-bg-secondary">Soon</span>
             </div>

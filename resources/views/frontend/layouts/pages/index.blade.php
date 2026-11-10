@@ -408,10 +408,10 @@
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                             <div class="sv-boss-product-card">
                                 <div class="sv-boss-product-image-container">
-                                    <img src="{{ asset(preg_replace('~^public/~', '', (string) ($homecat->image ?? 'assets/images/default.png'))) }}" 
+                                    <img src="{{ asset(preg_replace('~^public/~', '', (string) ($homecat->image ?? \App\Support\MediaPath::fallbackPath()))) }}" 
                                          alt="{{ $homecat->name }}" 
                                          class="sv-boss-product-image primary">
-                                    <img src="{{ asset(preg_replace('~^public/~', '', (string) ($homecat->image ?? 'assets/images/default.png'))) }}" 
+                                    <img src="{{ asset(preg_replace('~^public/~', '', (string) ($homecat->image ?? \App\Support\MediaPath::fallbackPath()))) }}" 
                                          alt="{{ $homecat->name }} Alternate" 
                                          class="sv-boss-product-image secondary">
                                     
@@ -593,7 +593,7 @@
         @foreach($brands as $brand)
             <div class="col-6 col-md-4 col-lg-2 mb-2">
                 <div class="card brand-card d-flex align-items-center justify-content-center">
-                    <img src="{{ asset(preg_replace('~^public/~', '', (string) ($brand->image ?? 'assets/images/default.png'))) }}" class="card-img-top brand-image" alt="{{ $brand->name }}">
+                    <img src="{{ asset(preg_replace('~^public/~', '', (string) ($brand->image ?? \App\Support\MediaPath::fallbackPath()))) }}" class="card-img-top brand-image" alt="{{ $brand->name }}">
                 </div>
             </div>
         @endforeach

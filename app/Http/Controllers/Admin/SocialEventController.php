@@ -26,7 +26,7 @@ class SocialEventController extends Controller
         $eventBreakdown = \App\Models\EventLog::select('event_name', \DB::raw('COUNT(*) as count'))
             ->groupBy('event_name')
             ->orderByDesc('count')
-            ->limit(13)
+            ->limit(10)
             ->get();
 
         // Top countries
@@ -34,7 +34,7 @@ class SocialEventController extends Controller
             ->whereNotNull('country')
             ->groupBy('country')
             ->orderByDesc('count')
-            ->limit(5)
+            ->limit(10)
             ->get();
 
         // Top cities
@@ -42,7 +42,7 @@ class SocialEventController extends Controller
             ->whereNotNull('city')
             ->groupBy('city')
             ->orderByDesc('count')
-            ->limit(5)
+            ->limit(10)
             ->get();
 
         // Visitor stats
@@ -90,6 +90,7 @@ class SocialEventController extends Controller
             'tiktok_pixel_id' => 'nullable|string|max:255',
             'tiktok_access_token' => 'nullable|string',
             'tiktok_test_mode' => 'nullable|boolean',
+            'tiktok_test_event_code' => 'nullable|string|max:64',
         ]);
 
         $settings = GeneralSetting::first();
@@ -119,6 +120,7 @@ class SocialEventController extends Controller
             'tiktok_server_side_tracking' => $request->has('tiktok_server_side_tracking') ? 1 : 0,
             'tiktok_browser_tracking' => $request->has('tiktok_browser_tracking') ? 1 : 0,
             'tiktok_test_mode' => $request->has('tiktok_test_mode') ? 1 : 0,
+            'tiktok_test_event_code' => $request->tiktok_test_event_code,
         ]);
 
         Toastr::success('Success', 'Social event settings updated');

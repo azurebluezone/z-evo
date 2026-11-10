@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <div class="card-body mt-4">
+    <div class="card-body">
         <form action="{{ route('categories.update') }}" method="POST" class="row g-4" data-parsley-validate="" enctype="multipart/form-data" id="categoriesForm">
             @csrf
             <input type="hidden" value="{{ $edit_data->id ?? '' }}" name="id">
@@ -44,12 +44,12 @@
                     $catImg = $edit_data->image ?? null;
                     $catImgPath = $catImg ? preg_replace('~^public/~', '', $catImg) : null;
                     $catImgPath = $catImgPath ? ltrim($catImgPath, '/') : null;
-                    $fallbackImg = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
+                    $fallbackImg = \App\Support\MediaPath::fallbackPath();
                     $fallbackImg = preg_replace('~^public/~', '', $fallbackImg);
                     $fallbackImg = ltrim($fallbackImg, '/');
                 @endphp
                 <x-admin.input name="image" label="Category Image" type="file" class="js-dropify"
-                               data-default-file="{{ $catImgPath && file_exists(public_path($catImgPath)) ? asset($catImgPath) : asset($fallbackImg) }}" />
+                               data-default-file="{{ asset(\App\Support\MediaPath::imageOrFallback($catImg)) }}" />
             </div>
 
             <div class="col-12">

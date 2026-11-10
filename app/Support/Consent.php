@@ -28,6 +28,17 @@ final class Consent
     /** Remember the choice for 180 days. */
     public const TTL_DAYS = 180;
 
+    /**
+     * The retention truth, printed verbatim on the public cookie page and shown
+     * read-only in the admin editor.
+     *
+     * It is a constant on purpose: business policy (what else the shop does
+     * with the data, how it is described) belongs to the admin, but the fact
+     * that this data is stored for one year may not be edited or hidden. The
+     * admin screen has no field that writes this value.
+     */
+    public const RETENTION_NOTICE = 'We keep the personal data collected for analytics - IP address, ISP, approximate location, device information, UUID and related analytics identifiers - for 1 year from the date it is collected. This retention statement is fixed and cannot be edited from the admin panel.';
+
     public const GRANTED = 'granted';
     public const DENIED = 'denied';
 

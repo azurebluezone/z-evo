@@ -29,7 +29,6 @@
     <div class="col-md-6">
         <x-admin.input name="seo_meta[meta_keywords]" id="meta_keywords" label="Meta Keywords"
                        :value="$seoValue('meta_keywords')"
-                       help="Comma-separated keywords for SEO"
                        placeholder="e.g. headphones, bluetooth, wireless, audio" />
     </div>
 
@@ -41,14 +40,12 @@
                             'index,nofollow' => 'Index, No Follow',
                             'noindex,nofollow' => 'No Index, No Follow',
                         ]"
-                        :selected="$seoValue('robots', 'index,follow')"
-                        help="Search engine crawling instructions" />
+                        :selected="$seoValue('robots', 'index,follow')" />
     </div>
 
     <div class="col-md-6">
         <x-admin.input name="seo_meta[meta_image]" id="meta_image" label="Meta Image" type="file"
-                       accept="image/*"
-                       help="Image for social sharing (recommended: 1200x630 pixels)" />
+                       accept="image/*" />
 
         @if($model->seoMeta->meta_image ?? false)
             <div class="mt-2">
@@ -65,7 +62,6 @@
     <div class="col-md-6">
         <x-admin.input name="seo_meta[canonical_url]" id="canonical_url" label="Canonical URL" type="url"
                        :value="$seoValue('canonical_url')"
-                       help="Preferred URL for this content"
                        placeholder="https://example.com/page" />
     </div>
 

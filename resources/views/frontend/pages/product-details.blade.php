@@ -203,7 +203,7 @@
                                     <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="blank" title="Share on Facebook">
                                         <i class="fab fa-facebook-f"></i>
                                     </a>
-                                    <a href="https://pinterest.com/pin/create/button/?url={{ urlencode(url()->current()) }}&description={{ urlencode($product->name ?? '') }}&media={{ urlencode(asset($product->thumbnail_image ?? 'assets/images/default.png')) }}" title="Share on Pinterest" target="blank">
+                                    <a href="https://pinterest.com/pin/create/button/?url={{ urlencode(url()->current()) }}&description={{ urlencode($product->name ?? '') }}&media={{ urlencode(asset($product->thumbnail_image ?? \App\Support\MediaPath::fallbackPath())) }}" title="Share on Pinterest" target="blank">
                                         <i class="fab fa-pinterest-p"></i>
                                     </a>
                                     <a href="http://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(url()->current()) }}&title={{ urlencode($product->name ?? '') }}&summary={{ urlencode(strip_tags($product->short_description ?? '')) }}" title="Share on Linkedin" target="blank">

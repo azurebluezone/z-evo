@@ -12,7 +12,7 @@
     </button>
   </div>
   <div class="collapse" id="{{ $collapseId }}">
-    <div class="card-body mt-4">
+    <div class="card-body">
       {{ $slot }}
     </div>
   </div>

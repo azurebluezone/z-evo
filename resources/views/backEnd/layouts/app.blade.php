@@ -6,7 +6,12 @@
   data-skin="default"
   data-bs-theme="light"
   data-assets-path="{{ asset('admin/assets') }}/"
-  data-template="vertical-menu-template">
+  data-template="vertical-menu-template"
+  data-flash-success="{{ json_encode(Session::get('success')) }}"
+  data-flash-error="{{ json_encode(Session::get('error')) }}"
+  data-flash-warning="{{ json_encode(Session::get('warning')) }}"
+  data-flash-info="{{ json_encode(session('info')) }}"
+  data-flash-validation="{{ json_encode($errors->first()) }}">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -15,8 +20,6 @@
          POST from the admin carries a CSRF token. --}}
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>@yield('title', 'Dashboard')</title>
-
-    @include('backEnd.layouts.partials.seo-fields')
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('admin/assets/img/favicon/favicon.ico') }}" />
@@ -31,9 +34,9 @@
     {{--
         A view may add page CSS / JS with @section('css') / @section('script').
         Without these two yields the section is compiled and then thrown away:
-        the view's <script> never reaches the browser, so its buttons do nothing.
-        The stacks (@push('css') / @push('script')) are the other, newer path
-        and both are supported.
+        whatever the view emits for its script never reaches the browser, so
+        its buttons do nothing. The stacks (@push('css') / @push('script')) are
+        the other, newer path and both are supported.
     --}}
     @yield('css')
 
@@ -203,136 +206,7 @@
 
     <!-- ========== END GLOBAL MODALS ========== -->
     
-    <script>
-      // Bazar Logic: Holistic Notification Trigger - Using Toastr
-      function showLiveToast(type, title, message) {
-          if (typeof toastr === 'undefined') return;
-          
-          // Map types to Toastr methods
-          switch(type) {
-              case 'success':
-                  toastr.success(message, title);
-                  break;
-              case 'error':
-                  toastr.error(message, title);
-                  break;
-              case 'warning':
-                  toastr.warning(message, title);
-                  break;
-              default:
-                  toastr.info(message, title);
-          }
-      }
-
-      document.addEventListener("DOMContentLoaded", function() {
-          // Listen to Laravel Session flashes from backend
-          @if(Session::has('success'))
-              showLiveToast('success', 'Success', "{{ Session::get('success') }}");
-          @endif
-          @if(Session::has('error'))
-              showLiveToast('error', 'Error', "{{ Session::get('error') }}");
-          @endif
-          @if(Session::has('warning'))
-              showLiveToast('warning', 'Warning', "{{ Session::get('warning') }}");
-          @endif
-          @if($errors->any())
-              showLiveToast('error', 'Validation Error', "{{ $errors->first() }}");
-          @endif
-      });
-
-      // ===== Global Modal Helper Functions =====
-
-      // Show Success Modal with custom message
-      function showSuccessModal(message) {
-          var modalEl = document.getElementById('successModal');
-          if (modalEl) {
-              if (message) {
-                  document.getElementById('successModalMessage').textContent = message;
-              }
-              var modal = new bootstrap.Modal(modalEl);
-              modal.show();
-          }
-      }
-
-      // Show Error Modal with custom message
-      function showErrorModal(message) {
-          var modalEl = document.getElementById('errorModal');
-          if (modalEl) {
-              if (message) {
-                  document.getElementById('errorModalMessage').textContent = message;
-              }
-              var modal = new bootstrap.Modal(modalEl);
-              modal.show();
-          }
-      }
-
-      // Show Basic Modal with dynamic content
-      function showBasicModal(title, bodyContent, saveCallback) {
-          var modalEl = document.getElementById('basicModal');
-          if (modalEl) {
-              if (title) document.getElementById('basicModalTitle').textContent = title;
-              if (bodyContent) document.getElementById('basicModalBody').innerHTML = bodyContent;
-              
-              var saveBtn = document.getElementById('basicModalSave');
-              if (saveCallback) {
-                  saveBtn.onclick = function() {
-                      saveCallback();
-                      bootstrap.Modal.getInstance(modalEl).hide();
-                  };
-              }
-              
-              var modal = new bootstrap.Modal(modalEl);
-              modal.show();
-          }
-      }
-
-      // Show Large Modal with dynamic content
-      function showLargeModal(title, bodyContent) {
-          var modalEl = document.getElementById('largeModal');
-          if (modalEl) {
-              if (title) document.getElementById('largeModalTitle').textContent = title;
-              if (bodyContent) document.getElementById('largeModalBody').innerHTML = bodyContent;
-              var modal = new bootstrap.Modal(modalEl);
-              modal.show();
-          }
-      }
-
-      // Show Scrollable Modal with dynamic content
-      function showScrollableModal(title, bodyContent) {
-          var modalEl = document.getElementById('scrollModal');
-          if (modalEl) {
-              if (title) document.getElementById('scrollModalTitle').textContent = title;
-              if (bodyContent) document.getElementById('scrollModalBody').innerHTML = bodyContent;
-              var modal = new bootstrap.Modal(modalEl);
-              modal.show();
-          }
-      }
-
-      // ===== Global Delete Modal Handler =====
-      let activeDeleteFormId = null;
-      function triggerDeleteModal(formId) {
-          activeDeleteFormId = formId;
-          var modalEl = document.getElementById('deleteModal');
-          if (modalEl) {
-              var deleteModal = new bootstrap.Modal(modalEl);
-              deleteModal.show();
-          } else {
-              console.error('Delete modal element not found in DOM.');
-          }
-      }
-
-      document.addEventListener("DOMContentLoaded", function() {
-          var globalBtn = document.getElementById('globalConfirmDeleteBtn');
-          if (globalBtn) {
-              globalBtn.addEventListener('click', function() {
-                  if(activeDeleteFormId) {
-                      var form = document.getElementById(activeDeleteFormId);
-                      if(form) form.submit();
-                  }
-              });
-          }
-      });
-    </script>
+    <script src="{{ asset('admin/assets/js/admin-app-alerts.js') }}"></script>
 
     {{--
         Page scripts. Placed at the very end of <body> so a view's script sees

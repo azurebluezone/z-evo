@@ -173,4 +173,34 @@ class AdminReviewTest extends TestCase
             'status' => 'active',
         ]);
     }
+
+    public function test_show_page_renders_the_full_review(): void
+    {
+        $review = $this->pendingReview();
+
+        $response = $this->actingAs($this->admin())
+            ->get('/admin/review/' . $review->id . '/show');
+
+        $response->assertOk();
+        $response->assertSee('Review Detail');
+        $response->assertSee($review->review);
+        $response->assertSee($this->product()->name);
+        $response->assertSee('Approve');
+    }
+
+    public function test_bulk_action_updates_every_selected_review(): void
+    {
+        $first = $this->pendingReview();
+        $second = $this->pendingReview();
+
+        $response = $this->actingAs($this->admin())->post('/admin/review/bulk', [
+            'ids' => [$first->id, $second->id],
+            'bulk_action' => 'active',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+        $this->assertSame('active', $first->fresh()->status);
+        $this->assertSame('active', $second->fresh()->status);
+    }
 }

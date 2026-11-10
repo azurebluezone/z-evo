@@ -221,38 +221,48 @@
                     <div class="card-header">
                         <h5 class="mb-0">Social Event Feed</h5>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-sm" id="social-event-feed-table">
-                            <thead>
-                                <tr>
-                                    <th>Event</th>
-                                    <th>When</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse(($social_event_feed ?? []) as $row)
-                                    @php
-                                        $eventName = (string) ($row['event_name'] ?? '');
-                                        $url = (string) ($row['url'] ?? '');
-                                        $createdAt = $row['created_at'] ?? null;
-                                        $created = $createdAt ? \Carbon\Carbon::parse($createdAt)->diffForHumans() : '';
-                                    @endphp
-                                    <tr>
-                                        <td style="white-space: normal; word-break: break-word;">
-                                            <div class="fw-medium">{{ $eventName }}</div>
-                                            @if($url)
-                                                <div class="text-muted small">{{ $url }}</div>
-                                            @endif
-                                        </td>
-                                        <td class="text-nowrap">{{ $created }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="2" class="text-muted">No events found</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="card-body pt-4">
+                        <ul class="timeline card-timeline mb-0" data-social-event-timeline="1"
+                            aria-label="Recent visitor events">
+                            @forelse(($social_event_feed ?? []) as $row)
+                                @php
+                                    $eventName = (string) ($row['event_name'] ?? '');
+                                    $isScroll = str_starts_with(strtolower($eventName), 'scroll');
+                                    $url = (string) ($row['url'] ?? '');
+                                    $createdAt = $row['created_at'] ?? null;
+                                    $created = $createdAt ? \Carbon\Carbon::parse($createdAt)->diffForHumans() : '';
+                                    $eventIcon = match (true) {
+                                        $isScroll => 'ri-arrow-down-double-line',
+                                        str_starts_with(strtolower($eventName), 'pageview') => 'ri-eye-line',
+                                        default => 'ri-global-line',
+                                    };
+                                    $pointColor = $isScroll ? 'info' : 'primary';
+                                @endphp
+                                <li class="timeline-item timeline-item-transparent">
+                                    <span class="timeline-point timeline-point-{{ $pointColor }}"></span>
+                                    <div class="timeline-event">
+                                        <div class="timeline-header mb-1 align-items-start justify-content-between d-flex flex-nowrap gap-2">
+                                            <h6 class="mb-0">
+                                                <span class="badge bg-label-{{ $pointColor }} rounded-3 me-1"
+                                                      aria-hidden="true"><i class="icon-base ri {{ $eventIcon }}"></i></span>
+                                                <span>{{ $eventName }}</span>
+                                            </h6>
+                                            <small class="text-body-secondary text-nowrap">{{ $created }}</small>
+                                        </div>
+                                        @if($url)
+                                            <p class="mb-0 small text-body-secondary text-break">{{ $url }}</p>
+                                        @endif
+                                    </div>
+                                </li>
+                            @empty
+                                <li class="timeline-item timeline-item-transparent">
+                                    <span class="timeline-point timeline-point-secondary"></span>
+                                    <div class="timeline-event">
+                                        <p class="mb-0 text-muted">No events found</p>
+                                    </div>
+                                </li>
+                            @endforelse
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -473,127 +483,11 @@
 </div>
 @endsection
 @push('script')
-    <script>
-      (function () {
-        var trend7 = @json($trend7 ?? ['labels' => [], 'series' => []]);
-        var liveVisitorsTrend = @json($live_visitors_trend ?? ['series' => []]);
-        var weeklySalesWidget = @json($weekly_sales_widget ?? ['labels' => [], 'revenue' => [], 'visitors' => []]);
-        var salesChart = null;
-
-        function renderSales() {
-          var el = document.querySelector('#sales-analytics');
-          if (!el || typeof ApexCharts === 'undefined') return;
-
-          var d = trend7 || { labels: [], series: [] };
-          var options = {
-            chart: { height: 360, type: 'area', toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
-            series: [{ name: 'Revenue', data: d.series }],
-            xaxis: { categories: d.labels, axisBorder: { show: false }, axisTicks: { show: false } },
-            stroke: { curve: 'smooth', width: 3 },
-            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.2, stops: [0, 90, 100] } },
-            grid: { strokeDashArray: 4, borderColor: '#e0e0e0' },
-            colors: ['#696cff'],
-            dataLabels: { enabled: false },
-            yaxis: { labels: { formatter: function(val) { return '৳' + val; } } },
-            tooltip: { y: { formatter: function(val) { return '৳' + val; } } }
-          };
-
-          if (salesChart) { salesChart.destroy(); }
-          salesChart = new ApexCharts(el, options);
-          salesChart.render();
-        }
-
-        function renderLiveVisitors() {
-          var el = document.querySelector('#liveVisitors');
-          if (!el || typeof ApexCharts === 'undefined') return;
-
-          var series = (liveVisitorsTrend && Array.isArray(liveVisitorsTrend.series)) ? liveVisitorsTrend.series : [];
-          var options = {
-            chart: {
-              height: 200,
-              type: 'bar',
-              toolbar: { show: false },
-              fontFamily: 'Inter, sans-serif'
-            },
-            series: [{ name: 'Live Visitors', data: series }],
-            plotOptions: {
-              bar: {
-                borderRadius: 6,
-                columnWidth: '60%',
-                distributed: true
-              }
-            },
-            dataLabels: { enabled: false },
-            grid: { show: false, padding: { left: 0, right: 0 } },
-            xaxis: { labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } },
-            yaxis: { show: false },
-            colors: ['#72e128'],
-            tooltip: { enabled: true }
-          };
-
-          var c = new ApexCharts(el, options);
-          c.render();
-        }
-
-        function renderWeeklySales() {
-          var el = document.querySelector('#weeklySalesChart');
-          if (!el || typeof ApexCharts === 'undefined') return;
-
-          var labels = (weeklySalesWidget && Array.isArray(weeklySalesWidget.labels)) ? weeklySalesWidget.labels : [];
-          var revenue = (weeklySalesWidget && Array.isArray(weeklySalesWidget.revenue)) ? weeklySalesWidget.revenue : [];
-          var visitors = (weeklySalesWidget && Array.isArray(weeklySalesWidget.visitors)) ? weeklySalesWidget.visitors : [];
-
-          var options = {
-            chart: {
-              height: 235,
-              type: 'line',
-              stacked: false,
-              toolbar: { show: false },
-              fontFamily: 'Inter, sans-serif'
-            },
-            series: [
-              { name: 'Revenue', type: 'column', data: revenue },
-              { name: 'Visitors', type: 'line', data: visitors }
-            ],
-            stroke: { width: [0, 3], curve: 'smooth' },
-            plotOptions: {
-              bar: {
-                borderRadius: 8,
-                columnWidth: '45%'
-              }
-            },
-            dataLabels: { enabled: false },
-            xaxis: { categories: labels, axisBorder: { show: false } },
-            yaxis: [
-              { show: false },
-              { opposite: true, show: false }
-            ],
-            grid: { strokeDashArray: 4, borderColor: '#e0e0e0' },
-            colors: ['#696cff', '#ffab00'],
-            legend: { show: false },
-            tooltip: { shared: true, intersect: false }
-          };
-
-          var c = new ApexCharts(el, options);
-          c.render();
-        }
-
-        function initCharts() {
-          if (typeof ApexCharts === 'undefined') {
-            setTimeout(initCharts, 100);
-            return;
-          }
-          renderSales();
-          renderLiveVisitors();
-          renderWeeklySales();
-        }
-
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', initCharts);
-        } else {
-          initCharts();
-        }
-      })();
-    </script>
+    <div class="d-none" data-dashboard-charts="{{ json_encode([
+        'trend7'            => $trend7 ?? ['labels' => [], 'series' => []],
+        'liveVisitorsTrend' => $live_visitors_trend ?? ['series' => []],
+        'weeklySalesWidget' => $weekly_sales_widget ?? ['labels' => [], 'revenue' => [], 'visitors' => []],
+    ]) }}"></div>
+    <script src="{{ asset('admin/assets/js/admin-page-admin-dashboard.js') }}"></script>
 @endpush
 

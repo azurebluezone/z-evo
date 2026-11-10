@@ -25,7 +25,7 @@
                 <div class="row g-4 justify-content-between align-items-center">
                     <div class="col-md-5 col-lg-6">
                         <div class="text-center">
-                            <img src="{{ asset('assets/images/default.png') }}" data-src="{{ asset('assets/images/frontend/about_us/672607bcbd2991730545596.png') }}" alt="image" class="img-fluid lazyload">
+                            <img src="{{ asset(\App\Support\MediaPath::fallbackPath()) }}" data-src="{{ asset('assets/images/frontend/about_us/672607bcbd2991730545596.png') }}" alt="image" class="img-fluid lazyload">
                         </div>
                     </div>
 
@@ -118,7 +118,7 @@
 
                     <div class="col-lg-4 order-3 order-lg-2 d-none d-lg-block">
                         <div class="text-center">
-                            <img src="{{ asset('assets/images/default.png') }}" data-src="{{ asset('assets/images/frontend/feature/6723b902c14761730394370.png') }}" alt="image" class="img-fluid lazyload">
+                            <img src="{{ asset(\App\Support\MediaPath::fallbackPath()) }}" data-src="{{ asset('assets/images/frontend/feature/6723b902c14761730394370.png') }}" alt="image" class="img-fluid lazyload">
                         </div>
                     </div>
 

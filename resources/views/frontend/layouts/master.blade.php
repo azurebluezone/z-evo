@@ -1180,11 +1180,7 @@
                 <div class="sh-footer-bottom-wrapper">
                     <div class="sh-footer-bottom-content">
                         <p class="sh-copyright-text">
-                            <i class="far fa-copyright"></i> {{ date('Y') }} {{ $generalsetting->name ?? 'Sunnah Heaven' }}. All rights reserved.
-                            <span class="sh-heart-text">Designed with <i class="fas fa-heart sh-heart-icon"></i> for the Muslim community</span>
-                        </p>
-                        <p class="sh-developer-text">
-                            <i class="fas fa-code"></i> Development By: <a href="#" class="sh-dev-link">Developer Zone</a>
+                            <i class="far fa-copyright"></i> {{ date('Y') }} {{ $generalsetting->name ?? 'ZEvo' }}. All rights reserved.
                         </p>
                     </div>
                 </div>

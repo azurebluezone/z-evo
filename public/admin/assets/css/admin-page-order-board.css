@@ -1,0 +1,38 @@
+/*
+ * Scoped to the board so nothing here can reach another admin screen.
+ *
+ * jKanban builds its own `.kanban-container` INSIDE #kanbanBoard and gives it
+ * an inline width of (boards x 250px + gutters). The host itself is
+ * `.kanban-scroll`, so the old `#kanbanBoard.kanban-container` selector never
+ * matched anything: the columns stacked vertically and the 1680px inner
+ * container escaped the 1044px card, pushing the whole page sideways
+ * (scrollWidth 2008 at 1440). The scroll owner must be the element that is
+ * actually too wide - the child container - not the page.
+ */
+#kanbanBoard { max-width: 100%; }
+#kanbanBoard > .kanban-container {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: .5rem;
+}
+/* Keep the horizontal scrollbar visible: without it the columns past the
+   fourth are undiscoverable until the user happens to scroll. */
+#kanbanBoard > .kanban-container::-webkit-scrollbar { height: 8px; }
+#kanbanBoard > .kanban-container::-webkit-scrollbar-track { background: transparent; }
+#kanbanBoard > .kanban-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+#kanbanBoard > .kanban-container:focus-visible { outline: 2px solid var(--bs-primary, #666cff); outline-offset: 2px; }
+/* The library writes margin-left/right:15px inline on every board; the gap
+   above already owns the spacing, so drop the inline margins (inline styles
+   need !important to lose against a stylesheet). */
+#kanbanBoard > .kanban-container > .kanban-board { margin-left: 0 !important; margin-right: 0 !important; }
+#kanbanBoard .kanban-board { flex: 0 0 auto; background: #f8f9fa; border: 1px solid var(--bs-border-color, #e9ecef); border-radius: .5rem; min-width: 15rem; }
+#kanbanBoard .kanban-board-header { background: #fff; border-bottom: 1px solid var(--bs-border-color, #e9ecef); border-radius: .5rem .5rem 0 0; padding: .6rem .8rem; }
+#kanbanBoard .kanban-title-board { font-weight: 600; }
+#kanbanBoard .kanban-drag { min-height: 10rem; padding: .5rem; display: flex; flex-direction: column; gap: .5rem; }
+#kanbanBoard .kanban-item { background: #fff; border: 1px solid var(--bs-border-color, #e9ecef); border-radius: .375rem; padding: .6rem; box-shadow: 0 1px 1px rgba(0,0,0,.04); cursor: grab; }
+#kanbanBoard .kanban-item:active { cursor: grabbing; }
+.board-invoice { font-size: .85rem; }
+.board-customer { font-size: .8rem; color: #6c757d; }

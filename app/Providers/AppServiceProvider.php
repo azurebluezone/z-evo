@@ -56,6 +56,13 @@ class AppServiceProvider extends ServiceProvider
         // Use Bootstrap for pagination
         Paginator::useBootstrap();
 
+        // Orders feed the dashboard's revenue/order KPIs. Hooking the model
+        // means every write path - checkout, admin edit, status change, bulk
+        // action - invalidates the same cache without each controller having
+        // to remember to do it.
+        Order::saved(fn () => \App\Support\AnalyticsCache::invalidate());
+        Order::deleted(fn () => \App\Support\AnalyticsCache::invalidate());
+
         // The template set in resources/views/frontend/fm ships its own Blade
         // components, so it keeps its own namespace instead of competing with
         // the global resources/views/components folder.

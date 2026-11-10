@@ -22,12 +22,12 @@
                                 if (!empty($catImgPath) && !str_contains($catImgPath, '/') && !str_contains($catImgPath, '\\')) {
                                     $catImgPath = 'uploads/category/' . $catImgPath;
                                 }
-                                $catImgUrl = !empty($catImgPath) ? asset($catImgPath) : asset('assets/images/default.png');
+                                $catImgUrl = !empty($catImgPath) ? asset($catImgPath) : asset(\App\Support\MediaPath::fallbackPath());
                             @endphp
                             <div class="category-tree-item flex-grow-1 w-50">
                                 <div class="parent-category">
                                     <a href="{{ route('products.category', $category->slug) }}" class="d-block text-center">
-                                        <img src="{{ asset('assets/images/default.png') }}"
+                                        <img src="{{ asset(\App\Support\MediaPath::fallbackPath()) }}"
                                             data-src="{{ $catImgUrl }}"
                                             class="w-100 lazyload owl-lazy" alt="category">
                                         <span class="title line-limitation-1">{{ $category->name }}</span>

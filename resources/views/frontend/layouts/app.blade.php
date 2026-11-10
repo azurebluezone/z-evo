@@ -334,21 +334,14 @@
     {{-- Performance Monitoring --}}
     <script>
         @php
-            $generalsetting = $generalsetting ?? \App\Models\GeneralSetting::first();
-            $frontendEmptyImage = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
-            $frontendEmptyImage = preg_replace('~^public/~', '', (string) $frontendEmptyImage);
-            $frontendEmptyImage = ltrim($frontendEmptyImage, '/');
-            if (empty($frontendEmptyImage) || !\Illuminate\Support\Facades\File::exists(public_path($frontendEmptyImage))) {
-                $frontendEmptyImage = 'assets/images/empty.png';
-            }
         @endphp
-        const FRONTEND_EMPTY_IMAGE = @json(asset($frontendEmptyImage));
+        const FRONTEND_EMPTY_IMAGE = @json(\App\Support\MediaPath::fallbackUrl());
 
         (function () {
             function shouldForceFallback(src) {
                 if (!src) return true;
                 const s = String(src).toLowerCase();
-                return s.includes('assets/images/empty.png') || s.includes('public/assets/images/empty.png') || s.includes('placeholder.png') || s.includes('no-image.png');
+                return s.includes('placeholder.png') || s.includes('no-image.png') || s === FRONTEND_EMPTY_IMAGE;
             }
 
             function applyFallback(img) {
@@ -370,7 +363,7 @@
                 if (!v) return false;
                 // If data-src is already a placeholder/no-image, it's not a real source.
                 const low = v.toLowerCase();
-                if (low.includes('placeholder.png') || low.includes('no-image.png') || low.includes('assets/images/empty.png')) {
+                if (low.includes('placeholder.png') || low.includes('no-image.png') || low === FRONTEND_EMPTY_IMAGE) {
                     return false;
                 }
                 return true;

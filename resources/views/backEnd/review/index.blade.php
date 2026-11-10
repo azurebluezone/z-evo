@@ -5,6 +5,22 @@
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3">
         <h5 class="mb-0 text-uppercase fw-bold">Manage Reviews</h5>
         <div class="d-flex gap-2 align-items-center flex-wrap">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-square dropdown-toggle waves-effect" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="ri ri-list-check-2 me-1"></i>Bulk action
+                </button>
+                <div class="dropdown-menu rounded-0">
+                    <button type="submit" form="reviewBulkForm" name="bulk_action" value="active" class="dropdown-item text-success">
+                        <i class="ri ri-check-line me-1"></i>Approve selected
+                    </button>
+                    <button type="submit" form="reviewBulkForm" name="bulk_action" value="pending" class="dropdown-item text-warning">
+                        <i class="ri ri-time-line me-1"></i>Mark selected pending
+                    </button>
+                    <button type="submit" form="reviewBulkForm" name="bulk_action" value="delete" class="dropdown-item text-danger delete-confirm">
+                        <i class="ri ri-delete-bin-7-line me-1"></i>Delete selected
+                    </button>
+                </div>
+            </div>
             <a href="{{route('reviews.create')}}" class="btn btn-primary btn-square waves-effect">Create</a>
         </div>
     </div>
@@ -33,7 +49,7 @@
                     <tr>
                         <td>
                             <div class="form-check m-0">
-                                <input type="checkbox" class="form-check-input checkbox rounded-0" value="{{ $value->id }}">
+                                <input type="checkbox" class="form-check-input checkbox rounded-0" form="reviewBulkForm" name="ids[]" value="{{ $value->id }}">
                             </div>
                         </td>
                         <td class="fw-medium">{{$value->name}}</td>
@@ -87,6 +103,10 @@
                                 </form>
                                 @endif
 
+                                <a href="{{route('reviews.show',$value->id)}}" class="btn btn-icon btn-text-secondary btn-sm btn-square waves-effect" title="View" data-bs-toggle="tooltip" data-bs-title="View">
+                                    <i class="icon-base ri ri-eye-line icon-22px"></i>
+                                </a>
+
                                 <a href="{{route('reviews.edit',$value->id)}}" class="btn btn-icon btn-text-secondary btn-sm btn-square waves-effect" title="Edit" data-bs-toggle="tooltip" data-bs-title="Edit">
                                     <i class="icon-base ri ri-edit-box-line icon-22px"></i>
                                 </a>
@@ -115,4 +135,8 @@
         @endif
     </div>
 </div>
+
+<form id="reviewBulkForm" method="POST" action="{{ route('reviews.bulk') }}" class="d-none">
+    @csrf
+</form>
 @endsection

@@ -31,8 +31,8 @@
                 @php
                     $imgPath = preg_replace('~^public/~', '', (string) ($edit_data->image ?? ''));
                     $imgPath = ltrim($imgPath, '/');
-                    $fallbackImg = 'assets/images/empty.png';
-                    $imgSrc = $imgPath ? asset($imgPath) : asset($fallbackImg);
+                    $fallbackImg = \App\Support\MediaPath::fallbackPath();
+                    $imgSrc = asset(\App\Support\MediaPath::imageOrFallback($edit_data->image ?? null));
                 @endphp
                 <img src="{{ $imgSrc }}" class="rounded-circle mb-3" width="100" height="100" style="object-fit: cover;" onerror="this.src='{{ asset($fallbackImg) }}'">
                 <h5 class="mb-1">{{$edit_data->name}}</h5>

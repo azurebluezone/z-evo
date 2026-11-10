@@ -1,0 +1,17 @@
+/* Shared print cleanup for the admin report screens (stock, order).
+   Only the admin chrome hides - the report table stays in the normal
+   document flow, so it prints at the right width and keeps its borders. */
+@media print {
+    .layout-menu,
+    .layout-navbar,
+    .content-footer,
+    .content-backdrop,
+    .no-print {
+        display: none !important;
+    }
+    .layout-page { padding-top: 0 !important; }
+    .content-wrapper { padding: 0 !important; }
+    .container-xxl { padding: 0 !important; max-width: 100% !important; }
+    .card { box-shadow: none !important; border: 1px solid #dee2e6 !important; }
+    .table th, .table td { font-size: 12px; }
+}

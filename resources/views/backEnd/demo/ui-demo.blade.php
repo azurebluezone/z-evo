@@ -157,7 +157,7 @@
         </div>
         <div class="card-body">
           <div id="sales-trend-chart" style="min-height: 320px;"></div>
-          <small class="text-muted">Hover করে প্রতিদিনের ডেটা দেখা যাবে।</small>
+          <small class="text-muted">Hover a point to see that day's data.</small>
         </div>
       </div>
     </div>
@@ -362,7 +362,7 @@
                   <span class="form-check-label">Limited</span>
                 </label>
               </div>
-              <small class="text-muted d-block mt-1">Mobile-এ checkbox সবচেয়ে user-friendly।</small>
+              <small class="text-muted d-block mt-1">Checkboxes are the most user-friendly control on mobile.</small>
             </div>
             <div class="col-12 col-lg-5">
               <label class="form-label">Primary keyword (Dropdown)</label>

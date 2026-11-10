@@ -18,15 +18,15 @@
             $brandImg = $value->image ?? null;
             $brandImgPath = $brandImg ? preg_replace('~^public/~', '', $brandImg) : null;
             $brandImgPath = $brandImgPath ? ltrim($brandImgPath, '/') : null;
-            $fallbackImg = $generalSetting->frontend_empty_image ?? 'assets/images/empty.png';
+            $fallbackImg = \App\Support\MediaPath::fallbackPath();
             $fallbackImg = preg_replace('~^public/~', '', $fallbackImg);
             $fallbackImg = ltrim($fallbackImg, '/');
         @endphp
         <img
-            src="{{ $brandImgPath && file_exists(public_path($brandImgPath)) ? asset($brandImgPath) : asset($fallbackImg) }}"
+            src="{{ asset(\App\Support\MediaPath::imageOrFallback($brandImg)) }}"
             class="border rounded-0" style="height: 40px; width: 40px; object-fit: cover;"
             alt="{{$value->name ?? 'Brand'}}"
-            onerror="this.src='{{ asset('assets/images/empty.png') }}'">
+            onerror="this.src='{{ \App\Support\MediaPath::fallbackUrl() }}'">
     </td>
     <td>
         @if(($value->status ?? 0) == 1)

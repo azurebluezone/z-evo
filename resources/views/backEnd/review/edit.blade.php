@@ -28,7 +28,7 @@
                 <h5 class="card-title mb-0 fw-semibold">Review Information</h5>
               </div>
 
-              <div class="card-body mt-4">
+              <div class="card-body">
                 <div class="row g-4">
                   <div class="col-12 col-sm-6">
                     <label for="product_id" class="form-label fw-semibold">Product *</label>

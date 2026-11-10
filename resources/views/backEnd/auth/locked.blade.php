@@ -14,15 +14,7 @@
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/css/core.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/assets/css/demo.css') }}" />
 
-    <style>
-        body.authentication-bg {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            background-color: var(--bs-body-bg, #f8f9fa);
-        }
-        .auth-card { max-width: 420px; margin-inline: auto; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-auth-locked.css') }}">
 </head>
 
 <body class="authentication-bg">
@@ -77,23 +69,6 @@
 
     <script src="{{ asset('admin/assets/vendor/libs/jquery/jquery.js') }}"></script>
     <script src="{{ asset('admin/assets/vendor/js/bootstrap.js') }}"></script>
-    <script>
-        // The eye button toggles the password field's type. The old view used
-        // the previous theme's .password-eye span, which needs that theme's
-        // app.min.js - a file this admin does not ship.
-        (function () {
-            var toggle = document.getElementById('toggle-password');
-            var input = document.getElementById('password');
-            if (!toggle || !input) return;
-
-            toggle.addEventListener('click', function () {
-                var show = input.type === 'password';
-                input.type = show ? 'text' : 'password';
-                toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-                toggle.innerHTML = '<i class="icon-base ri ' + (show ? 'ri-eye-off-line' : 'ri-eye-line') + '"></i>';
-                input.focus();
-            });
-        })();
-    </script>
+    <script src="{{ asset('admin/assets/js/admin-page-auth-locked.js') }}"></script>
 </body>
 </html>

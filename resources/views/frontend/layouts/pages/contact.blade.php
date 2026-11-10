@@ -14,7 +14,7 @@
                         </li>
                         @endforeach
                         <li>
-                            <a href="{{route('contact')}}">যোগাযোগ করুন</a>
+                            <a href="{{route('contact')}}">Contact us</a>
                         </li>
                     </ul>
                 </div>

@@ -9,81 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-  <style>
-    :root {
-      --background: #ffffff;
-      --foreground: #111111;
-      --primary: #01a31c;
-      --primary-foreground: #ffffff;
-      --danger: #ff0000;
-      --danger-foreground: #ffffff;
-      --accent: #f05a28;
-      --accent-foreground: #ffffff;
-      --muted: #f8fafc;
-      --muted-foreground: #64748b;
-      --border: #e2e8f0;
-      --input-border: #d1d5db;
-      --font-family-body: Inter, system-ui, -apple-system, sans-serif;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--font-family-body); background-color: var(--background); color: var(--foreground); line-height: 1.5; }
-    .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
-    .text-center { text-align: center; }
-    .fw-bold { font-weight: 700; }
-    .fw-semibold { font-weight: 600; }
-    .fw-medium { font-weight: 500; }
-    .text-primary { color: var(--primary); }
-    .text-danger { color: var(--danger); }
-
-    .page-title { font-size: 36px; margin: 32px 0 20px; }
-    .hero-img-wrapper { border: 3px solid var(--primary); padding: 4px; border-radius: 4px; margin-bottom: 24px; background: var(--background); }
-    .hero-img-wrapper img { width: 100%; height: auto; display: block; }
-    .countdown-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; }
-    .countdown-box { background-color: var(--primary); color: var(--primary-foreground); width: 80px; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 4px; }
-    .countdown-val { font-size: 40px; line-height: 1; }
-    .countdown-label { font-size: 14px; margin-top: 4px; }
-    .pricing-row { display: flex; justify-content: center; align-items: center; gap: 16px; font-size: 24px; margin-bottom: 32px; flex-wrap: wrap; }
-    .price-strike-wrapper { position: relative; color: var(--foreground); display: inline-block; }
-    .price-strike-line { position: absolute; top: 50%; left: -5%; width: 110%; height: 3px; background-color: var(--danger); transform: rotate(-10deg); }
-    .price-circle-wrapper { color: var(--danger); border: 2px solid var(--danger); border-radius: 50px; padding: 4px 16px; display: inline-block; margin: 0 4px; }
-    .btn-cta { background-color: var(--danger); color: var(--danger-foreground); font-size: 20px; border: none; padding: 14px 28px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; margin-bottom: 40px; text-decoration: none; }
-
-    .full-banner { background-color: var(--primary); color: var(--primary-foreground); padding: 16px 20px; font-size: 28px; margin-bottom: 32px; }
-    .desc-text { font-size: 16px; max-width: 800px; margin: 0 auto 32px; line-height: 1.6; }
-    .feature-list-wrapper { max-width: 760px; margin: 0 auto 32px; }
-    .feature-list { list-style: none; }
-    .feature-list li { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--foreground); text-align: left; }
-    .feature-list li:last-child { border-bottom: none; }
-    .mid-price { font-size: 32px; margin-bottom: 24px; }
-
-    .form-wrapper { border: 2px solid var(--primary); border-radius: 12px; padding: 40px; margin-bottom: 60px; background-color: var(--background); }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
-    .form-title { font-size: 18px; margin-bottom: 24px; color: var(--foreground); }
-    .form-group { margin-bottom: 16px; text-align: left; }
-    .form-label { display: block; font-size: 13px; margin-bottom: 6px; color: #333; font-weight: 600; }
-    .form-input { width: 100%; border: 1px solid var(--input-border); padding: 12px 14px; border-radius: 4px; background-color: var(--background); font-size: 14px; }
-    .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(1,163,28,0.15); }
-    .form-select { width: 100%; border: 1px solid var(--input-border); padding: 12px 14px; border-radius: 4px; background-color: var(--background); font-size: 14px; }
-    .form-textarea { width: 100%; border: 1px solid var(--input-border); padding: 12px 14px; border-radius: 4px; background-color: var(--background); font-size: 14px; min-height: 80px; }
-
-    .order-summary-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; text-align: left; }
-    .order-summary-table th { font-size: 14px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
-    .order-summary-table td { padding: 16px 0; font-size: 14px; border-bottom: 1px solid var(--border); }
-    .order-summary-table th:last-child, .order-summary-table td:last-child { text-align: right; }
-
-    .payment-box { background-color: var(--muted); padding: 20px; border-radius: 4px; margin-bottom: 24px; }
-    .payment-option { display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 12px; cursor: pointer; }
-    .privacy-text { font-size: 11px; color: #64748b; margin-bottom: 20px; line-height: 1.5; }
-    .btn-submit { background-color: var(--accent); color: var(--accent-foreground); width: 100%; border: none; padding: 16px; font-size: 16px; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; font-weight: 700; }
-
-    .footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted-foreground); border-top: 1px solid var(--border); }
-
-    @media (max-width: 768px) {
-      .form-grid { grid-template-columns: 1fr; gap: 24px; }
-      .countdown-box { width: 60px; height: 70px; }
-      .countdown-val { font-size: 28px; }
-    }
-  </style>
+  <link rel="stylesheet" href="{{ asset('frontend/landing/template-1.css') }}?v={{ filemtime(public_path('frontend/landing/template-1.css')) }}">
+    <link rel="stylesheet" href="{{ asset('frontend/landing/responsive.css') }}?v={{ filemtime(public_path('frontend/landing/responsive.css')) }}">
 </head>
 <body>
   @include('frontend.partials.event-layer-body')
@@ -96,6 +23,8 @@
     $whyUs = $extra['why_us'] ?? [];
     $contactPhone = $extra['contact_phone'] ?? null;
     $productId = $extra['product_id'] ?? null;
+    $showFeatures = $extra['show_features'] ?? true;
+    $showCta = $extra['show_cta'] ?? true;
   @endphp
 
   <!-- Hero Section -->
@@ -109,7 +38,7 @@
     @endif
 
     <!-- Countdown Timer -->
-    <div class="countdown-container" id="countdown-container">
+    <div class="countdown-container" id="countdown-container" data-countdown="{{ $countdownDate }}">
       <div class="countdown-box">
         <span class="countdown-val fw-bold" id="cd-days">00</span>
         <span class="countdown-label">Days</span>
@@ -144,10 +73,12 @@
     </div>
     @endif
 
+    @if($showCta)
     <a href="#order" class="btn-cta fw-bold">
       <iconify-icon icon="lucide:shopping-cart" style="font-size: 24px; color: white"></iconify-icon>
       {{ $landingPage->cta_text ?? 'অর্ডার করতে চাই' }}
     </a>
+    @endif
   </div>
 
   <!-- Description / Features Banner -->
@@ -161,15 +92,24 @@
     <p class="desc-text text-danger fw-semibold">{!! $landingPage->description !!}</p>
     @endif
 
-    @if(count($features) > 0)
+    @if($showFeatures && count($features) > 0)
     <div class="feature-list-wrapper">
       <ul class="feature-list fw-medium">
         @foreach($features as $feature)
+        @php
+          $featureTitle = is_array($feature) ? ($feature['title'] ?? ($feature['text'] ?? '')) : (string) $feature;
+          $featureText = is_array($feature) ? ($feature['description'] ?? '') : '';
+        @endphp
         <li>
           <div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <iconify-icon icon="lucide:check-circle-2" style="font-size:20px;color:var(--primary)"></iconify-icon>
           </div>
-          <span>{{ $feature }}</span>
+          <span>
+            {{ $featureTitle }}
+            @if($featureText !== '')
+            <small class="d-block text-muted">{{ $featureText }}</small>
+            @endif
+          </span>
         </li>
         @endforeach
       </ul>
@@ -180,15 +120,17 @@
     <div class="mid-price text-primary fw-bold">{{ $newPrice }} টাকা মাত্র</div>
     @endif
 
+    @if($showCta)
     <a href="#order" class="btn-cta fw-bold">
       <iconify-icon icon="lucide:shopping-cart" style="font-size:24px;color:white"></iconify-icon>
       {{ $landingPage->cta_text ?? 'অর্ডার করতে চাই' }}
     </a>
+    @endif
   </div>
   @endif
 
   <!-- Why Us Section -->
-  @if(count($whyUs) > 0)
+  @if($showFeatures && count($whyUs) > 0)
   <div class="full-banner text-center fw-bold">আমাদের কাছে কেনো কিনবেন?</div>
   <div class="container">
     <div class="feature-list-wrapper">
@@ -198,7 +140,7 @@
           <div style="background-color:var(--primary);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <iconify-icon icon="lucide:chevron-right" style="color:white;font-size:14px;margin-left:2px"></iconify-icon>
           </div>
-          <span>{{ $item }}</span>
+          <span>{{ is_array($item) ? ($item['text'] ?? ($item['title'] ?? '')) : $item }}</span>
         </li>
         @endforeach
       </ul>
@@ -230,6 +172,9 @@
         @csrf
         @if($productId)
           <input type="hidden" name="product_id" value="{{ $productId }}">
+        @endif
+        @if(!empty($extra['campaign_id']))
+          <input type="hidden" name="campaign_id" value="{{ $extra['campaign_id'] }}">
         @endif
 
         <div class="form-grid">
@@ -306,28 +251,6 @@
     Copyright &copy; {{ date('Y') }} {{ $landingPage->title }}. All rights reserved.
   </div>
 
-  <script>
-    // Countdown timer
-    @if($countdownDate)
-    (function() {
-      var target = new Date('{{ $countdownDate }}').getTime();
-      function update() {
-        var now = new Date().getTime();
-        var diff = target - now;
-        if (diff < 0) diff = 0;
-        var d = Math.floor(diff / (1000*60*60*24));
-        var h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        var m = Math.floor((diff % (1000*60*60)) / (1000*60));
-        var s = Math.floor((diff % (1000*60)) / 1000);
-        document.getElementById('cd-days').textContent = String(d).padStart(2,'0');
-        document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
-        document.getElementById('cd-minutes').textContent = String(m).padStart(2,'0');
-        document.getElementById('cd-seconds').textContent = String(s).padStart(2,'0');
-      }
-      update();
-      setInterval(update, 1000);
-    })();
-    @endif
-  </script>
+  <script src="{{ asset('frontend/landing/template-1.js') }}?v={{ filemtime(public_path('frontend/landing/template-1.js')) }}"></script>
 </body>
 </html>

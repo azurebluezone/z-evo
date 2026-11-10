@@ -54,11 +54,11 @@
                                         $prodImgPath = $prodImg ? preg_replace('~^public/~', '', $prodImg) : null;
                                         $prodImgPath = $prodImgPath ? ltrim($prodImgPath, '/') : null;
                                         $fallbackImg = \App\Support\MediaPath::fallbackPath();
-                                        $imgPath = $prodImgPath && file_exists(public_path($prodImgPath)) ? asset($prodImgPath) : asset($fallbackImg);
+                                        $imgPath = asset(\App\Support\MediaPath::imageOrFallback($prodImg));
                                     @endphp
                                     <tr>
                                         <td>
-                                            <img src="{{ $imgPath }}" alt="" class="backend-image" style="height: 44px; width: 44px; object-fit: cover;" onerror="this.src='{{ asset('assets/images/empty.png') }}'">
+                                            <img src="{{ $imgPath }}" alt="" class="backend-image" style="height: 44px; width: 44px; object-fit: cover;" onerror="this.src='{{ \App\Support\MediaPath::fallbackUrl() }}'">
                                         </td>
                                         <td>
                                             <div class="fw-semibold">{{ $product->product_name }}</div>
@@ -189,7 +189,7 @@
                             @php
                                 $custFallback = \App\Support\MediaPath::fallbackPath();
                             @endphp
-                            <img src="{{ asset($custFallback) }}" alt="" class="rounded-circle" style="height: 40px; width: 40px; object-fit: cover;" onerror="this.src='{{ asset('assets/images/empty.png') }}'" />
+                            <img src="{{ asset($custFallback) }}" alt="" class="rounded-circle" style="height: 40px; width: 40px; object-fit: cover;" onerror="this.src='{{ \App\Support\MediaPath::fallbackUrl() }}'" />
                         </div>
                         <div class="d-flex flex-column">
                             <h6 class="mb-0">{{ $data->shipping ? $data->shipping->name : '' }}</h6>

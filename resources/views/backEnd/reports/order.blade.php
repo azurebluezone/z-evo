@@ -31,9 +31,6 @@
 <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
     <div>
         <h4 class="mb-0">Order Report</h4>
-        <p class="text-muted mb-0 small">
-            Delivered order lines, with the money totals for the current filter.
-        </p>
     </div>
 </div>
 
@@ -49,7 +46,7 @@
                     <label for="keyword" class="form-label">Keyword</label>
                     <input type="text" id="keyword" name="keyword"
                            value="{{ request('keyword') }}"
-                           class="form-control" placeholder="Invoice, customer or product">
+                           class="form-control rounded-0" placeholder="Invoice, customer or product">
                 </div>
                 <div class="col-12 col-md-6 col-lg-3">
                     <label for="user_id" class="form-label">Assign User</label>
@@ -75,7 +72,7 @@
                     <input type="date" id="end_date" name="end_date"
                            value="{{ request('end_date') }}" class="form-control">
                 </div>
-                <div class="col-12 d-flex flex-wrap gap-2">
+                <div class="col-12 d-flex flex-wrap gap-2 text-nowrap">
                     <x-admin.button variant="primary" type="submit">
                         <i class="icon-base ri ri-filter-3-line me-1"></i>Apply Filters
                     </x-admin.button>
@@ -92,7 +89,7 @@
 <div class="card rounded-0" id="print-area">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3 no-print">
         <h5 class="mb-0 text-uppercase fw-bold">Order Report</h5>
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex flex-wrap gap-2 text-nowrap">
             <x-admin.button variant="outline-secondary" size="sm" type="button" id="print-report">
                 <i class="icon-base ri ri-printer-line me-1"></i>Print
             </x-admin.button>
@@ -161,93 +158,20 @@
 </div>
 
 {{--
-    Print stylesheet.
-
-    Only the admin chrome is hidden - the report table stays in the normal
-    document flow, so it prints at the right width and on the right page.
-    Hiding everything with visibility:hidden and repositioning a single
-    element is the other trick, and it loses the page background and the
-    card border.
+    Print + Export live in shared external assets (no inline blocks):
+      - stylesheet : public/admin/assets/css/admin-report.css
+      - script     : public/admin/assets/js/admin-report-table.js
+                     (the previous version loaded table2excel from a CDN and
+                     called a printFunction() that lived in a @section('script')
+                     the layout never yielded)
 --}}
 @push('css')
-<style>
-    @media print {
-        .layout-menu,
-        .layout-navbar,
-        .content-footer,
-        .content-backdrop,
-        .no-print {
-            display: none !important;
-        }
-        .layout-page { padding-top: 0 !important; }
-        .content-wrapper { padding: 0 !important; }
-        .container-xxl { padding: 0 !important; max-width: 100% !important; }
-        .card { box-shadow: none !important; border: 1px solid #dee2e6 !important; }
-        .table th, .table td { font-size: 12px; }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-report.css') }}">
 @endpush
 
-{{--
-    Print + Export.
-
-    The previous version loaded table2excel from a CDN and called a
-    printFunction() that lived in a @section('script') the layout never
-    yielded, so neither button did anything. Both are implemented here with
-    no external dependency:
-
-      - Print  : window.print(), with the stylesheet above scoping it.
-      - Export : the table is serialised to CSV on the client and downloaded
-                 as a Blob. No plugin, no network call.
---}}
 @push('script')
-<script>
-(function () {
-    'use strict';
-
-    var printBtn = document.getElementById('print-report');
-    if (printBtn) {
-        printBtn.addEventListener('click', function () {
-            window.print();
-        });
-    }
-
-    var exportBtn = document.getElementById('export-report');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', function () {
-            var table = document.getElementById('order-report-table');
-            if (!table) return;
-
-            var rows = [];
-            var trs = table.querySelectorAll('tr');
-
-            for (var i = 0; i < trs.length; i++) {
-                var cells = trs[i].querySelectorAll('th, td');
-                if (!cells.length) continue;
-
-                var row = [];
-                for (var j = 0; j < cells.length; j++) {
-                    var text = (cells[j].innerText || '').replace(/\s+/g, ' ').trim();
-                    row.push('"' + text.replace(/"/g, '""') + '"');
-                }
-                rows.push(row.join(','));
-            }
-
-            if (!rows.length) return;
-
-            // BOM so Excel opens the UTF-8 file with the right encoding.
-            var blob = new Blob(['﻿' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.href = url;
-            link.download = 'order-report-' + new Date().toISOString().slice(0, 10) + '.csv';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        });
-    }
-})();
-</script>
+<script src="{{ asset('admin/assets/js/admin-report-table.js') }}"
+        data-report-table="order-report-table"
+        data-report-export="order-report"></script>
 @endpush
 @endsection

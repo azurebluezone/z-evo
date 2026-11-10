@@ -15,238 +15,21 @@
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <style>
-        :root {
-            --primary-color: #ff0000;
-            --secondary-color: #008000;
-            --accent-color: #FFD700;
-            --text-color: #333333;
-            --light-bg: #f8f9fa;
-            --dark-bg: #343a40;
-        }
-
-        body {
-            font-family: 'Hind Siliguri', sans-serif;
-            overflow-x: hidden;
-            color: var(--text-color);
-        }
-
-        .hero-section {
-            position: relative;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-            url('{{ $landingPage->image_url ? asset($landingPage->image_url) : "https://sjc.microlink.io/DkZFF8NxGvYFVv4ZKiqbl_5t9iGTIHy3R5uGkmwZZX_I0XI7xJiD0eX-g2Z0bsYFJjn3wsOqHqLCfkv--5AkTw.jpeg" }}');
-            background-size: cover;
-            background-position: center;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 80px 0;
-            color: white;
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 1;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .logo {
-            max-height: 80px;
-            margin-bottom: 30px;
-            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));
-        }
-
-        .hero-title {
-            font-weight: bold;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-        }
-
-        .cta-button {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-            border: none;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
-            color: white;
-        }
-
-        .wave-divider {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            overflow: hidden;
-            line-height: 0;
-            z-index: 2;
-        }
-
-        .wave-divider svg {
-            position: relative;
-            display: block;
-            width: calc(100% + 1.3px);
-            height: 65px;
-        }
-
-        .wave-divider .shape-fill {
-            fill: #FFFFFF;
-        }
-
-        .content-section {
-            padding: 80px 0;
-            background: var(--light-bg);
-        }
-
-        .content-text {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: var(--text-color);
-        }
-
-        .feature-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-            margin-bottom: 30px;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .benefit-item {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .testimonial-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .testimonial-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            background: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-        }
-
-        .faq-item {
-            background: white;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-
-        .faq-question {
-            background: var(--light-bg);
-            padding: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            border: none;
-            width: 100%;
-            text-align: left;
-        }
-
-        .faq-answer {
-            padding: 20px;
-            display: none;
-        }
-
-        .contact-form {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-control {
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            padding: 12px 15px;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25);
-        }
-
-        .footer {
-            background: var(--dark-bg);
-            color: white;
-            padding: 40px 0;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-
-            .cta-button {
-                padding: 12px 30px;
-                font-size: 1rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('frontend/landing/sample-template.css') }}?v={{ filemtime(public_path('frontend/landing/sample-template.css')) }}">
+    <link rel="stylesheet" href="{{ asset('frontend/landing/responsive.css') }}?v={{ filemtime(public_path('frontend/landing/responsive.css')) }}">
 </head>
 
 <body>
     @include('frontend.partials.event-layer-body')
+    @php
+        $extra = $landingPage->extra_fields ?? [];
+        $showFeatures = !empty($extra['show_features']);
+        $showBenefits = !empty($extra['show_benefits']);
+        $showTestimonials = !empty($extra['show_testimonials']);
+        $showFaq = !empty($extra['show_faq']);
+    @endphp
     <!-- Hero Section -->
-    <section class="hero-section">
+    <section class="hero-section" style="--hero-image: url('{{ $landingPage->image_url ? asset($landingPage->image_url) : 'https://sjc.microlink.io/DkZFF8NxGvYFVv4ZKiqbl_5t9iGTIHy3R5uGkmwZZX_I0XI7xJiD0eX-g2Z0bsYFJjn3wsOqHqLCfkv--5AkTw.jpeg' }}');">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8 text-center">
@@ -256,9 +39,23 @@
                         <p class="hero-subtitle">{{ $landingPage->subtitle }}</p>
                         @endif
                         @if($landingPage->cta_text && $landingPage->cta_link)
+                        @if(!empty($landingPage->extra_fields['product_id']))
+                        <form method="POST" action="{{ $landingPage->cta_link }}" class="d-inline-block">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $landingPage->extra_fields['product_id'] }}">
+                            @if(!empty($landingPage->extra_fields['campaign_id']))
+                                <input type="hidden" name="campaign_id" value="{{ $landingPage->extra_fields['campaign_id'] }}">
+                            @endif
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="cta-button" style="border:0;cursor:pointer">
+                                {{ $landingPage->cta_text }}
+                            </button>
+                        </form>
+                        @else
                         <a href="{{ $landingPage->cta_link }}" class="cta-button">
                             {{ $landingPage->cta_text }}
                         </a>
+                        @endif
                         @endif
                     </div>
                 </div>
@@ -289,7 +86,7 @@
     @endif
 
     <!-- Features Section -->
-    @if(isset($landingPage->extra_fields['features']))
+    @if($showFeatures && !empty($extra['features']))
     <section class="content-section bg-white">
         <div class="container">
             <div class="row">
@@ -298,14 +95,16 @@
                 </div>
             </div>
             <div class="row">
-                @foreach($landingPage->extra_fields['features'] as $feature)
+                @foreach($extra['features'] as $feature)
                 <div class="col-lg-4 col-md-6">
                     <div class="feature-card" data-aos="fade-up">
                         <div class="feature-icon">
                             <i class="fas fa-star"></i>
                         </div>
-                        <h4>{{ $feature['title'] ?? 'Feature' }}</h4>
-                        <p>{{ $feature['description'] ?? 'Feature description' }}</p>
+                        <h4>{{ is_array($feature) ? ($feature['title'] ?? 'Feature') : $feature }}</h4>
+                        @if(is_array($feature) && !empty($feature['description']))
+                        <p>{{ $feature['description'] }}</p>
+                        @endif
                     </div>
                 </div>
                 @endforeach
@@ -315,7 +114,7 @@
     @endif
 
     <!-- Benefits Section -->
-    @if(isset($landingPage->extra_fields['benefits']))
+    @if($showBenefits && !empty($extra['benefits']))
     <section class="content-section">
         <div class="container">
             <div class="row">
@@ -324,11 +123,17 @@
                 </div>
             </div>
             <div class="row">
-                @foreach($landingPage->extra_fields['benefits'] as $benefit)
+                @foreach($extra['benefits'] as $benefit)
+                @php
+                    $benefitTitle = is_array($benefit) ? ($benefit['title'] ?? 'Benefit') : (string) $benefit;
+                    $benefitText = is_array($benefit) ? ($benefit['text'] ?? ($benefit['description'] ?? '')) : '';
+                @endphp
                 <div class="col-lg-6">
                     <div class="benefit-item" data-aos="fade-right">
-                        <h5><i class="fas fa-check-circle text-success me-2"></i>{{ $benefit['title'] ?? 'Benefit' }}</h5>
-                        <p>{{ $benefit['description'] ?? 'Benefit description' }}</p>
+                        <h5><i class="fas fa-check-circle text-success me-2"></i>{{ $benefitTitle }}</h5>
+                        @if($benefitText !== '')
+                        <p>{{ $benefitText }}</p>
+                        @endif
                     </div>
                 </div>
                 @endforeach
@@ -338,7 +143,7 @@
     @endif
 
     <!-- Testimonials Section -->
-    @if(isset($landingPage->extra_fields['testimonials']))
+    @if($showTestimonials && !empty($extra['testimonials']))
     <section class="content-section bg-white">
         <div class="container">
             <div class="row">
@@ -347,15 +152,20 @@
                 </div>
             </div>
             <div class="row">
-                @foreach($landingPage->extra_fields['testimonials'] as $testimonial)
+                @foreach($extra['testimonials'] as $testimonial)
+                @php
+                    $testimonialText = is_array($testimonial)
+                        ? ($testimonial['text'] ?? ($testimonial['comment'] ?? 'Great service!'))
+                        : (string) $testimonial;
+                @endphp
                 <div class="col-lg-4 col-md-6">
                     <div class="testimonial-card" data-aos="fade-up">
                         <div class="testimonial-avatar">
                             <i class="fas fa-user"></i>
                         </div>
-                        <p class="mb-3">{{ $testimonial['text'] ?? 'Great service!' }}</p>
-                        <h6 class="fw-bold">{{ $testimonial['name'] ?? 'Customer' }}</h6>
-                        <small class="text-muted">{{ $testimonial['position'] ?? 'Client' }}</small>
+                        <p class="mb-3">{{ $testimonialText }}</p>
+                        <h6 class="fw-bold">{{ is_array($testimonial) ? ($testimonial['name'] ?? 'Customer') : 'Customer' }}</h6>
+                        <small class="text-muted">{{ is_array($testimonial) ? ($testimonial['position'] ?? 'Client') : 'Client' }}</small>
                     </div>
                 </div>
                 @endforeach
@@ -365,7 +175,7 @@
     @endif
 
     <!-- FAQ Section -->
-    @if(isset($landingPage->extra_fields['faqs']))
+    @if($showFaq && !empty($extra['faqs']))
     <section class="content-section">
         <div class="container">
             <div class="row">
@@ -375,7 +185,8 @@
             </div>
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    @foreach($landingPage->extra_fields['faqs'] as $faq)
+                    @foreach($extra['faqs'] as $faq)
+                    @continue(!is_array($faq))
                     <div class="faq-item" data-aos="fade-up">
                         <button class="faq-question" onclick="toggleFAQ(this)">
                             {{ $faq['question'] ?? 'Question' }}
@@ -393,7 +204,7 @@
     @endif
 
     <!-- Contact Section -->
-    @if(isset($landingPage->extra_fields['contact_form']))
+    @if(!empty($extra['contact_form']))
     <section class="content-section bg-white">
         <div class="container">
             <div class="row justify-content-center">
@@ -444,29 +255,7 @@
     <!-- AOS Animation -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-    <script>
-        // Initialize AOS
-        AOS.init({
-            duration: 1000,
-            once: true
-        });
-
-        // FAQ Toggle
-        function toggleFAQ(element) {
-            const answer = element.nextElementSibling;
-            const icon = element.querySelector('i');
-
-            if (answer.style.display === 'block') {
-                answer.style.display = 'none';
-                icon.classList.remove('fa-chevron-up');
-                icon.classList.add('fa-chevron-down');
-            } else {
-                answer.style.display = 'block';
-                icon.classList.remove('fa-chevron-down');
-                icon.classList.add('fa-chevron-up');
-            }
-        }
-    </script>
+    <script src="{{ asset('frontend/landing/sample-template.js') }}?v={{ filemtime(public_path('frontend/landing/sample-template.js')) }}"></script>
 </body>
 
 </html>

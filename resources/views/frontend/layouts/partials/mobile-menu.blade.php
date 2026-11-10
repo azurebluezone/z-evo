@@ -114,7 +114,7 @@
                         $iconRaw = (string) ($category->image ?? '');
                         $iconIsUrl = preg_match('~^https?://~i', $iconRaw) === 1;
                         $iconPath = $iconIsUrl ? $iconRaw : ltrim(preg_replace('~^public/~', '', $iconRaw), '/');
-                        $iconSrc = !empty($iconPath) ? ($iconIsUrl ? $iconPath : asset($iconPath)) : asset('uploads/category/default.png');
+                        $iconSrc = $iconIsUrl ? $iconPath : asset(\App\Support\MediaPath::imageOrFallback($category->image ?? ''));
                         $hasSubs = isset($category->subcategories) && $category->subcategories->count() > 0;
                     @endphp
                     <li>

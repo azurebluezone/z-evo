@@ -102,8 +102,12 @@
                 url: window.location.href
             });
 
+            // sendBeacon with a plain string is sent as text/plain, which
+            // Laravel does not parse as JSON. A Blob keeps the JSON content
+            // type, so the route can read event_name and event_id.
             if (navigator.sendBeacon) {
-                navigator.sendBeacon('/api/tiktok/track', payload);
+                var blob = new Blob([payload], { type: 'application/json' });
+                navigator.sendBeacon('/api/tiktok/track', blob);
             } else {
                 fetch('/api/tiktok/track', {
                     method: 'POST',
@@ -230,8 +234,10 @@
         this.logLocalEvent('InitiateCheckout', eventData);
     };
 
-    TikTokTracker.prototype.trackPurchase = function (purchaseData) {
-        var eventId = generateEventId();
+    TikTokTracker.prototype.trackPurchase = function (purchaseData, eventId) {
+        // The confirmation page passes the same id the server-side Purchase
+        // used. Ignoring it would make TikTok count the sale twice.
+        eventId = eventId || generateEventId();
         var eventData = {
             value: purchaseData.total || purchaseData.value || 0,
             currency: purchaseData.currency || 'BDT',
@@ -242,8 +248,12 @@
                 ? purchaseData.product_ids.map(function (id) { return { content_id: id, quantity: 1 }; })
                 : []
         };
-        this.sendClientEvent('Purchase', eventData, eventId);
-        this.sendServerEvent('Purchase', eventData, eventId);
+        // TikTok's standard event for a placed order is PlaceAnOrder, which is
+        // also what the server maps Purchase to. Sending "Purchase" only on the
+        // browser side would make the two hits different events, so TikTok
+        // could not deduplicate them.
+        this.sendClientEvent('PlaceAnOrder', eventData, eventId);
+        this.sendServerEvent('PlaceAnOrder', eventData, eventId);
         this.logLocalEvent('Purchase', eventData);
 
         // Force flush on purchase

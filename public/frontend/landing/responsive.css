@@ -1,0 +1,197 @@
+/*
+ * Shared responsive rules for campaign landing templates.
+ *
+ * Hand-written on purpose: generated template CSS is recreated by
+ * tools/extract_landing_assets.py and must not be edited by hand.
+ * Loaded after every template stylesheet.
+ *
+ * Breakpoints: 1024px tablet, 768px large phone, 480px small phone.
+ */
+
+html,
+body {
+    max-width: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+img,
+video,
+iframe {
+    max-width: 100%;
+}
+
+img,
+video {
+    height: auto;
+}
+
+/* A 100% + 1.3px SVG wave is a classic 1px horizontal scrollbar. */
+.wave-divider svg {
+    width: 100%;
+}
+
+.content-text,
+.desc-text,
+.intro-text,
+.privacy-text,
+p {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1023.98px) {
+    .hero-section {
+        min-height: 0;
+        padding: 64px 0;
+    }
+
+    .hero-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .hero-content,
+    .hero-image,
+    .why-us-image,
+    .why-us-list {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .hero-section {
+        min-height: 0;
+        padding: 48px 0;
+    }
+
+    .hero-title {
+        font-size: clamp(1.6rem, 6vw, 2rem);
+        line-height: 1.25;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .hero-content,
+    .hero-image,
+    .why-us-image,
+    .why-us-list {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .cta-button,
+    .btn-main,
+    .btn-submit,
+    .submit-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .form-grid,
+    .features-grid,
+    .benefits-list {
+        grid-template-columns: 1fr !important;
+    }
+
+    .form-grid {
+        gap: 24px !important;
+    }
+
+    .order-form,
+    .form-container {
+        padding: 16px;
+    }
+
+    input,
+    select,
+    textarea,
+    .form-control,
+    .form-select,
+    .form-input {
+        font-size: 16px;
+    }
+
+    .order-summary-table,
+    .order-table {
+        width: 100%;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .hero-title {
+        font-size: clamp(1.35rem, 7vw, 1.75rem);
+    }
+
+    .section-title,
+    .section-heading,
+    .form-title {
+        font-size: 1.35rem;
+    }
+
+    .countdown-container,
+    .countdown-group {
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .countdown-box {
+        width: 56px;
+        height: 64px;
+    }
+
+    .cd-box {
+        width: 56px;
+        height: 64px;
+    }
+
+    .countdown-val,
+    .cd-val {
+        font-size: 22px;
+    }
+
+    .countdown-label,
+    .cd-lbl {
+        font-size: 11px;
+    }
+
+    .order-form {
+        padding: 14px;
+    }
+
+    .package-option img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .gallery-thumbs .swiper-slide {
+        width: 64px;
+    }
+
+    .gallery-main .swiper-slide {
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+
+    .social-icons {
+        flex-wrap: wrap;
+    }
+
+    .current-price,
+    .price-text {
+        font-size: 1.5rem;
+    }
+}

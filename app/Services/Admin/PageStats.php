@@ -26,9 +26,9 @@ use Throwable;
  *   card 3  Inactive <module> (or Added this month)
  *   card 4  Showing this page - rows the grid is displaying now
  *
- * Card 4 is refreshed by admin-datatable.js after every draw, because the
- * header is rendered before the table has fetched anything; the server value
- * is the honest initial page size, not a guess dressed as a total.
+ * Card 4 is filled in after render by admin-datatable.js (DataTables draws)
+ * or by stat-grid's own reporter (server-rendered tables). The server emits
+ * an em dash because it cannot know the displayed row count yet.
  */
 class PageStats
 {
@@ -59,7 +59,7 @@ class PageStats
                     $tones[$index] ?? 'primary'
                 );
             }
-            $cards[] = $this->pageCard();
+            $cards[] = $this->pageCard(false);
 
             return ['show' => true, 'cards' => $cards];
         }
@@ -127,7 +127,7 @@ class PageStats
             }
         }
 
-        $cards[] = $this->pageCard($total, $this->hasList($request, $definition));
+        $cards[] = $this->pageCard($this->hasList($request, $definition));
 
         return ['show' => true, 'cards' => $cards];
     }
@@ -271,17 +271,22 @@ class PageStats
      *
      * @return array{label:string,value:?int,icon:string,tone:string,hint:?string}
      */
-    private function pageCard(?int $moduleTotal = null, bool $hasList = true): array
+    private function pageCard(bool $hasList = true): array
     {
-        $value = (! $hasList) ? null : ($moduleTotal === null ? null : min(20, $moduleTotal));
-
+        /*
+         * The server cannot know how many rows the table will display: page
+         * size, filters and client-side DataTables are all decided after this
+         * render. min(20, total) claimed "20" on the visitors list while 50
+         * rows were on screen. Leave the honest em dash here; stat-grid's
+         * reporter and admin-datatable.js write the real count after render.
+         */
         return $this->card(
             'Showing This Page',
             'ri-file-list-line',
-            $value,
+            null,
             'info',
             $hasList
-                ? 'Rows the table is displaying. The list refreshes this after every search.'
+                ? 'Rows the table is displaying. Filled in after the table renders.'
                 : 'This page has no list, so there is no page count to show.'
         );
     }

@@ -181,41 +181,13 @@
 
 @section('script')
 {{--
-    The old <script type="module" src=".../admin/build/apexcharts-DQTXqG1-.js">
+    The old module script (Vite chunk index apexcharts-DQTXqG1-.js)
     pointed at a Vite build chunk that is not in this repository (there is no
     public/admin/build directory), so it 404'd on every load. ApexCharts is
     already loaded by the layout's scripts partial
     (admin/assets/vendor/libs/apex-charts/apexcharts.js), and the code below
     uses the global window.ApexCharts, so the reference was dead weight.
 --}}
-<script>
-(function() {
-    var labels = @json(array_values($allowedEvents ?? []));
-    var dataMap = @json($eventCounts ?? []);
-    var series = labels.map(function (k) {
-        return Number(dataMap && dataMap[k] ? dataMap[k] : 0);
-    });
-
-    if (typeof window.ApexCharts !== 'function') return;
-    var el = document.querySelector('#events-overview');
-    if (!el) return;
-
-    var options = {
-        chart: {
-            type: 'bar',
-            height: 260,
-            toolbar: { show: false }
-        },
-        series: [{ name: 'Events', data: series }],
-        xaxis: { categories: labels },
-        dataLabels: { enabled: false },
-        plotOptions: { bar: { borderRadius: 6, columnWidth: '45%' } }
-    };
-
-    try {
-        (new ApexCharts(el, options)).render();
-    } catch (e) {
-    }
-})();
-</script>
+<div class="d-none" data-social-overview="{{ json_encode(['labels' => array_values($allowedEvents ?? []), 'counts' => $eventCounts ?? []]) }}" data-social-timeline="{{ json_encode([]) }}"></div>
+<script src="{{ asset('admin/assets/js/admin-page-social-events.js') }}"></script>
 @endsection

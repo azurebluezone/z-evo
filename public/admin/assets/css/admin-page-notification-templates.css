@@ -1,0 +1,9 @@
+/* Notification templates (create/edit): the Quill body editor needs a
+   visible writing area before content exists. */
+
+.notification-body-editor {
+  min-height: 240px;
+  border: 1px solid #d5d9e2;
+  border-radius: 0.375rem;
+  background: #fff;
+}

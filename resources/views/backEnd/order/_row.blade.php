@@ -52,10 +52,11 @@
     // risk_score_percent is a nullable tinyint. null means "we checked and this
     // phone has no courier history" - a fact about the CUSTOMER, not a score,
     // so it must not be rendered as 0%.
-    $courierRate   = ($value->risk_score_percent !== null) ? (int) $value->risk_score_percent : null;
-    $courierLabel  = (string) ($value->risk_label ?? '');
-    $courierSource = (string) ($value->risk_source ?? '');
-    $courierAt     = $value->risk_last_checked_at ?? null;
+    $courierRate     = ($value->risk_score_percent !== null) ? (int) $value->risk_score_percent : null;
+    $courierLabel    = (string) ($value->risk_label ?? '');
+    $courierSource   = (string) ($value->risk_source ?? '');
+    $courierProvider = (string) ($value->risk_provider ?? '');
+    $courierAt       = $value->risk_last_checked_at ?? null;
 
     if ($courierRate === null) {
         $courierChipClass = 'bg-label-secondary';
@@ -80,8 +81,11 @@
     if ($courierAt !== null) {
         $courierTitle .= ' Checked ' . $courierAt->format('d M Y, h:i A') . '.';
     }
+    if ($courierProvider !== '') {
+        $courierTitle .= ' Verified against: ' . $courierProvider . '.';
+    }
     if ($courierSource !== '' && $courierSource !== 'internal') {
-        $courierTitle .= ' Source: ' . $courierSource . '.';
+        $courierTitle .= ' Triggered by: ' . $courierSource . '.';
     }
 @endphp
           <tr class="@if(isset($value->risk_label) && $value->risk_label === 'high_risk') table-danger @endif">
@@ -106,8 +110,24 @@
                 <i class="ri icon-base ri-bar-chart-line icon-16px me-1"></i>{{ $courierChipText }}
               </span>
 
+              {{-- Which evidence produced the score. Kept separate from the
+                   percentage because "Pathao says 90%" and "our own shipments
+                   say 90%" are not the same claim. --}}
+              @if($courierProvider !== '')
+                <span class="badge bg-label-info" title="Fraud check source">{{ $courierProvider }}</span>
+              @endif
+
               @if(isset($value->risk_label) && $value->risk_label === 'high_risk')
                 <span class="badge bg-danger">High Risk</span>
+              @endif
+            </td>
+            <td>
+              {{-- Customer account phone. Guest checkout leaves customer_id
+                   null, so "-" is a real answer here, not missing markup. --}}
+              @if($value->customer?->phone)
+                <span class="d-block small">{{ $value->customer->phone }}</span>
+              @else
+                <span class="text-muted">-</span>
               @endif
             </td>
             <td>৳{{$value->amount}}</td>

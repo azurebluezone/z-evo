@@ -32,7 +32,14 @@
         <label class="form-label">Test Mode (Development)</label>
         <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" value="1" id="tiktok_test_mode" name="tiktok_test_mode" @if(($settings->tiktok_test_mode ?? 0) == 1) checked @endif>
-            <label class="form-check-label" for="tiktok_test_mode">Enable to test without sending real events</label>
+            <label class="form-check-label" for="tiktok_test_mode">Route events to TikTok's Test Events tab</label>
         </div>
+    </div>
+
+    <div class="col-lg-6 mb-3">
+        <label class="form-label">Test event code</label>
+        <input type="text" class="form-control" name="tiktok_test_event_code"
+               value="{{ $settings->tiktok_test_event_code ?? '' }}" placeholder="e.g. TEST12345">
+        <small class="text-muted">Required while Test Mode is on.</small>
     </div>
 </div>

@@ -20,7 +20,9 @@ class LandingPageController extends Controller
 
     public function previewTemplate($id)
     {
-        $template = Template::active()->findOrFail($id);
+        // Admins may preview an inactive template too: the campaign edit form
+        // keeps the campaign's current template selectable after deactivation.
+        $template = Template::findOrFail($id);
 
         $landingPage = new LandingPage();
         $landingPage->title = $template->name;
@@ -214,8 +216,17 @@ class LandingPageController extends Controller
     public function templateConfig($id)
     {
         $template = Template::findOrFail($id);
+
+        // Template::$casts declares config as array, so normally it arrives as
+        // an array. Rows written by the old seeder double-encoded the JSON; a
+        // string here is legacy data, not a second format to support forward.
+        $config = $template->config;
+        if (is_string($config)) {
+            $config = json_decode($config, true) ?: null;
+        }
+
         return response()->json([
-            'config' => $template->config ? json_decode($template->config, true) : null,
+            'config' => $config,
             'view_name' => $template->view_name,
             'description' => $template->description,
             'name' => $template->name,

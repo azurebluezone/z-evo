@@ -14,6 +14,9 @@
                 <a href="{{ route('admin.visitors.blocked') }}" class="btn btn-outline-danger waves-effect">
                     <i class="icon-base ri ri-shield-cross-line me-2"></i>Blocked Visitors
                 </a>
+                <a href="{{ route('admin.visitors.phone-blocks') }}" class="btn btn-outline-warning waves-effect">
+                    <i class="icon-base ri ri-shield-user-line me-2"></i>Phone Blocks
+                </a>
                 <a href="{{ route('admin.visitors.index') }}" class="btn btn-primary waves-effect">
                     <i class="icon-base ri ri-bar-chart-box-line me-2"></i>Analytics
                 </a>
@@ -72,7 +75,45 @@
                     </div>
                     <div class="col-sm-6 col-md-3">
                         <div class="form-floating form-floating-outline">
-                            <input type="text" name="user_agent" id="user_agent" class="form-control" value="{{ request()->get('user_agent') }}" placeholder="User Agent">
+                            <input type="text" name="division" id="division" class="form-control" value="{{ request()->get('division') }}" placeholder="Division">
+                            <label for="division">Division</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="district" id="district" class="form-control" value="{{ request()->get('district') }}" placeholder="District">
+                            <label for="district">District</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="device_type" id="device_type" class="form-control" value="{{ request()->get('device_type') }}" placeholder="Device Type">
+                            <label for="device_type">Device Type</label>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: browser fingerprint -->
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="browser" id="browser" class="form-control" value="{{ request()->get('browser') }}" placeholder="Browser">
+                            <label for="browser">Browser</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="os" id="os" class="form-control" value="{{ request()->get('os') }}" placeholder="Operating System">
+                            <label for="os">Operating System</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="channel" id="channel" class="form-control" value="{{ request()->get('channel') }}" placeholder="Channel">
+                            <label for="channel">Channel</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="user_agent" id="user_agent" class="form-control" value="{{ request()->get('user_agent', request()->get('agent')) }}" placeholder="User Agent">
                             <label for="user_agent">User Agent</label>
                         </div>
                     </div>
@@ -141,10 +182,12 @@
                         <x-admin.button variant="info" size="sm" ripple="true" type="button" id="visitorInfoBtn" data-bs-toggle="modal" data-bs-target="#visitorInfoModal">
                             <i class="icon-base ri ri-eye-line me-2"></i>Visitor Info
                         </x-admin.button>
-                        <x-admin.button variant="danger" size="sm" ripple="true" type="button" id="bulkBlockBtn">
+                        <x-admin.button variant="danger" size="sm" ripple="true" type="button" id="bulkBlockBtn"
+                            data-action="{{ route('admin.visitors.bulk-block') }}">
                             <i class="icon-base ri ri-shield-cross-line me-2"></i>Block
                         </x-admin.button>
-                        <x-admin.button variant="success" size="sm" ripple="true" type="button" id="bulkUnblockBtn">
+                        <x-admin.button variant="success" size="sm" ripple="true" type="button" id="bulkUnblockBtn"
+                            data-action="{{ route('admin.visitors.bulk-unblock') }}">
                             <i class="icon-base ri ri-shield-check-line me-2"></i>Unblock
                         </x-admin.button>
                     </div>
@@ -162,6 +205,8 @@
                             <th>IP Address</th>
                             <th>Location</th>
                             <th>ISP</th>
+                            <th>Device</th>
+                            <th>Channel</th>
                             <th>Status</th>
                             <th>Date</th>
                             <th>Action</th>
@@ -202,6 +247,22 @@
                                     @endif
                                 </td>
                                 <td>
+                                    @if($row->device_type)
+                                        <span class="badge bg-label-info">{{ $row->device_type }}</span>
+                                        <small class="text-muted d-block">{{ $row->os ?: '—' }}</small>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($row->channel)
+                                        <span class="badge bg-label-primary">{{ $row->channel }}</span>
+                                        <small class="text-muted d-block">{{ $row->browser ?: '—' }}</small>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
                                     @if((int) $row->status === 1)
                                         <span class="badge bg-label-success">Active</span>
                                     @else
@@ -217,7 +278,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-5">
+                                <td colspan="11" class="text-center py-5">
                                     <div class="text-center">
                                         <i class="icon-base ri ri-user-search-line icon-48px text-muted mb-3 d-block"></i>
                                         <h5 class="text-muted">No visitors found</h5>
@@ -271,136 +332,5 @@
 @endsection
 
 @section('script')
-<script>
-    (function () {
-        'use strict';
-
-        // Store visitor data for selected rows
-        const visitorData = {};
-        document.querySelectorAll('.row-check').forEach(cb => {
-            const row = cb.closest('tr');
-            if (row) {
-                const cells = row.querySelectorAll('td');
-                visitorData[cb.value] = {
-                    id: cb.value,
-                    visitorId: cells[2]?.textContent?.trim() || 'N/A',
-                    ip: cells[3]?.textContent?.trim() || 'N/A',
-                    location: cells[4]?.textContent?.trim() || 'N/A',
-                    isp: cells[5]?.textContent?.trim() || 'N/A',
-                    status: cells[6]?.textContent?.trim() || 'N/A',
-                    date: cells[7]?.textContent?.trim() || 'N/A'
-                };
-            }
-        });
-
-        // Update bulk action buttons state
-        function updateBulkButtons() {
-            const checked = document.querySelectorAll('.row-check:checked');
-            const checkedCount = checked.length;
-            const blockBtn = document.getElementById('bulkBlockBtn');
-            const unblockBtn = document.getElementById('bulkUnblockBtn');
-            const infoBtn = document.getElementById('visitorInfoBtn');
-
-            if (blockBtn) blockBtn.disabled = checkedCount < 1;
-            if (unblockBtn) unblockBtn.disabled = checkedCount < 1;
-            if (infoBtn) infoBtn.disabled = checkedCount !== 1; // Only enable when exactly 1 selected
-
-            // Update button text with count
-            if (checkedCount > 0) {
-                if (blockBtn) blockBtn.innerHTML = '<i class="icon-base ri ri-shield-cross-line me-2"></i>Block (' + checkedCount + ')';
-                if (unblockBtn) unblockBtn.innerHTML = '<i class="icon-base ri ri-shield-check-line me-2"></i>Unblock (' + checkedCount + ')';
-                if (infoBtn && checkedCount === 1) {
-                    const id = checked[0].value;
-                    const data = visitorData[id];
-                    if (data) {
-                        infoBtn.setAttribute('data-title', 'Visitor Info');
-                        infoBtn.setAttribute('data-value',
-                            'ID: ' + data.visitorId + '\n' +
-                            'IP: ' + data.ip + '\n' +
-                            'Location: ' + data.location + '\n' +
-                            'ISP: ' + data.isp + '\n' +
-                            'Status: ' + data.status + '\n' +
-                            'Date: ' + data.date
-                        );
-                    }
-                }
-            } else {
-                if (blockBtn) blockBtn.innerHTML = '<i class="icon-base ri ri-shield-cross-line me-2"></i>Block';
-                if (unblockBtn) unblockBtn.innerHTML = '<i class="icon-base ri ri-shield-check-line me-2"></i>Unblock';
-                if (infoBtn) {
-                    infoBtn.innerHTML = '<i class="icon-base ri ri-eye-line me-2"></i>Visitor Info';
-                    infoBtn.removeAttribute('data-value');
-                }
-            }
-        }
-
-        // Select All Checkbox
-        const selectAll = document.getElementById('selectAll');
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                document.querySelectorAll('.row-check').forEach(cb => {
-                    cb.checked = selectAll.checked;
-                });
-                updateBulkButtons();
-            });
-        }
-
-        // Individual Row Checkboxes
-        document.querySelectorAll('.row-check').forEach(cb => {
-            cb.addEventListener('change', function () {
-                const all = document.querySelectorAll('.row-check').length;
-                const checked = document.querySelectorAll('.row-check:checked').length;
-                const selectAll = document.getElementById('selectAll');
-
-                if (selectAll) {
-                    selectAll.checked = all > 0 && checked === all;
-                    selectAll.indeterminate = checked > 0 && checked < all;
-                }
-                updateBulkButtons();
-            });
-        });
-
-        // Bulk Block Button
-        const bulkForm = document.getElementById('bulkActionForm');
-        const bulkBlockBtn = document.getElementById('bulkBlockBtn');
-        const bulkUnblockBtn = document.getElementById('bulkUnblockBtn');
-
-        if (bulkForm && bulkBlockBtn) {
-            bulkBlockBtn.addEventListener('click', function () {
-                if (confirm('Are you sure you want to block selected visitors?')) {
-                    bulkForm.action = "{{ route('admin.visitors.bulk-block') }}";
-                    bulkForm.submit();
-                }
-            });
-        }
-
-        // Bulk Unblock Button
-        if (bulkForm && bulkUnblockBtn) {
-            bulkUnblockBtn.addEventListener('click', function () {
-                if (confirm('Are you sure you want to unblock selected visitors?')) {
-                    bulkForm.action = "{{ route('admin.visitors.bulk-unblock') }}";
-                    bulkForm.submit();
-                }
-            });
-        }
-
-        // Modal Data Handling
-        const modalEl = document.getElementById('visitorInfoModal');
-        if (modalEl) {
-            modalEl.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const title = button?.getAttribute('data-title') || 'Info';
-                const value = button?.getAttribute('data-value') || '';
-                const titleEl = document.getElementById('visitorInfoModalTitle');
-                const valueEl = document.getElementById('visitorInfoModalValue');
-
-                if (titleEl) titleEl.innerHTML = '<i class="icon-base ri ri-user-line me-2"></i>' + title;
-                if (valueEl) valueEl.textContent = value;
-            });
-        }
-
-        // Initialize
-        updateBulkButtons();
-    })();
-</script>
+<script src="{{ asset('admin/assets/js/admin-page-visitors.js') }}"></script>
 @endsection

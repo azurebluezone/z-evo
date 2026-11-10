@@ -144,6 +144,23 @@
             @include('frontend.fm.sections.checkout.progress')
             <!-- /FM:SECTION checkout-steps -->
 
+            @if($coLines === [])
+                {{--
+                    Mobile checkout collapses the order summary behind a
+                    "Show summary" toggle, so an empty cart used to look like a
+                    normal checkout form with a Tk 0 total. Say it plainly and
+                    do not invite an order the controller will reject.
+                --}}
+                <div class="fm-co__card fm-co__empty-state" data-fm-empty-cart>
+                    <i class="bi bi-basket2" aria-hidden="true"></i>
+                    <h1>Your cart is empty</h1>
+                    <p>Add a product before checking out. Your cart is saved on this device.</p>
+                    <div class="fm-co__actions">
+                        <a href="{{ route('products.page') }}" class="fm-co__btn fm-co__btn--primary">Start shopping</a>
+                        <a href="{{ route('cart.show') }}" class="fm-co__btn fm-co__btn--ghost">Back to cart</a>
+                    </div>
+                </div>
+            @else
             <div class="fm-co__grid">
 
                 {{-- ================= LEFT: recipient + payment ================= --}}
@@ -482,6 +499,7 @@
                     </div>
                 </aside>
             </div>
+            @endif
         </div>
     </section>
 @endsection

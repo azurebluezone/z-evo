@@ -12,7 +12,7 @@
 
 @extends('frontend.layouts.app')
 
-@section('title', 'Cookies and privacy')
+@section('title', $cookiePage->title)
 @section('meta_description', 'Which cookies this shop sets, what each one is for, and how to change your choice at any time.')
 
 @push('styles')
@@ -20,12 +20,14 @@
     .cookie-page { background: #f7f8fa; padding: 32px 0 48px; }
     .cookie-card { background: #fff; border: 1px solid #e6e8ec; border-radius: 14px; padding: 22px; margin-bottom: 18px; }
     .cookie-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .cookie-card--locked { border-left: 4px solid #0f766e; background: #f0fdfa; }
     .cookie-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
     .cookie-badge--on { background: #dcfce7; color: #166534; }
     .cookie-badge--off { background: #eef1f5; color: #475569; }
     .cookie-badge--fixed { background: #e0f2fe; color: #075985; }
     .cookie-table thead th { background: #f3f4f6; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #4b5563; }
     .cookie-table code { color: #0f766e; }
+    .cookie-muted { color: #6c757d !important; }
     .cookie-note { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 14px 16px; color: #78350f; }
 </style>
 @endpush
@@ -34,11 +36,21 @@
 <main class="cookie-page">
     <div class="container">
         <div class="cookie-card">
-            <h1 class="h3 mb-2">Cookies, in plain language</h1>
-            <p class="text-muted mb-0">
-                Necessary cookies keep the cart, the session and your login working. Everything else
-                is your call, and changing it takes one click.
-            </p>
+            <h1 class="h3 mb-2">{{ $cookiePage->title }}</h1>
+            @if(trim((string) $cookiePage->intro) !== '')
+                <p class="cookie-muted mb-0">{{ $cookiePage->intro }}</p>
+            @endif
+        </div>
+
+        @if(trim((string) $cookiePage->body) !== '')
+            <div class="cookie-card page-description">
+                {!! $cookiePage->body !!}
+            </div>
+        @endif
+
+        <div class="cookie-card cookie-card--locked" id="retention-notice">
+            <h2>Data retention <span class="cookie-badge cookie-badge--fixed">Locked</span></h2>
+            <p class="mb-0">{{ \App\Support\Consent::RETENTION_NOTICE }}</p>
         </div>
 
         <div class="cookie-card">
@@ -52,7 +64,7 @@
                         <span class="cookie-badge {{ $consent['marketing'] === 'granted' ? 'cookie-badge--on' : 'cookie-badge--off' }}">{{ $consent['marketing'] === 'granted' ? 'Allowed' : 'Not allowed' }}</span>
                     </p>
                     @unless($consent['decided'])
-                        <p class="text-muted mb-0 mt-2">You have not chosen yet, so both are off.</p>
+                        <p class="cookie-muted mb-0 mt-2">You have not chosen yet, so both are off.</p>
                     @endunless
                 </div>
                 <div class="col-md-5 text-md-right mt-3 mt-md-0">
@@ -73,19 +85,19 @@
             <div class="col-md-4">
                 <div class="cookie-card h-100">
                     <h2>Strictly necessary <span class="cookie-badge cookie-badge--fixed">Always on</span></h2>
-                    <p class="text-muted mb-0">Session, cart, CSRF protection and the anonymous visitor id our own reports use.</p>
+                    <p class="cookie-muted mb-0">Session, cart, CSRF protection and the anonymous visitor id our own reports use.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="cookie-card h-100">
                     <h2>Analytics <span class="cookie-badge {{ $consent['analytics'] === 'granted' ? 'cookie-badge--on' : 'cookie-badge--off' }}">{{ $consent['analytics'] === 'granted' ? 'On' : 'Off' }}</span></h2>
-                    <p class="text-muted mb-0">Forwards funnel steps to Google Analytics. Our first-party event log keeps working either way.</p>
+                    <p class="cookie-muted mb-0">Forwards funnel steps to Google Analytics. Our first-party event log keeps working either way.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="cookie-card h-100">
                     <h2>Marketing <span class="cookie-badge {{ $consent['marketing'] === 'granted' ? 'cookie-badge--on' : 'cookie-badge--off' }}">{{ $consent['marketing'] === 'granted' ? 'On' : 'Off' }}</span></h2>
-                    <p class="text-muted mb-0">Loads the Meta and TikTok pixels and allows matching conversion events. Off means no ad-platform request.</p>
+                    <p class="cookie-muted mb-0">Loads the Meta and TikTok pixels and allows matching conversion events. Off means no ad-platform request.</p>
                 </div>
             </div>
         </div>

@@ -22,6 +22,7 @@ use App\Models\SmsGateway;
 use App\Models\GeneralSetting;
 use App\Services\Analytics\EventRecorder;
 use App\Support\EventId;
+use App\Services\CampaignCartRevalidator;
 use App\Services\CourierFraudService;
 use App\Services\GuestCheckoutAccountService;
 use App\Services\FacebookTrackingService;
@@ -85,10 +86,10 @@ class CustomerController extends Controller
                 }
                 return redirect()->intended('customer/account');
             }
-            Toastr::error('message', 'Opps! your phone or password wrong');
+            Toastr::error('Your phone or password is wrong.');
             return redirect()->back();
         } else {
-            Toastr::error('message', 'Sorry! You have no account');
+            Toastr::error('No account found for this phone number.');
             return redirect()->back();
         }
     }
@@ -287,6 +288,7 @@ class CustomerController extends Controller
         $shippingcharge = ShippingCharge::where('status', 1)->get();
         $select_charge = ShippingCharge::where('status', 1)->first();
         $bkash_gateway = PaymentGateway::where(['status' => 1, 'type' => 'bkash'])->first();
+        $shurjopay_gateway = PaymentGateway::where(['status' => 1, 'type' => 'shurjopay'])->first();
         if ($select_charge) {
             Session::put('shipping', (float) $select_charge->amount);
             Session::put('shipping_area_id', (int) $select_charge->id);
@@ -335,7 +337,7 @@ class CustomerController extends Controller
         }
 
         //  return redirect()->back();
-        return view('frontend.layouts.customer.checkout', compact('shippingcharge', 'bkash_gateway'));
+        return view('frontend.layouts.customer.checkout', compact('shippingcharge', 'bkash_gateway', 'shurjopay_gateway'));
     }
     public function order_save(Request $request)
     {
@@ -354,9 +356,31 @@ class CustomerController extends Controller
             return redirect()->back();
         }
 
-        $subtotal = Cart::instance('shopping')->subtotal();
-        $subtotal = str_replace(',', '', $subtotal);
-        $subtotal = str_replace('.00', '', $subtotal);
+        /*
+         * Campaign lines can go stale while the cart waits in a session. The
+         * price was valid when the item was added; by now the campaign may have
+         * ended, been disabled, changed price, or lost its product. Reprice the
+         * cart from the live campaign state and stop this checkout so the
+         * customer sees the new total before anything is charged.
+         */
+        $changedCampaignLines = app(CampaignCartRevalidator::class)->revalidate();
+        if (!empty($changedCampaignLines)) {
+            Toastr::warning(
+                'An offer in your cart has changed, so the item price was refreshed. Review the new total and place the order again.',
+                'Cart updated'
+            );
+            return redirect()->route('customer.checkout');
+        }
+
+        // Price the order from the same server-side cart lines the checkout
+        // view showed. Cart::subtotal() is a formatted string; summing the
+        // lines avoids locale/format parsing and keeps the coupon base exact.
+        $cartItems = Cart::instance('shopping')->content();
+        $subtotal = 0.0;
+
+        foreach ($cartItems as $cart) {
+            $subtotal += ((float) $cart->price) * ((int) $cart->qty);
+        }
 
         $shipping_area  = ShippingCharge::where('id', $request->area)->first();
         if (!$shipping_area) {
@@ -383,9 +407,15 @@ class CustomerController extends Controller
             : null;
 
         if ($coupon && $coupon->isUsageAvailable()) {
-            $discount = (float) $coupon->calculateDiscount((float) $subtotal);
-        } else {
-            // Gone, expired, or the limit was reached between apply and order.
+            // Re-price against the real cart and the coupon's eligible lines.
+            // Apply-time and order-time must use the same base, otherwise a
+            // product-restricted coupon could discount the whole cart here.
+            $discount = (float) $coupon->calculateDiscountForItems($cartItems);
+        }
+
+        if (!$coupon || $discount <= 0) {
+            // Gone, expired, limit reached, or no eligible line in this cart.
+            $coupon = null;
             Session::forget('coupon_id');
             Session::forget('coupon_code');
             Session::forget('discount');
@@ -445,7 +475,7 @@ class CustomerController extends Controller
         // Coupon usage log: record the use against this order so the admin
         // coupon details page can count it. Only records when the coupon
         // survived the revalidation above (running + limit available).
-        if ($coupon) {
+        if ($coupon && $discount > 0) {
             \App\Models\CouponUsage::record($coupon, $order->id, $discount, 'checkout');
         }
         Session::forget('coupon_id');
@@ -486,7 +516,6 @@ class CustomerController extends Controller
         $payment->save();
 
         // order details data save + reserve inventory (180 min) until admin approve
-        $cartItems = Cart::instance('shopping')->content();
         DB::transaction(function () use ($cartItems, $order) {
             foreach ($cartItems as $cart) {
                 $order_details                  =   new OrderDetails();
@@ -495,18 +524,34 @@ class CustomerController extends Controller
                 $order_details->product_name    =   $cart->name;
                 $order_details->purchase_price  =   $cart->options->purchase_price;
                 $order_details->product_color   =   $cart->options->product_color;
+                // CartItemOptions has __get() but no __isset(), so empty() on a
+                // magic option is always true. data_get() goes through the
+                // Collection's ArrayAccess and sees the real value.
+                $variantOptionId = data_get($cart->options, 'variant_id');
                 $sizeValue = $cart->options->product_size;
-                if (empty($sizeValue) && !empty($cart->options->variant_id)) {
-                    $sizeValue = 'variant_id:' . (int) $cart->options->variant_id;
+                if (empty($sizeValue) && !empty($variantOptionId)) {
+                    $sizeValue = 'variant_id:' . (int) $variantOptionId;
                 }
                 $order_details->product_size    =   $sizeValue;
                 $order_details->sale_price      =   $cart->price;
+                $order_details->regular_price   =   $cart->options->regular_price ?? $cart->price;
+
+                $campaignOptionId = data_get($cart->options, 'campaign_id');
+                $campaignId = !empty($campaignOptionId) ? (int) $campaignOptionId : null;
+                if ($campaignId && !DB::table('campaigns')->where('id', $campaignId)->exists()) {
+                    // The campaign row may have been deleted after the cart was
+                    // filled. The sale price is already snapshotted, so keep the
+                    // money and drop only the dangling attribution.
+                    $campaignId = null;
+                }
+                $order_details->campaign_id = $campaignId;
+
                 $order_details->qty             =   $cart->qty;
 
                 // Patch-3: persist authoritative variant_id
                 $variantId = null;
-                if (!empty($cart->options->variant_id)) {
-                    $candidateId = (int) $cart->options->variant_id;
+                if (!empty($variantOptionId)) {
+                    $candidateId = (int) $variantOptionId;
                     $exists = DB::table('product_variants')
                         ->where('id', $candidateId)
                         ->where('product_id', (int) $cart->id)
@@ -540,8 +585,8 @@ class CustomerController extends Controller
                 }
 
                 $variantId = null;
-                if (!empty($cart->options->variant_id)) {
-                    $candidateId = (int) $cart->options->variant_id;
+                if (!empty($variantOptionId)) {
+                    $candidateId = (int) $variantOptionId;
                     $exists = DB::table('product_variants')
                         ->where('id', $candidateId)
                         ->where('product_id', $product->id)
@@ -600,7 +645,8 @@ class CustomerController extends Controller
         $userData = [
             'email' => $request->email ?? null,
             'phone' => $request->phone ?? null,
-            'first_name' => $request->name ?? null
+            'first_name' => $request->name ?? null,
+            'external_id' => $order->customer_id ?: $order->id,
         ];
 
         $productIds = [];
@@ -637,7 +683,7 @@ class CustomerController extends Controller
         try {
             $tiktok = app(TikTokTrackingService::class);
             if ($tiktok->isEnabled()) {
-                $tiktok->sendPurchaseEvent($orderData, $userData);
+                $tiktok->sendPurchaseEvent($orderData, $userData, $purchaseEventId);
             }
         } catch (\Throwable $e) {
             // no-op

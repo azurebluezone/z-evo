@@ -1,0 +1,49 @@
+/* Product create/edit: Attributes / Variants table.
+   Column min-widths moved here from the thead's inline styles; the (JS-built)
+   rows get compact inputs via .table-variants so six columns fit one screen. */
+
+.table-variants th {
+  white-space: nowrap;
+}
+
+.table-variants th:nth-child(1),
+.table-variants th:nth-child(5) {
+  min-width: 220px;
+}
+
+.table-variants th:nth-child(2),
+.table-variants th:nth-child(3),
+.table-variants th:nth-child(4),
+.table-variants th:nth-child(6) {
+  min-width: 140px;
+}
+
+/* Variant title cell: name + the hidden id/JSON carriers read better spaced */
+.table-variants td:first-child {
+  min-width: 220px;
+}
+
+.table-variants td:first-child .fw-semibold {
+  font-size: 0.85rem;
+}
+
+/* Compact, evenly-sized inputs keep the price/stock columns on one screen */
+.table-variants td .form-control {
+  min-width: 120px;
+  height: calc(1.8em + 0.5rem);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+/* File inputs: drop the icon-button noise the default form-control adds */
+.table-variants td input[type="file"] {
+  min-width: 190px;
+}
+
+/* Product edit: variant list summary table (sizes from the inline th styles) */
+.table-variant-list th:nth-child(1) { min-width: 90px; }
+.table-variant-list th:nth-child(2) { min-width: 160px; }
+.table-variant-list th:nth-child(3) { min-width: 260px; }
+.table-variant-list th:nth-child(4),
+.table-variant-list th:nth-child(5) { min-width: 120px; }
+.table-variant-list th { white-space: nowrap; }

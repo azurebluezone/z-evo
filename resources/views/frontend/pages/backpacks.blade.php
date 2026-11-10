@@ -70,7 +70,7 @@
                                     <div class="product-card" data-in-stock="{{ (isset($product) && method_exists($product, 'isInStock') && $product->isInStock()) ? 1 : 0 }}">
                                         <div class="product-thumb">
                                             <a href="{{ route('products.show', $product->slug) }}">
-                                                <img src="{{ asset('assets/images/default.png') }}" class="lazyload" data-src="{{ asset($product->thumbnail_image ?? 'assets/images/default.png') }}" alt="product">
+                                                <img src="{{ asset(\App\Support\MediaPath::fallbackPath()) }}" class="lazyload" data-src="{{ asset($product->thumbnail_image ?? \App\Support\MediaPath::fallbackPath()) }}" alt="product">
                                             </a>
                                         </div>
                                         <div class="product-content">

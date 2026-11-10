@@ -2,13 +2,13 @@
     $categoryCollections = (isset($homeCategoryCollections) && count($homeCategoryCollections) > 0) ? $homeCategoryCollections : collect();
 
     $generalsetting = $generalsetting ?? \App\Models\GeneralSetting::first();
-    $fallbackImage = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
+    $fallbackImage = \App\Support\MediaPath::fallbackPath();
     $fallbackRaw = (string) $fallbackImage;
     $fallbackIsUrl = preg_match('~^https?://~i', $fallbackRaw) === 1;
     $fallbackPath = $fallbackIsUrl ? $fallbackRaw : ltrim(preg_replace('~^public/~', '', $fallbackRaw), '/');
     $fallbackImage = !empty($fallbackPath)
         ? ($fallbackIsUrl ? $fallbackPath : $fallbackPath)
-        : 'assets/images/empty.png';
+        : \App\Support\MediaPath::fallbackUrl();
 
     if ($categoryCollections->isEmpty()) {
         $collectionsList = (isset($collections) && count($collections) > 0) ? $collections : collect();

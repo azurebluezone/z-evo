@@ -43,6 +43,11 @@ class DatabaseSeeder extends Seeder
             // with images stored under public/uploads/product/shinjuku/. Idempotent
             // by slug; images are referenced by relative path.
             ShinjukuProductsSeeder::class,
+
+            // Landing-page templates and two demo pages. Order matters:
+            // LandingPageSeeder resolves the Default template by view_name.
+            TemplateSeeder::class,
+            LandingPageSeeder::class,
         ]);
     }
 }

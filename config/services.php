@@ -41,4 +41,10 @@ return [
         'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
     ],
 
+    // Optional paid key for ip-api.com. Without it the resolver uses the free
+    // endpoint; with it the same provider is called over HTTPS with a quota.
+    'ip_api' => [
+        'key' => env('IP_API_KEY'),
+    ],
+
 ];

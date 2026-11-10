@@ -26,7 +26,7 @@
                         <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
                             <h5 class="mb-0 text-uppercase fw-bold">Edit User</h5>
                         </div>
-                        <div class="card-body mt-4">
+                        <div class="card-body">
                             <form action="{{ route('users.update') }}" method="POST" class="row g-4" data-parsley-validate="" enctype="multipart/form-data" id="usersForm">
                                 @csrf
                                 <input type="hidden" value="{{$edit_data->id}}" name="hidden_id">

@@ -24,7 +24,7 @@
         <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
           <h5 class="mb-0 text-uppercase fw-bold">Create New Category</h5>
         </div>
-        <div class="card-body mt-4">
+        <div class="card-body">
           <form action="{{ route('categories.store') }}" method="POST" class="row g-4" data-parsley-validate="" enctype="multipart/form-data" id="categoryForm">
             @csrf
 

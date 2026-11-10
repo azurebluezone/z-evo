@@ -1,0 +1,33 @@
+    @media print {
+        @page { margin: 12mm; }
+
+        html,
+        body { background: #fff !important; }
+
+        .layout-menu,
+        .layout-navbar,
+        .content-footer,
+        .layout-overlay,
+        .drag-target,
+        .no-print { display: none !important; }
+
+        .layout-wrapper,
+        .layout-container,
+        .layout-page,
+        .content-wrapper,
+        .container-xxl,
+        .container-p-y,
+        .row,
+        .col-12 {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: 0 !important;
+        }
+
+        .card { border: 0 !important; box-shadow: none !important; }
+        .card-body { padding: 0 !important; }
+        .table-responsive { overflow: visible !important; }
+        a[href]::after { content: none !important; }
+    }

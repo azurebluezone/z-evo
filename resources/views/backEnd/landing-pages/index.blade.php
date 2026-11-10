@@ -44,6 +44,9 @@
 <div class="card rounded-0">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3">
         <h5 class="mb-0 text-uppercase fw-bold">Landing Pages</h5>
+        <a href="{{ route('landing-pages.create') }}" class="btn btn-primary btn-square waves-effect">
+            <i class="ri ri-add-line me-1"></i> Create
+        </a>
     </div>
     <div class="card-body">
         @if(session('success'))
@@ -119,6 +122,9 @@
                     <div class="text-center py-5">
                         <h5 class="text-muted mb-1">No Landing Pages Found</h5>
                         <p class="text-muted mb-3">Create your first landing page to get started.</p>
+                        <a href="{{ route('landing-pages.create') }}" class="btn btn-primary btn-square waves-effect">
+                            <i class="ri ri-add-line me-1"></i> Create Landing Page
+                        </a>
                     </div>
                 @endif
     </div>

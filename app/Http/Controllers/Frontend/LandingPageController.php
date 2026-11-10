@@ -33,6 +33,6 @@ class LandingPageController extends Controller
             ->orderBy('sort_order', 'asc')
             ->get();
 
-        return view('frontEnd.landing-pages.index', compact('landingPages'));
+        return view('frontend.landing-pages.index', compact('landingPages'));
     }
 }

@@ -40,7 +40,7 @@
         .is-active on that button   the painted "saved" state
         <i> inside the wish button  fm-app.js swaps bi-heart / bi-heart-fill
 
-    "Order Now" deliberately does NOT carry data-add-to-cart: it posts to
+    "Buy Now" deliberately does NOT carry data-add-to-cart: it posts to
     route('cart.store.buy') (ShoppingController::cart_store_by_now), which puts
     the item in the cart and redirects to checkout. Intercepting it would turn
     a checkout jump into a silent in-page add.
@@ -144,10 +144,10 @@
                 <input type="hidden" name="id" value="{{ $product->id }}">
                 <input type="hidden" name="qty" value="1">
                 <button type="submit" class="fm-btn-order-primary"
-                        title="Buy now" aria-label="Buy {{ $name }} now"
+                        title="Buy Now" aria-label="Buy {{ $name }} now"
                         {{ $inStock ? '' : 'disabled' }}>
                     <i class="bi bi-lightning-charge-fill"></i>
-                    <span>Order Now</span>
+                    <span>Buy Now</span>
                 </button>
             </form>
         </div>

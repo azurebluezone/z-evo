@@ -3,6 +3,7 @@
 namespace App\Services\Analytics;
 
 use App\Models\IpGeoCache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Stevebauman\Location\Facades\Location;
 
@@ -11,41 +12,36 @@ use Stevebauman\Location\Facades\Location;
  *
  * Resolution order:
  *   1. private/reserved IP  -> short-circuit, never leave the box
- *   2. ip_geo_cache table   -> one lookup per IP, forever
- *   3. stevebauman/location (MaxMind + configured fallbacks)
- *   4. persist the answer (including negative answers) back into the cache
+ *   2. ip_geo_cache table   -> one successful lookup per IP
+ *   3. stevebauman/location (MaxMind + its configured fallbacks)
+ *   4. free HTTP providers  -> ipwho.is, ipapi.co, ip-api.com
+ *   5. persist the answer back into the cache
  *
- * Negative results are cached too, otherwise every request from an IP the
- * providers cannot resolve re-hits the network — which is exactly the case that
- * makes an admin panel feel slow.
+ * Negative answers are cached for six hours, not forever. The old code cached
+ * them permanently, so one transient provider failure meant an IP could never
+ * be resolved again. A short negative TTL keeps the providers from being hit on
+ * every pageview while still allowing a retry after an outage.
  */
 class GeoIpResolver
 {
+    /** How long a failed lookup is trusted before the providers are retried. */
+    private const NEGATIVE_TTL_HOURS = 6;
+
+    private const TIMEOUT_SECONDS = 4;
+
     /**
      * Resolve an IP into a normalised geo payload.
      *
      * @return array{country:?string, city:?string, division:?string, district:?string,
      *               isp:?string, latitude:?string, longitude:?string, timezone:?string,
-     *               cached:bool}
+     *               status:string, driver:?string, cached:bool}
      */
     public function resolve(?string $ip): array
     {
-        $empty = [
-            'country' => null,
-            'city' => null,
-            'division' => null,
-            'district' => null,
-            'isp' => null,
-            'latitude' => null,
-            'longitude' => null,
-            'timezone' => null,
-            'cached' => false,
-        ];
-
-        $ip = is_string($ip) ? trim($ip) : '';
+        $ip = is_string($ip) ? trim(explode(',', $ip)[0]) : '';
 
         if ($ip === '' || $this->isLocalAddress($ip)) {
-            return $empty;
+            return $this->emptyPayload();
         }
 
         $cached = $this->readCache($ip);
@@ -53,68 +49,181 @@ class GeoIpResolver
             return $cached;
         }
 
-        try {
-            $position = Location::get($ip);
-        } catch (\Throwable $e) {
-            Log::warning('Geo-IP lookup failed', ['ip' => $ip, 'error' => $e->getMessage()]);
+        $payload = $this->fromLocationPackage($ip) ?? $this->fromFreeApis($ip);
 
-            $this->writeCache($ip, [
-                'country' => null,
-                'city' => null,
-                'division' => null,
-                'district' => null,
-                'isp' => null,
-                'latitude' => null,
-                'longitude' => null,
-                'timezone' => null,
-                'status' => 'error',
-            ]);
-
-            return $empty;
+        if ($payload === null) {
+            $this->writeCache($ip, array_merge($this->emptyPayload(), ['status' => 'error']));
+            return $this->emptyPayload();
         }
-
-        if (!$position) {
-            $this->writeCache($ip, [
-                'country' => null,
-                'city' => null,
-                'division' => null,
-                'district' => null,
-                'isp' => null,
-                'latitude' => null,
-                'longitude' => null,
-                'timezone' => null,
-                'status' => 'null',
-            ]);
-
-            return $empty;
-        }
-
-        $country = $position->countryName ?? $position->country ?? null;
-        $city = $position->cityName ?? $position->city ?? null;
-        $district = $position->districtName ?? $position->district ?? null;
-        $isp = $position->isp ?? $position->org ?? $position->organization ?? null;
-
-        $payload = [
-            'country' => $country,
-            'city' => $city,
-            'division' => BangladeshGeo::divisionFor($district) ?? BangladeshGeo::divisionFor($city),
-            'district' => $district,
-            'isp' => BangladeshGeo::canonicalIsp($isp),
-            'latitude' => $position->latitude ?? null,
-            'longitude' => $position->longitude ?? null,
-            'timezone' => $position->timezone ?? null,
-            'status' => 'ok',
-        ];
 
         $this->writeCache($ip, $payload);
 
-        $payload['cached'] = false;
-
-        return $payload;
+        return $payload + ['cached' => false];
     }
 
     /**
-     * Read a previously cached resolution, or null when not cached.
+     * The configured package: MaxMind first, then its own fallback list.
+     */
+    private function fromLocationPackage(string $ip): ?array
+    {
+        try {
+            $position = Location::get($ip);
+        } catch (\Throwable $e) {
+            Log::info('Geo-IP package lookup failed', ['ip' => $ip, 'error' => $e->getMessage()]);
+            return null;
+        }
+
+        if (!$position) {
+            return null;
+        }
+
+        $payload = $this->payload([
+            'country' => $position->countryName ?? $position->country ?? null,
+            'city' => $position->cityName ?? $position->city ?? null,
+            'district' => $position->regionName ?? $position->region ?? null,
+            'isp' => $position->isp ?? $position->org ?? $position->organization ?? null,
+            'latitude' => $position->latitude ?? null,
+            'longitude' => $position->longitude ?? null,
+            'timezone' => $position->timezone ?? null,
+        ], 'stevebauman/location');
+
+        return $payload['country'] || $payload['city'] || $payload['latitude'] ? $payload : null;
+    }
+
+    /**
+     * No API key required. `IP_API_KEY` upgrades the last provider to the
+     * pro endpoint behind members.ip-api.com; the free endpoint is the default.
+     */
+    private function fromFreeApis(string $ip): ?array
+    {
+        $errors = [];
+
+        foreach ($this->providerUrls($ip) as $driver => $url) {
+            try {
+                $response = Http::acceptJson()
+                    ->timeout(self::TIMEOUT_SECONDS)
+                    ->connectTimeout(2)
+                    ->get($url);
+
+                if (!$response->successful()) {
+                    $errors[$driver] = 'HTTP ' . $response->status();
+                    continue;
+                }
+
+                $payload = $this->payloadFromProvider($driver, (array) $response->json());
+
+                if ($payload !== null && ($payload['country'] || $payload['city'] || $payload['latitude'])) {
+                    return $payload;
+                }
+
+                $errors[$driver] = 'no usable geo fields';
+            } catch (\Throwable $e) {
+                $errors[$driver] = $e->getMessage();
+            }
+        }
+
+        if ($errors !== []) {
+            Log::info('Geo-IP providers returned nothing', ['ip' => $ip, 'errors' => $errors]);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function providerUrls(string $ip): array
+    {
+        $key = (string) config('services.ip_api.key', '');
+
+        return [
+            'ipwho.is' => 'https://ipwho.is/' . $ip,
+            'ipapi.co' => 'https://ipapi.co/' . $ip . '/json/',
+            'ip-api.com' => $key !== ''
+                ? 'https://pro.ip-api.com/json/' . $ip . '?key=' . rawurlencode($key)
+                    . '&fields=status,country,regionName,city,lat,lon,timezone,isp,org'
+                : 'http://ip-api.com/json/' . $ip
+                    . '?fields=status,country,regionName,city,lat,lon,timezone,isp,org',
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $json
+     */
+    private function payloadFromProvider(string $driver, array $json): ?array
+    {
+        if (($json['success'] ?? null) === false || ($json['error'] ?? false) === true) {
+            return null;
+        }
+
+        return match ($driver) {
+            'ipwho.is' => $this->payload([
+                'country' => $json['country'] ?? null,
+                'city' => $json['city'] ?? null,
+                'district' => $json['region'] ?? null,
+                'isp' => $json['connection']['isp'] ?? $json['connection']['org'] ?? null,
+                'latitude' => $json['latitude'] ?? null,
+                'longitude' => $json['longitude'] ?? null,
+                'timezone' => $json['timezone']['id'] ?? null,
+            ], $driver),
+
+            'ipapi.co' => $this->payload([
+                'country' => $json['country_name'] ?? null,
+                'city' => $json['city'] ?? null,
+                'district' => $json['region'] ?? null,
+                'isp' => $json['org'] ?? null,
+                'latitude' => $json['latitude'] ?? null,
+                'longitude' => $json['longitude'] ?? null,
+                'timezone' => $json['timezone'] ?? null,
+            ], $driver),
+
+            'ip-api.com' => ($json['status'] ?? null) === 'success'
+                ? $this->payload([
+                    'country' => $json['country'] ?? null,
+                    'city' => $json['city'] ?? null,
+                    'district' => $json['regionName'] ?? null,
+                    'isp' => $json['isp'] ?? $json['org'] ?? null,
+                    'latitude' => $json['lat'] ?? null,
+                    'longitude' => $json['lon'] ?? null,
+                    'timezone' => $json['timezone'] ?? null,
+                ], $driver)
+                : null,
+
+            default => null,
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function payload(array $data, string $driver): array
+    {
+        $country = $this->text($data['country'] ?? null);
+        $city = $this->text($data['city'] ?? null);
+        $district = $this->text($data['district'] ?? null);
+        $isp = $this->text($data['isp'] ?? null);
+        $latitude = $this->coordinate($data['latitude'] ?? null);
+        $longitude = $this->coordinate($data['longitude'] ?? null);
+
+        return [
+            'country' => $country,
+            'city' => $city,
+            'division' => BangladeshGeo::divisionFor($district)
+                ?? BangladeshGeo::divisionFor($city),
+            'district' => $district,
+            'isp' => BangladeshGeo::canonicalIsp($isp),
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'timezone' => $this->text($data['timezone'] ?? null),
+            'status' => 'ok',
+            'driver' => $driver,
+            'cached' => false,
+        ];
+    }
+
+    /**
+     * Read a usable cached answer, or null when the cache should be retried.
      *
      * @return array<string, mixed>|null
      */
@@ -131,6 +240,18 @@ class GeoIpResolver
             return null;
         }
 
+        $status = (string) ($row->lookup_status ?? 'ok');
+        $lookedUpAt = $row->last_lookup_at;
+
+        if ($status !== 'ok') {
+            $fresh = $lookedUpAt !== null
+                && $lookedUpAt->greaterThan(now()->subHours(self::NEGATIVE_TTL_HOURS));
+
+            if (!$fresh) {
+                return null;
+            }
+        }
+
         return [
             'country' => $row->country,
             'city' => $row->city,
@@ -140,6 +261,8 @@ class GeoIpResolver
             'latitude' => $row->latitude,
             'longitude' => $row->longitude,
             'timezone' => $row->timezone,
+            'status' => $status,
+            'driver' => $row->driver,
             'cached' => true,
         ];
     }
@@ -164,7 +287,7 @@ class GeoIpResolver
                     'longitude' => $payload['longitude'] ?? null,
                     'timezone' => $payload['timezone'] ?? null,
                     'lookup_status' => $payload['status'] ?? 'ok',
-                    'driver' => 'location',
+                    'driver' => $payload['driver'] ?? null,
                     'last_lookup_at' => now(),
                 ]
             );
@@ -174,25 +297,54 @@ class GeoIpResolver
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    private function emptyPayload(): array
+    {
+        return [
+            'country' => null,
+            'city' => null,
+            'division' => null,
+            'district' => null,
+            'isp' => null,
+            'latitude' => null,
+            'longitude' => null,
+            'timezone' => null,
+            'status' => 'null',
+            'driver' => null,
+            'cached' => false,
+        ];
+    }
+
+    private function text($value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function coordinate($value): ?string
+    {
+        if (!is_numeric($value)) {
+            return null;
+        }
+
+        return (string) $value;
+    }
+
+    /**
      * Loopback, private and reserved ranges never have public geo data.
      */
     private function isLocalAddress(string $ip): bool
     {
-        $raw = $ip;
-
-        if (str_contains($raw, ',')) {
-            // TrustProxies may hand us "client, proxy1, proxy2" — take the first.
-            $raw = trim(explode(',', $raw)[0]);
-        }
-
-        if ($raw === '') {
+        if ($ip === '') {
             return true;
         }
 
-        if (filter_var($raw, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-            return true;
-        }
-
-        return false;
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false;
     }
 }

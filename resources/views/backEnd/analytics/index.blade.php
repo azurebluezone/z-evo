@@ -106,10 +106,7 @@
 
 {{-- Keeps the custom date inputs in the URL when the Custom preset is active. --}}
 @if($preset === 'custom')
-    <script>
-        document.getElementById('custom-from-wrap').classList.remove('d-none');
-        document.getElementById('custom-to-wrap').classList.remove('d-none');
-    </script>
+    <script src="{{ asset('admin/assets/js/admin-page-analytics-index.js') }}"></script>
 @endif
 
 <!-- ═══════════════ 2. EXECUTIVE KPI CARDS ═══════════════ -->
@@ -649,64 +646,7 @@
     </div>
 </div>
 
-<style>
-    /* Bangladesh division heat grid — approximate relative geography, not boundaries. */
-    .bd-heat-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: .4rem;
-        max-width: 520px;
-    }
-    .bd-tile {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 62px;
-        padding: .35rem;
-        border-radius: .375rem;
-        text-decoration: none;
-        color: inherit;
-        background: rgba(59, 130, 246, var(--heat, .05));
-        border: 1px solid rgba(59, 130, 246, calc(var(--heat, .05) * .6));
-        transition: transform .12s ease, box-shadow .12s ease;
-    }
-    .bd-tile:hover { transform: translateY(-2px); box-shadow: 0 .25rem .75rem rgba(0,0,0,.12); }
-    /* Approximate real-world placement on a 4x4 grid. */
-    .bd-ra { grid-column: 1; grid-row: 1; }  /* Rajshahi      */
-    .bd-my { grid-column: 2; grid-row: 1; }  /* Mymensingh    */
-    .bd-sy { grid-column: 3; grid-row: 1; }  /* Sylhet        */
-    .bd-ch { grid-column: 4; grid-row: 2; }  /* Chattogram    */
-    .bd-dh { grid-column: 2; grid-row: 2; }  /* Dhaka         */
-    .bd-ri { grid-column: 1; grid-row: 3; }  /* Rangpur       */
-    .bd-kh { grid-column: 2; grid-row: 3; }  /* Khulna        */
-    .bd-ba { grid-column: 3; grid-row: 3; }  /* Barishal      */
-    .bd-tile-name { font-size: .7rem; font-weight: 600; text-align: center; line-height: 1.1; }
-    .bd-tile-val  { font-size: .9rem; font-weight: 700; }
-    .bd-tile-pct  { font-size: .65rem; opacity: .75; }
-
-    /* Journey flow — dependency-free layered flow, no charting library needed. */
-    .journey-columns {
-        display: flex;
-        align-items: center;
-        gap: .25rem;
-        overflow-x: auto;
-        padding-bottom: .35rem;
-    }
-    .journey-column { display: flex; flex-direction: column; gap: .3rem; flex: 0 0 auto; min-width: 92px; }
-    .journey-arrow { color: var(--bs-secondary-color, #adb5bd); flex: 0 0 auto; }
-    .journey-node {
-        display: flex; flex-direction: column; gap: 2px;
-        padding: .3rem .45rem;
-        border-radius: .3rem;
-        background: var(--bs-tertiary-bg, #f6f7f9);
-        border-left: 3px solid var(--bs-primary, #3b82f6);
-        white-space: nowrap;
-    }
-    .journey-node-name { font-size: .7rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
-    .journey-node-val  { font-size: .65rem; opacity: .7; }
-</style>
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-analytics-index.css') }}">
 
 @php
     // @json() is compiled by a regex that stops at the first newline, so a
@@ -718,17 +658,18 @@
         ['label' => 'Server CAPI',   'value' => (int) $attribution['server']],
     ];
 @endphp
-<script>
-    window.__ANALYTICS__ = {
-        trend:      @json($trend),
-        channels:   @json($attribution['channels']),
-        method:     @json($analyticsMethodSplit),
-        palette:    @json($channelPalette),
-        liveUrl:    @json(route('admin.analytics.live') . '?' . http_build_query($query)),
-        visitorBase:@json(url('admin/analytics/visitor')),
-        interval:   20000
-    };
-</script>
+{{-- Page numbers ride in as one JSON data attribute; the JS that reads it
+     lives in public/admin/assets/js/admin-analytics-index.js. --}}
+<div class="d-none" data-analytics-config="{{ json_encode([
+    'trend'       => $trend,
+    'channels'    => $attribution['channels'],
+    'method'      => $analyticsMethodSplit,
+    'palette'     => $channelPalette,
+    'liveUrl'     => route('admin.analytics.live') . '?' . http_build_query($query),
+    'visitorBase' => url('admin/analytics/visitor'),
+    'interval'    => 20000,
+]) }}"></div>
+<script src="{{ asset('admin/assets/js/admin-analytics-index.js') }}"></script>
 
 @include('backEnd.analytics.partials.scripts')
 

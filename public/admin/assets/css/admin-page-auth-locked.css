@@ -1,0 +1,8 @@
+        body.authentication-bg {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background-color: var(--bs-body-bg, #f8f9fa);
+        }
+        .auth-card { max-width: 420px; margin-inline: auto; }
+    

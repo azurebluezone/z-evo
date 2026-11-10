@@ -257,76 +257,13 @@
 
 @section('script')
 {{--
-    The old <script type="module" src=".../admin/build/apexcharts-DQTXqG1-.js">
+    The old module script (Vite chunk index apexcharts-DQTXqG1-.js)
     pointed at a Vite build chunk that is not in this repository (there is no
     public/admin/build directory), so it 404'd on every load. ApexCharts is
     already loaded by the layout's scripts partial
     (admin/assets/vendor/libs/apex-charts/apexcharts.js).
 --}}
-<script>
-(function() {
-    if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.DataTable === 'function') {
-        window.jQuery(function() {
-            window.jQuery('#platform-logs-table').DataTable({
-                pageLength: 25,
-                order: [[0, 'desc']]
-            });
-        });
-    }
-})();
-</script>
+<script src="{{ asset('admin/assets/js/admin-page-social-events.js') }}"></script>
 
-<script>
-(function() {
-    var labels = @json($timelineLabels ?? []);
-    var series = @json($timelineSeries ?? []);
-
-    if (typeof window.ApexCharts === 'function') {
-        var el = document.querySelector('#events-timeline');
-        if (el) {
-            var options = {
-                chart: {
-                    type: 'area',
-                    height: 260,
-                    toolbar: { show: false }
-                },
-                series: [{
-                    name: 'Events',
-                    data: series
-                }],
-                xaxis: {
-                    categories: labels
-                },
-                dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 2 },
-                fill: { type: 'gradient' }
-            };
-
-            try {
-                (new ApexCharts(el, options)).render();
-            } catch (e) {
-                // ignore
-            }
-        }
-    }
-
-    document.addEventListener('click', function(e) {
-        var btn = e.target.closest('.view-url');
-        if (!btn) return;
-        e.preventDefault();
-        var url = btn.getAttribute('data-url') || '';
-        if (!url) return;
-        if (window.Swal && window.Swal.fire) {
-            window.Swal.fire({
-                title: 'URL',
-                text: url,
-                icon: 'info',
-                confirmButtonText: 'OK'
-            });
-        } else {
-            alert(url);
-        }
-    });
-})();
-</script>
+<div class="d-none" data-social-timeline="{{ json_encode(['labels' => $timelineLabels ?? [], 'series' => $timelineSeries ?? []]) }}"></div>
 @endsection

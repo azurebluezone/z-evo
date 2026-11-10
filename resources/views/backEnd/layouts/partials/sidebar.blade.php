@@ -75,7 +75,11 @@
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-shopping-cart-line"></i>
                 <div>Order</div>
-                <div class="badge badge-center text-bg-danger rounded-pill ms-auto">{{ $neworder ?? 0 }}</div>
+                {{-- A red zero reads as an alert. Only a real pending order
+                     deserves the badge; with none, the row stays quiet. --}}
+                @if(($neworder ?? 0) > 0)
+                    <div class="badge badge-center text-bg-danger rounded-pill ms-auto">{{ $neworder }}</div>
+                @endif
             </a>
             <ul class="menu-sub">
                 <li class="menu-item {{ request()->routeIs('admin.invoices.index') ? 'active' : '' }}">
@@ -216,6 +220,11 @@
                         <div>Create Page</div>
                     </a>
                 </li>
+                <li class="menu-item {{ request()->routeIs('cookie-page.*') ? 'active' : '' }}">
+                    <a href="{{ route('cookie-page.edit') }}" class="menu-link">
+                        <div>Cookie Page</div>
+                    </a>
+                </li>
             </ul>
         </li>
 
@@ -344,6 +353,11 @@
                 <li class="menu-item {{ request()->routeIs('admin.visitors.blocked') ? 'active' : '' }}">
                     <a href="{{ route('admin.visitors.blocked') }}" class="menu-link">
                         <div>Blocked Visitors</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.visitors.phone-blocks*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.visitors.phone-blocks') }}" class="menu-link">
+                        <div>Phone Blocks</div>
                     </a>
                 </li>
             </ul>
@@ -521,7 +535,7 @@
         @php
             $pending_reviews = \App\Models\Review::where('status', 'pending')->count();
         @endphp
-        <li class="menu-item {{ request()->is('admin/reviews*') ? 'active open' : '' }}">
+        <li class="menu-item {{ request()->routeIs('reviews.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-star-line"></i>
                 <div>Reviews</div>

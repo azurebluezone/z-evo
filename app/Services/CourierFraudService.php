@@ -7,11 +7,24 @@ use App\Models\CourierShipment;
 use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class CourierFraudService
 {
+    /**
+     * Pathao's merchant portal is a different host from the courier API.
+     *
+     * Courier bookings go to api-hermes.pathao.com; the delivery-history lookup
+     * lives on the merchant portal and authenticates with the merchant's own
+     * username/password, not the courier client credentials.
+     */
+    private const PATHAO_MERCHANT_BASE = 'https://merchant.pathao.com';
+
+    /** Pathao tokens are short lived; refresh before they expire mid-checkout. */
+    private const PATHAO_TOKEN_TTL_MINUTES = 50;
+
     /**
      * Check phone number fraud score using courier history and SteadFast API
      */
@@ -178,7 +191,41 @@ class CourierFraudService
         $order->risk_score_percent = $check->success_rate_percent;
         $order->risk_last_checked_at = $check->checked_at;
         $order->risk_source = $source;
+        $order->risk_provider = $this->providerLabel($check);
         $order->save();
+    }
+
+    /**
+     * Human label for the source that produced the score.
+     *
+     * A combined check stores `courier_apis` and keeps the individual answers
+     * under raw_payload.api_data. The order row must show those names, because
+     * "Pathao" and "our own shipments" are not the same evidence.
+     */
+    private function providerLabel(CourierFraudCheck $check): string
+    {
+        $payload = $check->raw_payload;
+
+        if (is_array($payload)) {
+            $apiData = $payload['api_data'] ?? null;
+
+            if (is_array($apiData) && $apiData !== []) {
+                return implode(' + ', array_map(
+                    static fn (string $key): string => $key === 'steadfast' ? 'SteadFast' : ucfirst($key),
+                    array_keys($apiData)
+                ));
+            }
+
+            if (($payload['calculation_method'] ?? '') === 'courier_history_based') {
+                return 'Local history';
+            }
+        }
+
+        return match ((string) $check->provider) {
+            'internal', 'internal_history' => 'Local history',
+            'courier_apis' => 'Courier API',
+            default => ucfirst((string) $check->provider),
+        };
     }
 
     /**
@@ -273,6 +320,9 @@ class CourierFraudService
                 'success_rate_percent' => $successRate,
                 'calculation_method' => 'courier_apis',
                 'api_data' => $apiData,
+                // The order row reads this list to say "Pathao" / "SteadFast"
+                // instead of the opaque storage value `courier_apis`.
+                'providers' => array_keys($apiData),
             ],
             'checked_at' => Carbon::now(),
             'checked_by' => Auth::check() ? (int) Auth::id() : null,
@@ -442,7 +492,19 @@ class CourierFraudService
     }
 
     /**
-     * Check phone from Pathao API
+     * Ask Pathao's merchant portal for this phone number's delivery record.
+     *
+     * POST /api/v1/login        {username, password}  -> access_token
+     * POST /api/v1/user/success {phone}               -> data.customer
+     *
+     * The response carries `successful_delivery` and `total_delivery`; the
+     * cancelled count is the difference. That is a cross-merchant signal: it
+     * knows about a buyer who never ordered from this shop, which the local
+     * `courier_shipments` table cannot.
+     *
+     * Failure policy: every error returns null and the caller falls back to
+     * local history. A checkout must never be blocked because Pathao is down,
+     * rate limiting, or holding an unconfirmed merchant account.
      */
     private function checkFromPathaoAPI(string $phone): ?array
     {
@@ -451,38 +513,133 @@ class CourierFraudService
                 ->where('status', 1)
                 ->first();
 
-            if (!$config || !$config->token) {
+            // The merchant portal needs the merchant login. The courier
+            // client_id/client_secret pair is for booking parcels and cannot
+            // authenticate this endpoint.
+            if (! $config || ! filled($config->username) || ! filled($config->password)) {
                 return null;
             }
 
-            // Pathao doesn't have a direct phone search API either
-            // Search from local shipments
-            $shipments = CourierShipment::where('provider', 'pathao')
-                ->whereHas('order.shipping', function ($q) use ($phone) {
-                    $q->where('phone', 'like', '%' . $phone . '%')
-                      ->orWhere('phone', 'like', '%' . substr($phone, -10) . '%');
-                })
-                ->get();
+            $token = $this->pathaoMerchantToken($config);
 
-            if ($shipments->isEmpty()) {
+            if ($token === null) {
                 return null;
             }
 
-            $delivered = $shipments->filter(fn ($s) => $this->isDeliveredStatus($s->current_status))->count();
-            $cancelled = $shipments->filter(fn ($s) => $this->isCancelledStatus($s->current_status))->count();
-            $pending = $shipments->count() - $delivered - $cancelled;
+            $response = $this->pathaoSuccessRequest($phone, $token);
+
+            // A cached token can be revoked before its TTL. Refresh once and
+            // retry rather than scoring the customer as "unknown" all day.
+            if ($response->status() === 401) {
+                $token = $this->pathaoMerchantToken($config, true);
+
+                if ($token === null) {
+                    return null;
+                }
+
+                $response = $this->pathaoSuccessRequest($phone, $token);
+            }
+
+            if (! $response->successful()) {
+                Log::info('Pathao fraud score unavailable', [
+                    'status' => $response->status(),
+                    'phone' => $phone,
+                ]);
+
+                return null;
+            }
+
+            $successful = (int) $response->json('data.customer.successful_delivery', 0);
+            $total = (int) $response->json('data.customer.total_delivery', 0);
+
+            // Zeros mean Pathao has no record. Returning a score of 0/0 would
+            // be a fabricated "0% success"; let the local history answer.
+            if ($total <= 0 && $successful <= 0) {
+                return null;
+            }
+
+            $successful = max(0, min($successful, $total));
+            $cancelled = max(0, $total - $successful);
 
             return [
                 'provider' => 'pathao',
-                'total' => $shipments->count(),
-                'delivered' => $delivered,
+                'total' => $total,
+                'delivered' => $successful,
                 'cancelled' => $cancelled,
-                'pending' => $pending,
+                'pending' => 0,
+                'source' => 'merchant_api',
+                'score_payload' => $response->json(),
             ];
-        } catch (\Exception $e) {
-            Log::error('Pathao API check failed', ['error' => $e->getMessage(), 'phone' => $phone]);
+        } catch (\Throwable $e) {
+            Log::error('Pathao API check failed', [
+                'error' => $e->getMessage(),
+                'phone' => $phone,
+            ]);
+
             return null;
         }
+    }
+
+    /**
+     * Cached merchant token. One login per 50 minutes instead of one per
+     * checkout, and a forced refresh on a 401.
+     */
+    private function pathaoMerchantToken(\App\Models\Courierapi $config, bool $force = false): ?string
+    {
+        $cacheKey = 'courier.pathao.merchant_token.' . $config->id;
+
+        if (! $force) {
+            $cached = Cache::get($cacheKey);
+
+            if (is_string($cached) && $cached !== '') {
+                return $cached;
+            }
+        }
+
+        $response = Http::acceptJson()
+            ->asJson()
+            ->connectTimeout(5)
+            ->timeout(10)
+            ->post(self::PATHAO_MERCHANT_BASE . '/api/v1/login', [
+                'username' => (string) $config->username,
+                'password' => (string) $config->password,
+            ]);
+
+        if (! $response->successful()) {
+            Log::info('Pathao merchant login unavailable', [
+                'status' => $response->status(),
+            ]);
+
+            return null;
+        }
+
+        $token = $response->json('access_token')
+            ?? $response->json('data.access_token');
+
+        if (! is_string($token) || trim($token) === '') {
+            Log::warning('Pathao merchant login returned no access token');
+
+            return null;
+        }
+
+        $token = trim($token);
+
+        Cache::put($cacheKey, $token, now()->addMinutes(self::PATHAO_TOKEN_TTL_MINUTES));
+
+        return $token;
+    }
+
+    /** The one place that knows the phone lookup request shape. */
+    private function pathaoSuccessRequest(string $phone, string $token)
+    {
+        return Http::withToken($token)
+            ->acceptJson()
+            ->asJson()
+            ->connectTimeout(5)
+            ->timeout(10)
+            ->post(self::PATHAO_MERCHANT_BASE . '/api/v1/user/success', [
+                'phone' => $phone,
+            ]);
     }
 
     public function checkAndAttachToOrder(Order $order, string $phone, ?string $provider = null, string $source = 'checkout', int $cacheMinutes = 720): ?CourierFraudCheck

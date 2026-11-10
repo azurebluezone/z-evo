@@ -5,9 +5,18 @@
 {{--
     Stock Report (Product Report)
 
-    Same component set as the Order Report - a KPI widget card, a filter
-    card and a datatable card - because the two screens show the same kind
-    of thing: a filtered list of products with a summary on top.
+    Same component set as the Order Report - a page title, a filter card and
+    a datatable card with a totals strip under the table - because the two
+    screens show the same kind of thing: a filtered list of products with a
+    summary beside the table they describe. The money cards used to sit as a
+    second KPI band above the table; the layout already draws the shared
+    stat-grid header on every page, so this page draws its numbers once,
+    under the table (same treatment as the Order Report).
+
+    Also moved here:
+      - the print stylesheet   -> public/admin/assets/css/admin-report.css
+      - the print/export script-> public/admin/assets/js/admin-report-table.js
+    (the blade keeps the @push with a <link>/<script src>, no inline blocks)
 
     Fixed from the previous version:
       - the extra </div> that pushed the layout footer out of .content-wrapper
@@ -19,79 +28,10 @@
         recomputed per page, so the two numbers disagreed
 --}}
 
-{{-- ============================ KPI WIDGET ============================ --}}
-<div class="row g-3 mb-4">
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card rounded-0 h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1">Total Stock</p>
-                        <h4 class="mb-0">{{ number_format((float)($total_stock ?? 0)) }} <small class="fs-6 text-muted">Pcs</small></h4>
-                        <small class="text-muted">Units in the catalogue</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded-3 bg-label-primary">
-                            <i class="icon-base ri ri-box-3-line icon-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card rounded-0 h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1">Stock Value</p>
-                        <h4 class="mb-0">{{ number_format((float)($total_price ?? 0), 2) }}</h4>
-                        <small class="text-muted">Stock x sale price</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded-3 bg-label-success">
-                            <i class="icon-base ri ri-money-dollar-circle-line icon-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card rounded-0 h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1">Stock Cost</p>
-                        <h4 class="mb-0">{{ number_format((float)($total_purchase ?? 0), 2) }}</h4>
-                        <small class="text-muted">Stock x purchase price</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded-3 bg-label-info">
-                            <i class="icon-base ri ri-database-2-line icon-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card rounded-0 h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1">Products</p>
-                        <h4 class="mb-0">{{ $products->total() }}</h4>
-                        <small class="text-muted">Matching the filter</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded-3 bg-label-warning">
-                            <i class="icon-base ri ri-archive-line icon-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+{{-- ============================ PAGE TITLE ============================ --}}
+<div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+    <div>
+        <h4 class="mb-0">Stock Report</h4>
     </div>
 </div>
 
@@ -107,7 +47,7 @@
                     <label for="keyword" class="form-label">Keyword</label>
                     <input type="text" id="keyword" name="keyword"
                            value="{{ request('keyword') }}"
-                           class="form-control" placeholder="Product name">
+                           class="form-control rounded-0" placeholder="Product name">
                 </div>
                 <div class="col-12 col-md-6 col-lg-3">
                     <label for="category_id" class="form-label">Category</label>
@@ -126,12 +66,12 @@
                 <div class="col-12 col-md-6 col-lg-3">
                     <label for="start_date" class="form-label">Start Date</label>
                     <input type="date" id="start_date" name="start_date"
-                           value="{{ request('start_date') }}" class="form-control">
+                           value="{{ request('start_date') }}" class="form-control rounded-0">
                 </div>
                 <div class="col-12 col-md-6 col-lg-3">
                     <label for="end_date" class="form-label">End Date</label>
                     <input type="date" id="end_date" name="end_date"
-                           value="{{ request('end_date') }}" class="form-control">
+                           value="{{ request('end_date') }}" class="form-control rounded-0">
                 </div>
                 <div class="col-12 d-flex flex-wrap gap-2">
                     <x-admin.button variant="primary" type="submit">
@@ -191,6 +131,18 @@
         </div>
     </div>
 
+    {{-- Totals belong with the table they describe, not in a second band of
+         cards above it - same treatment as the Order Report. Values cover
+         the FILTER, not just this page. --}}
+    <div class="border-top px-3 py-3 d-flex flex-wrap align-items-center gap-4 small">
+        <span class="text-muted">
+            Filtered totals · {{ number_format($products->total()) }} products
+        </span>
+        <span><span class="text-muted">Units:</span> <strong>{{ number_format((float) ($total_stock ?? 0)) }}</strong></span>
+        <span><span class="text-muted">Stock value:</span> <strong>{{ number_format((float) ($total_price ?? 0), 2) }}</strong></span>
+        <span><span class="text-muted">Stock cost:</span> <strong>{{ number_format((float) ($total_purchase ?? 0), 2) }}</strong></span>
+    </div>
+
     @if($products->hasPages())
         <div class="card-footer border-top bg-white py-3 no-print">
             <div class="d-flex justify-content-end">
@@ -201,71 +153,12 @@
 </div>
 
 @push('css')
-<style>
-    @media print {
-        .layout-menu,
-        .layout-navbar,
-        .content-footer,
-        .content-backdrop,
-        .no-print {
-            display: none !important;
-        }
-        .layout-page { padding-top: 0 !important; }
-        .content-wrapper { padding: 0 !important; }
-        .container-xxl { padding: 0 !important; max-width: 100% !important; }
-        .card { box-shadow: none !important; border: 1px solid #dee2e6 !important; }
-        .table th, .table td { font-size: 12px; }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-report.css') }}">
 @endpush
 
 @push('script')
-<script>
-(function () {
-    'use strict';
-
-    var printBtn = document.getElementById('print-report');
-    if (printBtn) {
-        printBtn.addEventListener('click', function () {
-            window.print();
-        });
-    }
-
-    var exportBtn = document.getElementById('export-report');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', function () {
-            var table = document.getElementById('stock-report-table');
-            if (!table) return;
-
-            var rows = [];
-            var trs = table.querySelectorAll('tr');
-
-            for (var i = 0; i < trs.length; i++) {
-                var cells = trs[i].querySelectorAll('th, td');
-                if (!cells.length) continue;
-
-                var row = [];
-                for (var j = 0; j < cells.length; j++) {
-                    var text = (cells[j].innerText || '').replace(/\s+/g, ' ').trim();
-                    row.push('"' + text.replace(/"/g, '""') + '"');
-                }
-                rows.push(row.join(','));
-            }
-
-            if (!rows.length) return;
-
-            var blob = new Blob(['﻿' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.href = url;
-            link.download = 'stock-report-' + new Date().toISOString().slice(0, 10) + '.csv';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        });
-    }
-})();
-</script>
+<script src="{{ asset('admin/assets/js/admin-report-table.js') }}"
+        data-report-table="stock-report-table"
+        data-report-export="stock-report"></script>
 @endpush
 @endsection

@@ -1,5 +1,6 @@
 @extends('frontend.layouts.master')
-@section('title','Page')
+@section('title', $page->title)
+@section('meta_description', \Illuminate\Support\Str::limit(trim(strip_tags((string) $page->description)), 160))
 @section('content')
 
 <section class="comn_sec">
@@ -28,7 +29,7 @@
             <div class="col-sm-12">
                 <div class="page-content">
                     <div class="page-title mb-2">
-                        <h5>{{$page->title}}</h5>
+                        <h1 class="h5 mb-0">{{$page->title}}</h1>
                     </div>
                     <div class="page-description">
                         {!! $page->description !!}

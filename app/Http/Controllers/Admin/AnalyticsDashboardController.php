@@ -8,6 +8,7 @@ use App\Models\VisitorMaster;
 use App\Services\Analytics\BangladeshGeo;
 use App\Services\Analytics\EventRecorder;
 use App\Services\Analytics\TrafficSourceResolver;
+use App\Support\AnalyticsCache;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -259,12 +260,12 @@ class AnalyticsDashboardController extends Controller
      */
     private function buildDashboardData(array $filters): array
     {
-        // Requirement: analytics summary cached for 3 hours (10800s).
-        // The cache key includes the resolved filter set so every filter
-        // combination gets its own cached payload instead of one shared one.
-        $cacheKey = 'admin.analytics.summary_3h.' . md5(json_encode($filters));
+        // Five minutes, plus a version bump on every event/order write. The
+        // key includes the resolved filter set so every filter combination
+        // gets its own payload instead of one shared one.
+        $cacheKey = AnalyticsCache::key($filters);
 
-        $payload = Cache::remember($cacheKey, now()->addHours(3), function () use ($filters) {
+        $payload = Cache::remember($cacheKey, now()->addMinutes(AnalyticsCache::TTL_MINUTES), function () use ($filters) {
             // The "live" feed is intentionally NOT cached: it is the
             // what-is-happening-now surface and a 3-hour-old live table
             // would be misleading.

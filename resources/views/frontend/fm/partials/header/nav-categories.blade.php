@@ -47,11 +47,7 @@
                 $fmNavSubs = $fmNavCat->subcategories ?? collect();
                 $fmNavCatId = 'fmCat' . $fmNavCat->id;
 
-                $fmNavIcon = preg_replace('~^public/~', '', (string) ($fmNavCat->image ?? ''));
-                $fmNavIcon = ltrim($fmNavIcon, '/');
-                if ($fmNavIcon === '' || ! \Illuminate\Support\Facades\File::exists(public_path($fmNavIcon))) {
-                    $fmNavIcon = 'uploads/category/default.png';
-                }
+                $fmNavIcon = \App\Support\MediaPath::imageOrFallback($fmNavCat->image ?? '');
             @endphp
 
             <div class="fm-drawer-cat-group">

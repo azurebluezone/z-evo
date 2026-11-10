@@ -6,9 +6,6 @@
 <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
     <div>
         <h4 class="mb-0">Usage details</h4>
-        <p class="text-muted mb-0 small">
-            How often <code>{{ $coupon->code }}</code> has been used, from the coupon usage log (storefront + POS).
-        </p>
     </div>
     <a href="{{ route('coupons.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
         <i class="ri ri-arrow-left-line me-1"></i> Manage Coupons

@@ -1,4 +1,5 @@
 @extends('backEnd.layouts.app')
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-notification-templates.css') }}">
 @section('title','Edit Notification Template')
 
 @section('content')
@@ -44,8 +45,15 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Body</label>
-              <textarea name="body" class="form-control" rows="6">{{ old('body', $template->body) }}</textarea>
+              <label class="form-label" for="tplBody">Body</label>
+              <input type="hidden" id="tplBody" name="body" value="{{ old('body', $template->body) }}">
+              <div id="tpl-body-editor"
+                   class="js-quill-editor notification-body-editor"
+                   data-quill-theme="snow"
+                   data-quill-toolbar-preset="full"
+                   data-quill-target="#tplBody"
+                   data-quill-placeholder="Write the notification body (HTML, variables {{ $name }} compatible)..."
+                   data-quill-initial-html="{{ e((string) old('body', $template->body)) }}"></div>
             </div>
 
             <div class="form-check mb-3">

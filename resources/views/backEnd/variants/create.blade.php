@@ -29,7 +29,7 @@
                 </a>
             </div>
 
-            <div class="card-body mt-4">
+            <div class="card-body">
                 <form method="POST" enctype="multipart/form-data" action="{{ route('admin.variants.store') }}" class="row g-4" id="adminForm">
                     @csrf
 

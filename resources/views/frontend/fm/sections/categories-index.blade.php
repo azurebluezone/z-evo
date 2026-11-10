@@ -86,11 +86,7 @@
                  * that was later deleted from /public, and an <img> that 404s
                  * renders as a broken box inside the card.
                  */
-                $fmImgPath = preg_replace('~^public/~', '', (string) ($fmCat->image ?? ''));
-                $fmImgPath = ltrim($fmImgPath, '/');
-                if ($fmImgPath === '' || ! \Illuminate\Support\Facades\File::exists(public_path($fmImgPath))) {
-                    $fmImgPath = 'assets/images/default.png';
-                }
+                $fmImgPath = \App\Support\MediaPath::imageOrFallback($fmCat->image ?? '');
             @endphp
 
             <article class="fm-cat-card" data-fm-cat-card>

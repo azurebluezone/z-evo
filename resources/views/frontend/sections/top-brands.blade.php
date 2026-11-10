@@ -12,13 +12,13 @@
                         <a href="{{ route('products.brand', $brand->slug) }}">
                             @php
                                 $generalsetting = $generalsetting ?? \App\Models\GeneralSetting::first();
-                                $fallbackImage = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
+                                $fallbackImage = \App\Support\MediaPath::fallbackPath();
                                 $fallbackRaw = (string) $fallbackImage;
                                 $fallbackIsUrl = preg_match('~^https?://~i', $fallbackRaw) === 1;
                                 $fallbackPath = $fallbackIsUrl ? $fallbackRaw : ltrim(preg_replace('~^public/~', '', $fallbackRaw), '/');
                                 $fallbackImageSrc = !empty($fallbackPath)
                                     ? ($fallbackIsUrl ? $fallbackPath : asset($fallbackPath))
-                                    : asset('assets/images/empty.png');
+                                    : \App\Support\MediaPath::fallbackUrl();
 
                                 $brandImagePath = $brand->logo ?? $brand->image ?? '';
                                 $brandRaw = (string) $brandImagePath;

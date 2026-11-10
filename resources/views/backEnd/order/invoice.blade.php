@@ -5,41 +5,7 @@
      include the sidebar, navbar and action row. Hide the chrome and let the
      invoice card fill the sheet. --}}
 @section('css')
-<style>
-    @media print {
-        @page { margin: 12mm; }
-
-        html,
-        body { background: #fff !important; }
-
-        .layout-menu,
-        .layout-navbar,
-        .content-footer,
-        .layout-overlay,
-        .drag-target,
-        .no-print { display: none !important; }
-
-        .layout-wrapper,
-        .layout-container,
-        .layout-page,
-        .content-wrapper,
-        .container-xxl,
-        .container-p-y,
-        .row,
-        .col-12 {
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            min-height: 0 !important;
-        }
-
-        .card { border: 0 !important; box-shadow: none !important; }
-        .card-body { padding: 0 !important; }
-        .table-responsive { overflow: visible !important; }
-        a[href]::after { content: none !important; }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-order-invoice.css') }}">
 @endsection
 
 @section('content')
@@ -48,7 +14,7 @@
     $logoImgPath = $logoImg ? preg_replace('~^public/~', '', $logoImg) : null;
     $logoImgPath = $logoImgPath ? ltrim($logoImgPath, '/') : null;
     $fallbackLogo = \App\Support\MediaPath::fallbackPath();
-    $logoPath = $logoImgPath && file_exists(public_path($logoImgPath)) ? asset($logoImgPath) : asset($fallbackLogo);
+    $logoPath = asset(\App\Support\MediaPath::imageOrFallback($logoImg));
 
     $subtotal = 0;
     foreach (($order->orderdetails ?? []) as $d) {

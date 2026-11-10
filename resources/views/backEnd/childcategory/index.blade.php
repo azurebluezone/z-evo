@@ -6,9 +6,9 @@
 <div class="card rounded-0">
     <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
         <h5 class="mb-0 text-uppercase fw-bold">Manage Childcategories</h5>
-        <div class="d-flex gap-2 align-items-center">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
             
-            <form id="childcategoriesBulkDeleteForm" method="post" action="{{ route('childcategories.bulk-destroy') }}" class="d-inline mb-0">
+            <form id="childcategoriesBulkDeleteForm" method="post" action="{{ route('childcategories.bulk-destroy') }}" class="d-inline mb-0 text-nowrap">
                 @csrf
                 <x-admin.button variant="outline-danger" shape="square" ripple="true" class="delete-confirm" type="submit" title="Delete selected childcategories">
                     <i class="ri ri-delete-bin-line me-1"></i> Delete Selected

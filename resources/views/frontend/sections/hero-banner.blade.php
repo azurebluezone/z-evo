@@ -26,7 +26,7 @@
                                     $bannerPath = $bannerIsUrl ? $bannerRaw : ltrim(preg_replace('~^public/~', '', $bannerRaw), '/');
                                     $bannerSrc = !empty($bannerPath)
                                         ? ($bannerIsUrl ? $bannerPath : asset($bannerPath))
-                                        : asset('assets/images/frontend/banner/6718b8ecbd6a11729673452.png');
+                                        : asset('assets/images/frontend/banner/hero-default.png');
 
                                     $videoRaw = (string) ($banner->video ?? '');
                                     $videoIsUrl = preg_match('~^https?://~i', $videoRaw) === 1;
@@ -48,7 +48,7 @@
                 @else
                     <div class="slide-item">
                         <a href="#" class="d-block banner-image-container">
-                            <img src="{{ asset('assets/images/frontend/banner/6718b8ecbd6a11729673452.png') }}" alt="slider-image"
+                            <img src="{{ asset('assets/images/frontend/banner/hero-default.png') }}" alt="ZEvo"
                                  width="1200" height="400" loading="eager" decoding="async">
                         </a>
                     </div>
@@ -66,12 +66,12 @@
                         <div class="banner-categories p-2">
                             <a href="{{ route('products.category', $category->slug) }}" class="d-block text-center category-image-container">
                                 @php
-                                    $raw = (string) ($category->image ?? 'uploads/category/default.png');
+                                    $raw = (string) ($category->image ?? '');
                                     $isUrl = preg_match('~^https?://~i', $raw) === 1;
                                     $path = $isUrl ? $raw : ltrim(preg_replace('~^public/~', '', $raw), '/');
                                     $src = !empty($path)
                                         ? ($isUrl ? $path : asset($path))
-                                        : asset('uploads/category/default.png');
+                                        : asset(\App\Support\MediaPath::fallbackPath());
                                 @endphp
                                 <img src="{{ $src }}"
                                      data-src="{{ $src }}"
@@ -86,8 +86,8 @@
                     @foreach(['Skincare' => '6721e05a9ea1c1730273370.png', 'Makeup' => '6721e012cd1a51730273298.png', 'Fragrances' => '6721e022ddc0d1730273314.png'] as $name => $img)
                         <div class="banner-categories p-2">
                             <a href="#" class="d-block text-center category-image-container">
-                                <img src="{{ asset('uploads/category/default.png') }}"
-                                     data-src="{{ asset('uploads/category/default.png') }}"
+                                <img src="{{ asset(\App\Support\MediaPath::fallbackPath()) }}"
+                                     data-src="{{ asset(\App\Support\MediaPath::fallbackPath()) }}"
                                      alt="category" class="w-100 lazyload owl-lazy"
                                      width="150" height="150" decoding="async">
                                 <span class="title line-limitation-1">{{ $name }}</span>

@@ -984,3 +984,32 @@ python3 tools/bangla_to_english.py --check
 - **Colab GPU গেটওয়ে / `zombiecoder.my.id` / `gpu.zombiecoder.my.id`:** আলাদা প্রকল্প
   (`/home/sahon/z/monu_the_builder/`) — তার নিজস্ব ডকুমেন্ট সেখানেই। API key শুধু `.env`-এ
   `CUSTOM_PROVIDER_3_KEY` হিসেবে; কোথাও শেয়ার/লিখা নয়। `COLAB-RUN.py` শেয়ার করা যাবে না।
+
+---
+
+## ১২. ২০২৬-১১-১১ — Landing Pages ম্যানেজার ও ক্যাম্পেইন (বর্তমান অবস্থা)
+
+`/admin/landing-pages/manage`-এ এখন **ছয়টি** রিয়েল পেজ — প্রতি অ্যাকটিভ টেমপ্লেটে একটি, প্রতিটি নিজের ক্যাম্পেইন ও প্রোডাক্টের সঙ্গে বাঁধা। আগের দুটি demo রো (id 1, 2) পুনঃব্যবহার করা হয়েছে, চারটি নতুন (id 70–73); `demo-default-offer`/`demo-second-offer` আর নেই।
+
+| Template | Landing page slug | Product | Campaign |
+| --- | --- | --- | --- |
+| Default | `red-apple-fresh-offer` | Red Apple (20) | 767 |
+| Herbal Health | `raw-honey-herbal-offer` | Artisan Raw Honey (14) | 768 |
+| Template 1 | `mustard-oil-countdown-offer` | Mustard Oil 1L (24) | 769 |
+| Template 2 | `red-rice-modern-offer` | Red Rice (23) | 770 |
+| Template 3 | `sourdough-brand-offer` | Artisan Sourdough Bread (22) | 771 |
+| Sample Template | `desi-ghee-sample-offer` | Desi Ghee (25) | 772 |
+
+চালানোর কমান্ড:
+
+```bash
+php tools/seed_landing_pages.php      # idempotent seed, exit 0
+php tools/verify_landing_pages.php    # LANDING_PAGES_ALL_UPDATED_OK, exit 0
+php artisan test --filter=LandingPageAdminTest   # 5 passed, 23 assertions
+```
+
+ব্রাউজার QA (Playwright): ৬ পেজ × desktop 1440×900 + mobile 390×844, সব HTTP 200, horizontal overflow নেই, ০ console error, প্রতি পেজে ১টি `/landing-order` ফর্ম; ১২টি স্ক্রিনশট `work/audit/landing-pages/`-এ (এই ডিরেক্টরি gitignored)।
+
+জানা সীমাবদ্ধতা: `default` ও `sample-template` প্রাইস স্ট্রিং/প্রোডাক্ট `<img>` রেন্ডার করে না (ডেটা আছে, টেমপ্লেটে স্লট নেই); `cta_link` আপেক্ষিক `/landing-order`; demo প্রোডাক্ট ইমেজ `public/uploads/`-এ (gitignored)। Placeholder: ফোন `01XXXXXXXXX`, ইমেইল `support@zevo.example`, সোশ্যাল `example.com/zevo/*`। NOT_TESTED: লাইভ অর্ডার সাবমিট, পেমেন্ট, Pathao, Meta CAPI, TikTok API।
+
+বিস্তারিত: `docs/LANDING-PAGES-2026-11-11.md` ও `docs/LANDING-CAMPAIGNS-2026-11-10.md`।

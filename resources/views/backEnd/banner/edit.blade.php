@@ -52,7 +52,7 @@
 
                     <div class="col-12 col-md-6">
                         <label for="media_type" class="form-label">Media Type</label>
-                        <select class="form-control @error('media_type') is-invalid @enderror" name="media_type" id="media_type">
+                        <select class="form-control @error('media_type') is-invalid @enderror" name="media_type" id="media_type" data-has-video='@json(!empty($edit_data->video))'>
                             <option value="image" {{ ($edit_data->media_type ?? 'image') === 'image' ? 'selected' : '' }}>Image</option>
                             <option value="video" {{ ($edit_data->media_type ?? 'image') === 'video' ? 'selected' : '' }}>Video</option>
                         </select>
@@ -124,41 +124,5 @@
 @endsection
 
 @push('script')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var mediaType = document.getElementById('media_type');
-        var imageWrap = document.getElementById('imageWrap');
-        var videoFileWrap = document.getElementById('videoFileWrap');
-        var videoInput = document.getElementById('video');
-        var hasCurrentVideo = {{ !empty($edit_data->video) ? 'true' : 'false' }};
-
-        function syncMediaFields() {
-            var isVideo = mediaType && mediaType.value === 'video';
-            if (imageWrap) imageWrap.style.display = isVideo ? 'none' : '';
-            if (videoFileWrap) videoFileWrap.style.display = isVideo ? '' : 'none';
-
-            var imageInput = document.getElementById('image');
-            if (imageInput) {
-                if (isVideo) {
-                    imageInput.removeAttribute('required');
-                } else {
-                    imageInput.setAttribute('required', 'required');
-                }
-            }
-
-            if (videoInput) {
-                if (isVideo && !hasCurrentVideo) {
-                    videoInput.setAttribute('required', 'required');
-                } else {
-                    videoInput.removeAttribute('required');
-                }
-            }
-        }
-
-        if (mediaType) {
-            mediaType.addEventListener('change', syncMediaFields);
-        }
-        syncMediaFields();
-    });
-</script>
+{{-- banner media toggle + has-video validation live in admin-app-shared.js (read data-has-video below) --}}
 @endpush

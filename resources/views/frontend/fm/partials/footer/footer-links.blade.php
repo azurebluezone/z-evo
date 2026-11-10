@@ -1,88 +1,39 @@
 {{--
     FM:PARTIAL footer/footer-links
     =========================================================================
-    A same-to-same copy of the work/index.html "4-Column Footer Architecture"
-    (Bootstrap), plus the bottom bar the shop asked for:
+    Green storefront footer from the supplied home.html reference.
 
-        MAIN ROW (the reference row, unchanged on a desktop)
-            1. col-lg-4      Brand & story + the three social circles
-            2. col-lg-2      Categories
-            3. col-lg-2      Company
-            4. col-lg-4      Customer Support + the SSL reassurance line
+    BOOTSTRAP 12-COLUMN SPLIT (lg and up)
+        4  brand: logo, story, four social circles
+        2  Quick Links
+        2  Customer Care
+        2  My Account
+        2  Download App: the two store badges
+        --  = 12, one row
 
-        BOTTOM BAR (below the row, its own bar)
-            left    the footer menu (khaasfood-style, its own partial)
-            centre  the accepted payment methods image
-            right   the copyright line, with the policy links under it
-
-    WHY THE COLUMNS NO LONGER USE footer-column.blade.php
-    ------------------------------------------------------------------------
-    They used to be five accordions (Menu / Categories / Company / Policies /
-    Support). The reference is not an accordion footer: on a desktop it is four
-    open columns, and the phone version is those SAME three link columns laid
-    out two-up (not one stacked accordion list per column). So the three link
-    columns are plain <h6> + <ul> again - the exact markup of the reference -
-    and the accordion survives only where the shop wants it: the footer menu in
-    the bottom bar (partials/footer/footer-menu, same data-fm-footer-toggle
-    contract with fm-app.js).
-
-    footer-column.blade.php is therefore no longer included from here. It is
-    left on disk until the shop confirms nothing else needs it.
-
-    PHONE LAYOUT (the shop's spec)
-    ------------------------------------------------------------------------
-        - the brand block is full width and CENTRED at the top: logo, story,
-          social circles.
-        - below lg the link columns go TWO-UP, exactly like the reference:
-          Categories and Company share the first row (col-6 each) and
-          Customer Support takes the next row at half width (col-6). Sums:
-          12 + 6 + 6 + 6 wrap as brand / (Categories + Company) / (Support);
-          at lg 4 + 2 + 2 + 4 = 12, so the reference's desktop grid is
-          untouched.
-
-    TEXT COLOUR
-    ------------------------------------------------------------------------
-    The story paragraph and the three support rows are WHITE, not the
-    reference's muted slate - a shop request. The class that does it
-    (.fm-footer-brand__text / .fm-footer-support__list) lives in
-    fm-footer.css, so nothing here fights Bootstrap's utilities.
+    md (768-991): the reference's own split - brand half width, then the four
+    link columns at one quarter each. phone (<768): brand centred above the
+    four link columns, which stay visible two-up. The fixed phone tab bar
+    carries Menu / Shop / Home / Cart / Account.
 
     DATA
     ------------------------------------------------------------------------
-    Everything merchant-owned comes from the database first and falls back to
-    the reference's own copy when the field is empty, so the footer never
-    renders a blank row:
-
-        - the logo      $generalsetting->dark_logo (the footer plate is dark,
-                        but the logo sits on a near-white plate, so the DARK
-                        ink mark is the correct one - same rule as the header)
-        - the story     $generalsetting->footer_about_text
-        - the phone     $generalsetting->support_phone / $contact->phone
-        - address+email $contact
-        - categories    $categories, else the first five published ones, else
-                        the five labels of the reference
-        - payment image $generalsetting->footer_payment_image, and if that
-                        file is missing from /public the bundled placeholder
-                        (the classic footer's own guard: never a broken <img>)
-
-    Props
-        fmShopName  string  shop name, used in the brand line and copyright
-        fmPhone     string  support phone, blank falls back to the reference
-
-    Usage
-        @include('frontend.fm.partials.footer.footer-links')
+    Everything merchant-owned comes from the same globals as before:
+    white_logo/dark_logo, footer_about_text, footer_links groups, categories,
+    copyright, socials. The Download App badges use app URLs when the settings
+    provide them (play_store_url / appstore_url are not columns today), and
+    otherwise point at the two official store landings so nothing is a dead #.
+    =========================================================================
 --}}
 
 <!-- BEGIN: MainFooter -->
 <footer class="app-footer" data-purpose="footer-links" id="footer-contact">
     <div class="container">
         @php
-            /*
-                Categories. Merchant data first: the shop's own categories are
-                what a customer is looking for. The five reference labels are
-                the LAST resort, so a shop with no categories still gets the
-                designed footer instead of an empty column.
-            */
+            $fmShopName = $fmShopName ?? ($generalsetting->name ?? config('app.name'));
+            $fmPhone = $fmPhone ?? ($generalsetting->support_phone ?? '');
+
+            /* Catalog data, same source as the footer always used. */
             $fmFooterCats = ($categories ?? collect())->take(5);
             if ($fmFooterCats->isEmpty()) {
                 $fmFooterCats = \App\Models\Category::query()->where('status', 1)->where('home_page', 1)->take(5)->get();
@@ -95,32 +46,15 @@
 
             if ($fmCategoryLinks === []) {
                 $fmCategoryLinks = [
-                    ['label' => 'Vegetables & Roots',  'url' => route('products.page')],
-                    ['label' => 'Organic Fruits',      'url' => route('products.page')],
-                    ['label' => 'Dairy & Farm Eggs',   'url' => route('products.page')],
-                    ['label' => 'Artisan Sourdough',   'url' => route('products.page')],
-                    ['label' => 'Grass-Fed Meats',     'url' => route('products.page')],
+                    ['label' => 'Shop Catalog', 'url' => route('products.page')],
+                    ['label' => 'Categories',   'url' => route('categories.page')],
+                    ['label' => 'Hot Deals',    'url' => route('hotdeals')],
+                    ['label' => 'Brands',       'url' => route('brands.page')],
                 ];
             }
 
-            /*
-                Company. The same five destinations as the reference, with the
-                shop's own name in the first row. "Partner Farmers" and "Soil
-                Regeneration" have no page of their own yet, so they point at
-                the about page rather than at a "#" that goes nowhere.
-
-                When the admin has saved links in the "Site Links" group on
-                Website Setup -> Footer, those rows replace this default list.
-                The "Terms & Policies" group is rendered in the bottom bar.
-            */
-            $fmCompanyLinks = [
-                ['label' => 'About ' . $fmShopName, 'url' => route('about.us')],
-                ['label' => 'Partner Farmers',      'url' => route('about.us')],
-                ['label' => 'Soil Regeneration',    'url' => route('about.us')],
-                ['label' => 'FAQ & Help Center',    'url' => route('faq')],
-                ['label' => 'Contact Us',           'url' => route('contact')],
-            ];
-
+            /* Managed rows (Website Setup -> Footer); empty groups keep the
+               route-driven defaults. */
             $fmManagedLinks = is_array($generalsetting->footer_links ?? null)
                 ? $generalsetting->footer_links
                 : [];
@@ -150,71 +84,42 @@
                 ];
             }
 
-            if (! empty($fmManagedByGroup['site'])) {
-                $fmCompanyLinks = $fmManagedByGroup['site'];
-            }
-
-            $fmPolicyLinks = $fmManagedByGroup['terms'] ?? [];
-
-            /*
-                Customer support. Merchant data first, reference copy as the
-                fallback - a support block with an empty row is worse than one
-                that shows the designed default.
-            */
-            $fmSupportAddress = $contact->address ?? null;
-            $fmSupportEmail   = $contact->email ?? null;
-
-            $fmSupportRows = array_values(array_filter([
-                [
-                    'icon'  => 'bi bi-geo-alt',
-                    'text'  => $fmSupportAddress ?: '742 Evergreen Terrace, Brooklyn, NY 11201',
-                    'class' => 'align-items-start',
-                    'iconExtra' => 'mt-1',
-                ],
-                [
-                    'icon'  => 'bi bi-telephone',
-                    'text'  => $fmPhone ?: '+1 (800) 555-FOOD (24/7 Helpline)',
-                    'class' => 'align-items-center',
-                    'iconExtra' => '',
-                ],
-                [
-                    'icon'  => 'bi bi-envelope',
-                    'text'  => $fmSupportEmail ?: 'care@freshmart-groceries.com',
-                    'class' => 'align-items-center',
-                    'iconExtra' => '',
-                ],
-            ], fn ($fmRow) => trim((string) $fmRow['text']) !== ''));
-
-            /*
-                The FOOTER MENU of the bottom bar. Same destinations the old
-                footer Menu column carried, because it IS that menu, moved
-                down into the bar where the shop wants it. Log in / New
-                account become My account / My orders when signed in - a
-                footer that asks a signed-in customer to register again is
-                drift, not a feature.
-            */
-            $fmMenuLinks = [
-                ['label' => 'Home', 'url' => route('home'), 'active' => request()->routeIs('home')],
-                [
-                    'label'  => 'Shop Catalog',
-                    'url'    => route('products.page'),
-                    'active' => request()->routeIs('products.page', 'category', 'products.category', 'products.brand'),
-                ],
-                ['label' => 'Categories', 'url' => route('categories.page'), 'active' => request()->routeIs('categories.page')],
-                ['label' => 'Special offers', 'url' => route('offers.index'), 'active' => request()->routeIs('offers.index')],
-                ['label' => 'Hot deals', 'url' => route('hotdeals'), 'active' => request()->routeIs('hotdeals')],
-                ['label' => 'Contact', 'url' => route('contact'), 'active' => request()->routeIs('contact')],
-                ['label' => 'Wishlist', 'url' => route('wishlist'), 'active' => request()->routeIs('wishlist')],
+            $fmQuickLinks = $fmManagedByGroup['site'] ?? [
+                ['label' => 'Home',     'url' => route('home'), 'new_tab' => false],
+                ['label' => 'Shop',     'url' => route('products.page'), 'new_tab' => false],
+                ['label' => 'About Us', 'url' => route('about.us'), 'new_tab' => false],
+                ['label' => 'Contact',  'url' => route('contact'), 'new_tab' => false],
             ];
 
-            if (auth('customer')->check()) {
-                $fmMenuLinks[] = ['label' => 'My account', 'url' => route('customer.account'), 'active' => request()->routeIs('customer.account')];
-                $fmMenuLinks[] = ['label' => 'My orders', 'url' => route('customer.orders'), 'active' => request()->routeIs('customer.orders')];
-            } else {
-                $fmMenuLinks[] = ['label' => 'Log in', 'url' => route('customer.login'), 'active' => request()->routeIs('customer.login')];
-                $fmMenuLinks[] = ['label' => 'New account', 'url' => route('customer.register'), 'active' => request()->routeIs('customer.register')];
-            }
+            $fmCareLinks = [
+                ['label' => 'FAQ',      'url' => route('faq'), 'new_tab' => false],
+                ['label' => 'Shipping', 'url' => route('faq'), 'new_tab' => false],
+                ['label' => 'Returns',  'url' => route('return.policy'), 'new_tab' => false],
+                ['label' => 'Support',  'url' => route('contact'), 'new_tab' => false],
+            ];
 
+            $fmAccountLinks = $fmManagedByGroup['useful'] ?? (auth('customer')->check()
+                ? [
+                    ['label' => 'Account',     'url' => route('customer.account'), 'new_tab' => false],
+                    ['label' => 'Orders',      'url' => route('customer.orders'), 'new_tab' => false],
+                    ['label' => 'Wishlist',    'url' => route('wishlist'), 'new_tab' => false],
+                    ['label' => 'Track Order', 'url' => route('track.order'), 'new_tab' => false],
+                ]
+                : [
+                    ['label' => 'Login',       'url' => route('customer.login'), 'new_tab' => false],
+                    ['label' => 'Register',    'url' => route('customer.register'), 'new_tab' => false],
+                    ['label' => 'Wishlist',    'url' => route('wishlist'), 'new_tab' => false],
+                    ['label' => 'Track Order', 'url' => route('track.order'), 'new_tab' => false],
+                ]);
+
+            $fmPolicyLinks = $fmManagedByGroup['terms'] ?? [
+                ['label' => 'Privacy Policy', 'url' => route('privacy.policy'), 'new_tab' => false],
+                ['label' => 'Terms & Conditions', 'url' => route('terms.conditions'), 'new_tab' => false],
+            ];
+
+            /* Social circles. Real rows become links; with no configured row
+               the four circles stay as decorative placeholders so the brand
+               column keeps the reference's geometry. */
             $fmBiIcons = [
                 'facebook'   => 'bi bi-facebook',
                 'facebook-f' => 'bi bi-facebook',
@@ -225,162 +130,153 @@
                 'youtube'    => 'bi bi-youtube',
                 'linkedin'   => 'bi bi-linkedin',
             ];
-            $fmSocialRows = ($socials ?? \App\Models\SocialMedia::query()->where('status', 1)->get());
+            $fmSocialRows = ($socials ?? \App\Models\SocialMedia::query()->where('status', 1)->get())->take(4);
+            $fmSocialFallback = [
+                ['icon' => 'bi bi-facebook',  'label' => 'Facebook'],
+                ['icon' => 'bi bi-youtube',   'label' => 'YouTube'],
+                ['icon' => 'bi bi-linkedin',  'label' => 'LinkedIn'],
+                ['icon' => 'bi bi-instagram', 'label' => 'Instagram'],
+            ];
 
-            /*
-                Copyright. Merchant copy first (it may carry links / HTML, the
-                way the classic footer allows), the reference line as fallback
-                so the bar is never empty. The payment strip below is rendered
-                by frontend.partials.payment-methods, the same partial the
-                classic footer uses.
-            */
             $fmCopyright = trim((string) ($generalsetting->copyright ?? ''));
-
-            // Quill HTML, sanitized again at render for rows saved before the
-            // editor existed (the controller already sanitizes on write).
             $fmAboutHtml = \App\Support\HtmlSanitizer::inline((string) ($generalsetting->footer_about_text ?? ''));
+
+            $fmFooterUsesWhiteLogo = filled($generalsetting->white_logo ?? null);
+            $fmFooterLogo = $fmFooterUsesWhiteLogo
+                ? $generalsetting->white_logo
+                : ($generalsetting->dark_logo ?? null);
+
+            $fmPlayStoreUrl = $generalsetting->play_store_url ?? 'https://play.google.com/store/apps';
+            $fmAppStoreUrl = $generalsetting->appstore_url ?? 'https://apps.apple.com/';
         @endphp
 
-        {{--
-            THE REFERENCE ROW. Column classes below lg are the phone layout:
-            brand full width, then the three link columns two-up
-            (Categories + Company, then Support). At lg the reference's own
-            4 + 2 + 2 + 4 grid takes over and the row is the same-to-same
-            copy of work/index.html.
-        --}}
-        <div class="row g-4 mb-4">
-            {{-- Col 1: Brand & Story.
-
-                 The logo keeps the .fm-footer-brand__ wrappers: the layout's
-                 own #fm-audit-fix block declares
-                 `img { max-width:100% !important; height:auto !important; }`,
-                 which outranks any height utility on the bare <img>, and the
-                 logo then rendered at the full column width. The rules that
-                 put the size back are in fm-footer.css under BRAND COLUMN.
-
-                 The name stays VISUALLY HIDDEN while a logo is present: this
-                 shop's logo is already the wordmark, so printing it beside
-                 itself duplicated it. With no logo the name becomes the brand. --}}
-            <div class="col-12 col-lg-4">
+        <div class="row g-4 fm-footer-grid">
+            <div class="col-12 col-md-6 col-lg-4">
                 <div class="fm-footer-brand__row d-flex">
-                    @if (!empty($generalsetting->dark_logo))
-                        <span class="fm-footer-brand__logo">
+                    @if (filled($fmFooterLogo))
+                        <span class="fm-footer-brand__logo {{ $fmFooterUsesWhiteLogo ? '' : 'fm-footer-brand__logo--chip' }}">
                             <img alt="{{ $fmShopName }}" loading="lazy"
-                                 class="h-9 w-auto object-contain"
-                                 src="{{ \App\Support\MediaPath::url($generalsetting->dark_logo, 'settings') }}">
+                                 src="{{ \App\Support\MediaPath::url($fmFooterLogo, 'settings') }}">
                         </span>
-                        <div class="fm-footer-brand__name visually-hidden">{{ $fmShopName }}</div>
+                        <span class="fm-footer-brand__name visually-hidden">{{ $fmShopName }}</span>
                     @else
-                        <div class="fm-footer-brand__name">{{ $fmShopName }}</div>
+                        <span class="fm-footer-brand__name">{{ $fmShopName }}</span>
                     @endif
                 </div>
 
-                {{-- A div: the editor returns paragraphs, and a <p> here would
-                     nest them. --}}
                 <div class="small m-0 fm-footer-brand__text">
-                    {!! $fmAboutHtml !== '' ? $fmAboutHtml : 'FreshMart connects conscious households directly with regional regenerative farmers. Harvested at sunrise, inspected by AI, delivered to your door.' !!}
+                    {!! $fmAboutHtml !== '' ? $fmAboutHtml : e('Your trusted online store for quality products at the best price.') !!}
                 </div>
 
-                <div class="d-flex gap-2 mt-3 fm-footer-brand__social">
-                    @forelse($fmSocialRows->take(3) as $fmSocial)
-                        @php
-                            $fmKey  = strtolower($fmSocial->title ?? ($fmSocial->icon ?? ''));
-                            // Stored Font Awesome class -> Bootstrap Icons via the
-                            // shared catalog; the old title map stays as fallback
-                            // for rows saved before the catalog existed.
-                            $fmIcon = \App\Support\SocialIcons::entryForFa($fmSocial->icon)['bi']
-                                ?? $fmBiIcons[$fmKey]
-                                ?? 'bi bi-globe2';
-                            $fmLink = (string) ($fmSocial->link ?? '#');
-                            $fmHref = str_contains($fmLink, '@') ? 'mailto:' . $fmLink : $fmLink;
-                            // External links open in a new tab and never leak
-                            // the opener; mailto: links stay in the same tab.
-                            $fmExternal = str_starts_with($fmHref, 'http');
-                        @endphp
-                        <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="{{ $fmHref }}"
-                           @if($fmExternal) target="_blank" rel="noopener" @endif
-                           aria-label="{{ $fmSocial->title ?? 'social' }}"><i class="{{ $fmIcon }}"></i></a>
-                    @empty
-                        <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="#fb" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                        <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="#ig" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                        <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="#x" aria-label="X"><i class="bi bi-twitter-x"></i></a>
-                    @endforelse
+                <div class="d-flex flex-wrap gap-2 mt-3 fm-footer-brand__social">
+                    @if($fmSocialRows->isNotEmpty())
+                        @foreach($fmSocialRows as $fmSocial)
+                            @php
+                                $fmKey  = strtolower($fmSocial->title ?? ($fmSocial->icon ?? ''));
+                                $fmIcon = \App\Support\SocialIcons::entryForFa($fmSocial->icon)['bi']
+                                    ?? $fmBiIcons[$fmKey]
+                                    ?? 'bi bi-globe2';
+                                $fmLink = (string) ($fmSocial->link ?? '#');
+                                $fmHref = str_contains($fmLink, '@') ? 'mailto:' . $fmLink : $fmLink;
+                                $fmExternal = str_starts_with($fmHref, 'http');
+                            @endphp
+                            <a class="btn btn-sm btn-outline-secondary rounded-circle text-white" href="{{ $fmHref }}"
+                               @if($fmExternal) target="_blank" rel="noopener" @endif
+                               aria-label="{{ $fmSocial->title ?? 'social' }}"><i class="{{ $fmIcon }}" aria-hidden="true"></i></a>
+                        @endforeach
+                    @else
+                        @foreach($fmSocialFallback as $fmSocial)
+                            <span class="btn btn-sm btn-outline-secondary rounded-circle text-white fm-footer-social-placeholder" aria-hidden="true">
+                                <i class="{{ $fmSocial['icon'] }}"></i>
+                            </span>
+                        @endforeach
+                    @endif
                 </div>
             </div>
 
-            {{-- Col 2: Categories.
-                 Two-up with Company below lg (col-6 each); at lg it is the
-                 reference's col-lg-2. --}}
-            <div class="col-6 col-lg-2 fm-footer-linkcol fm-footer-categories-col">
-                <h6>Categories</h6>
+            <div class="col-6 col-md-3 col-lg-2 fm-footer-linkcol">
+                <h2 class="fm-footer-heading">Quick Links</h2>
                 <ul class="list-unstyled d-flex flex-column gap-2 small m-0">
-                    @foreach ($fmCategoryLinks as $fmCategoryLink)
-                        <li><a href="{{ $fmCategoryLink['url'] }}">{!! $fmCategoryLink['label'] !!}</a></li>
-                    @endforeach
-                </ul>
-            </div>
-
-            {{-- Col 3: Company --}}
-            <div class="col-6 col-lg-2 fm-footer-linkcol fm-footer-company-col">
-                <h6>Company</h6>
-                <ul class="list-unstyled d-flex flex-column gap-2 small m-0">
-                    @foreach ($fmCompanyLinks as $fmCompanyLink)
+                    @foreach ($fmQuickLinks as $fmLink)
                         <li>
-                            <a href="{{ $fmCompanyLink['url'] }}"
-                               @if(!empty($fmCompanyLink['new_tab'])) target="_blank" rel="noopener" @endif>
-                                {{ $fmCompanyLink['label'] }}
+                            <a href="{{ $fmLink['url'] }}"
+                               @if(!empty($fmLink['new_tab'])) target="_blank" rel="noopener" @endif>
+                                {{ $fmLink['label'] }}
                             </a>
                         </li>
                     @endforeach
                 </ul>
             </div>
 
-            {{-- Col 4: Customer Support & Security --}}
-            <div class="col-6 col-lg-4 fm-footer-linkcol fm-footer-support">
-                <h6>Customer Support</h6>
-                <ul class="list-unstyled d-flex flex-column gap-2 small m-0 fm-footer-support__list">
-                    @foreach ($fmSupportRows as $fmSupportRow)
-                        <li class="d-flex gap-2 {{ $fmSupportRow['class'] }}">
-                            <i class="bi {{ $fmSupportRow['icon'] }} text-success me-1 {{ $fmSupportRow['iconExtra'] }}" aria-hidden="true"></i>
-                            <span>{{ $fmSupportRow['text'] }}</span>
+            <div class="col-6 col-md-3 col-lg-2 fm-footer-linkcol">
+                <h2 class="fm-footer-heading">Customer Care</h2>
+                <ul class="list-unstyled d-flex flex-column gap-2 small m-0">
+                    @foreach ($fmCareLinks as $fmLink)
+                        <li><a href="{{ $fmLink['url'] }}">{{ $fmLink['label'] }}</a></li>
+                    @endforeach
+                </ul>
+            </div>
+
+            <div class="col-6 col-md-3 col-lg-2 fm-footer-linkcol">
+                <h2 class="fm-footer-heading">My Account</h2>
+                <ul class="list-unstyled d-flex flex-column gap-2 small m-0">
+                    @foreach ($fmAccountLinks as $fmLink)
+                        <li>
+                            <a href="{{ $fmLink['url'] }}"
+                               @if(!empty($fmLink['new_tab'])) target="_blank" rel="noopener" @endif>
+                                {{ $fmLink['label'] }}
+                            </a>
                         </li>
                     @endforeach
                 </ul>
+            </div>
+
+            <div class="col-6 col-md-3 col-lg-2 fm-footer-linkcol fm-footer-app">
+                <h2 class="fm-footer-heading">Download App</h2>
+                <p class="fm-footer-app__label">Get our app on</p>
+
+                <div class="fm-footer-app__badges">
+                    <a class="fm-store-badge" href="{{ $fmPlayStoreUrl }}" target="_blank" rel="noopener"
+                       aria-label="Get it on Google Play">
+                        <i class="bi bi-google-play" aria-hidden="true"></i>
+                        <span class="fm-store-badge__text">
+                            <small>GET IT ON</small>
+                            <strong>Google Play</strong>
+                        </span>
+                    </a>
+
+                    <a class="fm-store-badge" href="{{ $fmAppStoreUrl }}" target="_blank" rel="noopener"
+                       aria-label="Download on the App Store">
+                        <i class="bi bi-apple" aria-hidden="true"></i>
+                        <span class="fm-store-badge__text">
+                            <small>Download on the</small>
+                            <strong>App Store</strong>
+                        </span>
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
 
-        {{--
-            THE BOTTOM BAR: copyright | accepted payment methods.
-            One shared partial renders the payment strip so this footer and
-            the classic one can never show different badges.
-        --}}
-        <div class="fm-footer-bottom d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
-            <div class="fm-footer-bottom__legal">
-                <p class="small m-0">
-                    {!! $fmCopyright !== '' ? $fmCopyright : ('&copy; ' . date('Y') . ' ' . e($fmShopName) . '. All rights reserved.') !!}
-                </p>
+    <div class="fm-footer-bottom">
+        <div class="container fm-footer-bottom__inner">
+            <p class="fm-footer-bottom__copy small m-0">
+                {!! $fmCopyright !== '' ? $fmCopyright : ('&copy; ' . date('Y') . ' ' . e($fmShopName) . '. All rights reserved.') !!}
+            </p>
 
-                {{-- Terms & Policies group from Website Setup -> Footer. The
-                     classic footer renders the same rows as its own column. --}}
-                @if(!empty($fmPolicyLinks))
-                    <ul class="list-inline small mb-0 mt-1">
-                        @foreach($fmPolicyLinks as $fmPolicyLink)
-                            <li class="list-inline-item">
-                                <a href="{{ $fmPolicyLink['url'] }}"
-                                   @if(!empty($fmPolicyLink['new_tab'])) target="_blank" rel="noopener" @endif>
-                                    {{ $fmPolicyLink['label'] }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
-            </div>
-            <div class="fm-footer-payment">
-                @include('frontend.partials.payment-methods')
-            </div>
+            @if($fmPolicyLinks !== [])
+                <ul class="fm-footer-bottom__policy list-inline small m-0">
+                    @foreach($fmPolicyLinks as $fmPolicyLink)
+                        <li class="list-inline-item">
+                            <a href="{{ $fmPolicyLink['url'] }}"
+                               @if(!empty($fmPolicyLink['new_tab'])) target="_blank" rel="noopener" @endif>
+                                {{ $fmPolicyLink['label'] }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
         </div>
-
     </div>
 </footer>
 <!-- END: MainFooter -->

@@ -1,0 +1,22 @@
+/* Website Setup > Appearance: the two fallback-image preview boxes.
+   Both render the same image identically, so the admin slot cannot look
+   like a stepchild next to the frontend slot. */
+
+.appearance-preview-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  border: 1px solid #d5d9e2;
+  border-radius: 0.375rem;
+  background: #fff;
+  min-height: 130px;
+}
+
+.appearance-preview-img {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  border-radius: 6px;
+  object-fit: contain;
+}

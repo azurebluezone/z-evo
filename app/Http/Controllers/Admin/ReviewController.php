@@ -102,6 +102,56 @@ class ReviewController extends Controller
 
         return view('backEnd.review.pending', compact('data'));
     }
+
+    /**
+     * Full review, with the product and customer context a moderator needs
+     * before approving or deleting it. The list only carries truncated text,
+     * so a decision made from the list alone cannot see the whole review.
+     */
+    public function show($id)
+    {
+        $review = Review::with([
+            'product:id,name,product_code,new_price,stock,status',
+            'customer:id,name,email,phone,status',
+        ])->findOrFail($id);
+
+        $productRating = Review::query()
+            ->where('product_id', $review->product_id)
+            ->where('status', 'active')
+            ->selectRaw('COUNT(*) as total, AVG(ratting) as average')
+            ->first();
+
+        return view('backEnd.review.show', compact('review', 'productRating'));
+    }
+
+    /**
+     * Bulk moderation for the row checkboxes on the list page.
+     *
+     * The list has carried a "check all" control for a long time but no form
+     * ever submitted the selection, so the boxes did nothing. Every id is
+     * validated against the table before the update/delete runs.
+     */
+    public function bulk(Request $request)
+    {
+        $this->validate($request, [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:reviews,id',
+            'bulk_action' => 'required|in:active,pending,delete',
+        ]);
+
+        $ids = $request->input('ids');
+
+        if ($request->bulk_action === 'delete') {
+            $count = Review::whereIn('id', $ids)->delete();
+            Toastr::success('Success', $count . ' review(s) deleted successfully');
+        } else {
+            $count = Review::whereIn('id', $ids)->update(['status' => $request->bulk_action]);
+            Toastr::success('Success', $count . ' review(s) marked ' . $request->bulk_action);
+        }
+
+        return redirect()->back();
+    }
+
     public function inactive(Request $request){
         $inactive = Review::findOrFail($request->hidden_id);
         $inactive->status = 'pending';

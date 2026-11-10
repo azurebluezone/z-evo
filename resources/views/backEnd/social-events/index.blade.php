@@ -345,46 +345,36 @@
             <div class="tab-pane fade show active" id="facebook-settings" role="tabpanel" aria-labelledby="facebook-tab">
               <div class="row g-4">
                 <div class="col-md-6">
-                  <div class="mb-2">
-                    <label class="form-label mb-1"><i class="icon-base ri ri-code-box-line me-1 text-primary"></i>Facebook Pixel ID</label>
-                    <input type="text" name="facebook_pixel_id" class="form-control" value="{{ old('facebook_pixel_id', $settings->facebook_pixel_id ?? '') }}" placeholder="e.g. 3602672243223193">
-                  </div>
-                  <small class="text-muted">Paste your Facebook Pixel ID from <strong>Meta Events Manager → Data Sources</strong></small>
+                  <x-admin.input name="facebook_pixel_id" label="Facebook Pixel ID"
+                                 :value="$settings->facebook_pixel_id ?? ''"
+                                 autocomplete="off" placeholder="e.g. 3602672243223193" />
                 </div>
                 <div class="col-md-6">
-                  <div class="mb-2">
-                    <label class="form-label mb-1"><i class="icon-base ri ri-key-line me-1 text-warning"></i>Conversion API Token</label>
-                    <input type="text" name="facebook_conversion_api_token" class="form-control" value="{{ old('facebook_conversion_api_token', $settings->facebook_conversion_api_token ?? '') }}" placeholder="e.g. EAAB...">
-                  </div>
-                  <small class="text-muted">Generate from <strong>Meta Events Manager → Settings → Conversions API → Create Token</strong></small>
+                  <x-admin.input name="facebook_conversion_api_token" label="Conversion API Token"
+                                 :value="$settings->facebook_conversion_api_token ?? ''" placeholder="e.g. EAAB..." />
                 </div>
                 <div class="col-md-4">
-                  <div class="mb-2">
-                    <label class="form-label mb-1"><i class="icon-base ri ri-git-branch-line me-1 text-info"></i>API Version</label>
-                    <select name="facebook_conversion_api_version" class="form-select">
-                      <option value="v18.0" {{ (old('facebook_conversion_api_version', $settings->facebook_conversion_api_version ?? 'v18.0') == 'v18.0') ? 'selected' : '' }}>v18.0 (Latest)</option>
-                      <option value="v17.0" {{ (old('facebook_conversion_api_version', $settings->facebook_conversion_api_version ?? '') == 'v17.0') ? 'selected' : '' }}>v17.0</option>
-                      <option value="v16.0" {{ (old('facebook_conversion_api_version', $settings->facebook_conversion_api_version ?? '') == 'v16.0') ? 'selected' : '' }}>v16.0</option>
-                      <option value="v15.0" {{ (old('facebook_conversion_api_version', $settings->facebook_conversion_api_version ?? '') == 'v15.0') ? 'selected' : '' }}>v15.0</option>
-                    </select>
-                  </div>
+                  <x-admin.select name="facebook_conversion_api_version" label="API Version"
+                                  :options="[
+                                      'v18.0' => 'v18.0 (Latest)',
+                                      'v17.0' => 'v17.0',
+                                      'v16.0' => 'v16.0',
+                                      'v15.0' => 'v15.0',
+                                  ]"
+                                  :selected="$settings->facebook_conversion_api_version ?? 'v18.0'" />
                 </div>
                 <div class="col-md-8">
-                  <div class="mb-2">
-                    <label class="form-label mb-1"><i class="icon-base ri ri-list-check me-1 text-success"></i>Custom Events (JSON)</label>
-                    <textarea name="facebook_custom_events" class="form-control" rows="2" placeholder='[{"name":"CustomEvent","data":{"key":"value"}}]'>{{ old('facebook_custom_events', $settings->facebook_custom_events ?? '') }}</textarea>
-                  </div>
+                  <x-admin.textarea name="facebook_custom_events" label="Custom Events (JSON)"
+                                    rows="2"
+                                    placeholder='[{"name":"CustomEvent","data":{"key":"value"}}]'
+                                    :value="$settings->facebook_custom_events ?? ''" />
                 </div>
                 <div class="col-12">
                   <div class="d-flex gap-4 flex-wrap bg-light p-3 rounded">
-                    <div class="form-check">
-                      <input type="checkbox" name="facebook_server_side_tracking" class="form-check-input" id="fbServerSide" value="1" {{ old('facebook_server_side_tracking', $settings->facebook_server_side_tracking ?? false) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-medium" for="fbServerSide">Server-Side Tracking (Conversions API)</label>
-                    </div>
-                    <div class="form-check">
-                      <input type="checkbox" name="facebook_enhanced_ecommerce" class="form-check-input" id="fbEnhancedEcom" value="1" {{ old('facebook_enhanced_ecommerce', $settings->facebook_enhanced_ecommerce ?? false) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-medium" for="fbEnhancedEcom">Enhanced Ecommerce</label>
-                    </div>
+                    <x-admin.switch name="facebook_server_side_tracking" label="Server-Side Tracking (Conversions API)"
+                                    :checked="$settings->facebook_server_side_tracking ?? false" />
+                    <x-admin.switch name="facebook_enhanced_ecommerce" label="Enhanced Ecommerce"
+                                    :checked="$settings->facebook_enhanced_ecommerce ?? false" />
                   </div>
                 </div>
               </div>
@@ -394,33 +384,25 @@
             <div class="tab-pane fade" id="tiktok-settings" role="tabpanel" aria-labelledby="tiktok-tab">
               <div class="row g-4">
                 <div class="col-md-6">
-                  <div class="mb-2">
-                    <label class="form-label mb-1"><i class="icon-base ri ri-code-box-line me-1 text-danger"></i>TikTok Pixel ID</label>
-                    <input type="text" name="tiktok_pixel_id" class="form-control" value="{{ old('tiktok_pixel_id', $settings->tiktok_pixel_id ?? '') }}" placeholder="e.g. C4BSC3JCGK4S7A74QGHG">
-                  </div>
-                  <small class="text-muted">Enter your TikTok Pixel ID from <strong>TikTok Ads Manager → Events</strong></small>
+                  <x-admin.input name="tiktok_pixel_id" label="TikTok Pixel ID"
+                                 :value="$settings->tiktok_pixel_id ?? ''" placeholder="e.g. C4BSC3JCGK4S7A74QGHG" />
                 </div>
                 <div class="col-md-6">
-                  <div class="mb-2">
-                    <label class="form-label mb-1"><i class="icon-base ri ri-key-line me-1 text-warning"></i>Access Token</label>
-                    <input type="text" name="tiktok_access_token" class="form-control" value="{{ old('tiktok_access_token', $settings->tiktok_access_token ?? '') }}" placeholder="e.g. eaa9b...">
-                  </div>
-                  <small class="text-muted">Generate from <strong>TikTok Ads Manager → Events → Server-side Events → Create Access Token</strong></small>
+                  <x-admin.input name="tiktok_access_token" label="Access Token"
+                                 :value="$settings->tiktok_access_token ?? ''" placeholder="e.g. eaa9b..." />
                 </div>
                 <div class="col-12">
                   <div class="d-flex gap-4 flex-wrap bg-light p-3 rounded">
-                    <div class="form-check">
-                      <input type="checkbox" name="tiktok_server_side_tracking" class="form-check-input" id="ttServerSide" value="1" {{ old('tiktok_server_side_tracking', $settings->tiktok_server_side_tracking ?? false) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-medium" for="ttServerSide">Server-Side Tracking (Events API)</label>
-                    </div>
-                    <div class="form-check">
-                      <input type="checkbox" name="tiktok_browser_tracking" class="form-check-input" id="ttBrowserSide" value="1" {{ old('tiktok_browser_tracking', $settings->tiktok_browser_tracking ?? false) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-medium" for="ttBrowserSide">Browser-Side Tracking (Pixel)</label>
-                    </div>
-                    <div class="form-check">
-                      <input type="checkbox" name="tiktok_test_mode" class="form-check-input" id="ttTestMode" value="1" {{ old('tiktok_test_mode', $settings->tiktok_test_mode ?? false) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-medium" for="ttTestMode">Test Mode</label>
-                    </div>
+                    <x-admin.switch name="tiktok_server_side_tracking" label="Server-Side Tracking (Events API)"
+                                    :checked="$settings->tiktok_server_side_tracking ?? false" />
+                    <x-admin.switch name="tiktok_browser_tracking" label="Browser-Side Tracking (Pixel)"
+                                    :checked="$settings->tiktok_browser_tracking ?? false" />
+                    <x-admin.switch name="tiktok_test_mode" label="Test Mode"
+                                    :checked="$settings->tiktok_test_mode ?? false" />
+                  </div>
+                  <div class="mt-3">
+                    <x-admin.input name="tiktok_test_event_code" id="ttTestEventCode" label="Test event code"
+                                   :value="$settings->tiktok_test_event_code ?? ''" placeholder="e.g. TEST12345" />
                   </div>
                 </div>
               </div>
@@ -430,25 +412,17 @@
             <div class="tab-pane fade" id="google-settings" role="tabpanel" aria-labelledby="google-tab">
               <div class="row g-4">
                 <div class="col-md-6">
-                  <div class="mb-2">
-                    <label class="form-label mb-1"><i class="icon-base ri ri-code-box-line me-1 text-primary"></i>GTM Server Container ID</label>
-                    <input type="text" name="gtm_server_container_id" class="form-control" value="{{ old('gtm_server_container_id', $settings->gtm_server_container_id ?? '') }}" placeholder="e.g. GTM-XXXXXXX">
-                  </div>
-                  <small class="text-muted">Enter your <strong>Google Tag Manager</strong> server container ID</small>
+                  <x-admin.input name="gtm_server_container_id" label="GTM Server Container ID"
+                                 :value="$settings->gtm_server_container_id ?? ''" placeholder="e.g. GTM-XXXXXXX" />
                 </div>
                 <div class="col-md-6">
-                  <div class="mb-2">
-                    <label class="form-label mb-1"><i class="icon-base ri ri-link me-1 text-info"></i>GTM Server URL</label>
-                    <input type="text" name="gtm_server_url" class="form-control" value="{{ old('gtm_server_url', $settings->gtm_server_url ?? '') }}" placeholder="e.g. https://gtm.example.com">
-                  </div>
-                  <small class="text-muted">The URL of your <strong>GTM server container</strong> endpoint</small>
+                  <x-admin.input name="gtm_server_url" label="GTM Server URL"
+                                 :value="$settings->gtm_server_url ?? ''" placeholder="e.g. https://gtm.example.com" />
                 </div>
                 <div class="col-12">
                   <div class="bg-light p-3 rounded">
-                    <div class="form-check">
-                      <input type="checkbox" name="gtm_server_side_tracking" class="form-check-input" id="gtmServerSide" value="1" {{ old('gtm_server_side_tracking', $settings->gtm_server_side_tracking ?? false) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-medium" for="gtmServerSide">Server-Side Tracking (GTM Server Container)</label>
-                    </div>
+                    <x-admin.switch name="gtm_server_side_tracking" label="Server-Side Tracking (GTM Server Container)"
+                                    :checked="$settings->gtm_server_side_tracking ?? false" />
                   </div>
                 </div>
               </div>
@@ -458,23 +432,22 @@
             <div class="tab-pane fade" id="contact-settings" role="tabpanel" aria-labelledby="contact-tab">
               <div class="row g-4">
                 <div class="col-md-4">
-                  <label class="form-label mb-1"><i class="icon-base ri ri-whatsapp-line me-1 text-success"></i>WhatsApp Number</label>
-                  <input type="text" name="whatsapp_number" class="form-control" value="{{ old('whatsapp_number', $settings->whatsapp_number ?? '') }}" placeholder="e.g. +8801700000000">
+                  <x-admin.input name="whatsapp_number" label="WhatsApp Number"
+                                 :value="$settings->whatsapp_number ?? ''" placeholder="e.g. +8801700000000" />
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label mb-1"><i class="icon-base ri ri-messenger-line me-1 text-primary"></i>Messenger Link</label>
-                  <input type="text" name="messenger_link" class="form-control" value="{{ old('messenger_link', $settings->messenger_link ?? '') }}" placeholder="e.g. https://m.me/username">
+                  <x-admin.input name="messenger_link" label="Messenger Link"
+                                 :value="$settings->messenger_link ?? ''" placeholder="e.g. https://m.me/username" />
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label mb-1"><i class="icon-base ri ri-phone-line me-1 text-info"></i>Support Phone</label>
-                  <input type="text" name="support_phone" class="form-control" value="{{ old('support_phone', $settings->support_phone ?? '') }}" placeholder="e.g. +8801700000000">
+                  <x-admin.input name="support_phone" label="Support Phone"
+                                 :value="$settings->support_phone ?? ''" placeholder="e.g. +8801700000000" />
                 </div>
               </div>
             </div>
           </div>
 
           <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
-            <small class="text-muted"><i class="icon-base ri ri-information-line me-1"></i>Changes are saved immediately via POST request</small>
             <x-admin.button variant="primary" class="px-4" type="submit">
               <i class="icon-base ri ri-save-line me-1"></i>Save Settings
             </x-admin.button>

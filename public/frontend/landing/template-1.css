@@ -1,0 +1,76 @@
+/* Generated from resources/views/templates/template-1.blade.php by tools/extract_landing_assets.py. */
+/* Do not edit this CSS by hand; edit the Blade source or responsive.css. */
+
+:root {
+      --background: #ffffff;
+      --foreground: #111111;
+      --primary: #01a31c;
+      --primary-foreground: #ffffff;
+      --danger: #ff0000;
+      --danger-foreground: #ffffff;
+      --accent: #f05a28;
+      --accent-foreground: #ffffff;
+      --muted: #f8fafc;
+      --muted-foreground: #64748b;
+      --border: #e2e8f0;
+      --input-border: #d1d5db;
+      --font-family-body: Inter, system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family-body); background-color: var(--background); color: var(--foreground); line-height: 1.5; }
+    .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+    .text-center { text-align: center; }
+    .fw-bold { font-weight: 700; }
+    .fw-semibold { font-weight: 600; }
+    .fw-medium { font-weight: 500; }
+    .text-primary { color: var(--primary); }
+    .text-danger { color: var(--danger); }
+
+    .page-title { font-size: 36px; margin: 32px 0 20px; }
+    .hero-img-wrapper { border: 3px solid var(--primary); padding: 4px; border-radius: 4px; margin-bottom: 24px; background: var(--background); }
+    .hero-img-wrapper img { width: 100%; height: auto; display: block; }
+    .countdown-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; }
+    .countdown-box { background-color: var(--primary); color: var(--primary-foreground); width: 80px; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 4px; }
+    .countdown-val { font-size: 40px; line-height: 1; }
+    .countdown-label { font-size: 14px; margin-top: 4px; }
+    .pricing-row { display: flex; justify-content: center; align-items: center; gap: 16px; font-size: 24px; margin-bottom: 32px; flex-wrap: wrap; }
+    .price-strike-wrapper { position: relative; color: var(--foreground); display: inline-block; }
+    .price-strike-line { position: absolute; top: 50%; left: -5%; width: 110%; height: 3px; background-color: var(--danger); transform: rotate(-10deg); }
+    .price-circle-wrapper { color: var(--danger); border: 2px solid var(--danger); border-radius: 50px; padding: 4px 16px; display: inline-block; margin: 0 4px; }
+    .btn-cta { background-color: var(--danger); color: var(--danger-foreground); font-size: 20px; border: none; padding: 14px 28px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; margin-bottom: 40px; text-decoration: none; }
+
+    .full-banner { background-color: var(--primary); color: var(--primary-foreground); padding: 16px 20px; font-size: 28px; margin-bottom: 32px; }
+    .desc-text { font-size: 16px; max-width: 800px; margin: 0 auto 32px; line-height: 1.6; }
+    .feature-list-wrapper { max-width: 760px; margin: 0 auto 32px; }
+    .feature-list { list-style: none; }
+    .feature-list li { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--foreground); text-align: left; }
+    .feature-list li:last-child { border-bottom: none; }
+    .mid-price { font-size: 32px; margin-bottom: 24px; }
+
+    .form-wrapper { border: 2px solid var(--primary); border-radius: 12px; padding: 40px; margin-bottom: 60px; background-color: var(--background); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .form-title { font-size: 18px; margin-bottom: 24px; color: var(--foreground); }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    .form-label { display: block; font-size: 13px; margin-bottom: 6px; color: #333; font-weight: 600; }
+    .form-input { width: 100%; border: 1px solid var(--input-border); padding: 12px 14px; border-radius: 4px; background-color: var(--background); font-size: 14px; }
+    .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(1,163,28,0.15); }
+    .form-select { width: 100%; border: 1px solid var(--input-border); padding: 12px 14px; border-radius: 4px; background-color: var(--background); font-size: 14px; }
+    .form-textarea { width: 100%; border: 1px solid var(--input-border); padding: 12px 14px; border-radius: 4px; background-color: var(--background); font-size: 14px; min-height: 80px; }
+
+    .order-summary-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; text-align: left; }
+    .order-summary-table th { font-size: 14px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+    .order-summary-table td { padding: 16px 0; font-size: 14px; border-bottom: 1px solid var(--border); }
+    .order-summary-table th:last-child, .order-summary-table td:last-child { text-align: right; }
+
+    .payment-box { background-color: var(--muted); padding: 20px; border-radius: 4px; margin-bottom: 24px; }
+    .payment-option { display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 12px; cursor: pointer; }
+    .privacy-text { font-size: 11px; color: #64748b; margin-bottom: 20px; line-height: 1.5; }
+    .btn-submit { background-color: var(--accent); color: var(--accent-foreground); width: 100%; border: none; padding: 16px; font-size: 16px; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; font-weight: 700; }
+
+    .footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted-foreground); border-top: 1px solid var(--border); }
+
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; gap: 24px; }
+      .countdown-box { width: 60px; height: 70px; }
+      .countdown-val { font-size: 28px; }
+    }

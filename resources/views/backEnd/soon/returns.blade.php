@@ -19,7 +19,7 @@
             <div class="d-flex align-items-center justify-content-between">
               <div>
                 <div class="fw-semibold">ReturnsSoon</div>
-                <div class="text-muted">এই মডিউলটি পরবর্তী ধাপে ডেভেলপ হবে (policy + workflow + ledger integration)।</div>
+                <div class="text-muted">This module is planned for the next phase (policy + workflow + ledger integration).</div>
               </div>
               <span class="badge text-bg-secondary">Soon</span>
             </div>

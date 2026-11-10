@@ -15,20 +15,22 @@
    -------------------------------------------------------------------------- */
 
 .app-footer {
-    background-color: #122e15;
-    color: #94a3b8;
-    font-size: 0.82rem;
+    background-color: #064525;
+    color: #cbd5e1;
+    font-size: 0.84375rem;
     padding-top: 50px;
-    padding-bottom: 25px;
-    border-top: 1px solid #091a0b;
+    padding-bottom: 0;
+    border-top: 0;
 }
 
-.app-footer h6 {
+.app-footer h6,
+.app-footer .fm-footer-heading {
     color: #ffffff;
-    font-size: 0.88rem;
+    font-size: 0.9375rem;
     font-weight: 700;
-    margin-bottom: 16px;
-    letter-spacing: 0.02em;
+    margin-bottom: 18px;
+    letter-spacing: 0;
+    line-height: 1.3;
 }
 
 .app-footer a {
@@ -95,18 +97,21 @@
     width: 32px;
     height: 32px;
     transform: translate(-50%, -50%);
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    border: 0;
     border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
     pointer-events: none;
+    transition: background 0.2s ease;
 }
 
 .app-footer .fm-footer-brand__social .btn:hover::after {
-    border-color: #ffffff;
+    background: #0b6b3a;
 }
 
 .app-footer .fm-footer-brand__social .btn i {
     position: relative;
     z-index: 1;
+    font-size: 13px;
 }
 
 /* Contact icons: same success green the reference uses. */
@@ -115,16 +120,17 @@
 }
 
 /* ==========================================================================
-   WHITE COPY (shop request)
+   REFERENCE COPY
    --------------------------------------------------------------------------
-   The reference prints the story paragraph and the support rows in muted
-   slate (#94a3b8). The shop asked for those four blocks in white; the
-   headings were already white. These rules carry the change, so the markup
-   stays a same-to-same copy of the reference and no Bootstrap utility has to
-   be fought with inline styles.
+   home.html prints the story paragraph in #cbd5e1 at 13.5px / 1.6 and the
+   support rows in muted slate. These rules carry that treatment so the
+   markup stays a same-to-same copy of the reference and no Bootstrap
+   utility has to be fought with inline styles.
    ========================================================================== */
 .app-footer .fm-footer-brand__text {
-    color: #ffffff;
+    color: #cbd5e1;
+    font-size: 0.84375rem;
+    line-height: 1.6;
 }
 
 .app-footer .fm-footer-brand__text p {
@@ -133,7 +139,7 @@
 
 .app-footer .fm-footer-support__list,
 .app-footer .fm-footer-support__list li {
-    color: #ffffff;
+    color: #cbd5e1;
 }
 
 /* An email address or a long street has no break opportunity in a narrow
@@ -159,13 +165,22 @@
 .app-footer .fm-footer-bottom__policy a {
     display: flex;
     align-items: center;
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 30px;
+    min-width: 30px;
     max-width: 100%;
 }
 
 .app-footer .fm-footer-linkcol ul {
-    gap: 0 !important;                /* 44 px rows supply the rhythm */
+    gap: 0 !important;                /* the 30px row supplies the rhythm */
+}
+
+@media (hover: none), (max-width: 991.98px) {
+    .app-footer .fm-footer-linkcol a,
+    .app-footer .fm-footer-menu__list a,
+    .app-footer .fm-footer-bottom__policy a {
+        min-height: 44px;             /* WCAG tap target on touch */
+        min-width: 44px;
+    }
 }
 
 /* --------------------------------------------------------------------------
@@ -188,7 +203,7 @@
 .app-footer .fm-footer-support__list,
 .app-footer .fm-footer-support__list li,
 .app-footer .fm-footer-support__list span {
-    font-size: 0.75rem;
+    font-size: 0.84375rem;
 }
 
 .app-footer .fm-footer-bottom__pay-toggle {
@@ -201,16 +216,16 @@
 
     .app-footer .fm-footer-linkcol {
         padding-inline: 0.35rem;
-        font-size: 0.75rem;
+        font-size: 0.84375rem;
     }
 
     .app-footer .fm-footer-linkcol h6 {
-        font-size: 0.78rem;
-        margin-bottom: 10px;
+        font-size: 0.9375rem;
+        margin-bottom: 18px;
     }
 
     .app-footer .fm-footer-linkcol a {
-        font-size: 0.75rem;
+        font-size: 0.84375rem;
         overflow-wrap: anywhere;
     }
 
@@ -539,22 +554,27 @@
 }
 
 /* ==========================================================================
-   BOTTOM BAR  |  menu  |  payment methods  |  copyright
+   BOTTOM BAR  |  copyright  |  policy links
    --------------------------------------------------------------------------
-   A 3-cell grid rather than a flex row: the payment image is centred on the
-   BAR itself, so a long menu on the left can never push it off centre.
-
-   Below lg it is one centred stack (menu, logo, copyright); at lg it is the
-   three-cell row.
+   Full-bleed #04341b band with its own container, exactly like the reference:
+   the darker strip runs edge to edge while the copy stays on the page grid.
    ========================================================================== */
 .app-footer .fm-footer-bottom {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
+    display: block;
+    margin-top: 40px;
+    padding: 16px 0;
+    background: #04341b;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.app-footer .fm-footer-bottom__inner {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    margin-top: 26px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    justify-content: space-between;
+    gap: 8px 18px;
+    color: #94a3b8;
+    font-size: 0.78125rem;
 }
 
 .app-footer .fm-footer-bottom__pay {
@@ -569,14 +589,15 @@
 
 .app-footer .fm-footer-bottom__copy {
     color: #94a3b8;
+    font-size: 0.78125rem;
 }
 
 .app-footer .fm-footer-bottom__policy {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 4px 14px;
-    margin-top: 4px;
+    gap: 0 14px;
+    margin: 0;
 }
 
 /* THE PAYMENT IMAGE CANNOT GROW THE BAR.
@@ -596,23 +617,14 @@
 }
 
 .app-footer .fm-footer-bottom__policy a {
-    font-size: 0.78rem;
+    font-size: 0.78125rem;
+    color: #94a3b8;
 }
 
-/* --- lg: the reference row above, the three-cell bar below ---------------- */
+/* --- lg: keep the copy and policy at the two ends of the band ------------- */
 @media (min-width: 992px) {
-    .app-footer .fm-footer-bottom {
-        grid-template-columns: 1fr auto 1fr;
-        gap: 24px;
-    }
-
     .app-footer .fm-footer-bottom__pay-img {
         max-height: 40px;
-    }
-
-    .app-footer .fm-footer-bottom__legal {
-        justify-self: end;
-        text-align: right;
     }
 
     .app-footer .fm-footer-bottom__policy {
@@ -891,8 +903,17 @@
    only keep the fallback if the Bootstrap grid sheet fails to load.
    ========================================================================== */
 @media (max-width: 991.98px) {
+    /* The fixed tab bar is 56px tall and the raised Home button pokes 16px
+       above it. The reference reserves that space on the body; reserving it
+       as the footer's bottom margin keeps the footer itself full-bleed
+       #064525+#04341b and leaves no green strip under the bar. */
     .app-footer {
-        padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+        /* The bar measures 82px on this storefront (6 + 70 + 6 + safe area),
+           not the reference's 65px, so reserve 88px: 82 + a 6px breathing
+           gap. With 76px the last 6px of the #04341b strip sat behind the
+           fixed nav. */
+        margin-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+        padding-bottom: 0;
     }
 
     /* Two-up below lg, exactly like the reference: Categories + Company on
@@ -942,29 +963,12 @@
         display: block;
     }
 
-    /* Back-to-top is a fixed 40px circle at bottom:25px. Above the tab bar it
-       would float over the copyright/policy rows, and the tab bar's Home link
-       already covers the "back to the top of the site" job. Hide it below lg
-       rather than leave two floating controls fighting for the same corner. */
+    /* The reference lifts its scroll-top control above the fixed tab bar
+       (bottom:75px) instead of hiding it. The global button keeps its own
+       .show opacity contract; only the seat moves. */
     #backToTopBtn {
-        display: none !important;
-    }
-}
-
-/* ==========================================================================
-   PHONE ONLY: DROP THE THIRD LINK COLUMN
-   --------------------------------------------------------------------------
-   Below lg the grid is two-up: Categories + Company share the first row and
-   Customer Support wraps to a second row at half width, leaving one orphan
-   column under the pair. On a narrow phone that reads as three stacked rows
-   and wastes height. Company is the column to drop: Categories is shopping
-   navigation and Customer Support carries the phone / email that the phone
-   announcement bar hides, so both stay. The result is one balanced row:
-   Categories + Customer Support.
-   ========================================================================== */
-@media (max-width: 575.98px) {
-    .app-footer .fm-footer-company-col {
-        display: none !important;
+        bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+        right: 16px;
     }
 }
 
@@ -978,5 +982,152 @@
 @media (min-width: 992px) {
     .app-mobile-nav {
         display: none !important;
+    }
+}
+/* ==========================================================================
+   REFERENCE FOOTER LAYOUT (home.html, 2026-11-07)
+   --------------------------------------------------------------------------
+   Desktop: brand 4 / Quick Links 2 / Customer Care 2 / My Account 2 /
+   Download App 2 = 12 columns. Below 992px the brand block centres and the
+   four link columns stay visible two-up (col-6) - the phone footer is not a
+   card and never hides its navigation. The bottom bar is the full-bleed
+   #04341b strip with a 1px rgba(255,255,255,.12) top border and 16px
+   vertical padding; under 768px its copy and policy links centre.
+   ========================================================================== */
+.app-footer .fm-footer-grid {
+    margin-bottom: 4px;
+}
+
+.app-footer .fm-footer-brand__text {
+    color: #cbd5e1;
+    max-width: 320px;
+}
+
+.app-footer .fm-footer-brand__logo--chip {
+    padding: 8px 12px;
+    background: #ffffff;
+    border-radius: 8px;
+}
+
+.app-footer .fm-footer-brand__logo--chip img {
+    height: 26px !important;
+    max-height: 26px !important;
+}
+
+.app-footer .fm-footer-heading {
+    margin-top: 0;
+}
+
+.app-footer a:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* --- Download App badges: the reference's translucent plate ------------- */
+.app-footer .fm-footer-app__label {
+    margin: 0 0 12px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+.app-footer .fm-footer-app__badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.app-footer .fm-store-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.1;
+    text-decoration: none;
+}
+
+.app-footer .fm-store-badge:hover {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+.app-footer .fm-store-badge i {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.app-footer .fm-store-badge__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.app-footer .fm-store-badge__text small {
+    font-size: 0.5625rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #d7e8d9;
+    line-height: 1;
+}
+
+.app-footer .fm-store-badge__text strong {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+}
+
+@media (max-width: 991.98px) {
+    .app-footer .fm-footer-grid {
+        row-gap: 1.5rem;
+        --bs-gutter-x: 1rem;
+    }
+
+    .app-footer .fm-footer-brand__row {
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    /* Full-bleed footer; the reference has no inset card on a phone. */
+    .app-footer {
+        margin-inline: 0;
+        padding: 40px 0 0;
+        border-radius: 0;
+    }
+
+    .app-footer .fm-footer-brand__text {
+        margin-inline: auto;
+        text-align: center;
+    }
+
+    .app-footer .fm-footer-bottom__inner {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-align: center;
+    }
+
+    .app-footer .fm-footer-bottom__policy {
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-footer a,
+    .app-footer .fm-footer-brand__social .btn::after {
+        transition: none;
     }
 }

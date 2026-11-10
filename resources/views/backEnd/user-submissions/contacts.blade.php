@@ -21,7 +21,7 @@
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3">
         <h5 class="mb-0 text-uppercase fw-bold">Contact Messages</h5>
         <div class="d-flex flex-wrap gap-2">
-            <form method="post" action="{{ route('admin.user-submissions.bulk-notify') }}" class="d-flex flex-wrap gap-2 m-0">
+            <form method="post" action="{{ route('admin.user-submissions.bulk-notify') }}" data-bulk-notify-form="true" class="d-flex flex-wrap gap-2 m-0">
                 @csrf
                 <input type="hidden" name="type" value="contacts">
                 <select name="template_id" class="form-select form-select-sm" style="min-width: 200px;" aria-label="Notification template">
@@ -51,7 +51,7 @@
                 <thead>
                     <tr>
                         <th style="width:44px" class="text-center">
-                            <input class="form-check-input" type="checkbox" id="contacts-check-all" aria-label="Select all">
+                            <input class="form-check-input" type="checkbox" id="contacts-check-all" data-bulk-group="contacts" aria-label="Select all">
                         </th>
                         <th style="width:22%">Name</th>
                         <th style="width:22%" class="d-none d-md-table-cell">Email</th>
@@ -148,57 +148,6 @@
 </div>
 
 @push('script')
-<script>
-(function () {
-    'use strict';
-
-    var checkAll = document.getElementById('contacts-check-all');
-    var bulkDeleteBtn = document.getElementById('contacts-bulk-delete-btn');
-    var bulkDeleteForm = document.getElementById('contacts-bulk-delete-form');
-    if (!checkAll || !bulkDeleteBtn || !bulkDeleteForm) return;
-
-    var items = function () {
-        return Array.prototype.slice.call(document.querySelectorAll('.contacts-check'));
-    };
-
-    var fillIds = function (form, selected) {
-        form.querySelectorAll('input[name="ids[]"]').forEach(function (node) { node.remove(); });
-        selected.forEach(function (id) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'ids[]';
-            input.value = id;
-            form.appendChild(input);
-        });
-    };
-
-    var selectedIds = function () {
-        return items().filter(function (cb) { return cb.checked; }).map(function (cb) { return cb.value; });
-    };
-
-    checkAll.addEventListener('change', function () {
-        items().forEach(function (cb) { cb.checked = checkAll.checked; });
-    });
-
-    bulkDeleteBtn.addEventListener('click', function () {
-        var selected = selectedIds();
-        if (!selected.length) return;
-        fillIds(bulkDeleteForm, selected);
-        bulkDeleteForm.submit();
-    });
-
-    var notifyForm = document.querySelector('form[action="{{ route('admin.user-submissions.bulk-notify') }}"]');
-    if (notifyForm) {
-        notifyForm.addEventListener('submit', function (e) {
-            var selected = selectedIds();
-            if (!selected.length) {
-                e.preventDefault();
-                return;
-            }
-            fillIds(notifyForm, selected);
-        });
-    }
-})();
-</script>
+<script src="{{ asset('admin/assets/js/admin-page-bulk.js') }}"></script>
 @endpush
 @endsection

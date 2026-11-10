@@ -5,7 +5,7 @@
                 $menuCategoryIconPath = preg_replace('~^public/~', '', (string) ($category->image ?? ''));
                 $menuCategoryIconPath = ltrim($menuCategoryIconPath, '/');
                 if (empty($menuCategoryIconPath) || !\Illuminate\Support\Facades\File::exists(public_path($menuCategoryIconPath))) {
-                    $menuCategoryIconPath = 'uploads/category/default.png';
+                    $menuCategoryIconPath = \App\Support\MediaPath::fallbackPath();
                 }
                 $hasMega = isset($category->subcategories) && $category->subcategories->count() > 0;
             @endphp

@@ -20,6 +20,12 @@ class Order extends Model
     protected $casts = [
         'risk_last_checked_at' => 'datetime',
         'risk_score_percent'   => 'integer',
+        // Money is DECIMAL(12,2) since 2026_11_02_000002: keep the two paisa
+        // digits when the row is serialised instead of letting a float round
+        // 12.50 to 12.5 and then to 12 on an integer column.
+        'amount'               => 'decimal:2',
+        'discount'             => 'decimal:2',
+        'shipping_charge'      => 'decimal:2',
     ];
 
     public function courierShipments()

@@ -23,12 +23,8 @@
 
 <div class="fm-contact__card bg-white rounded-2xl border border-gray-200/80 shadow-xs p-5 sm:p-6">
 
-    @if (session('success'))
-        <div class="alert alert-success" role="status">{{ session('success') }}</div>
-    @endif
-    @if (session('error'))
-        <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
-    @endif
+    {{-- Flash success/error is printed once by frontend.fm.layouts above
+         <main>; repeating it here showed "Message sent successfully" twice. --}}
     @if ($errors->any())
         <div class="alert alert-danger" role="alert">
             <ul class="mb-0 ps-3">

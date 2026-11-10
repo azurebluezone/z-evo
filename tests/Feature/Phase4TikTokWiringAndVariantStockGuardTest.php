@@ -43,6 +43,19 @@ class Phase4TikTokWiringAndVariantStockGuardTest extends TestCase
         }
 
         if (!empty($this->createdCustomerIds)) {
+            // Order placement notifies every admin. Delete those messages
+            // before the orders they point at, or the panel keeps a "New
+            // Order Placed" notice for a row that no longer exists.
+            $orderIds = DB::table('orders')
+                ->whereIn('customer_id', $this->createdCustomerIds)
+                ->pluck('id');
+
+            foreach ($orderIds as $orderId) {
+                DB::table('notifications')
+                    ->where('data', 'like', '%"order_id":' . (int) $orderId . '%')
+                    ->delete();
+            }
+
             DB::table('orders')->whereIn('customer_id', $this->createdCustomerIds)->delete();
             DB::table('payments')->whereIn('customer_id', $this->createdCustomerIds)->delete();
             DB::table('shippings')->whereIn('customer_id', $this->createdCustomerIds)->delete();

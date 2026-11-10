@@ -1,0 +1,24 @@
+{"ts":"2026-11-09T17:06:33.966Z","kind":"syllabus.append","agent":"plugin","topic":"Project onboarding","bytes":2035}
+{"ts":"2026-11-09T17:06:33.970Z","agent":"plugin","kind":"setup","ok":29,"failed":0,"modelStrategy":"free-fallback","root":"/home/sahon/Desktop/new evo/public/img"}
+{"ts":"2026-11-09T17:07:20.993Z","agent":"plugin","kind":"setup","ok":29,"failed":0,"modelStrategy":"free-fallback","root":"/home/sahon/Desktop/new evo/public/img"}
+{"ts":"2026-11-09T17:08:11.808Z","agent":"plugin","kind":"setup","ok":29,"failed":0,"modelStrategy":"free-fallback","root":"/home/sahon/Desktop/new evo/public/img"}
+{"ts":"2026-11-09T17:13:11.811Z","agent":"plugin","kind":"ssot.refresh","sha256":"73a42ec190960f54b5a0f77f7c816e09d349d58512d2971bda628e824bd1b722","bytes":16923}
+{"ts":"2026-11-09T17:18:11.820Z","agent":"plugin","kind":"ssot.refresh","sha256":"691dd68ce046af9c7d9d88904c5dce39cedcf64bcb7fb066159ef4553ea16901","bytes":16923}
+{"ts":"2026-11-09T17:23:11.813Z","agent":"plugin","kind":"ssot.refresh","sha256":"8b72a8812bc8635d13a31d4c541db59aed10a357d74221b2f27cee02ae1e837a","bytes":16923}
+{"ts":"2026-11-09T17:28:11.812Z","agent":"plugin","kind":"ssot.refresh","sha256":"70048f4f4367c72035ea73fcc15c3c0c1c042154f73cc0645c9bcf9753d539be","bytes":16923}
+{"ts":"2026-11-09T17:29:50.591Z","agent":"plugin","kind":"setup","ok":29,"failed":0,"modelStrategy":"free-fallback","root":"/home/sahon/Desktop/new evo/public/img"}
+{"ts":"2026-11-09T17:30:13.710Z","agent":"plugin","kind":"setup","ok":29,"failed":0,"modelStrategy":"free-fallback","root":"/home/sahon/Desktop/new evo/public/img"}
+{"ts":"2026-11-09T17:35:13.772Z","agent":"plugin","kind":"ssot.refresh","sha256":"ecb722109b0a9654dc2ecb5eb37a5a07a7096d119013d15b4e9b4475017dbacb","bytes":16987}
+{"ts":"2026-11-10T01:37:41.570Z","agent":"plugin","kind":"setup","ok":29,"failed":0,"modelStrategy":"free-fallback","root":"/home/sahon/Desktop/new evo/public/img"}
+{"ts":"2026-11-10T01:42:41.574Z","agent":"plugin","kind":"ssot.refresh","sha256":"91699b06b9128f36909342ae5164c0999ea6f0ec1e4c629616b59f7032439953","bytes":16987}
+{"ts":"2026-11-10T01:47:41.573Z","agent":"plugin","kind":"ssot.refresh","sha256":"a8870ca90d561308a53eccc4379b4d640d89e172da2dfac870cbab75c9920fe8","bytes":16987}
+{"ts":"2026-11-10T01:52:41.572Z","agent":"plugin","kind":"ssot.refresh","sha256":"e111ec7b1ef04a2f3d8254a068f931643234152b29e1539975ee178bd600405f","bytes":16987}
+{"ts":"2026-11-10T01:57:41.572Z","agent":"plugin","kind":"ssot.refresh","sha256":"c8fabdabdc078fc00ec5a1f36292b125afff4a478f2950680354a259d28a31b7","bytes":16987}
+{"ts":"2026-11-10T02:02:41.581Z","agent":"plugin","kind":"ssot.refresh","sha256":"4b77bdbde7bd4a9ebd3141290e8c134e6f205f7f8150bb1aef342d077557bca2","bytes":16987}
+{"ts":"2026-11-10T02:07:41.572Z","agent":"plugin","kind":"ssot.refresh","sha256":"f7efbea1f96d5c7c9f8d6b1c9dd8d1fbeafa071e48ea4a1aa802765ad37aeb02","bytes":16987}
+{"ts":"2026-11-10T02:12:41.573Z","agent":"plugin","kind":"ssot.refresh","sha256":"8e4a01827d698241021f785fc79a074a95831aa1d2aa8aca1de132aaa88287fb","bytes":16987}
+{"ts":"2026-11-10T02:17:41.574Z","agent":"plugin","kind":"ssot.refresh","sha256":"6b8ecacb1071b6912fe77f6bce2885fe8755a7a380badb4e5d6211d618569ca9","bytes":16987}
+{"ts":"2026-11-10T02:22:41.588Z","agent":"plugin","kind":"ssot.refresh","sha256":"99b5ba211b6a7e95c4bce1fd575d40fee0f89a3f41bdc522198a2a16f244f4f3","bytes":16987}
+{"ts":"2026-11-10T02:27:41.589Z","agent":"plugin","kind":"ssot.refresh","sha256":"8eb07c361d9e4b64b03b828b54bcf76e08c1fdaefb917e1e7c1d41a8719e15b4","bytes":16987}
+{"ts":"2026-11-10T02:32:41.588Z","agent":"plugin","kind":"ssot.refresh","sha256":"e5e72bb99f2e9d056383b56cc6f968bdca943892c9726ffde3780ace0ea65a81","bytes":16987}
+{"ts":"2026-11-10T02:37:41.588Z","agent":"plugin","kind":"ssot.refresh","sha256":"98083e6d843e7f24b72d8030013719826fe414eeffde8f9fb0ec31c3a0464efc","bytes":16987}

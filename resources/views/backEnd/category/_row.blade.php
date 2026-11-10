@@ -28,15 +28,15 @@
         $catImg = $value->image ?? null;
         $catImgPath = $catImg ? preg_replace('~^public/~', '', $catImg) : null;
         $catImgPath = $catImgPath ? ltrim($catImgPath, '/') : null;
-        $fallbackImg = $generalSetting->frontend_empty_image ?? 'assets/images/empty.png';
+        $fallbackImg = \App\Support\MediaPath::fallbackPath();
         $fallbackImg = preg_replace('~^public/~', '', $fallbackImg);
         $fallbackImg = ltrim($fallbackImg, '/');
     @endphp
-    <img src="{{ $catImgPath && file_exists(public_path($catImgPath)) ? asset($catImgPath) : asset($fallbackImg) }}"
+    <img src="{{ asset(\App\Support\MediaPath::imageOrFallback($catImg)) }}"
          class="backend-image rounded-0 border"
          style="max-width: 50px; max-height: 50px; object-fit: cover;"
          alt="{{ $value->name }}"
-         onerror="this.src='{{ asset('assets/images/empty.png') }}'">
+         onerror="this.src='{{ \App\Support\MediaPath::fallbackUrl() }}'">
   </td>
   <td>
     @if(isset($value->home_page) && (int) $value->home_page === 1)

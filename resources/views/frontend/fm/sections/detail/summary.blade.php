@@ -185,7 +185,7 @@
                 </button>
             </form>
 
-            {{-- Instant buy: plain POST, same payload as classic Order Now --}}
+            {{-- Instant buy: plain POST, same payload as the card's Buy Now --}}
             <form method="POST" action="{{ route('cart.store.buy') }}">
                 @csrf
                 <input type="hidden" name="id" value="{{ $fmProduct->id }}">
@@ -193,7 +193,7 @@
                 <div data-fm-variant-slot></div>
                 <button type="submit" data-fm-cta
                         class="w-full py-3 px-6 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm shadow-sm transition-all whitespace-nowrap">
-                    Buy now
+                    Buy Now
                 </button>
             </form>
         </div>

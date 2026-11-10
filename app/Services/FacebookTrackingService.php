@@ -344,7 +344,17 @@ class FacebookTrackingService
         }
 
         if (!empty($userData['phone'])) {
-            $prepared['ph'] = hash('sha256', preg_replace('/[^0-9]/', '', $userData['phone']));
+            // Meta expects E.164 digits before hashing; a local 01XXXXXXXXX
+            // value hashes to a different string and never matches.
+            $phone = \App\Support\PhoneNormalizer::e164((string) $userData['phone']);
+
+            if ($phone !== '') {
+                $prepared['ph'] = hash('sha256', $phone);
+            }
+        }
+
+        if (!empty($userData['external_id'])) {
+            $prepared['external_id'] = hash('sha256', trim((string) $userData['external_id']));
         }
 
         if (!empty($userData['first_name'])) {

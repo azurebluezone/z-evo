@@ -5,7 +5,9 @@ use App\Http\Controllers\Controller;
 use App\Services\ProductStockSync;
 use Illuminate\Http\Request;
 
+use App\Models\Campaign;
 use App\Models\Product;
+use App\Services\CampaignPricing;
 use App\Services\FacebookTrackingService;
 use App\Services\TikTokTrackingService;
 use Toastr;
@@ -456,6 +458,28 @@ class ShoppingController extends Controller
             return redirect()->back()->with('error', 'Product not found.');
         }
 
+        $campaign = null;
+        $campaignId = (int) $request->input('campaign_id', 0);
+        if ($campaignId > 0) {
+            $campaign = Campaign::where('id', $campaignId)->where('status', 1)->first();
+
+            if (!$campaign) {
+                return redirect()->back()->with('error', 'This offer is no longer available.');
+            }
+
+            if ($campaign->product_id !== null && (int) $campaign->product_id !== $productId) {
+                return redirect()->back()->with('error', 'This offer does not match the selected product.');
+            }
+
+            $now = now();
+            if ($campaign->start_date && $campaign->start_date->copy()->startOfDay()->gt($now)) {
+                return redirect()->back()->with('error', 'This offer has not started yet.');
+            }
+            if ($campaign->end_date && $campaign->end_date->copy()->endOfDay()->lt($now)) {
+                return redirect()->back()->with('error', 'This offer has ended.');
+            }
+        }
+
         $variantQuery = $request->input('variant', []);
         if (!is_array($variantQuery)) {
             $variantQuery = [$variantQuery];
@@ -474,9 +498,16 @@ class ShoppingController extends Controller
             }
         }
 
-        $cartItem = Cart::instance('shopping')->content()->filter(function ($cartItem) use ($productId, $variantId) {
+        $pricing = app(CampaignPricing::class)->resolve($product, $resolvedVariant, $campaign);
+        $campaignApplies = $campaign !== null && $pricing['source'] === 'campaign';
+        $campaignKey = $campaignApplies ? (int) $campaign->id : 0;
+        $cartPrice = (float) $pricing['price'];
+
+        $cartItem = Cart::instance('shopping')->content()->filter(function ($cartItem) use ($productId, $variantId, $campaignKey) {
             $sameVariant = (int) ($cartItem->options->variant_id ?? 0) === (int) ($variantId ?? 0);
-            return (int) $cartItem->id === (int) $productId && $sameVariant;
+            $sameCampaign = (int) ($cartItem->options->campaign_id ?? 0) === $campaignKey;
+
+            return (int) $cartItem->id === (int) $productId && $sameVariant && $sameCampaign;
         })->first();
 
         if ($cartItem) {
@@ -487,17 +518,16 @@ class ShoppingController extends Controller
                     return redirect()->back()->with('error', $check['message']);
                 }
             }
-            Cart::instance('shopping')->update($cartItem->rowId, $nextQty);
+            Cart::instance('shopping')->update($cartItem->rowId, [
+                'qty' => $nextQty,
+                'price' => $cartPrice,
+            ]);
         } else {
-            $cartPrice = (float) ($product->new_price ?? 0);
             $cartImage = optional($product->image)->image ?? '';
             $variantTitle = null;
             $variantName = null;
             if ($resolvedVariant) {
                 $variantTitle = $resolvedVariant->title ?? null;
-                if (!empty($resolvedVariant->price_override)) {
-                    $cartPrice = (float) $resolvedVariant->price_override;
-                }
                 if (!empty($resolvedVariant->image)) {
                     $cartImage = (string) $resolvedVariant->image;
                 }
@@ -527,6 +557,11 @@ class ShoppingController extends Controller
                     'image' => $cartImage,
                     'old_price' => $product->old_price,
                     'purchase_price' => $product->purchase_price,
+                    'campaign_id' => $campaignApplies ? (int) $campaign->id : null,
+                    'campaign_slug' => $campaignApplies ? $campaign->slug : null,
+                    'campaign_price' => $campaignApplies ? $pricing['price'] : null,
+                    'regular_price' => $pricing['regular'],
+                    'price_source' => $pricing['source'],
                     'variant_id' => $variantId,
                     'variant_title' => $variantTitle,
                     'variant_values' => $selectedValueIds,
@@ -541,7 +576,10 @@ class ShoppingController extends Controller
         $this->dispatchAddToCartTracking([
             'product_id' => $product->id,
             'name' => $product->name,
-            'price' => $product->new_price,
+            'price' => $cartPrice,
+            'regular_price' => $pricing['regular'],
+            'price_source' => $pricing['source'],
+            'campaign_id' => $campaignApplies ? (int) $campaign->id : null,
             'quantity' => $qty,
         ]);
 

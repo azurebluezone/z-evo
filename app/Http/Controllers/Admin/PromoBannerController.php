@@ -63,7 +63,7 @@ class PromoBannerController extends Controller
 
             $input['image'] = $relativePath;
         } else {
-            $input['image'] = 'assets/images/default.png';
+            $input['image'] = \App\Support\MediaPath::fallbackPath();
         }
 
         PromoBanner::create($input);

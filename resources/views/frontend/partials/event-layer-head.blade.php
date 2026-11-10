@@ -70,6 +70,12 @@
         page: @json('/' . ltrim(request()->path(), '/'))
     };
 
+    @isset($campaignTracking)
+    // Campaign attribution context. Only a campaign landing page sets this;
+    // the event layer stays silent about campaigns everywhere else.
+    window.__CAMPAIGN__ = @json($campaignTracking);
+    @endisset
+
     window.__EVENT_LAYER__ = window.__EVENT_LAYER__ || {
         push: function (eventName, payload) {
             try {
@@ -247,6 +253,18 @@
             if (meta.channel) row.channel = meta.channel;
             if (meta.title) row.page_title = meta.title;
             if (meta.referrer) row.referrer = meta.referrer;
+
+            // Campaign attribution travels as a structured blob so EventRecorder
+            // can keep it in event_details. campaign_id is also promoted to its
+            // own field/column because reports group on it directly.
+            if (meta.event_data && typeof meta.event_data === 'object') {
+                row.event_data = meta.event_data;
+            }
+            var campaignId = parseInt(meta.campaign_id, 10);
+            if (!(campaignId > 0) && meta.event_data) {
+                campaignId = parseInt(meta.event_data.campaign_id, 10);
+            }
+            if (campaignId > 0) row.campaign_id = campaignId;
 
             Object.keys(CLICK_IDS).forEach(function (key) { row[key] = CLICK_IDS[key]; });
 
@@ -656,6 +674,86 @@
             } catch (e) {}
         }
 
+        /**
+         * Campaign attribution funnel.
+         *
+         * The event layer is included on every storefront page, so it stays
+         * silent unless the controller set window.__CAMPAIGN__. Names sent to
+         * /events/collect must be in TrackingEvents (ViewContent, Lead,
+         * Engagement_*); the dataLayer push uses the consumer-facing names
+         * (view_item, form_start, generate_lead).
+         */
+        function campaignContext() {
+            var c = window.__CAMPAIGN__;
+            if (!c || typeof c !== 'object') return null;
+
+            return {
+                campaign_id: c.id,
+                campaign_slug: c.slug,
+                campaign_name: c.name,
+                campaign_template: c.template,
+                product_id: c.product_id,
+                product_name: c.product_name,
+                value: c.price,
+                regular_price: c.regular_price,
+                price_source: c.price_source,
+                currency: c.currency || 'BDT'
+            };
+        }
+
+        function bindCampaignAttribution() {
+            var ctx = campaignContext();
+            if (!ctx) return;
+
+            var started = false;
+
+            function markFormStart(form) {
+                if (started || !form) return;
+                started = true;
+
+                try {
+                    window.__EVENT_LAYER__.push('form_start', ctx);
+                } catch (e) {}
+                try {
+                    window.__EVENT_LOGGER__.queue('Engagement_FormStart', { event_data: ctx });
+                } catch (e) {}
+            }
+
+            function orderForm(target) {
+                if (!target || !target.closest) return null;
+                return target.closest('form[action*="/landing-order"]');
+            }
+
+            try {
+                // pointerdown covers a one-click order form, input covers fields
+                // in the longer templates. The flag keeps it to one per page.
+                document.addEventListener('pointerdown', function (e) {
+                    markFormStart(orderForm(e.target));
+                }, true);
+
+                document.addEventListener('input', function (e) {
+                    markFormStart(orderForm(e.target));
+                }, true);
+
+                document.addEventListener('submit', function (e) {
+                    var form = e.target;
+                    if (!form || !form.getAttribute) return;
+                    if ((form.getAttribute('action') || '').indexOf('/landing-order') === -1) return;
+
+                    try {
+                        window.__EVENT_LAYER__.push('generate_lead', ctx);
+                    } catch (err) {}
+                    try {
+                        window.__EVENT_LOGGER__.queue('Lead', { event_data: ctx });
+                        // The order form navigates away. Flush before the browser
+                        // leaves instead of trusting beforeunload to deliver the
+                        // one event this whole page exists to produce.
+                        flush();
+                    } catch (err) {}
+                }, true);
+            } catch (e) {}
+        }
+
         try {
             document.addEventListener('visibilitychange', function () {
                 if (document.visibilityState === 'hidden') {
@@ -682,7 +780,9 @@
             flush: flush,
             // Exposed so the pixel snippets can reuse the exact same event id and
             // let Meta deduplicate the browser hit against our server-side CAPI.
-            newEventId: newEventId
+            newEventId: newEventId,
+            campaignContext: campaignContext,
+            bindCampaignAttribution: bindCampaignAttribution
         };
     })();
 
@@ -702,6 +802,25 @@
         });
     } catch (e) {
     }
+
+    @isset($campaignTracking)
+    /*
+     * A campaign page is a product view, not just a page view. This runs after
+     * __EVENT_LOGGER__ is assigned (the logger IIFE has returned), so the event
+     * is actually queued instead of being lost inside the initializer.
+     */
+    try {
+        var campaignCtx = window.__EVENT_LOGGER__.campaignContext
+            ? window.__EVENT_LOGGER__.campaignContext()
+            : null;
+        if (campaignCtx && typeof window.__EVENT_LOGGER__.bindCampaignAttribution === 'function') {
+            window.__EVENT_LAYER__.push('view_item', campaignCtx);
+            window.__EVENT_LOGGER__.queue('ViewContent', { event_data: campaignCtx });
+            window.__EVENT_LOGGER__.bindCampaignAttribution();
+        }
+    } catch (e) {
+    }
+    @endisset
 </script>
 
 @include('frontend.partials.consent-banner')

@@ -200,8 +200,11 @@ img{max-width:100%!important;height:auto!important}
 input,select,textarea,button{max-width:100%}
 pre{white-space:pre-wrap;word-break:break-word}
 table{max-width:100%;overflow-x:auto;display:block}
-/* fixed pixel widths -> fluid */
-[style*="width: 1"][style*="px"],[style*="width:9"][style*="px"]{width:100%!important;max-width:100%!important}
+/* fixed pixel widths -> fluid
+   Swiper writes inline widths like "width: 159.091px" on each slide; the
+   string match below would stretch every slide to 100% and silently turn the
+   rail into a one-column stack. Exclude the slider's own geometry. */
+[style*="width: 1"][style*="px"]:not(.swiper-slide),[style*="width:9"][style*="px"]:not(.swiper-slide){width:100%!important;max-width:100%!important}
 [style*="min-width"][style*="px"]{min-width:0!important}
 [style*="grid-template-columns: repeat"][style*="px"]{grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))!important}
 /* flex wrap protection */
@@ -292,7 +295,7 @@ table{max-width:100%;overflow-x:auto;display:block}
        the page stack, so work/code.html's values always win. --}}
   <link rel="stylesheet" href="{{ asset('frontend/css/fm-product-card.css') }}">
 </head>
-<body class="antialiased">
+<body class="antialiased" id="top">
 
 {{--
     GTM's <noscript> fallback. event-layer-head already put the container's
@@ -379,7 +382,19 @@ table{max-width:100%;overflow-x:auto;display:block}
 
 <!-- FM:SECTION page-content ============================================ -->
 <main>
-@if(session('success') || session('error'))
+@php
+    /*
+     * Controllers across the storefront still report through the legacy
+     * Toastr facade (customer sign-in, registration, reviews). The classic
+     * layout printed those with {!! Toastr::message() !!}; the modern layout
+     * only printed session('success'/'error'), so a wrong password redirected
+     * back to the form with no visible message at all. Render the same flash
+     * bag as Bootstrap alerts instead of loading toastr.js just for this.
+     */
+    $fmToastrMessages = session('toastr::messages', []);
+    $fmToastrTones = ['error' => 'danger', 'success' => 'success', 'warning' => 'warning', 'info' => 'info'];
+@endphp
+@if(session('success') || session('error') || (is_array($fmToastrMessages) && $fmToastrMessages !== []))
 <div class="container mx-auto px-4 mt-3">
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -387,6 +402,15 @@ table{max-width:100%;overflow-x:auto;display:block}
     @if(session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
+    @foreach(is_array($fmToastrMessages) ? $fmToastrMessages : [] as $fmToastrMessage)
+        @continue(! is_array($fmToastrMessage) || empty($fmToastrMessage['message']))
+        <div class="alert alert-{{ $fmToastrTones[$fmToastrMessage['type'] ?? 'info'] ?? 'info' }}">
+            @if(! empty($fmToastrMessage['title']))
+                <strong>{{ $fmToastrMessage['title'] }}</strong>
+            @endif
+            {{ $fmToastrMessage['message'] }}
+        </div>
+    @endforeach
 </div>
 @endif
 

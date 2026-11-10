@@ -268,6 +268,14 @@
             }, { eventID: purchaseEventId });
         }
 
+        // TikTok pixel + Events API share the deterministic order event id,
+        // so TikTok deduplicates the pair instead of counting two sales.
+        try {
+            if (window.__ttTracker && typeof window.__ttTracker.trackPurchase === 'function') {
+                window.__ttTracker.trackPurchase(purchaseData, purchaseEventId);
+            }
+        } catch (e) {}
+
         try {
             if (window.__GA4__ && typeof window.__GA4__.purchase === 'function') {
                 window.__GA4__.purchase({

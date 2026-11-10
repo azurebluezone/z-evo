@@ -6,9 +6,6 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
                 <h4 class="mb-0">Shipment #{{ $shipment->id }}</h4>
-                <p class="text-muted mb-0 small">
-                    {{ $shipment->provider }} · {{ $shipment->current_status ?: 'awaiting update' }}
-                </p>
             </div>
             <a href="{{ route('admin.courier.shipments') }}" class="btn btn-secondary btn-sm">
                 <i class="ri ri-arrow-left-line me-1"></i> All shipments
@@ -111,23 +108,5 @@
 
 {{-- Discarded by Blade after @endsection - kept inside @section('script'). --}}
 @section('script')
-<script>
-    (function () {
-        'use strict';
-
-        var button = document.getElementById('copy-payload');
-        var payload = document.getElementById('payload');
-        if (!button || !payload) { return; }
-
-        button.addEventListener('click', function () {
-            var text = payload.textContent || '';
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text);
-            }
-            var label = button.innerHTML;
-            button.innerHTML = 'Copied';
-            setTimeout(function () { button.innerHTML = label; }, 1500);
-        });
-    })();
-</script>
+<script src="{{ asset('admin/assets/js/admin-page-courier-shipment.js') }}"></script>
 @endsection

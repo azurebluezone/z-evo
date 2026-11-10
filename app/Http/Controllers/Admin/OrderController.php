@@ -285,7 +285,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     /** Columns of the orders table, in <thead> order. */
-    private const ORDER_TABLE_COLUMNS = 8;
+    private const ORDER_TABLE_COLUMNS = 9;
 
     /**
      * Split a rendered <tr> into its cells.
@@ -335,7 +335,7 @@ class OrderController extends Controller
         // this row (an order that already has a consignment must not offer a
         // second, billable one). Without the eager load that check would fire
         // one extra query per row - an N+1 on every page of the orders table.
-        $query = Order::query()->with('shipping', 'status', 'courierShipments');
+        $query = Order::query()->with('shipping', 'status', 'courierShipments', 'customer');
 
         // Taken before the filters below, so recordsTotal stays the size of the
         // tab and recordsFiltered is the size of what the search left.
@@ -359,6 +359,10 @@ class OrderController extends Controller
                   ->orWhereHas('shipping', function ($sub) use ($search) {
                       $sub->where('name', 'LIKE', "%{$search}%")
                          ->orWhere('phone', 'LIKE', "%{$search}%");
+                  })
+                  ->orWhereHas('customer', function ($sub) use ($search) {
+                      $sub->where('name', 'LIKE', "%{$search}%")
+                         ->orWhere('phone', 'LIKE', "%{$search}%");
                   });
             });
         }
@@ -372,7 +376,7 @@ class OrderController extends Controller
         $sortable = [
             1 => 'invoice_id',
             2 => 'created_at',
-            5 => 'total',
+            6 => 'total',
         ];
         [$orderColumn, $direction] = $this->dtOrdering($request, $sortable, 'created_at');
         $query->orderBy($orderColumn, $direction);
@@ -439,7 +443,7 @@ class OrderController extends Controller
                 'name' => 'All',
                 'orders_count'=> Order::count(),
             ];
-            $show_data = Order::latest()->with('shipping','status');
+            $show_data = Order::latest()->with('shipping','status','customer');
             if($request->status){
                 $show_data = $show_data->where('order_status', (int) $request->status);
             }
@@ -447,7 +451,12 @@ class OrderController extends Controller
                 $show_data = $show_data->where(function ($query) use ($request) {
                     $query->orWhere('invoice_id', 'LIKE', '%' . $request->keyword . '%')
                           ->orWhereHas('shipping', function ($subQuery) use ($request) {
-                              $subQuery->where('phone', $request->keyword);
+                              $subQuery->where('phone', 'LIKE', '%' . $request->keyword . '%')
+                                       ->orWhere('name', 'LIKE', '%' . $request->keyword . '%');
+                          })
+                          ->orWhereHas('customer', function ($subQuery) use ($request) {
+                              $subQuery->where('phone', 'LIKE', '%' . $request->keyword . '%')
+                                       ->orWhere('name', 'LIKE', '%' . $request->keyword . '%');
                           });
                 });
             }
@@ -457,7 +466,7 @@ class OrderController extends Controller
             $resolved = $this->resolveOrderStatusBySlug($slug);
             if ($resolved) {
                 $order_status = OrderStatus::where('id', $resolved->id)->withCount('orders')->first();
-                $show_data = Order::where(['order_status'=>$order_status->id])->latest()->with('shipping','status');
+                $show_data = Order::where(['order_status'=>$order_status->id])->latest()->with('shipping','status','customer');
                 if($request->status){
                     $show_data = $show_data->where('order_status', (int) $request->status);
                 }
@@ -465,7 +474,12 @@ class OrderController extends Controller
                     $show_data = $show_data->where(function ($query) use ($request) {
                         $query->orWhere('invoice_id', 'LIKE', '%' . $request->keyword . '%')
                               ->orWhereHas('shipping', function ($subQuery) use ($request) {
-                                  $subQuery->where('phone', $request->keyword);
+                                  $subQuery->where('phone', 'LIKE', '%' . $request->keyword . '%')
+                                           ->orWhere('name', 'LIKE', '%' . $request->keyword . '%');
+                              })
+                              ->orWhereHas('customer', function ($subQuery) use ($request) {
+                                  $subQuery->where('phone', 'LIKE', '%' . $request->keyword . '%')
+                                           ->orWhere('name', 'LIKE', '%' . $request->keyword . '%');
                               });
                     });
                 }

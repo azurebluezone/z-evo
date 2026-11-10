@@ -1,4 +1,5 @@
-@extends('backEnd.layouts.app') 
+@extends('backEnd.layouts.app')
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-product-create.css') }}">
 @section('title','Product Edit') 
 
 @section('content')
@@ -28,7 +29,7 @@
             <div class="card-header border-bottom">
               <h5 class="card-title mb-0 fw-semibold">Product Information</h5>
             </div>
-            <div class="card-body mt-4">
+            <div class="card-body">
               <div class="row g-4">
                 <div class="col-12 col-sm-6">
                   <div class="form-floating form-floating-outline">
@@ -177,7 +178,7 @@
             <div class="card-header border-bottom">
               <h5 class="card-title mb-0 fw-semibold">Gallery Images</h5>
             </div>
-            <div class="card-body mt-4">
+            <div class="card-body">
               <div class="row g-4">
                 <div class="col-sm-12">
                   @if(isset($edit_data->images) && count($edit_data->images) > 0)
@@ -189,7 +190,7 @@
                         @endphp
                         @if($imgPath)
                         <div class="card rounded-0 border position-relative" style="width: 150px;">
-                            <img src="{{ asset($imgPath) }}" alt="Product Image" class="card-img-top rounded-0" style="height: 120px; object-fit: cover;" onerror="this.src='{{ asset('assets/images/empty.png') }}'">
+                            <img src="{{ asset($imgPath) }}" alt="Product Image" class="card-img-top rounded-0" style="height: 120px; object-fit: cover;" onerror="this.src='{{ \App\Support\MediaPath::fallbackUrl() }}'">
                             <div class="card-body p-2">
                               <input type="text" name="title[]" class="form-control form-control-sm rounded-0 mb-2" value="{{ $image->title ?? '' }}" placeholder="Image Title">
                               <input type="hidden" name="image[]" value="{{ $image->id ?? '' }}">
@@ -233,14 +234,14 @@
             </div>
             <div class="card-body mt-3">
               <div class="table-responsive">
-                <table class="table table-bordered align-middle mb-0 rounded-0">
+                <table class="table table-bordered table-variant-list align-middle mb-0 rounded-0">
                   <thead class="table-light">
                     <tr>
-                      <th style="min-width:90px;">ID</th>
-                      <th style="min-width:160px;">SKU</th>
-                      <th style="min-width:260px;">Title</th>
-                      <th style="min-width:120px;">Status</th>
-                      <th style="min-width:120px;">Action</th>
+                      <th>ID</th>
+                      <th>SKU</th>
+                      <th>Title</th>
+                      <th>Status</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -279,7 +280,7 @@
             <div class="card-header border-bottom">
               <h5 class="card-title mb-0 fw-semibold">Pricing & Inventory</h5>
             </div>
-            <div class="card-body mt-4">
+            <div class="card-body">
               <div class="row g-4">
                 <div class="col-12 col-md-3">
                   <div class="form-floating form-floating-outline">
@@ -339,7 +340,7 @@
             <div class="card-header border-bottom">
               <h5 class="card-title mb-0 fw-semibold">Organize & Settings</h5>
             </div>
-            <div class="card-body mt-4">
+            <div class="card-body">
               <div class="row g-4">
                 <div class="col-12 col-md-6 mb-3">
                   <label class="form-label fw-semibold">Brands</label>
@@ -431,41 +432,5 @@
 @endsection
 
 @push('script')
-<script>
-    // WAF Safety: Remove empty file inputs before form submit to prevent
-    // LiteSpeed/ModSecurity 403 errors caused by empty filename + application/octet-stream
-    (function () {
-      var form = document.getElementById('productEditForm');
-      if (form) {
-        form.addEventListener('submit', function () {
-          var fileInputs = form.querySelectorAll('input[type="file"]');
-          fileInputs.forEach(function (input) {
-            if (!input.files || input.files.length === 0) {
-              input.removeAttribute('name');
-            }
-          });
-        });
-      }
-    })();
-
-    // Handle dynamically adding/removing more gallery inputs
-    document.addEventListener('click', function(e) {
-      if (e.target && e.target.closest('.btn-increment')) {
-        e.preventDefault();
-        var cloneHtml = document.querySelector('.clone').innerHTML;
-        var newEl = document.createElement('div');
-        newEl.innerHTML = cloneHtml;
-        var firstChild = newEl.firstElementChild;
-        if(firstChild) {
-          e.target.closest('.increment').insertAdjacentElement('afterend', firstChild);
-        }
-      } else if (e.target && e.target.closest('.btn-danger') && !e.target.closest('.remove-image')) {
-        e.preventDefault();
-        var group = e.target.closest('.control-group');
-        if(group) {
-          group.remove();
-        }
-      }
-    });
-</script>
+<script src="{{ asset('admin/assets/js/admin-page-product-edit.js') }}"></script>
 @endpush

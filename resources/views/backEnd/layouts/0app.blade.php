@@ -25,45 +25,7 @@
   @include('backEnd.layouts.partials.styles')
   @stack('css')
 
-  <style>
-    .btn,
-    .btn-sm,
-    .btn-lg,
-    .btn-group .btn,
-    .pagination .page-link,
-    .pagination-rounded .page-link,
-    .pagination-rounded .page-item:first-child .page-link,
-    .pagination-rounded .page-item:last-child .page-link {
-      border-radius: 0 !important;
-    }
-
-    .layout-page .content-wrapper .container-xxl {
-      max-width: 100% !important;
-    }
-
-    @media print {
-      .layout-menu,
-      .layout-navbar,
-      .content-footer,
-      .layout-overlay,
-      .drag-target,
-      .no-print {
-        display: none !important;
-      }
-
-      .layout-wrapper,
-      .layout-container,
-      .layout-page,
-      .content-wrapper,
-      .container-xxl,
-      .container-p-y {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="{{ asset('admin/assets/css/admin-app-shape.css') }}">
 </head>
 
 <body>

@@ -14,7 +14,7 @@
                 'price_raw' => (float) $row->price,
                 'price' => $row->price,
                 'total_raw' => (float) ($row->price * $row->qty),
-                'thumb' => $thumb ?: 'assets/images/default.png',
+                'thumb' => $thumb ?: \App\Support\MediaPath::fallbackPath(),
                 'url' => !empty($row->options->slug ?? null) ? route('products.show', $row->options->slug) : '#',
             ];
         }

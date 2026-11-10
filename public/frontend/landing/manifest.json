@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-11-09T05:20:33.695546+00:00",
+  "templates": {
+    "default": {
+      "css": true,
+      "js": false,
+      "cssBytes": 1173,
+      "jsBytes": 0
+    },
+    "herbal-health": {
+      "css": true,
+      "js": true,
+      "cssBytes": 4268,
+      "jsBytes": 41
+    },
+    "sample-template": {
+      "css": true,
+      "js": true,
+      "cssBytes": 5625,
+      "jsBytes": 683
+    },
+    "template-1": {
+      "css": true,
+      "js": true,
+      "cssBytes": 5639,
+      "jsBytes": 1030
+    },
+    "template-2": {
+      "css": true,
+      "js": true,
+      "cssBytes": 6251,
+      "jsBytes": 1007
+    },
+    "template-3": {
+      "css": true,
+      "js": true,
+      "cssBytes": 7871,
+      "jsBytes": 1127
+    }
+  },
+  "assets": {
+    "default.css": "7c1e0cb15bb8ae6b292da826ff3db635a67eed239a5abb5b2d32beeb283453f3",
+    "herbal-health.css": "e25dfa7399fb46e07512d88efaceb0435e6f38f7f95573f855601440dc1d7039",
+    "herbal-health.js": "e837e784edced1c6f449dbf38edb53f989490aed78ada9a2743f164813b61f9c",
+    "sample-template.css": "cee7999ca01dfffc56bd8bee508a9a9594c26b321b91ebe947622866f13f75ae",
+    "sample-template.js": "9709c10bcab6b81bebf6ab71dbc378026bb30296c69a3d6852d95c41e6378457",
+    "template-1.css": "fc4a9f6a448250fb1ba50362752a9b157ef44f45fcce785d6cf4ad6be27babe3",
+    "template-1.js": "4d46c393f0852550aad0ea5133274cc8247e91e65ac4c57cf0579b6f9fccad09",
+    "template-2.css": "aa2da71c3b7d2dc1b74c4c721e574d94692fd434dfb758cafa78006453f98cec",
+    "template-2.js": "9407ce57b11194b0c9a9ee57b1f286ec300bf4cc81980f660b72301739d3f82c",
+    "template-3.css": "09eb3abc2564e5b9dec8378260c6b555a8d72e73344d43208d3cb03b6c801f39",
+    "template-3.js": "58c03551bcd98bc2fcd965cc4f7d62169608cd40860eda59b5ee1b5e048b338d",
+    "responsive.css": "206d2186636d20b906fa399ba6f33b893c6b9ade13dcb74202c1eaba58dcda95"
+  }
+}

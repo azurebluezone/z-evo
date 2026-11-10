@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Frontend\FrontendController;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\CampaignReview;
 use App\Models\Campaign;
+use App\Models\Template;
+use App\Services\CampaignContent;
 use Image;
 use Toastr;
 use Str;
@@ -16,8 +19,15 @@ class CampaignController extends Controller
 {
     public function index(Request $request)
     {
-        $show_data = Campaign::orderBy('id','DESC')->get();
-        return view('backEnd.campaign.index',compact('show_data'));
+        // The admin list is the campaign manager's home screen: it needs the
+        // product and template names without one query per row, and it follows
+        // the same sort_order the public campaign list uses.
+        $show_data = Campaign::with(['product', 'template'])
+            ->orderBy('sort_order')
+            ->orderByDesc('id')
+            ->get();
+
+        return view('backEnd.campaign.index', compact('show_data'));
     }
     /** `{id}/show` had no method behind it and returned a 500; redirect to the edit screen like the other Admin controllers do. */
     public function show($id)
@@ -25,11 +35,32 @@ class CampaignController extends Controller
         return redirect()->route('campaign.edit', ['id' => $id]);
     }
 
+    /**
+     * Admin preview of the real campaign page, including inactive campaigns.
+     * The public route filters status=1, so editors could not inspect a draft.
+     */
+    public function preview($id)
+    {
+        $campaign = Campaign::with(['template', 'product.image', 'product.images', 'images'])
+            ->findOrFail($id);
+
+        return app(FrontendController::class)->renderCampaign($campaign);
+    }
+
+    /** Template design preview used by the create/edit form. */
+    public function templatePreview($id)
+    {
+        return app(LandingPageController::class)->previewTemplate($id);
+    }
+
     public function create()
     {
-        $products = Product::where(['status'=>1])->select('id','name','status')->get();
-        $templates = \App\Models\Template::active()->get();
-        return view('backEnd.campaign.create',compact('products', 'templates'));
+        $products = Product::where(['status' => 1])
+            ->select('id', 'name', 'status', 'new_price', 'old_price', 'stock')
+            ->orderBy('name')
+            ->get();
+        $templates = Template::active()->get();
+        return view('backEnd.campaign.create', compact('products', 'templates'));
     }
     public function store(Request $request)
 {
@@ -37,24 +68,58 @@ class CampaignController extends Controller
         'short_description' => 'required',
         'description' => 'required',
         'name' => 'required',
-        'status' => 'required',
+        'review' => 'required',
+        'status' => 'nullable|boolean',
+        'is_featured' => 'nullable|boolean',
+        'sort_order' => 'nullable|integer|min:0|max:999999',
         'campaign_type' => 'required|in:product,service,landing,promotional',
         'template_id' => 'required|exists:templates,id',
+        'product_id' => 'required|exists:products,id',
+        'campaign_price' => 'nullable|numeric|min:0',
+        'campaign_discount_percent' => 'nullable|numeric|gt:0|lt:100',
         'start_date' => 'nullable|date',
         'end_date' => 'nullable|date|after_or_equal:start_date',
         'image.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Added validation for image array
     ]);
-    
+    $this->validate($request, $this->contentRules());
+
     $input = $request->except(['image', 'files']);
-    
+    $input['extra_fields'] = (new CampaignContent())->normalize((array) $request->input('extra_fields', []));
+
+    // The `date` column is NOT NULL and has no default; the form does not post
+    // it, so without this every admin campaign create ended in a SQL error.
+    $input['date'] = $request->input('date', now()->toDateString());
+    $input['campaign_price_enabled'] = $request->boolean('campaign_price_enabled') ? 1 : 0;
+    $input['allow_coupon'] = $request->boolean('allow_coupon') ? 1 : 0;
+
+    if ($input['campaign_price_enabled']
+        && !$request->filled('campaign_price')
+        && !$request->filled('campaign_discount_percent')) {
+        return redirect()->back()
+            ->withErrors(['campaign_price' => 'Enter an offer price or a discount percent.'])
+            ->withInput();
+    }
+
+    $product = Product::find($request->product_id);
+    if ($product && $request->filled('campaign_price')
+        && (float) $request->campaign_price >= (float) $product->new_price) {
+        return redirect()->back()
+            ->withErrors(['campaign_price' => 'The offer price must be lower than the product price.'])
+            ->withInput();
+    }
+
     // Set default values for new fields
-    $input['show_features'] = $request->has('show_features') ? 1 : 0;
-    $input['show_benefits'] = $request->has('show_benefits') ? 1 : 0;
-    $input['show_testimonials'] = $request->has('show_testimonials') ? 1 : 0;
-    $input['show_faq'] = $request->has('show_faq') ? 1 : 0;
-    $input['show_cta'] = $request->has('show_cta') ? 1 : 0;
-    $input['is_featured'] = $request->has('is_featured') ? 1 : 0;
-    $input['status'] = $request->has('status') ? 1 : 0;
+    $input['show_features'] = $request->boolean('show_features') ? 1 : 0;
+    $input['show_benefits'] = $request->boolean('show_benefits') ? 1 : 0;
+    $input['show_testimonials'] = $request->boolean('show_testimonials') ? 1 : 0;
+    $input['show_faq'] = $request->boolean('show_faq') ? 1 : 0;
+    $input['show_cta'] = $request->boolean('show_cta') ? 1 : 0;
+    $input['is_featured'] = $request->boolean('is_featured') ? 1 : 0;
+    $input['status'] = $request->boolean('status') ? 1 : 0;
+
+    if (!$request->hasFile('image_one') && !$request->filled('image_one')) {
+        $input['image_one'] = '';
+    }
     // Handle image_one
     if ($request->hasFile('image_one')) {
         try {
@@ -111,8 +176,8 @@ class CampaignController extends Controller
     // Repeat similar process for image_two and image_three
     // ...
 
-    $input['slug'] = strtolower(Str::slug($request->name));
-    $campaign = Campaign::create($input); 
+    $input['slug'] = $this->uniqueSlug($request->name);
+    $campaign = Campaign::create($input);
 
     // Handle multiple images
     if ($request->hasFile('image')) {
@@ -178,11 +243,28 @@ class CampaignController extends Controller
     
     public function edit($id)
     {
-        $edit_data = Campaign::with('images')->find($id);
-        $select_products = Product::where('campaign_id',$id)->get();
-        $show_data = Campaign::orderBy('id','DESC')->get();
-        $products = Product::where(['status'=>1])->select('id','name','status')->get();
-        return view('backEnd.campaign.edit',compact('edit_data','products','select_products'));
+        $edit_data = Campaign::with(['images', 'product', 'template'])->findOrFail($id);
+
+        $products = Product::where(['status' => 1])
+            ->select('id', 'name', 'status', 'new_price', 'old_price', 'stock')
+            ->orderBy('name')
+            ->get();
+
+        // Keep the campaign's current product selectable even when it has been
+        // deactivated; otherwise the edit form silently drops the link on save.
+        if ($edit_data->product && !$products->contains('id', $edit_data->product->id)) {
+            $products->push($edit_data->product);
+        }
+
+        $templates = Template::active()->get();
+        if ($edit_data->template && !$templates->contains('id', $edit_data->template->id)) {
+            $templates->push($edit_data->template);
+        }
+
+        $select_products = Product::where('campaign_id', $id)->get();
+        $show_data = Campaign::orderBy('id', 'DESC')->get();
+
+        return view('backEnd.campaign.edit', compact('edit_data', 'products', 'select_products', 'templates'));
     }
     
     public function update(Request $request)
@@ -191,23 +273,53 @@ class CampaignController extends Controller
             'name' => 'required',
             'short_description' => 'required',
             'description' => 'required',
-            'status' => 'required',
+            'status' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
+            'sort_order' => 'nullable|integer|min:0|max:999999',
             'campaign_type' => 'required|in:product,service,landing,promotional',
+            'product_id' => 'required|exists:products,id',
+            'campaign_price' => 'nullable|numeric|min:0',
+            'campaign_discount_percent' => 'nullable|numeric|gt:0|lt:100',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
+        $this->validate($request, $this->contentRules());
         // image one
         $update_data = Campaign::find($request->hidden_id);
+        if (!$update_data) {
+            return redirect()->back()->with('error', 'Campaign not found.');
+        }
         $input = $request->except('hidden_id','product_ids','files','image');
-        
+        $input['extra_fields'] = (new CampaignContent())->normalize((array) $request->input('extra_fields', []));
+
+        $input['date'] = $request->input('date', $update_data->date ?: now()->toDateString());
+        $input['campaign_price_enabled'] = $request->boolean('campaign_price_enabled') ? 1 : 0;
+        $input['allow_coupon'] = $request->boolean('allow_coupon') ? 1 : 0;
+
+        if ($input['campaign_price_enabled']
+            && !$request->filled('campaign_price')
+            && !$request->filled('campaign_discount_percent')) {
+            return redirect()->back()
+                ->withErrors(['campaign_price' => 'Enter an offer price or a discount percent.'])
+                ->withInput();
+        }
+
+        $product = Product::find($request->product_id);
+        if ($product && $request->filled('campaign_price')
+            && (float) $request->campaign_price >= (float) $product->new_price) {
+            return redirect()->back()
+                ->withErrors(['campaign_price' => 'The offer price must be lower than the product price.'])
+                ->withInput();
+        }
+
         // Set default values for new fields
-        $input['show_features'] = $request->has('show_features') ? 1 : 0;
-        $input['show_benefits'] = $request->has('show_benefits') ? 1 : 0;
-        $input['show_testimonials'] = $request->has('show_testimonials') ? 1 : 0;
-        $input['show_faq'] = $request->has('show_faq') ? 1 : 0;
-        $input['show_cta'] = $request->has('show_cta') ? 1 : 0;
-        $input['is_featured'] = $request->has('is_featured') ? 1 : 0;
-        $input['status'] = $request->has('status') ? 1 : 0;
+        $input['show_features'] = $request->boolean('show_features') ? 1 : 0;
+        $input['show_benefits'] = $request->boolean('show_benefits') ? 1 : 0;
+        $input['show_testimonials'] = $request->boolean('show_testimonials') ? 1 : 0;
+        $input['show_faq'] = $request->boolean('show_faq') ? 1 : 0;
+        $input['show_cta'] = $request->boolean('show_cta') ? 1 : 0;
+        $input['is_featured'] = $request->boolean('is_featured') ? 1 : 0;
+        $input['status'] = $request->boolean('status') ? 1 : 0;
         $image_one = $request->file('image_one');
         if($image_one){
             try {
@@ -314,9 +426,10 @@ class CampaignController extends Controller
         }else{
             $input['image_three'] = $update_data->image_three;
         }
-        // image four
-        $input['slug'] = strtolower(Str::slug($request->name));
-        $update_data = Campaign::find($request->hidden_id);
+        // Keep the public URL stable unless the campaign name really changed.
+        $input['slug'] = $request->name !== $update_data->name
+            ? $this->uniqueSlug($request->name, $update_data->id)
+            : $update_data->slug;
         $update_data->update($input);
 
         $images = $request->file('image');  
@@ -341,7 +454,7 @@ class CampaignController extends Controller
  
     public function inactive(Request $request)
     {
-        $inactive = Campaign::find($request->hidden_id);
+        $inactive = Campaign::findOrFail($request->hidden_id);
         $inactive->status = 0;
         $inactive->save();
         Toastr::success('Success','Data inactive successfully');
@@ -349,7 +462,7 @@ class CampaignController extends Controller
     }
     public function active(Request $request)
     {
-        $active = Campaign::find($request->hidden_id);
+        $active = Campaign::findOrFail($request->hidden_id);
         $active->status = 1;
         $active->save();
         Toastr::success('Success','Data active successfully');
@@ -357,16 +470,13 @@ class CampaignController extends Controller
     }
     public function destroy(Request $request)
     {
-       
-        $delete_data = Campaign::find($request->hidden_id);
+        $delete_data = Campaign::findOrFail($request->hidden_id);
         $delete_data->delete();
-        
-        $campaign = Product::whereNotNull('campaign_id')->get();
-        foreach($campaign as $key=>$value){
-            $product = Product::find($value->id);
-            $product->campaign_id = null;
-            $product->save();
-        }
+
+        // Only unlink products that pointed at this campaign; the previous
+        // query cleared every product with any campaign_id.
+        Product::where('campaign_id', $delete_data->id)->update(['campaign_id' => null]);
+
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();
     }
@@ -386,5 +496,76 @@ class CampaignController extends Controller
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();
+    }
+
+    /**
+     * Stable, collision-free public slug. The DB has a unique index on
+     * campaigns.slug; suffixing here keeps the admin form usable instead of
+     * turning a duplicate name into a 500.
+     */
+    private function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($name);
+        $base = $base !== '' ? Str::substr($base, 0, 240) : 'campaign';
+
+        $slug = $base;
+        $counter = 2;
+
+        while (
+            Campaign::query()
+                ->where('slug', $slug)
+                ->when($ignoreId !== null, fn ($query) => $query->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $base . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Rules for the template-specific content panel. The same whitelist is
+     * enforced again by CampaignContent::normalize() before the row is saved.
+     */
+    private function contentRules(): array
+    {
+        $maxRows = CampaignContent::MAX_ROWS;
+
+        $rules = [
+            'extra_fields' => 'nullable|array',
+            'extra_fields.video_url' => 'nullable|url|max:500',
+            'extra_fields.countdown_date' => 'nullable|date',
+            'extra_fields.contact_phone' => 'nullable|string|max:50',
+            'extra_fields.email' => 'nullable|email|max:255',
+            'extra_fields.facebook' => 'nullable|url|max:500',
+            'extra_fields.instagram' => 'nullable|url|max:500',
+            'extra_fields.youtube' => 'nullable|url|max:500',
+        ];
+
+        $limits = [
+            'title' => 255,
+            'name' => 255,
+            'icon' => 255,
+            'question' => 500,
+            'description' => 2000,
+            'text' => 2000,
+            'answer' => 2000,
+            'image' => 500,
+        ];
+
+        foreach (CampaignContent::ROW_FIELDS as $field => $keys) {
+            $rules["extra_fields.$field"] = "nullable|array|max:$maxRows";
+
+            foreach ($keys as $key) {
+                $limit = $limits[$key] ?? 255;
+                $rules["extra_fields.$field.*.$key"] = "nullable|string|max:$limit";
+            }
+        }
+
+        $rules['extra_fields.testimonials.*.rating'] = 'nullable|numeric|min:1|max:5';
+        $rules['extra_fields.packages.*.price'] = 'nullable|numeric|min:0';
+
+        return $rules;
     }
 }

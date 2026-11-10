@@ -2,17 +2,7 @@
 @section('title','Banner Manage')
 
 @push('css')
-<style>
-    img.backend-image {
-        width: 140px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 0;
-        background: #f3f4f6;
-        display: inline-block;
-        border: 1px solid #e0e0e0;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-banner-index.css') }}">
 @endpush
 
 @section('content')

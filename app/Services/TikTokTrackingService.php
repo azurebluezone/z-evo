@@ -12,6 +12,7 @@ class TikTokTrackingService
     protected $accessToken;
     protected $enabled;
     protected $testMode;
+    protected $testEventCode;
 
     public function __construct()
     {
@@ -20,6 +21,7 @@ class TikTokTrackingService
         $this->accessToken = $settings->tiktok_access_token ?? null;
         $this->enabled = $settings->tiktok_server_side_tracking ?? false;
         $this->testMode = $settings->tiktok_test_mode ?? false;
+        $this->testEventCode = $settings->tiktok_test_event_code ?? null;
     }
 
     /**
@@ -43,30 +45,41 @@ class TikTokTrackingService
 
         $eventId = $this->normaliseEventId($eventId) ?? $this->generateEventId();
 
+        // Test mode without a code would silently send a REAL event: the
+        // Events API only routes to the Test Events tab when test_event_code
+        // is present. Refuse instead of polluting production data.
+        if ($this->testMode && blank($this->testEventCode)) {
+            Log::warning('TikTok Events API test mode is on but test_event_code is empty', [
+                'event' => $eventName,
+            ]);
+
+            return false;
+        }
+
         try {
             // Map event name to TikTok standard events
             $tiktokEventName = $this->mapEventName($eventName);
 
             $payload = [
-                'event_batch' => [
+                'event_source' => 'web',
+                'event_source_id' => (string) $this->pixelId,
+                'data' => [
                     [
                         'event' => $tiktokEventName,
                         'event_time' => time(),
                         'event_id' => $eventId,
-                        'user_data' => $this->prepareUserData($userData),
-                        'event_properties' => $this->prepareEventProperties($eventData),
-                        'context' => [
-                            'ad' => [
-                                'adcode' => $this->getAdcode(),
-                            ],
+                        'user' => $this->prepareUserData($userData),
+                        'properties' => $this->prepareEventProperties($eventData),
+                        'page' => [
+                            'url' => request()->headers->get('referer') ?: request()->fullUrl(),
                         ],
                     ],
                 ],
-                'partner_name' => 'GSBD_ECOMMERCE',
-                'page_url' => request()->url(),
-                'pixel_code' => $this->pixelId,
-                'test' => $this->testMode ? true : false,
             ];
+
+            if ($this->testMode) {
+                $payload['test_event_code'] = (string) $this->testEventCode;
+            }
 
             // Add access token to headers
             $headers = [
@@ -74,13 +87,19 @@ class TikTokTrackingService
                 'Access-Token' => $this->accessToken,
             ];
 
-            $endpoint = 'https://business-api.tiktok.com/open_api/v1/pixel/send/';
+            // Events API 2.0. The old /open_api/v1/pixel/send/ endpoint and its
+            // event_batch/partner_name envelope are not the current contract.
+            $endpoint = 'https://business-api.tiktok.com/open_api/v1.3/event/track/';
 
             $response = Http::withHeaders($headers)->post($endpoint, $payload);
 
-            if ($response->successful()) {
-                $responseData = $response->json();
+            $responseData = $response->json();
+            $apiCode = is_array($responseData) ? ($responseData['code'] ?? null) : null;
 
+            // Events API 2.0 answers HTTP 200 for parameter/auth errors too;
+            // the business result is `code`. Treating 200 as success would log
+            // a delivery that TikTok never accepted.
+            if ($response->successful() && ($apiCode === null || (int) $apiCode === 0)) {
                 Log::info('TikTok event sent successfully', [
                     'event' => $eventName,
                     'tiktok_event' => $tiktokEventName,
@@ -91,15 +110,16 @@ class TikTokTrackingService
                 $this->recordLocally($eventName, $eventId, $eventData);
 
                 return true;
-            } else {
-                Log::error('TikTok event failed', [
-                    'event' => $eventName,
-                    'status' => $response->status(),
-                    'response' => $response->body(),
-                ]);
-                
-                return false;
             }
+
+            Log::error('TikTok event failed', [
+                'event' => $eventName,
+                'status' => $response->status(),
+                'code' => $apiCode,
+                'response' => $response->body(),
+            ]);
+
+            return false;
         } catch (\Exception $e) {
             Log::error('TikTok tracking error', [
                 'event' => $eventName,
@@ -164,8 +184,12 @@ class TikTokTrackingService
 
     /**
      * Send Purchase event
+     *
+     * The order id is the deterministic id the confirmation page uses, so the
+     * browser pixel and the Events API call deduplicate instead of counting the
+     * sale twice.
      */
-    public function sendPurchaseEvent($orderData, $userData = [])
+    public function sendPurchaseEvent($orderData, $userData = [], ?string $eventId = null)
     {
         $eventData = [
             'currency' => 'BDT',
@@ -176,44 +200,44 @@ class TikTokTrackingService
             'quantity' => $orderData['num_items'] ?? 1,
         ];
 
-        return $this->sendEvent('Purchase', $eventData, $userData);
+        return $this->sendEvent('Purchase', $eventData, $userData, $eventId);
     }
 
     /**
      * Send AddToCart event
      */
-    public function sendAddToCartEvent($productData, $userData = [])
+    public function sendAddToCartEvent($productData, $userData = [], ?string $eventId = null)
     {
         $eventData = [
             'currency' => 'BDT',
             'value' => $productData['price'] ?? 0,
             'contents' => [
                 [
-                    'item_id' => $productData['product_id'] ?? '',
+                    'content_id' => (string) ($productData['product_id'] ?? ''),
                     'quantity' => $productData['quantity'] ?? 1,
-                    'item_price' => $productData['price'] ?? 0,
+                    'price' => $productData['price'] ?? 0,
                 ],
             ],
             'content_type' => 'product',
             'content_name' => $productData['name'] ?? '',
         ];
 
-        return $this->sendEvent('AddToCart', $eventData, $userData);
+        return $this->sendEvent('AddToCart', $eventData, $userData, $eventId);
     }
 
     /**
      * Send ViewContent event
      */
-    public function sendViewContentEvent($productData, $userData = [])
+    public function sendViewContentEvent($productData, $userData = [], ?string $eventId = null)
     {
         $eventData = [
             'currency' => 'BDT',
             'value' => $productData['price'] ?? 0,
             'contents' => [
                 [
-                    'item_id' => $productData['product_id'] ?? '',
+                    'content_id' => (string) ($productData['product_id'] ?? ''),
                     'quantity' => 1,
-                    'item_price' => $productData['price'] ?? 0,
+                    'price' => $productData['price'] ?? 0,
                 ],
             ],
             'content_type' => 'product',
@@ -221,13 +245,13 @@ class TikTokTrackingService
             'content_category' => $productData['category'] ?? '',
         ];
 
-        return $this->sendEvent('ViewContent', $eventData, $userData);
+        return $this->sendEvent('ViewContent', $eventData, $userData, $eventId);
     }
 
     /**
      * Send InitiateCheckout event
      */
-    public function sendInitiateCheckoutEvent($cartData, $userData = [])
+    public function sendInitiateCheckoutEvent($cartData, $userData = [], ?string $eventId = null)
     {
         $eventData = [
             'currency' => 'BDT',
@@ -237,7 +261,7 @@ class TikTokTrackingService
             'number_of_items' => $cartData['num_items'] ?? 0,
         ];
 
-        return $this->sendEvent('InitiateCheckout', $eventData, $userData);
+        return $this->sendEvent('InitiateCheckout', $eventData, $userData, $eventId);
     }
 
     /**
@@ -283,118 +307,153 @@ class TikTokTrackingService
     }
 
     /**
-     * Prepare user data for TikTok
+     * Prepare user data for TikTok Events API 2.0.
+     *
+     * Only the documented `user` keys are sent. PII is SHA-256 hashed after
+     * normalisation (lowercase email, E.164 phone); click/browser ids and the
+     * network fields are forwarded raw, which is what TikTok expects.
      */
     protected function prepareUserData($userData)
     {
         $prepared = [];
 
-        // Email (SHA256 hashed)
         if (!empty($userData['email'])) {
-            $prepared['email'] = hash('sha256', strtolower(trim($userData['email'])));
+            $prepared['email'] = hash('sha256', strtolower(trim((string) $userData['email'])));
         }
 
-        // Phone number (SHA256 hashed, digits only)
-        if (!empty($userData['phone'])) {
-            $prepared['phone_number'] = hash('sha256', preg_replace('/[^0-9]/', '', $userData['phone']));
+        $phone = \App\Support\PhoneNormalizer::e164($userData['phone'] ?? null);
+
+        if ($phone !== '') {
+            $prepared['phone'] = hash('sha256', $phone);
         }
 
-        // First name (SHA256 hashed)
-        if (!empty($userData['first_name'])) {
-            $prepared['first_name'] = hash('sha256', strtolower(trim($userData['first_name'])));
+        if (!empty($userData['external_id'])) {
+            $prepared['external_id'] = hash('sha256', trim((string) $userData['external_id']));
         }
 
-        // Last name (SHA256 hashed)
-        if (!empty($userData['last_name'])) {
-            $prepared['last_name'] = hash('sha256', strtolower(trim($userData['last_name'])));
+        // ttclid arrives in the landing URL, _ttp is written by the pixel. Both
+        // are JS cookies, so read the raw jar: Laravel would try to decrypt them.
+        $ttclid = $userData['ttclid'] ?? $this->rawCookie('ttclid');
+
+        if (is_string($ttclid) && $ttclid !== '') {
+            $prepared['ttclid'] = preg_replace('/[^A-Za-z0-9._\-]/', '', $ttclid);
         }
 
-        // City (SHA256 hashed)
-        if (!empty($userData['city'])) {
-            $prepared['city'] = hash('sha256', strtolower(trim($userData['city'])));
+        $ttp = $userData['ttp'] ?? $this->rawCookie('_ttp');
+
+        if (is_string($ttp) && $ttp !== '') {
+            $prepared['ttp'] = preg_replace('/[^A-Za-z0-9._\-]/', '', $ttp);
         }
 
-        // State/Province (SHA256 hashed)
-        if (!empty($userData['state'])) {
-            $prepared['state'] = hash('sha256', strtolower(trim($userData['state'])));
+        $ip = $userData['ip'] ?? request()->ip();
+
+        if (is_string($ip) && $ip !== '') {
+            $prepared['ip'] = $ip;
         }
 
-        // ZIP code (SHA256 hashed)
-        if (!empty($userData['zip'])) {
-            $prepared['zip'] = hash('sha256', trim($userData['zip']));
+        $userAgent = $userData['user_agent'] ?? request()->userAgent();
+
+        if (is_string($userAgent) && $userAgent !== '') {
+            $prepared['user_agent'] = $userAgent;
         }
 
-        // Country code (2-letter ISO code, not hashed)
-        if (!empty($userData['country'])) {
-            $prepared['country'] = strtoupper(trim($userData['country']));
+        if (!empty($userData['locale'])) {
+            $prepared['locale'] = str_replace('_', '-', trim((string) $userData['locale']));
         }
 
-        // Client IP address
-        $prepared['client_ip_address'] = request()->ip();
+        return array_filter($prepared, fn ($value) => $value !== '');
+    }
 
-        // User agent
-        $prepared['client_user_agent'] = request()->userAgent();
+    private function rawCookie(string $name): ?string
+    {
+        $value = $_COOKIE[$name] ?? null;
 
-        return $prepared;
+        return is_string($value) ? $value : null;
     }
 
     /**
-     * Prepare event properties
+     * Prepare event properties in TikTok's `contents[]` shape.
+     *
+     * The service's older convenience methods called the line item fields
+     * `item_id`/`item_price` (Meta's naming). TikTok expects `content_id` and
+     * `price`; both spellings are accepted here so an existing caller cannot
+     * silently produce a payload TikTok ignores.
      */
     protected function prepareEventProperties($eventData)
     {
         $properties = [];
 
-        if (isset($eventData['currency'])) {
-            $properties['currency'] = $eventData['currency'];
-        }
-
-        if (isset($eventData['value'])) {
-            $properties['value'] = $eventData['value'];
-        }
-
-        if (isset($eventData['content_type'])) {
-            $properties['content_type'] = $eventData['content_type'];
-        }
-
-        if (isset($eventData['content_name'])) {
-            $properties['content_name'] = $eventData['content_name'];
-        }
-
-        if (isset($eventData['content_category'])) {
-            $properties['content_category'] = $eventData['content_category'];
-        }
-
-        if (isset($eventData['quantity'])) {
-            $properties['quantity'] = $eventData['quantity'];
-        }
-
-        if (isset($eventData['order_id'])) {
-            $properties['order_id'] = $eventData['order_id'];
+        foreach ([
+            'currency', 'value', 'content_type', 'content_name',
+            'content_category', 'content_id', 'quantity', 'order_id',
+            'search_string', 'description', 'query', 'results_count',
+        ] as $key) {
+            if (isset($eventData[$key])) {
+                $properties[$key] = $eventData[$key];
+            }
         }
 
         if (isset($eventData['contents']) && is_array($eventData['contents'])) {
-            $properties['contents'] = $eventData['contents'];
+            $properties['contents'] = $this->normaliseContents($eventData['contents']);
         }
 
         return $properties;
     }
 
     /**
-     * Prepare contents array
+     * Prepare contents array from a plain list of product ids.
      */
     protected function prepareContents($productIds)
     {
-        $contents = [];
-        
-        foreach ($productIds as $productId) {
-            $contents[] = [
-                'item_id' => $productId,
+        if (!is_array($productIds)) {
+            return [];
+        }
+
+        return $this->normaliseContents($productIds);
+    }
+
+    private function normaliseContents(array $contents): array
+    {
+        $normalised = [];
+
+        foreach ($contents as $item) {
+            if (is_array($item)) {
+                $contentId = $item['content_id'] ?? $item['item_id'] ?? null;
+
+                if ($contentId === null || $contentId === '') {
+                    continue;
+                }
+
+                $line = [
+                    'content_id' => (string) $contentId,
+                    'quantity' => (int) ($item['quantity'] ?? 1),
+                ];
+
+                $price = $item['price'] ?? $item['item_price'] ?? null;
+
+                if ($price !== null && $price !== '') {
+                    $line['price'] = $price;
+                }
+
+                if (!empty($item['content_name'])) {
+                    $line['content_name'] = (string) $item['content_name'];
+                }
+
+                $normalised[] = $line;
+                continue;
+            }
+
+            if ($item === null || $item === '') {
+                continue;
+            }
+
+            $normalised[] = [
+                'content_id' => (string) $item,
                 'quantity' => 1,
             ];
         }
-        
-        return $contents;
+
+        return $normalised;
     }
 
     /**
@@ -403,14 +462,6 @@ class TikTokTrackingService
     protected function generateEventId()
     {
         return 'evt_' . uniqid() . '_' . time();
-    }
-
-    /**
-     * Get TikTok Pixel TTCLID cookie value
-     */
-    protected function getAdcode()
-    {
-        return request()->cookie('ttclid') ?? null;
     }
 
     /**

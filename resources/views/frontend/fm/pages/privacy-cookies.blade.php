@@ -17,7 +17,7 @@
 
 @extends('frontend.fm.layouts')
 
-@section('title', 'Cookies and privacy')
+@section('title', $cookiePage->title)
 @section('meta_description', 'Which cookies this shop sets, what each one is for, and how to change your choice at any time.')
 
 @push('styles')
@@ -30,6 +30,7 @@
     .fm-consent__card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; height: 100%; }
     .fm-consent__card h2 { font-size: 17px; font-weight: 700; margin: 0 0 6px; color: #0f172a; }
     .fm-consent__card p { color: #475569; margin: 0 0 12px; }
+    .fm-consent__card--locked { border-left: 4px solid #0f766e; background: #f0fdfa; }
     .fm-consent__badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
     .fm-consent__badge--on { background: #dcfce7; color: #166534; }
     .fm-consent__badge--off { background: #f1f5f9; color: #475569; }
@@ -48,15 +49,25 @@
     <section class="fm-consent__hero">
         <div class="container mx-auto px-4 py-5 py-lg-6">
             <p class="fm-consent__eyebrow mb-0">Privacy</p>
-            <h1 class="fm-consent__title">Cookies, in plain language</h1>
-            <p class="fm-consent__lead">
-                Necessary cookies keep the cart, the session and your login working — those cannot be
-                switched off. Everything else is your call, and changing it takes one click.
-            </p>
+            <h1 class="fm-consent__title">{{ $cookiePage->title }}</h1>
+            @if(trim((string) $cookiePage->intro) !== '')
+                <p class="fm-consent__lead">{{ $cookiePage->intro }}</p>
+            @endif
         </div>
     </section>
 
     <div class="container mx-auto px-4 py-5">
+
+        @if(trim((string) $cookiePage->body) !== '')
+            <div class="fm-consent__card mb-4 page-description">
+                {!! $cookiePage->body !!}
+            </div>
+        @endif
+
+        <div class="fm-consent__card fm-consent__card--locked mb-4" id="retention-notice">
+            <h2>Data retention <span class="fm-consent__badge fm-consent__badge--fixed">Locked</span></h2>
+            <p class="mb-0">{{ \App\Support\Consent::RETENTION_NOTICE }}</p>
+        </div>
 
         {{-- Current state + controls ------------------------------------------------ --}}
         <div class="fm-consent__card mb-4">

@@ -2,13 +2,13 @@
 @php
     $promoBanners = $promo_banners ?? collect();
     $generalsetting = $generalsetting ?? \App\Models\GeneralSetting::first();
-    $fallbackImage = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
+    $fallbackImage = \App\Support\MediaPath::fallbackPath();
     $fallbackRaw = (string) $fallbackImage;
     $fallbackIsUrl = preg_match('~^https?://~i', $fallbackRaw) === 1;
     $fallbackPath = $fallbackIsUrl ? $fallbackRaw : ltrim(preg_replace('~^public/~', '', $fallbackRaw), '/');
     $fallbackImageSrc = !empty($fallbackPath)
         ? ($fallbackIsUrl ? $fallbackPath : asset($fallbackPath))
-        : asset('assets/images/empty.png');
+        : \App\Support\MediaPath::fallbackUrl();
 @endphp
 @if($promoBanners->count() > 0)
 <div class="site-section my-60">

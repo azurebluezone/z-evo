@@ -15,197 +15,8 @@
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-color: #ff0000;
-      --secondary-color: #008000;
-      --accent-color: #FFD700;
-      --text-color: #333333;
-      --light-bg: #f8f9fa;
-      --dark-bg: #343a40;
-    }
-    body { font-family: 'Hind Siliguri', sans-serif; overflow-x: hidden; color: var(--text-color); }
-    
-    /* Hero Section */
-    .hero-section {
-      position: relative;
-      background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ $landingPage->image_url ? asset(preg_replace("/^public\//", "", $landingPage->image_url)) : "https://via.placeholder.com/1200x800" }}');
-      background-size: cover;
-      background-position: center;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 0;
-      color: white;
-      text-align: center;
-    }
-    .hero-section::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      z-index: 1;
-    }
-    .hero-content { position: relative; z-index: 2; }
-    .logo { max-height: 80px; margin-bottom: 30px; filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); }
-    .hero-title { font-weight: bold; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
-    .hero-subtitle { font-size: 1.2rem; margin-bottom: 30px; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); }
-    .price-text { font-size: 1.5rem; font-weight: bold; color: var(--accent-color); }
-    .original-price { color: var(--primary-color); font-size: 1.5rem; text-decoration: line-through; }
-    .current-price { color: var(--secondary-color); font-size: 2rem; font-weight: bold; }
-    .cta-button {
-      background-color: var(--primary-color);
-      color: white;
-      font-weight: bold;
-      padding: 12px 30px;
-      border-radius: 5px;
-      border: none;
-      font-size: 1.1rem;
-      transition: all 0.3s ease;
-      display: inline-block;
-      margin: 20px auto 0;
-      text-decoration: none;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    .cta-button:hover {
-      background-color: #cc0000;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-      color: white;
-    }
-    .wave-divider {
-      position: absolute; bottom: 0; left: 0;
-      width: 100%; overflow: hidden; line-height: 0; z-index: 2;
-    }
-    .wave-divider svg { position: relative; display: block; width: calc(100% + 1.3px); height: 65px; }
-    .wave-divider .shape-fill { fill: #FFFFFF; }
-    
-    /* Price Section */
-    .price-section { background: white; padding: 40px 0; text-align: center; }
-    .free-delivery { font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; position: relative; display: inline-block; }
-    .free-delivery::after {
-      content: ""; position: absolute; bottom: -5px; left: 0;
-      width: 100%; height: 2px;
-      background-color: var(--primary-color);
-      background-image: url("data:image/svg+xml,%3Csvg width='40' height='12' viewBox='0 0 40 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 6c2-2 5-2 7 0s5 2 7 0 5-2 7 0 5 2 7 0 5 2 7 0' fill='%23ff0000' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
-      background-size: 40px 12px;
-    }
-    
-    /* Product Slider */
-    .product-slider {
-      padding: 60px 0;
-      position: relative;
-      background: linear-gradient(45deg, #343a40, #1a1e21);
-    }
-    .swiper { width: 100%; padding-top: 50px; padding-bottom: 50px; }
-    .swiper-slide {
-      background-position: center; background-size: cover;
-      width: 300px; height: 300px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 15px 50px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .swiper-slide img { display: block; width: 100%; height: 100%; object-fit: cover; }
-    
-    /* Features Section */
-    .feature-section { padding: 60px 0; background-color: white; }
-    .section-title { text-align: center; font-weight: bold; font-size: 2rem; margin-bottom: 50px; position: relative; }
-    .section-title::after {
-      content: ""; position: absolute; bottom: -15px; left: 50%;
-      transform: translateX(-50%);
-      width: 80px; height: 3px;
-      background-color: var(--primary-color);
-    }
-    .feature-box {
-      border: 2px solid var(--primary-color);
-      border-radius: 15px;
-      padding: 25px;
-      margin-bottom: 30px;
-      background: white;
-      transition: all 0.3s ease;
-      height: 100%;
-    }
-    .feature-box:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-    .feature-box img { width: 100%; border-radius: 8px; margin-bottom: 15px; }
-    .feature-box h3 { color: var(--primary-color); font-weight: bold; font-size: 1.5rem; margin-bottom: 15px; text-align: center; }
-    
-    /* Benefits Section */
-    .benefits-section { padding: 60px 0; background-color: var(--light-bg); position: relative; }
-    .benefits-list { list-style: none; padding: 0; position: relative; z-index: 1; }
-    .benefits-list li {
-      display: flex; align-items: flex-start;
-      margin-bottom: 20px;
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-      transition: transform 0.3s ease;
-    }
-    .benefits-list li:hover { transform: translateX(10px); }
-    .benefits-list li i { color: var(--primary-color); margin-right: 15px; font-size: 24px; flex-shrink: 0; }
-    
-    /* Gallery Section */
-    .gallery-section { padding: 60px 0; background-color: white; }
-    .gallery-main { margin-bottom: 20px; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .gallery-main .swiper-slide { height: 400px; width: 100%; }
-    .gallery-thumbs { height: 100px; }
-    .gallery-thumbs .swiper-slide { height: 100%; width: 100px; opacity: 0.4; cursor: pointer; }
-    .gallery-thumbs .swiper-slide-thumb-active { opacity: 1; }
-    
-    /* Order Section */
-    .order-section { padding: 60px 0; background-color: var(--light-bg); }
-    .order-form { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .package-option {
-      display: flex; align-items: center;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      transition: all 0.3s ease;
-    }
-    .package-option:hover { border-color: var(--primary-color); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-    .package-option img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 15px; }
-    .submit-btn {
-      background-color: var(--primary-color);
-      color: white;
-      font-weight: bold;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 5px;
-      font-size: 1.2rem;
-      width: 100%;
-      transition: all 0.3s ease;
-    }
-    .submit-btn:hover { background-color: #cc0000; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,0,0,0.2); }
-    
-    /* Footer */
-    footer { background-color: var(--dark-bg); color: white; padding: 40px 0 20px; }
-    footer h5 { font-weight: bold; margin-bottom: 20px; }
-    .social-icons { display: flex; gap: 15px; }
-    .social-icons a {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 40px; height: 40px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-      transition: all 0.3s ease;
-    }
-    .social-icons a:hover { background: var(--primary-color); transform: translateY(-3px); }
-    .copyright { text-align: center; padding-top: 20px; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); }
-    
-    @media (max-width: 768px) {
-      .hero-title { font-size: 1.5rem; }
-      .hero-subtitle { font-size: 1rem; }
-      .free-delivery { font-size: 1.5rem; }
-      .original-price { font-size: 1.2rem; }
-      .current-price { font-size: 1.5rem; }
-      .section-title { font-size: 1.5rem; }
-      .gallery-main .swiper-slide { height: 300px; }
-      .order-form { padding: 20px; }
-    }
-  </style>
+  <link rel="stylesheet" href="{{ asset('frontend/landing/template-3.css') }}?v={{ filemtime(public_path('frontend/landing/template-3.css')) }}">
+    <link rel="stylesheet" href="{{ asset('frontend/landing/responsive.css') }}?v={{ filemtime(public_path('frontend/landing/responsive.css')) }}">
 </head>
 <body>
   @include('frontend.partials.event-layer-body')
@@ -218,10 +29,13 @@
     $galleryImages = $extra['gallery_images'] ?? [];
     $contactPhone = $extra['contact_phone'] ?? null;
     $productId = $extra['product_id'] ?? null;
+    $showFeatures = $extra['show_features'] ?? true;
+    $showBenefits = $extra['show_benefits'] ?? true;
+    $showCta = $extra['show_cta'] ?? true;
   @endphp
 
   <!-- Hero Section -->
-  <section class="hero-section">
+  <section class="hero-section" style="--hero-image: url('{{ $landingPage->image_url ? asset(preg_replace('/^public\//', '', $landingPage->image_url)) : 'https://via.placeholder.com/1200x800' }}');">
     <div class="hero-content container">
       @if($landingPage->image_url)
         <img src="{{ asset(preg_replace('/^public\//', '', $landingPage->image_url)) }}" alt="{{ $landingPage->title }}" class="logo mb-4">
@@ -252,7 +66,9 @@
       </div>
       @endif
       
+      @if($showCta)
       <a href="#order-now" class="cta-button" data-aos="fade-up">{{ $landingPage->cta_text ?? 'অর্ডার করুন' }}</a>
+      @endif
     </div>
     <div class="wave-divider">
       <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -273,7 +89,9 @@
       @endif
       @if($newPrice)
       <div class="offer-price" data-aos="fade-up" data-aos-delay="200">অফার প্রাইসঃ {{ $newPrice }} টাকা!</div>
+      @if($showCta)
       <a href="#order-now" class="btn btn-danger btn-lg mt-3" data-aos="fade-up" data-aos-delay="300">{{ $landingPage->cta_text ?? 'অর্ডার করতে ক্লিক করুন' }}</a>
+      @endif
       @endif
     </div>
   </section>
@@ -302,19 +120,26 @@
   @endif
 
   <!-- Features Section -->
-  @if(count($features) > 0)
+  @if($showFeatures && count($features) > 0)
   <section class="feature-section" id="features">
     <div class="container">
       <h2 class="section-title" data-aos="fade-up">পণ্যের বৈশিষ্ট্য</h2>
       <div class="row">
         @foreach($features as $i => $feature)
+        @php
+          $featureTitle = is_array($feature) ? ($feature['title'] ?? 'Feature ' . ($i + 1)) : (string) $feature;
+          $featureText = is_array($feature) ? ($feature['description'] ?? '') : '';
+          $featureImage = is_array($feature) ? ($feature['image'] ?? null) : null;
+        @endphp
         <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ $i * 100 }}">
           <div class="feature-box">
-            @if(isset($feature['image']))
-            <img src="{{ asset(preg_replace('/^public\//', '', $feature['image'])) }}" alt="Feature">
+            @if($featureImage)
+            <img src="{{ asset(preg_replace('/^public\//', '', $featureImage)) }}" alt="Feature">
             @endif
-            <h3>{{ $feature['title'] ?? 'Feature ' . ($i + 1) }}</h3>
-            <p>{{ $feature['description'] ?? '' }}</p>
+            <h3>{{ $featureTitle }}</h3>
+            @if($featureText !== '')
+            <p>{{ $featureText }}</p>
+            @endif
           </div>
         </div>
         @endforeach
@@ -324,7 +149,7 @@
   @endif
 
   <!-- Benefits Section -->
-  @if(count($benefits) > 0)
+  @if($showBenefits && count($benefits) > 0)
   <section class="benefits-section" id="benefits">
     <div class="container">
       <h2 class="section-title" data-aos="fade-up">আমাদের কাছ থেকে কেন কিনবেন</h2>
@@ -332,9 +157,18 @@
         <div class="col-lg-12">
           <ul class="benefits-list">
             @foreach($benefits as $benefit)
+            @php
+              $benefitTitle = is_array($benefit) ? ($benefit['title'] ?? '') : (string) $benefit;
+              $benefitText = is_array($benefit) ? ($benefit['text'] ?? ($benefit['description'] ?? '')) : '';
+            @endphp
             <li data-aos="fade-right">
               <i class="fas fa-thumbs-up"></i>
-              <span>{{ $benefit }}</span>
+              <span>
+                {{ $benefitTitle }}
+                @if($benefitText !== '')
+                <small class="d-block">{{ $benefitText }}</small>
+                @endif
+              </span>
             </li>
             @endforeach
           </ul>
@@ -379,6 +213,9 @@
           @csrf
           @if($productId)
             <input type="hidden" name="product_id" value="{{ $productId }}">
+          @endif
+          @if(!empty($extra['campaign_id']))
+            <input type="hidden" name="campaign_id" value="{{ $extra['campaign_id'] }}">
           @endif
           
           <div class="row mb-4">
@@ -472,42 +309,6 @@
   <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
-      
-      // Product slider
-      new Swiper('.product-swiper', {
-        effect: 'coverflow',
-        grabCursor: true,
-        centeredSlides: true,
-        slidesPerView: 'auto',
-        coverflowEffect: {
-          rotate: 50,
-          stretch: 0,
-          depth: 100,
-          modifier: 1,
-          slideShadows: true
-        },
-        pagination: { el: '.swiper-pagination', clickable: true },
-        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }
-      });
-      
-      // Gallery
-      if(document.querySelector('.gallery-thumbs')) {
-        const galleryThumbs = new Swiper('.gallery-thumbs', {
-          spaceBetween: 10,
-          slidesPerView: 4,
-          freeMode: true,
-          watchSlidesProgress: true
-        });
-        new Swiper('.gallery-main', {
-          spaceBetween: 10,
-          navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-          thumbs: { swiper: galleryThumbs }
-        });
-      }
-    });
-  </script>
+  <script src="{{ asset('frontend/landing/template-3.js') }}?v={{ filemtime(public_path('frontend/landing/template-3.js')) }}"></script>
 </body>
 </html>

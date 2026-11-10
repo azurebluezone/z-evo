@@ -41,9 +41,11 @@ class MediaPath
 
     /**
      * Bundled image shown when the admin has not uploaded a fallback yet.
-     * A real file ships in public/assets/images/empty.png.
+     * A real file ships in public/assets/images/default.png - the same
+     * placeholder the storefront already renders, so admin and frontend can
+     * never disagree about what an empty slot looks like.
      */
-    public const BUNDLED_FALLBACK = 'assets/images/empty.png';
+    public const BUNDLED_FALLBACK = 'assets/images/default.png';
 
     /**
      * Request-scoped memo. Resolving the settings row once per request keeps
@@ -102,6 +104,38 @@ class MediaPath
     }
 
     /**
+     * Bundled placeholder names stored in image columns over the years. They
+     * pass a file_exists() check, which used to pin every empty slot to the
+     * bundled default forever - the appearance upload never got a chance.
+     */
+    private const PLACEHOLDER_NAMES = [
+        'assets/images/default.png',
+        'assets/images/empty.png',
+        'uploads/category/default.png',
+    ];
+
+    /**
+     * Resolve a stored image value to a web-root relative path, falling back
+     * to the appearance-controlled image when the value is empty, a bundled
+     * placeholder or a file that no longer exists.
+     */
+    public static function imageOrFallback(?string $raw): string
+    {
+        $path = self::normalize($raw);
+
+        if (
+            $path === ''
+            || self::isRemote($path)
+            || in_array($path, self::PLACEHOLDER_NAMES, true)
+            || ! \Illuminate\Support\Facades\File::exists(public_path($path))
+        ) {
+            return self::fallbackPath();
+        }
+
+        return $path;
+    }
+
+    /**
      * Normalise a raw database value into a web-root relative path.
      *
      * Returns an empty string when the value is not usable as a local path.
@@ -151,6 +185,13 @@ class MediaPath
     public static function url(?string $raw, string $barePrefix = 'product', ?string $fallback = null): string
     {
         $path = self::normalize($raw, $barePrefix);
+
+        // Bundled placeholders stored in image rows (uploads/category/default.png,
+        // assets/images/default.png) count as "no image" - the appearance
+        // fallback or the caller's fallback answers instead.
+        if (in_array($path, self::PLACEHOLDER_NAMES, true)) {
+            return asset($fallback ?? self::fallbackPath());
+        }
 
         if ($path === '') {
             return asset($fallback ?? self::fallbackPath());

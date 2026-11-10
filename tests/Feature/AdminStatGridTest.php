@@ -148,12 +148,18 @@ class AdminStatGridTest extends TestCase
         }
     }
 
-    public function test_module_pages_show_a_page_count(): void
+    public function test_module_pages_leave_the_page_count_to_the_rendered_table(): void
     {
         $html = $this->html(route('coupons.index'));
-        $total = (int) DB::table('coupons')->count();
 
-        $this->assertSame(number_format(min(20, $total)), $this->value($html, 'showing-this-page'));
+        // The server does not know how many rows will be on screen (page size,
+        // filters and DataTables all decide later), so it must not invent 20.
+        $this->assertSame('—', $this->value($html, 'showing-this-page'));
+        $this->assertStringContainsString(
+            "querySelectorAll('.content-wrapper table')",
+            $html,
+            'The stat grid lost its server-rendered table reporter.'
+        );
     }
 
     public function test_settings_page_renders_no_stat_band_at_all(): void

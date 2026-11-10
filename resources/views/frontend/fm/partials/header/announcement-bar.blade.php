@@ -49,13 +49,17 @@
          a phone visitor saw only the switcher. Neither control is optional
          chrome, so neither drops out now. --}}
     <div class="container mx-auto px-4 flex items-center justify-between gap-3">
-        <a class="fm-topbar-contact flex items-center gap-1.5 min-w-0" href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $fmPhone) }}">
-            <i class="bi bi-telephone-fill shrink-0"></i>
-            <span class="hidden sm:inline shrink-0">Helpline:</span>
-            <span class="truncate">{{ $fmPhone ?: 'Add your number' }}</span>
-        </a>
+        {{-- No phone, no link. "Add your number" was a setup hint shown to
+             customers; a shop should never display its own TODO. --}}
+        @if(!empty($fmPhone))
+            <a class="fm-topbar-contact flex items-center gap-1.5 min-w-0" href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $fmPhone) }}">
+                <i class="bi bi-telephone-fill shrink-0"></i>
+                <span class="hidden sm:inline shrink-0">Helpline:</span>
+                <span class="truncate">{{ $fmPhone }}</span>
+            </a>
+        @endif
 
-        <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div class="flex items-center gap-1 sm:gap-2 shrink-0 ms-auto">
             @if(!empty($fmWhatsapp))
                 <a aria-label="Chat on WhatsApp" class="fm-topbar-whatsapp inline-flex items-center rounded-lg px-1.5" target="_blank" rel="noopener" href="https://wa.me/{{ $fmWhatsapp }}">
                     <i class="bi bi-whatsapp"></i>

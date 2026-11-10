@@ -371,16 +371,10 @@ class AdminAuditPages extends Command
             }
         }
 
-        $route = Route::getRoutes()->getByName($name);
-        $method = strtolower((string) optional($route)->getActionMethod());
-        $hasList = isset($definition['has_list'])
-            ? (bool) $definition['has_list']
-            : (! in_array($name, config('admin_stats.no_list_routes', []), true)
-                && ! in_array($method, config('admin_stats.non_list_methods', []), true));
-
+        // Card 4 is written by the rendered table, not by the database.
         $cards[] = [
             'label' => 'Showing This Page',
-            'value' => $hasList ? $format(min(20, $total)) : '—',
+            'value' => '—',
         ];
 
         return $cards;

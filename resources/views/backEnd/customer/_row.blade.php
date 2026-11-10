@@ -17,8 +17,8 @@
             @php
                 $imgPath = preg_replace('~^public/~', '', (string) ($value->image ?? ''));
                 $imgPath = ltrim($imgPath, '/');
-                $fallbackImg = 'assets/images/empty.png';
-                $imgSrc = $imgPath && file_exists(public_path($imgPath)) ? asset($imgPath) : asset($fallbackImg);
+                $fallbackImg = \App\Support\MediaPath::fallbackPath();
+                $imgSrc = asset(\App\Support\MediaPath::imageOrFallback($value->image ?? null));
             @endphp
             <img src="{{ $imgSrc }}" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;" onerror="this.src='{{ asset($fallbackImg) }}'">
             <div>

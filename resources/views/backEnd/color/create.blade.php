@@ -29,7 +29,7 @@
                 </a>
             </div>
 
-            <div class="card-body mt-4">
+            <div class="card-body">
                 <form action="{{ route('colors.store') }}" method="POST" class="row g-4" data-parsley-validate="" enctype="multipart/form-data" id="colorsForm">
                     @csrf
 
@@ -56,11 +56,11 @@
                         <div class="card-header border-bottom">
                             <h6 class="mb-0 fw-semibold">SEO Settings</h6>
                         </div>
-                        <div class="card-body mt-4">
+                        <div class="card-body">
                             @php
                                 $model = new App\Models\Color();
                             @endphp
-                            @include('backEnd.layouts.partials.seo-fields')
+                            @include('backEnd.layouts.partials.seo-meta-form')
                         </div>
                       </div>
                     </div>
@@ -77,9 +77,6 @@
                     </div>
 
                     <div class="col-12 mt-4">
-                        <x-admin.button variant="success" shape="square" ripple="true" type="submit">
-                            <i class="ri ri-save-line me-1"></i> Save Color
-                        </x-admin.button>
                     </div>
                 </form>
             </div>

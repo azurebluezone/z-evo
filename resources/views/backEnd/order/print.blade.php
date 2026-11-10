@@ -16,46 +16,7 @@
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/fonts/iconify-icons.css') }}" />
 </head>
 <body>
-    <style>
-        .customer-invoice {
-            page-break-before: always;
-        }
-        body{
-            background:#F1F2F5
-        }
-    .customer-invoice {
-        margin: 25px 0;
-    }
-    .invoice_btn{
-        margin-bottom: 15px;
-    }
-    p{
-        margin:0;
-    }
-    td{
-        font-size: 16px;
-    }
-   @page { 
-    margin:0px;
-    }
-   @media print {
-    .invoice-innter{
-        margin-left: -120px !important;
-    }
-    .invoice_btn{
-        margin-bottom: 0 !important;
-    }
-    td{
-        font-size: 18px;
-    }
-    p{
-        margin:0;
-    }
-    header,footer,.no-print,.left-side-menu,.navbar-custom {
-      display: none !important;
-    }
-  }
-</style>
+    <link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-order-print.css') }}">
 <div class="container">
     <div class="row">
         <div class="col-sm-12 mt-3 text-center">
@@ -167,10 +128,6 @@
     </div>
 </section>
 @endforeach
-<script>
-    function printFunction() {
-        window.print();
-    }
-</script>
+<script src="{{ asset('admin/assets/js/admin-page-order-print.js') }}"></script>
 </body>
 </html>

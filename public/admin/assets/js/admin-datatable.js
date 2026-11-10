@@ -82,13 +82,13 @@
             },
             columns: columns,
             /*
-             * Layout. f = search box, l = page length, t = table,
-             * r = the processing indicator, i = "showing x of y", p = pager.
-             * Without this DataTables prints its default pager with no card
-             * around it and the row of controls lands in an odd place.
+             * Layout. f = search box above the table (left); t = table,
+             * r = the processing indicator; and the footer row carries
+             * i = "showing x of y", l = page-length selector, p = pager - the
+             * "Show N entries" picker belongs with the pager, not on top.
              */
-            dom: '<"row"<"col-12 col-md-6"f><"col-12 col-md-6"l>>' +
-                 'rt<"row mt-3"<"col-12 col-md-6"i><"col-12 col-md-6"p>>',
+            dom: '<"row"<"col-12 col-md-6"f>>' +
+                 'rt<"row mt-3"<"col-12 col-md-4"i><"col-12 col-md-3"l><"col-12 col-md-5"p>>',
             language: {
                 emptyTable: table.dataset.fmDtEmpty || 'Nothing here yet.',
                 zeroRecords: 'Nothing matches those filters.',

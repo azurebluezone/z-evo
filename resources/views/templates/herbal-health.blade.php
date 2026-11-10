@@ -14,230 +14,31 @@
   <!-- AOS Animation -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <!-- Custom CSS -->
-  <style>
-    :root {
-      --primary-color: #27ae60;
-      --secondary-color: #2ecc71;
-      --accent-color: #f39c12;
-      --text-color: #2c3e50;
-      --light-bg: #e8f5e8;
-      --dark-bg: #1e3a2e;
-    }
-
-    body {
-      font-family: 'Hind Siliguri', sans-serif;
-      overflow-x: hidden;
-      color: var(--text-color);
-    }
-
-    .hero-section {
-      position: relative;
-      @php
-        $heroImage = $landingPage->image_url
-          ? asset(preg_replace('/^public\//', '', $landingPage->image_url))
-          : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
-      @endphp
-      background-image: linear-gradient(rgba(39, 174, 96, 0.8), rgba(46, 204, 113, 0.8)), url('{{ $heroImage }}');
-      background-size: cover;
-      background-position: center;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 0;
-      color: white;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-    }
-
-    .hero-title {
-      font-weight: bold;
-      font-size: 3rem;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    }
-
-    .hero-subtitle {
-      font-size: 1.3rem;
-      margin-bottom: 30px;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-    }
-
-    .cta-button {
-      background: linear-gradient(135deg, var(--accent-color), #e67e22);
-      color: white;
-      padding: 15px 40px;
-      border-radius: 50px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-block;
-      transition: all 0.3s ease;
-      border: none;
-    }
-
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(243, 156, 18, 0.4);
-      color: white;
-    }
-
-    .product-section {
-      padding: 80px 0;
-      background: var(--light-bg);
-    }
-
-    .product-card {
-      background: white;
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-
-    .product-card:hover {
-      transform: translateY(-10px);
-    }
-
-    .product-image {
-      width: 200px;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin: 0 auto 30px;
-      border: 5px solid var(--primary-color);
-    }
-
-    .price-tag {
-      background: var(--primary-color);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 25px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      display: inline-block;
-      margin: 20px 0;
-    }
-
-    .old-price {
-      text-decoration: line-through;
-      color: #999;
-      font-size: 1rem;
-    }
-
-    .benefits-section {
-      padding: 80px 0;
-      background: white;
-    }
-
-    .benefit-item {
-      background: var(--light-bg);
-      border-radius: 15px;
-      padding: 30px;
-      margin-bottom: 30px;
-      border-left: 5px solid var(--primary-color);
-    }
-
-    .benefit-icon {
-      font-size: 2.5rem;
-      color: var(--primary-color);
-      margin-bottom: 20px;
-    }
-
-    .testimonials-section {
-      padding: 80px 0;
-      background: var(--light-bg);
-    }
-
-    .testimonial-card {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .testimonial-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin: 0 auto 20px;
-      background: var(--primary-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 2rem;
-    }
-
-    .order-section {
-      padding: 80px 0;
-      background: var(--dark-bg);
-      color: white;
-    }
-
-    .order-form {
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 40px;
-      backdrop-filter: blur(10px);
-    }
-
-    .form-control {
-      background: rgba(255,255,255,0.9);
-      border: none;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .form-control:focus {
-      background: white;
-      box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
-    }
-
-    .footer {
-      background: var(--dark-bg);
-      color: white;
-      padding: 40px 0;
-      text-align: center;
-    }
-
-    @media (max-width: 768px) {
-      .hero-title {
-        font-size: 2rem;
-      }
-
-      .hero-subtitle {
-        font-size: 1rem;
-      }
-
-      .cta-button {
-        padding: 12px 30px;
-        font-size: 1rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="{{ asset('frontend/landing/herbal-health.css') }}?v={{ filemtime(public_path('frontend/landing/herbal-health.css')) }}">
+    <link rel="stylesheet" href="{{ asset('frontend/landing/responsive.css') }}?v={{ filemtime(public_path('frontend/landing/responsive.css')) }}">
 </head>
 
 <body>
   @include('frontend.partials.event-layer-body')
   <!-- Hero Section -->
-  <section class="hero-section">
+  @php
+    $heroImage = $landingPage->image_url
+      ? asset(preg_replace('/^public\//', '', $landingPage->image_url))
+      : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+    $showCta = $landingPage->extra_fields['show_cta'] ?? true;
+  @endphp
+  <section class="hero-section" style="--hero-image: url('{{ $heroImage }}');">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-lg-6">
           <div class="hero-content" data-aos="fade-right">
             <h1 class="hero-title">{{ $landingPage->title ?? 'প্রাকৃতিক আয়ুর্বেদিক সাপ্লিমেন্ট' }}</h1>
             <p class="hero-subtitle">{{ $landingPage->subtitle ?? 'স্বাস্থ্য ও সুস্থতার জন্য ১০০% প্রাকৃতিক উপাদান' }}</p>
+            @if($showCta)
             <a href="#order" class="cta-button">
               <i class="fas fa-shopping-cart me-2"></i>{{ $landingPage->cta_text ?? 'এখনই অর্ডার করুন' }}
             </a>
+            @endif
           </div>
         </div>
         <div class="col-lg-6">
@@ -280,9 +81,11 @@
             </div>
             @endif
 
+            @if($showCta)
             <a href="#order" class="cta-button">
               <i class="fas fa-heart me-2"></i>{{ $landingPage->cta_text ?? 'স্বাস্থ্য বাড়ান' }}
             </a>
+            @endif
           </div>
         </div>
       </div>
@@ -303,13 +106,20 @@
       @if(count($benefits) > 0)
       <div class="row">
         @foreach($benefits as $i => $benefit)
+        @php
+          $benefitIcon = is_array($benefit) ? ($benefit['icon'] ?? 'fas fa-leaf') : 'fas fa-leaf';
+          $benefitTitle = is_array($benefit) ? ($benefit['title'] ?? '') : (string) $benefit;
+          $benefitText = is_array($benefit) ? ($benefit['text'] ?? ($benefit['description'] ?? '')) : '';
+        @endphp
         <div class="col-lg-4 col-md-6">
           <div class="benefit-item" data-aos="fade-up" @if($i > 0) data-aos-delay="{{ $i * 100 }}" @endif>
             <div class="benefit-icon">
-              <i class="{{ $benefit['icon'] ?? 'fas fa-leaf' }}"></i>
+              <i class="{{ $benefitIcon }}"></i>
             </div>
-            <h4>{{ $benefit['title'] ?? '' }}</h4>
-            <p>{{ $benefit['text'] ?? '' }}</p>
+            <h4>{{ $benefitTitle }}</h4>
+            @if($benefitText !== '')
+            <p>{{ $benefitText }}</p>
+            @endif
           </div>
         </div>
         @endforeach
@@ -358,15 +168,21 @@
       </div>
       <div class="row">
         @foreach(array_slice($testimonials, 0, 3) as $testimonial)
+        @php
+          $testimonialName = is_array($testimonial) ? ($testimonial['name'] ?? 'গ্রাহক') : 'গ্রাহক';
+          $testimonialText = is_array($testimonial)
+            ? ($testimonial['text'] ?? ($testimonial['comment'] ?? 'অসাধারণ প্রোডাক্ট!'))
+            : (string) $testimonial;
+          $rating = is_array($testimonial) ? (int) ($testimonial['rating'] ?? 5) : 5;
+        @endphp
         <div class="col-lg-4 col-md-6">
           <div class="testimonial-card" data-aos="fade-up">
             <div class="testimonial-avatar">
               <i class="fas fa-user"></i>
             </div>
-            <p class="mb-3">{{ $testimonial['comment'] ?? 'অসাধারণ প্রোডাক্ট!' }}</p>
-            <h6 class="fw-bold">{{ $testimonial['name'] ?? 'গ্রাহক' }}</h6>
+            <p class="mb-3">{{ $testimonialText }}</p>
+            <h6 class="fw-bold">{{ $testimonialName }}</h6>
             <div class="text-warning">
-              @php $rating = (int)($testimonial['rating'] ?? 5); @endphp
               @for($i = 1; $i <= 5; $i++)
                 <i class="fas fa-star{{ $i <= $rating ? '' : '-o' }}"></i>
               @endfor
@@ -389,6 +205,9 @@
             <form action="{{ $landingPage->cta_link ?? route('cart.add') }}" method="POST">
               @csrf
               <input type="hidden" name="product_id" value="{{ $landingPage->extra_fields['product_id'] ?? '' }}">
+              @if(!empty($landingPage->extra_fields['campaign_id']))
+                <input type="hidden" name="campaign_id" value="{{ $landingPage->extra_fields['campaign_id'] }}">
+              @endif
               <div class="row">
                 <div class="col-md-6">
                   <input type="text" class="form-control" name="name" placeholder="আপনার নাম" required>
@@ -436,8 +255,6 @@
   <!-- AOS Animation -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-  <script>
-    AOS.init({ duration: 1000, once: true });
-  </script>
+  <script src="{{ asset('frontend/landing/herbal-health.js') }}?v={{ filemtime(public_path('frontend/landing/herbal-health.js')) }}"></script>
 </body>
 </html>

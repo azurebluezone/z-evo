@@ -169,4 +169,51 @@
         var handle = window.setInterval(render, 1000);
         render();
     });
+
+    /* ------------------------------------------------------------------ *
+     * Shop by Category rail (tablet / phone)
+     * ------------------------------------------------------------------
+     * The desktop 6x2 grid and the rail hold the same 12 cards, so only one
+     * of them is visible at a time. Swiper is created when the rail is the
+     * visible layout and destroyed when the viewport grows back to the
+     * grid; otherwise Swiper would measure a display:none element as zero
+     * width and the slider would never recover on the way down again.
+     */
+    var catRail = document.querySelector('[data-fm-cat-swiper]');
+
+    if (catRail && typeof window.Swiper === 'function') {
+        var catSwiper = null;
+        var catQuery = window.matchMedia('(max-width: 991.98px)');
+
+        function syncCategoryRail() {
+            if (catQuery.matches && !catSwiper) {
+                catSwiper = new window.Swiper(catRail, {
+                    slidesPerView: 2.2,
+                    spaceBetween: 10,
+                    grabCursor: true,
+                    watchOverflow: true,
+                    pagination: {
+                        el: catRail.querySelector('.swiper-pagination'),
+                        clickable: true,
+                    },
+                    breakpoints: {
+                        480: { slidesPerView: 3.2, spaceBetween: 12 },
+                        640: { slidesPerView: 4.2, spaceBetween: 14 },
+                        768: { slidesPerView: 4.5, spaceBetween: 16 },
+                    },
+                });
+            } else if (!catQuery.matches && catSwiper) {
+                catSwiper.destroy(true, true);
+                catSwiper = null;
+            }
+        }
+
+        syncCategoryRail();
+
+        if (typeof catQuery.addEventListener === 'function') {
+            catQuery.addEventListener('change', syncCategoryRail);
+        } else if (typeof catQuery.addListener === 'function') {
+            catQuery.addListener(syncCategoryRail);
+        }
+    }
 })();

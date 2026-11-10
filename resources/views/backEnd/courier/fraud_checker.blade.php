@@ -6,9 +6,6 @@
             <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
                 <div>
                     <h4 class="mb-0">Fraud Checker</h4>
-                    <p class="text-muted mb-0 small">
-                        Look up a phone number against courier delivery history, or override the stored risk when the courier has no record.
-                    </p>
                 </div>
             </div>
 
@@ -123,7 +120,24 @@
                                     <tr>
                                         <td>{{ $row->checked_at ? $row->checked_at->format('d-m-Y h:i:s a') : '' }}</td>
                                         <td>{{ $row->phone }}</td>
-                                        <td>{{ $row->provider }}</td>
+                                        <td>
+                                            @php
+                                                $providerLabel = (string) ($row->provider ?? '');
+                                                if (in_array($providerLabel, ['internal', 'internal_history'], true)) {
+                                                    $providerLabel = 'Local history';
+                                                }
+                                                $apiData = is_array($row->raw_payload ?? null)
+                                                    ? ($row->raw_payload['api_data'] ?? null)
+                                                    : null;
+                                                if (is_array($apiData) && $apiData !== []) {
+                                                    $providerLabel .= ' (' . implode(', ', array_map(
+                                                        static fn (string $key): string => $key === 'steadfast' ? 'SteadFast' : ucfirst($key),
+                                                        array_keys($apiData)
+                                                    )) . ')';
+                                                }
+                                            @endphp
+                                            {{ $providerLabel !== '' ? $providerLabel : 'Unknown' }}
+                                        </td>
                                         <td>{{ $row->success_rate_percent !== null ? ($row->success_rate_percent . '%') : '' }}</td>
                                         <td>
                                             @if($riskLabel === 'high_risk')

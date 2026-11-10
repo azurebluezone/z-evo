@@ -702,6 +702,13 @@
     .fm-co-steps__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .fm-co-steps__no   { display: none; }
 
+    /* "Confirmation" is the longest label; at the default padding it broke
+       after the final "n" on a 390px screen. Tighten the icon gap, not the
+       word: the label still reads in one line. */
+    .fm-co-steps__item { padding: .55rem .6rem; gap: .5rem; }
+    .fm-co-steps__icon { width: 1.75rem; height: 1.75rem; font-size: .8125rem; }
+    .fm-co-steps__title { font-size: .8125rem; }
+
     .fm-co__card        { padding: 1.15rem; }
     .fm-co__summary-head,
     .fm-co__summary-body { padding-left: 1.15rem; padding-right: 1.15rem; }
@@ -713,6 +720,40 @@
     .fm-co__actions .fm-co__btn { width: 100%; }
 
     .fm-co__pay { flex: 1 1 100%; }
+}
+
+/* Empty cart: the checkout form is not rendered at all, so this card carries
+   the message on every width. */
+.fm-co__empty-state {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.fm-co__empty-state > i {
+    display: block;
+    margin-bottom: .75rem;
+    font-size: 2.75rem;
+    color: #1b5e20;
+}
+
+.fm-co__empty-state h1 {
+    margin: 0 0 .5rem;
+    font-size: 1.5rem;
+}
+
+.fm-co__empty-state p {
+    margin: 0 auto 1.5rem;
+    max-width: 420px;
+    color: #6b7a70;
+}
+
+.fm-co__empty-state .fm-co__actions { justify-content: center; }
+
+@media (max-width: 575.98px) {
+    .fm-co__empty-state { padding: 2rem 1rem; }
+    .fm-co__empty-state .fm-co__actions { flex-direction: column; }
 }
 
 /* --------------------------------------------------------------------------

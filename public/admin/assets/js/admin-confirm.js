@@ -84,6 +84,27 @@
         return id ? document.getElementById(id[1]) : null;
     }
 
+    /**
+     * Submit the guarded form, keeping the clicked button as the submitter.
+     *
+     * requestSubmit() with no argument drops the submitter's name/value, so a
+     * bulk action ("bulk_action=delete") would arrive without its action.
+     * Only buttons owned by this form qualify; a plain link still uses the
+     * argument-less path.
+     */
+    function submitGuarded(el, form) {
+        var isSubmitter = el.tagName === 'BUTTON'
+            && (!el.type || el.type === 'submit')
+            && el.form === form;
+
+        if (isSubmitter) {
+            form.requestSubmit(el);
+            return;
+        }
+
+        form.requestSubmit();
+    }
+
     document.addEventListener('click', function (event) {
         var el = event.target && event.target.closest
             ? event.target.closest('.delete-confirm, .change-confirm')
@@ -101,7 +122,7 @@
         if (typeof window.Swal === 'undefined') {
             // SweetAlert2 failed to load. A plain confirm still stops the
             // accident - degrading is right here; silently submitting is not.
-            if (window.confirm(messageFor(el).title)) form.requestSubmit();
+            if (window.confirm(messageFor(el).title)) submitGuarded(el, form);
             return;
         }
 
@@ -116,7 +137,7 @@
             reverseButtons: true,
             focusCancel: true
         }).then(function (result) {
-            if (result.isConfirmed) form.requestSubmit();
+            if (result.isConfirmed) submitGuarded(el, form);
         });
     }, true);
 })();

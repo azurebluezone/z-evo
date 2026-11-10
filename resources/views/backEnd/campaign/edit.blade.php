@@ -14,6 +14,9 @@
             <a href="{{ route('campaign.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
               <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
+            <a href="{{ route('campaign.preview', $edit_data->id) }}" class="btn btn-outline-primary btn-square waves-effect" target="_blank" rel="noopener">
+              <i class="ri ri-eye-line me-1"></i> Preview
+            </a>
             <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="campaignForm">
               <i class="ri ri-save-line me-1"></i> Update
             </x-admin.button>
@@ -100,12 +103,19 @@
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
                             <label for="product_id" class="form-label">Products *</label>
-                             <select class="form-select @error('product_id') is-invalid @enderror" value="{{ old('product_id') }}" name="product_id" data-placeholder="Choose ...">
+                             <select class="select2 form-control @error('product_id') is-invalid @enderror" id="product_id" name="product_id" data-placeholder="Choose ...">
                                 <option value="">Select..</option>
+                                @php $selectedProduct = old('product_id', $edit_data->product_id); @endphp
                                 @foreach($products as $value)
-                                <option value="{{$value->id}}" @if($edit_data->product_id==$value->id) selected @endif>{{$value->name}}</option>
+                                <option value="{{$value->id}}"
+                                    data-price="{{ number_format((float) $value->new_price, 2, '.', '') }}"
+                                    data-stock="{{ (int) $value->stock }}"
+                                    {{ (string) $selectedProduct === (string) $value->id ? 'selected' : '' }}>
+                                    {{$value->name}} — ৳{{ number_format((float) $value->new_price, 2) }} · Stock {{ (int) $value->stock }}{{ $value->status ? '' : ' (inactive)' }}
+                                </option>
                                 @endforeach
                             </select>
+                            <div class="form-text" id="campaign-product-summary" aria-live="polite">Select a product to see its current price and stock.</div>
                             @error('product_id')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -114,7 +124,77 @@
                         </div>
                     </div>
                     <!-- col end -->
+
+                    <div class="col-sm-6">
+                        <div class="form-group mb-3">
+                            <label for="template_id" class="form-label">Template Design *</label>
+                            <select class="select2 form-control @error('template_id') is-invalid @enderror" name="template_id" id="template_id" data-placeholder="Choose Template...">
+                                <option value="">Select Template..</option>
+                                @foreach($templates as $template)
+                                <option value="{{ $template->id }}" @if((string) old('template_id', $edit_data->template_id) === (string) $template->id) selected @endif>
+                                    {{ $template->name }} - {{ $template->description }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                                <a href="#" id="campaign-template-preview" class="btn btn-outline-primary btn-sm disabled" target="_blank" rel="noopener" aria-disabled="true" data-preview-url="{{ route('campaign.template-preview', ['id' => '__ID__']) }}">
+                                    <i class="ri ri-eye-line me-1"></i> Preview template
+                                </a>
+                                <small class="text-muted">Opens the selected design in a new tab.</small>
+                            </div>
+                            @error('template_id')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+                    <!-- col end -->
+
+                    <div class="col-sm-12">
+                        <div class="border rounded p-3 mb-3">
+                            <h6 class="text-uppercase fw-bold mb-3">Campaign Pricing</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input" name="campaign_price_enabled" value="1" id="campaign_price_enabled" {{ old('campaign_price_enabled', $edit_data->campaign_price_enabled) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="campaign_price_enabled">Enable campaign price</label>
+                                    </div>
+                                    <small class="text-muted">Off means the landing page uses the product price.</small>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="campaign_price" class="form-label">Offer price (BDT)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control @error('campaign_price') is-invalid @enderror" name="campaign_price" value="{{ old('campaign_price', $edit_data->campaign_price) }}" id="campaign_price">
+                                    <small class="text-muted">Fixed price for a simple product.</small>
+                                    @error('campaign_price')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="campaign_discount_percent" class="form-label">Discount percent</label>
+                                    <input type="number" step="0.01" min="0.01" max="99.99" class="form-control @error('campaign_discount_percent') is-invalid @enderror" name="campaign_discount_percent" value="{{ old('campaign_discount_percent', $edit_data->campaign_discount_percent) }}" id="campaign_discount_percent">
+                                    <small class="text-muted">Percent wins over the fixed price; use it for variant products.</small>
+                                    @error('campaign_discount_percent')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input" name="allow_coupon" value="1" id="allow_coupon" {{ old('allow_coupon', $edit_data->allow_coupon) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="allow_coupon">Allow coupons on this campaign</label>
+                                    </div>
+                                    <small class="text-muted">Default off. If enabled, coupons calculate on the campaign price.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- col end -->
                     
+                    @include('backEnd.campaign.partials.content-fields', ['edit_data' => $edit_data, 'templates' => $templates])
+
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
                             <label for="image_one" class="form-label">Image One</label>
@@ -455,4 +535,9 @@
     </div>
   </div>
 </div>
+@endsection
+
+@section('script')
+<script src="{{ asset('admin/assets/js/admin-campaign-preview.js') }}"></script>
+<script src="{{ asset('admin/assets/js/admin-campaign-content.js') }}"></script>
 @endsection

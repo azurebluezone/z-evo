@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\BannerCategoryController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\PromoBannerController;
 use App\Http\Controllers\Admin\CreatePageController;
+use App\Http\Controllers\Admin\CookiePageController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\CustomerManageController;
@@ -54,6 +55,7 @@ use App\Http\Controllers\Admin\SocialEventPlatformController;
 use App\Http\Controllers\Admin\UserSubmissionsController;
 use App\Http\Controllers\Admin\ServiceRequestsController;
 use App\Http\Controllers\Admin\VisitorManageController;
+use App\Http\Controllers\Admin\PhoneBlockController;
 use App\Http\Controllers\Admin\UiDemoController;
 use App\Http\Controllers\Admin\EditorUploadController;
 use App\Http\Controllers\Admin\FrontendThemeController;
@@ -778,9 +780,13 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
         return redirect()->route('home');
     })->name('privacy.policy');
 
-    Route::get('terms-and-conditions', function () {
-        return redirect()->route('home');
-    })->name('terms.conditions');
+    // Terms & Conditions is a real CMS row (create_pages.slug =
+    // terms-and-conditions), so send the footer link to the page controller
+    // instead of bouncing the visitor home. The default slug lets this route
+    // reuse FrontendController::page() without a second query.
+    Route::get('terms-and-conditions', [FrontendController::class, 'page'])
+        ->defaults('slug', 'terms-and-conditions')
+        ->name('terms.conditions');
 
     Route::get('faq', function () {
         return redirect()->route('home');
@@ -806,6 +812,12 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
     Route::get('quick-view', [FrontendController::class, 'quickview'])->name('quickview');
     Route::get('/shipping-charge', [FrontendController::class, 'shipping_charge'])->name('shipping.charge');
     Route::get('site/contact-us', [FrontendController::class, 'contact'])->name('contact');
+
+    // The public contact page has lived at /site/contact-us since the site
+    // split from the admin prefix. /contact is the URL people type and the one
+    // older links used; a permanent redirect keeps both working without a
+    // second controller action.
+    Route::redirect('contact', '/site/contact-us', 301);
     Route::post('contact-submit', [\App\Http\Controllers\Frontend\FormController::class, 'contactSubmit'])
         ->name('contact.submit');
     Route::get('/page/{slug}', [FrontendController::class, 'page'])->name('page');
@@ -1108,6 +1120,9 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     // visitors
     Route::get('visitors/manage', [VisitorManageController::class, 'index'])->name('admin.visitors.index');
     Route::get('visitors/list', [VisitorManageController::class, 'list'])->name('admin.visitors.list');
+    Route::get('visitors/phone-blocks', [PhoneBlockController::class, 'index'])->name('admin.visitors.phone-blocks');
+    Route::post('visitors/phone-blocks', [PhoneBlockController::class, 'store'])->name('admin.visitors.phone-blocks.store');
+    Route::post('visitors/phone-blocks/unblock', [PhoneBlockController::class, 'destroy'])->name('admin.visitors.phone-blocks.destroy');
     Route::get('visitors/blocked', [VisitorManageController::class, 'blocked'])->name('admin.visitors.blocked');
     Route::post('visitors/block', [VisitorManageController::class, 'block'])->name('admin.visitors.block');
     Route::post('visitors/unblock', [VisitorManageController::class, 'unblock'])->name('admin.visitors.unblock');
@@ -1259,15 +1274,17 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::post('products/price-update', [ProductController::class, 'price_update'])->name('products.price_update');
 
     // campaign
-    Route::get('campaign/manage', [CampaignController::class, 'index'])->name('campaign.index');
-    Route::get('campaign/create', [CampaignController::class, 'create'])->name('campaign.create');
-    Route::post('campaign/save', [CampaignController::class, 'store'])->name('campaign.store');
-    Route::get('campaign/{id}/edit', [CampaignController::class, 'edit'])->name('campaign.edit');
-    Route::post('campaign/update', [CampaignController::class, 'update'])->name('campaign.update');
-    Route::post('campaign/inactive', [CampaignController::class, 'inactive'])->name('campaign.inactive');
-    Route::post('campaign/active', [CampaignController::class, 'active'])->name('campaign.active');
-    Route::post('campaign/destroy', [CampaignController::class, 'destroy'])->name('campaign.destroy');
-    Route::post('campaign/image/destroy', [CampaignController::class, 'imgdestroy'])->name('campaign.image.destroy');
+    Route::get('campaign/manage', [CampaignController::class, 'index'])->name('campaign.index')->middleware('permission:campaign-list');
+    Route::get('campaign/create', [CampaignController::class, 'create'])->name('campaign.create')->middleware('permission:campaign-create');
+    Route::post('campaign/save', [CampaignController::class, 'store'])->name('campaign.store')->middleware('permission:campaign-create');
+    Route::get('campaign/template/{id}/preview', [CampaignController::class, 'templatePreview'])->name('campaign.template-preview')->middleware('permission:campaign-create|campaign-edit');
+    Route::get('campaign/{id}/preview', [CampaignController::class, 'preview'])->name('campaign.preview')->middleware('permission:campaign-list|campaign-edit');
+    Route::get('campaign/{id}/edit', [CampaignController::class, 'edit'])->name('campaign.edit')->middleware('permission:campaign-edit');
+    Route::post('campaign/update', [CampaignController::class, 'update'])->name('campaign.update')->middleware('permission:campaign-edit');
+    Route::post('campaign/inactive', [CampaignController::class, 'inactive'])->name('campaign.inactive')->middleware('permission:campaign-edit');
+    Route::post('campaign/active', [CampaignController::class, 'active'])->name('campaign.active')->middleware('permission:campaign-edit');
+    Route::post('campaign/destroy', [CampaignController::class, 'destroy'])->name('campaign.destroy')->middleware('permission:campaign-delete');
+    Route::post('campaign/image/destroy', [CampaignController::class, 'imgdestroy'])->name('campaign.image.destroy')->middleware('permission:campaign-edit');
 
     // Landing Pages route 
     Route::get('landing-pages/manage', [LandingPageController::class, 'index'])->name('landing-pages.index');
@@ -1275,7 +1292,7 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::post('landing-pages/save', [LandingPageController::class, 'store'])->name('landing-pages.store');
     Route::get('landing-pages/{id}/show', [LandingPageController::class, 'show'])->name('landing-pages.show');
     Route::get('landing-pages/{id}/edit', [LandingPageController::class, 'edit'])->name('landing-pages.edit');
-    Route::post('landing-pages/update', [LandingPageController::class, 'update'])->name('landing-pages.update');
+    Route::post('landing-pages/update/{id}', [LandingPageController::class, 'update'])->name('landing-pages.update');
     Route::post('landing-pages/destroy', [LandingPageController::class, 'destroy'])->name('landing-pages.destroy');
     Route::get('landing-pages/template-config/{id}', [LandingPageController::class, 'templateConfig'])->name('landing-pages.template-config');
     Route::get('landing-pages/templates/{id}/preview', [LandingPageController::class, 'previewTemplate'])->name('landing-pages.templates.preview');
@@ -1386,6 +1403,8 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
 
     // contact route 
     Route::get('page/manage', [CreatePageController::class, 'index'])->name('pages.index');
+    Route::get('cookie-page', [CookiePageController::class, 'edit'])->name('cookie-page.edit');
+    Route::post('cookie-page', [CookiePageController::class, 'update'])->name('cookie-page.update');
     Route::get('page/create', [CreatePageController::class, 'create'])->name('pages.create');
     Route::post('page/save', [CreatePageController::class, 'store'])->name('pages.store');
     Route::get('page/{id}/edit', [CreatePageController::class, 'edit'])->name('pages.edit');
@@ -1468,8 +1487,10 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::post('review/active', [ReviewController::class, 'active'])->name('reviews.active');
     Route::get('review/create', [ReviewController::class, 'create'])->name('reviews.create');
     Route::post('review/save', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('review/{id}/show', [ReviewController::class, 'show'])->name('reviews.show');
     Route::get('review/{id}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
     Route::post('review/update', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::post('review/bulk', [ReviewController::class, 'bulk'])->name('reviews.bulk');
     Route::post('review/destroy', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
     // Wishlists - per-customer rows written by the frontend add-to-wishlist

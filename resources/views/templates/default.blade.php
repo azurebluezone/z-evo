@@ -12,55 +12,8 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 80px 0;
-            text-align: center;
-        }
-        
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-        
-        .cta-button {
-            background: #ff6b35;
-            color: white;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-        
-        .cta-button:hover {
-            background: #e55a2b;
-            transform: translateY(-2px);
-            color: white;
-        }
-        
-        .content-section {
-            padding: 60px 0;
-            background: #f8f9fa;
-        }
-        
-        .content-text {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #333;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('frontend/landing/default.css') }}?v={{ filemtime(public_path('frontend/landing/default.css')) }}">
+    <link rel="stylesheet" href="{{ asset('frontend/landing/responsive.css') }}?v={{ filemtime(public_path('frontend/landing/responsive.css')) }}">
 </head>
 <body>
     @include('frontend.partials.event-layer-body')
@@ -74,9 +27,17 @@
                         <p class="hero-subtitle">{{ $landingPage->subtitle }}</p>
                     @endif
                     @if($landingPage->cta_text && $landingPage->cta_link)
-                        <a href="{{ $landingPage->cta_link }}" class="cta-button">
-                            {{ $landingPage->cta_text }}
-                        </a>
+                        <form method="POST" action="{{ $landingPage->cta_link }}" class="d-inline-block">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $landingPage->extra_fields['product_id'] ?? '' }}">
+                            @if(!empty($landingPage->extra_fields['campaign_id']))
+                                <input type="hidden" name="campaign_id" value="{{ $landingPage->extra_fields['campaign_id'] }}">
+                            @endif
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="cta-button" style="border:0;cursor:pointer">
+                                {{ $landingPage->cta_text }}
+                            </button>
+                        </form>
                     @endif
                 </div>
             </div>

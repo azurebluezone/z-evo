@@ -147,8 +147,10 @@
                             <td class="text-center {{ $isLow || $isOut ? 'text-danger fw-bold' : '' }}">{{ $v->available ?? 0 }}</td>
                             <td class="text-center d-none d-md-table-cell text-danger fw-bold">{{ $v->damaged ?? 0 }}</td>
                             <td class="text-end">
-                                <a href="{{ route('admin.inventory.ledger', ['variant_id' => $v->id]) }}" class="btn btn-sm btn-outline-primary waves-effect">Ledger</a>
-                                <a href="{{ route('admin.inventory.adjustment', ['variant_id' => $v->id]) }}" class="btn btn-sm btn-primary waves-effect">Adjust</a>
+                                <div class="d-flex justify-content-end flex-nowrap gap-2">
+                                    <a href="{{ route('admin.inventory.ledger', ['variant_id' => $v->id]) }}" class="btn btn-sm btn-outline-primary waves-effect">Ledger</a>
+                                    <a href="{{ route('admin.inventory.adjustment', ['variant_id' => $v->id]) }}" class="btn btn-sm btn-primary waves-effect">Adjust</a>
+                                </div>
                             </td>
                         </tr>
                     @empty

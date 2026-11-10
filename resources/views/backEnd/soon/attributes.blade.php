@@ -19,7 +19,7 @@
             <div class="d-flex align-items-center justify-content-between">
               <div>
                 <div class="fw-semibold">AttributesSoon</div>
-                <div class="text-muted">Attribute sets + variant generator UI পরবর্তী ধাপে। এখন S3 ledger/variant foundation স্থাপন করা হয়েছে।</div>
+                <div class="text-muted">Attribute sets and the variant generator UI are planned for the next phase. The S3 ledger and variant foundation are already in place.</div>
               </div>
               <span class="badge text-bg-secondary">Soon</span>
             </div>

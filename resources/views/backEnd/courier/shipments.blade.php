@@ -7,9 +7,6 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
                 <h4 class="mb-0">Courier shipments</h4>
-                <p class="text-muted mb-0 small">
-                    Every parcel this shop has handed to a courier, with the status the webhook last wrote.
-                </p>
             </div>
             <a href="{{ route('admin.courier.index') }}" class="btn btn-secondary btn-sm">
                 <i class="ri ri-arrow-left-line me-1"></i> Couriers

@@ -23,14 +23,8 @@
                 </div>
             </div>
 
-            <div class="card-body mt-4">
+            <div class="card-body">
                 <div class="card rounded-0 border-info shadow-none mb-4">
-                    <div class="card-body text-info d-flex align-items-center">
-                        <i class="ri ri-information-line fs-4 me-2"></i>
-                        <span>
-                            <strong>What this does:</strong> Writes an <b>ADJUSTMENT</b> row to <code>inventory_movements</code>, updates <code>variant_stocks</code>, and syncs legacy <code>products.stock</code>.
-                        </span>
-                    </div>
                 </div>
 
                 <form method="POST" action="{{ route('admin.inventory.adjustment.store') }}" class="row g-4">

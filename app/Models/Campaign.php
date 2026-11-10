@@ -60,6 +60,12 @@ class Campaign extends Model
         'image_three',
         'status',
         'template_id',
+        'product_id',
+        'campaign_price',
+        'campaign_price_enabled',
+        'campaign_discount_percent',
+        'allow_coupon',
+        'extra_fields',
     ];
 
     protected $casts = [
@@ -71,11 +77,28 @@ class Campaign extends Model
         'is_featured' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
+        'campaign_price' => 'decimal:2',
+        'campaign_price_enabled' => 'boolean',
+        'campaign_discount_percent' => 'decimal:2',
+        'allow_coupon' => 'boolean',
+        'extra_fields' => 'array',
     ];
 
     public function product()
     {
-        return $this->hasOne(Product::class, 'id', 'product_id')->select('id', 'name', 'slug', 'old_price', 'new_price', 'status', 'purchase_price');
+        return $this->hasOne(Product::class, 'id', 'product_id')->select(
+            'id',
+            'name',
+            'slug',
+            'description',
+            'old_price',
+            'new_price',
+            'status',
+            'purchase_price',
+            'stock',
+            'pro_unit',
+            'pro_video'
+        );
     }
 
     public function template()

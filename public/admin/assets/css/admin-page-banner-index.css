@@ -1,0 +1,9 @@
+    img.backend-image {
+        width: 140px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 0;
+        background: #f3f4f6;
+        display: inline-block;
+        border: 1px solid #e0e0e0;
+    }

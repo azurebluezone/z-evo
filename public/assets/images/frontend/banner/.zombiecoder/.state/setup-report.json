@@ -1,0 +1,227 @@
+{
+  "plugin": "zombiecoder",
+  "version": "0.1.0",
+  "startedAt": "2026-11-06T01:37:48.942Z",
+  "finishedAt": "2026-11-06T01:37:49.335Z",
+  "root": "/home/sahon/Desktop/new evo/public/assets/images/frontend/banner",
+  "steps": [
+    {
+      "step": "bootstrap-dirs",
+      "ok": true
+    },
+    {
+      "step": "memory-index",
+      "ok": true,
+      "detail": "memory/index.json ready"
+    },
+    {
+      "step": "load-config",
+      "ok": true
+    },
+    {
+      "step": "origin-handshake",
+      "ok": true,
+      "detail": "skipped (no origin URL)"
+    },
+    {
+      "step": "resolve-models",
+      "ok": true
+    },
+    {
+      "step": "probe-mcp",
+      "ok": true,
+      "detail": "skipped (no MCP URL)"
+    },
+    {
+      "step": "scan-project",
+      "ok": true
+    },
+    {
+      "step": "write-ssot",
+      "ok": true
+    },
+    {
+      "step": "ensure-syllabus",
+      "ok": true
+    },
+    {
+      "step": "agent-modes",
+      "ok": true
+    },
+    {
+      "step": "agent-folder",
+      "ok": true
+    },
+    {
+      "step": "agent-config",
+      "ok": true
+    },
+    {
+      "step": "agent-reload",
+      "ok": true,
+      "detail": "reloaded"
+    },
+    {
+      "step": "agent-bind",
+      "ok": true,
+      "detail": "9 agents inherit the session model + shared rules (no per-agent pin)"
+    },
+    {
+      "step": "prepare-skills",
+      "ok": true,
+      "detail": "0 new, 4 shared (/home/sahon/.config/opencode/zombiecoder/skills)"
+    },
+    {
+      "step": "register-skills",
+      "ok": true,
+      "detail": "0 registered"
+    },
+    {
+      "step": "register-rpc",
+      "ok": true
+    },
+    {
+      "step": "register-tools",
+      "ok": true,
+      "detail": "21 registered"
+    },
+    {
+      "step": "project-onboarding",
+      "ok": true
+    },
+    {
+      "step": "hook-context",
+      "ok": true
+    },
+    {
+      "step": "hook-compaction",
+      "ok": true
+    },
+    {
+      "step": "hook-idle",
+      "ok": true
+    },
+    {
+      "step": "archive-session-idle",
+      "ok": true,
+      "detail": "subscribed to session.idle"
+    },
+    {
+      "step": "hook-model-request",
+      "ok": true
+    },
+    {
+      "step": "hook-session-index",
+      "ok": true
+    },
+    {
+      "step": "hook-response-gate",
+      "ok": true
+    },
+    {
+      "step": "hook-tool-before",
+      "ok": true
+    },
+    {
+      "step": "hook-tool-after",
+      "ok": true
+    },
+    {
+      "step": "write-report",
+      "ok": true,
+      "detail": "written"
+    }
+  ],
+  "outputs": {
+    "install": {
+      "dir": "/home/sahon/.config/opencode",
+      "global": true,
+      "configFile": "/home/sahon/.config/opencode/opencode.json"
+    },
+    "createdDirs": [
+      "/home/sahon/Desktop/new evo/public/assets/images/frontend/banner/.zombiecoder",
+      "/home/sahon/Desktop/new evo/public/assets/images/frontend/banner/.zombiecoder/memory",
+      "/home/sahon/Desktop/new evo/public/assets/images/frontend/banner/.zombiecoder/.state"
+    ],
+    "originUrl": null,
+    "originHandshake": "skipped (no origin URL)",
+    "modelStrategy": "free-fallback",
+    "modelAssignment": {
+      "manu": "opencode/beam-free",
+      "jarin": "opencode/big-pickle",
+      "brishti": "opencode/crouton-alpha-free",
+      "rashed": "opencode/deepseek-v4.1-flash-free",
+      "halim": "opencode/flint-40b-free",
+      "majnu": "opencode/glm-5.3-flash-free",
+      "nila": "opencode/mimo-v2.6-flash-free",
+      "tuhin": "opencode/nemotron-3.5-lightning-free",
+      "zombiecoder": "opencode/nemotron-3.5-super-vl-free"
+    },
+    "customProviderReachable": false,
+    "agentAssignment": {
+      "manu": "opencode/beam-free",
+      "jarin": "opencode/big-pickle",
+      "brishti": "opencode/crouton-alpha-free",
+      "rashed": "opencode/deepseek-v4.1-flash-free",
+      "halim": "opencode/flint-40b-free",
+      "majnu": "opencode/glm-5.3-flash-free",
+      "nila": "opencode/mimo-v2.6-flash-free",
+      "tuhin": "opencode/nemotron-3.5-lightning-free",
+      "zombiecoder": "opencode/nemotron-3.5-super-vl-free"
+    },
+    "agentAssignmentSource": "runtime model plan (free-fallback)",
+    "mcpUrl": null,
+    "mcpReachable": false,
+    "mcpTools": [],
+    "scan": {
+      "files": 10,
+      "dirs": 0,
+      "bytes": 2025658,
+      "languages": 1
+    },
+    "ssot": {
+      "file": "/home/sahon/Desktop/new evo/public/assets/images/frontend/banner/.zombiecoder/SSOT.md",
+      "bytes": 31889,
+      "sha256": "a414828cf2a5a6ef271506c8628c85ce7758bca99b127c189cdf06975b32d04b",
+      "writtenAt": "2026-11-06T01:37:48.959Z"
+    },
+    "syllabus": {
+      "file": "/home/sahon/Desktop/new evo/public/assets/images/frontend/banner/.zombiecoder/syllabus.md",
+      "created": true,
+      "bytes": 3806
+    },
+    "agentModes": {},
+    "agentFolder": {
+      "dir": "/home/sahon/.config/opencode/agents",
+      "written": [],
+      "unchanged": [
+        "/home/sahon/.config/opencode/agents/manu.md",
+        "/home/sahon/.config/opencode/agents/jarin.md",
+        "/home/sahon/.config/opencode/agents/brishti.md",
+        "/home/sahon/.config/opencode/agents/rashed.md",
+        "/home/sahon/.config/opencode/agents/halim.md",
+        "/home/sahon/.config/opencode/agents/majnu.md",
+        "/home/sahon/.config/opencode/agents/nila.md",
+        "/home/sahon/.config/opencode/agents/tuhin.md",
+        "/home/sahon/.config/opencode/agents/zombiecoder.md"
+      ]
+    },
+    "agentConfig": {
+      "file": "/home/sahon/.config/opencode/opencode.json",
+      "updated": []
+    },
+    "bound": "9 agents inherit the session model + shared rules (no per-agent pin)",
+    "skillCatalog": "0 new, 4 shared (/home/sahon/.config/opencode/zombiecoder/skills)",
+    "skills": "0 registered",
+    "rpc": {
+      "ok": true
+    },
+    "tools": "21 registered",
+    "onboarding": {
+      "created": true,
+      "marker": "onboarding:dde4386cae19",
+      "file": "/home/sahon/Desktop/new evo/public/assets/images/frontend/banner/.zombiecoder/syllabus.md"
+    },
+    "refreshMs": 300000
+  }
+}

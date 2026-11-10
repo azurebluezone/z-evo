@@ -7,9 +7,6 @@
         <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
             <div>
                 <h4 class="mb-0">Couriers</h4>
-                <p class="text-muted mb-0 small">
-                    Every courier account and whether it is ready to take parcels. Credentials are edited in one place.
-                </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <x-admin.button variant="outline-secondary" size="sm" href="{{ route('admin.courier.shipments') }}">

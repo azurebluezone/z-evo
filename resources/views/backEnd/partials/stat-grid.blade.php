@@ -46,4 +46,36 @@
         </div>
     @endforeach
 </div>
+
+@push('script')
+<script>
+/*
+ * Server-rendered list pages (visitors, inventory, variants) do not go
+ * through DataTables, so nobody refreshed card 4 for them. Count the rows the
+ * server actually painted; DataTables pages have already written a number by
+ * the time this runs, so they are skipped.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    var card = document.querySelector('[data-stat="showing-this-page"]');
+    if (!card || card.textContent.trim() !== '—') {
+        return;
+    }
+
+    var table = Array.prototype.find.call(
+        document.querySelectorAll('.content-wrapper table'),
+        function (candidate) {
+            return candidate.tBodies.length > 0 && candidate.tBodies[0].rows.length > 0;
+        }
+    );
+
+    if (!table) {
+        return;
+    }
+
+    var shown = table.tBodies[0].rows.length;
+    card.textContent = shown.toLocaleString();
+    card.title = shown.toLocaleString() + ' row(s) on this page';
+});
+</script>
+@endpush
 @endif

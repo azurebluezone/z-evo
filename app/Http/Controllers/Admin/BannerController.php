@@ -111,7 +111,7 @@ class BannerController extends Controller
                 }
 
                 if (empty($input['image'])) {
-                    $input['image'] = 'assets/images/frontend/banner/6718b8ecbd6a11729673452.png';
+                    $input['image'] = 'assets/images/frontend/banner/hero-default.png';
                 }
             } else {
                 $image = $request->file('image');

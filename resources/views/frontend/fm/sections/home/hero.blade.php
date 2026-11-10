@@ -57,7 +57,7 @@
             }
         }
     }
-    $fmFallbackImage = asset('assets/images/frontend/banner/6718b8ecbd6a11729673452.png');
+    $fmFallbackImage = asset('assets/images/frontend/banner/hero-default.png');
 
     $fmSlides = collect($banners ?? [])->map(static function ($banner) use ($fmFallbackVideo, $fmFallbackImage) {
         $mediaType = (string) ($banner->media_type ?? 'image');
@@ -73,8 +73,10 @@
         // -- image URL (same rules as the classic slider) ------------------
         $imageRaw = (string) ($banner->image ?? '');
         $imageIsUrl = preg_match('~^https?://~i', $imageRaw) === 1;
-        $imagePath = $imageIsUrl ? $imageRaw : ltrim(preg_replace('~^public/~', '', $imageRaw), '/');
-        $hasImage = $imagePath !== '';
+        // Bundled placeholders stored in the banner row count as "no image"
+        // so the appearance fallback (or the shop default art) can render.
+        $imagePath = $imageIsUrl ? $imageRaw : \App\Support\MediaPath::imageOrFallback($imageRaw !== '' ? $imageRaw : null);
+        $hasImage = $imagePath !== '' && ! $imageIsUrl ? $imagePath !== \App\Support\MediaPath::fallbackPath() : $imagePath !== '';
         $imageUrl = $hasImage ? ($imageIsUrl ? $imageRaw : asset($imagePath)) : null;
 
         // -- which medium paints the background ----------------------------

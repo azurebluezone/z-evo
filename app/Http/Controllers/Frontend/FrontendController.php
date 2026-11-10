@@ -27,6 +27,7 @@ use App\Models\PromoBanner;
 use App\Models\FlashSale;
 use App\Models\Service;
 use App\Models\GeneralSetting;
+use App\Services\CampaignPricing;
 use App\Support\ShopFilterData;
 use Illuminate\Support\Facades\DB;
 use Session;
@@ -92,12 +93,22 @@ class FrontendController extends Controller
 
     public function campaign($slug)
     {
-        $generalsetting = GeneralSetting::first();
-
-        $campaign = Campaign::with(['template', 'product', 'images'])
+        $campaign = Campaign::with(['template', 'product.image', 'product.images', 'images'])
             ->where('slug', $slug)
             ->where('status', 1)
             ->firstOrFail();
+
+        return $this->renderCampaign($campaign);
+    }
+
+    /**
+     * Render one campaign with the same pricing/content contract as the public
+     * page. Admin preview calls this directly so an inactive draft still opens.
+     */
+    public function renderCampaign(Campaign $campaign)
+    {
+        $generalsetting = GeneralSetting::first();
+        $campaign->loadMissing(['template', 'product.image', 'product.images', 'images']);
 
         $templateView = null;
         if ($campaign->template && $campaign->template->view_name) {
@@ -107,25 +118,98 @@ class FrontendController extends Controller
             $templateView = 'templates.default';
         }
 
+        $pricing = [
+            'price' => optional($campaign->product)->new_price,
+            'regular' => optional($campaign->product)->new_price,
+            'source' => 'product',
+            'reason' => null,
+        ];
+        if ($campaign->product) {
+            $pricing = app(CampaignPricing::class)->resolve($campaign->product, null, $campaign);
+        }
+        $campaignActive = $pricing['source'] === 'campaign';
+
+        $productModel = $campaign->product;
+        $productImage = $productModel && $productModel->image
+            ? preg_replace('~^public/~', '', (string) $productModel->image->image)
+            : null;
+        $gallery = $productModel
+            ? $productModel->images->pluck('image')
+                ->map(fn ($image) => preg_replace('~^public/~', '', (string) $image))
+                ->filter()
+                ->values()
+                ->all()
+            : [];
+
+        $storedContent = is_array($campaign->extra_fields) ? $campaign->extra_fields : [];
+
+        $extraFields = array_merge($storedContent, [
+            'old_price' => $campaignActive
+                ? $pricing['regular']
+                : optional($campaign->product)->old_price,
+            'new_price' => $campaignActive
+                ? $pricing['price']
+                : optional($campaign->product)->new_price,
+            'campaign_id' => $campaign->id,
+            'campaign_slug' => $campaign->slug,
+            'campaign_name' => $campaign->name,
+            'campaign_price' => $pricing['price'],
+            'regular_price' => $pricing['regular'],
+            'price_source' => $pricing['source'],
+            'campaign_active' => $campaignActive,
+            'product' => $productModel ? [
+                'id' => $productModel->id,
+                'name' => $productModel->name,
+                'slug' => $productModel->slug,
+                'description' => $productModel->description,
+                'image' => $productImage,
+                'images' => $gallery,
+                'old_price' => $productModel->old_price,
+                'new_price' => $productModel->new_price,
+                'purchase_price' => $productModel->purchase_price,
+                'stock' => $productModel->stock,
+            ] : null,
+            'gallery_images' => $gallery,
+            // The campaign window is authoritative; a stored date is only a
+            // fallback for templates that show a countdown without an end date.
+            'countdown_date' => $campaign->end_date
+                ? $campaign->end_date->format('Y-m-d H:i:s')
+                : ($storedContent['countdown_date'] ?? null),
+            'contact_phone' => $storedContent['contact_phone']
+                ?? ($campaign->phone ?? ($generalsetting->phone ?? null)),
+            'product_id' => $campaign->product_id,
+            'show_features' => (bool) $campaign->show_features,
+            'show_benefits' => (bool) $campaign->show_benefits,
+            'show_testimonials' => (bool) $campaign->show_testimonials,
+            'show_faq' => (bool) $campaign->show_faq,
+            'show_cta' => (bool) $campaign->show_cta,
+        ]);
+
         $landingPage = (object) [
-            'title' => $campaign->name,
+            'title' => $productModel->name ?? $campaign->name,
             'subtitle' => $campaign->short_description,
-            'description' => $campaign->description,
-            'cta_text' => $campaign->hero_button_text ?? 'অর্ডার করুন',
+            'description' => $productModel->description ?? $campaign->description,
+            'cta_text' => $campaign->hero_button_text ?? 'Order Now',
             'cta_link' => route('landing.order'),
-            'image_url' => $campaign->image_one,
-            'extra_fields' => [
-                'old_price' => optional($campaign->product)->old_price,
-                'new_price' => optional($campaign->product)->new_price,
-                'countdown_date' => $campaign->end_date ? $campaign->end_date->format('Y-m-d H:i:s') : null,
-                'features' => [],
-                'why_us' => [],
-                'contact_phone' => $campaign->phone ?? ($generalsetting->phone ?? null),
-                'product_id' => $campaign->product_id,
-            ],
+            'image_url' => $productImage ?? $campaign->image_one,
+            'extra_fields' => $extraFields,
         ];
 
-        return view($templateView, compact('landingPage', 'campaign'));
+        $campaignTracking = [
+            'id' => (int) $campaign->id,
+            'slug' => $campaign->slug,
+            'name' => $campaign->name,
+            'template' => $campaign->template->view_name ?? 'default',
+            'product_id' => $campaign->product_id !== null ? (int) $campaign->product_id : null,
+            'product_name' => $productModel->name ?? null,
+            'price' => (float) $pricing['price'],
+            'regular_price' => (float) $pricing['regular'],
+            'price_source' => $pricing['source'],
+            'campaign_active' => $campaignActive,
+            'currency' => 'BDT',
+        ];
+
+        return view($templateView, compact('landingPage', 'campaign', 'campaignTracking'));
     }
 
     public function checkStock(Request $request)
@@ -778,26 +862,42 @@ class FrontendController extends Controller
         $discountPage = max(1, (int) request()->query('discount_page', 1));
         $recommendedPage = max(1, (int) request()->query('recommended_page', 1));
 
+        // The count is rendered on every category card. Without withCount the
+        // card falls back to "Browse Collection", or the view has to query per
+        // card - neither is acceptable on the busiest page of the shop.
         $featured_categories = Category::where('status', 1)
             ->select('id', 'name', 'slug', 'image')
+            ->withCount('products')
             ->orderBy('id', 'desc')
             ->limit(12)
             ->get();
 
-        $homeCategoryCollections = Category::where('status', 1)
+        /*
+         * Six category rails used to mean six product queries. One query for
+         * all six categories, grouped in PHP, is the same result with a fixed
+         * query count instead of one that grows with the category limit.
+         */
+        $homeCategories = Category::where('status', 1)
             ->select('id', 'name', 'slug')
             ->orderBy('id', 'desc')
             ->limit(6)
-            ->get()
-            ->map(function ($category) {
-                $products = Product::where('status', 1)
-                    ->where('category_id', $category->id)
-                    ->with('image')
-                    ->withCount('reviews')
-                    ->withAvg('reviews', 'ratting')
-                    ->orderBy('id', 'desc')
-                    ->limit(12)
-                    ->get()
+            ->get();
+
+        $homeCategoryProducts = $homeCategories->isEmpty()
+            ? collect()
+            : Product::where('status', 1)
+                ->whereIn('category_id', $homeCategories->pluck('id'))
+                ->with('image')
+                ->withCount('reviews')
+                ->withAvg('reviews', 'ratting')
+                ->orderBy('id', 'desc')
+                ->get()
+                ->groupBy('category_id');
+
+        $homeCategoryCollections = $homeCategories
+            ->map(function ($category) use ($homeCategoryProducts) {
+                $products = ($homeCategoryProducts->get($category->id) ?? collect())
+                    ->take(12)
                     ->each(function ($product) {
                         $avg = (float)($product->reviews_avg_ratting ?? 0);
                         $product->average_rating = (int)round($avg);
@@ -812,29 +912,59 @@ class FrontendController extends Controller
             })
             ->values();
 
-        $collections = HomepageCollection::with('category')
+        /*
+         * Homepage collections had the same N+1 shape: one product query per
+         * row. Two queries now cover every case - one for the categories the
+         * collections point at, one latest-products query for the uncategorised
+         * rows - and each collection slices its own limit in memory.
+         */
+        $homepageCollections = HomepageCollection::with('category')
             ->where('status', 1)
             ->orderBy('sort_order')
             ->orderBy('id', 'desc')
-            ->get()
-            ->map(function ($collection) {
-                $limit = (int)($collection->product_limit ?? 12);
+            ->get();
 
-                $products = Product::where('status', 1)
-                    ->when($collection->category_id, function ($q) use ($collection) {
-                        return $q->where('category_id', $collection->category_id);
-                    })
-                    ->with('image')
-                    ->orderBy('id', 'desc')
-                    ->limit($limit)
-                    ->get();
+        $collectionCategoryIds = $homepageCollections
+            ->pluck('category_id')
+            ->filter()
+            ->unique()
+            ->values();
 
-                return [
-                    'title' => $collection->title,
-                    'banner_image' => $collection->banner_image,
-                    'groups' => $products->chunk(2)->values(),
-                ];
-            });
+        $collectionProductsByCategory = $collectionCategoryIds->isEmpty()
+            ? collect()
+            : Product::where('status', 1)
+                ->whereIn('category_id', $collectionCategoryIds)
+                ->with('image')
+                ->orderBy('id', 'desc')
+                ->get()
+                ->groupBy('category_id');
+
+        $collectionMaxLimit = max(1, (int) $homepageCollections->max('product_limit'));
+
+        $latestCollectionProducts = $homepageCollections->contains(fn ($collection) => ! $collection->category_id)
+            ? Product::where('status', 1)
+                ->with('image')
+                ->orderBy('id', 'desc')
+                ->limit($collectionMaxLimit)
+                ->get()
+            : collect();
+
+        $collections = $homepageCollections->map(function ($collection) use ($collectionProductsByCategory, $latestCollectionProducts) {
+            $limit = max(1, (int) ($collection->product_limit ?? 12));
+
+            $products = $collection->category_id
+                ? ($collectionProductsByCategory->get($collection->category_id) ?? collect())
+                : $latestCollectionProducts;
+
+            $products = $products->take($limit)->values();
+
+            return [
+                'title' => $collection->title,
+                'banner_image' => $collection->banner_image,
+                'products' => $products,
+                'groups' => $products->chunk(2)->values(),
+            ];
+        });
 
         $featuredOffset = ($featuredPage - 1) * $homePerPage;
         $featured_products = Product::where(['status' => 1, 'feature_product' => 1])
@@ -1063,6 +1193,29 @@ class FrontendController extends Controller
             ->limit(6)
             ->get();
 
+        /*
+         * Community events are CMS content, not template copy.
+         *
+         * The old section hardcoded three grocery events ("Farmers Market
+         * Day", "Organic Harvest Fest", ...) with relative dates, so every
+         * shop that installed the theme advertised a farm it did not run.
+         * Campaigns are the existing CMS entity with a title, image, dates and
+         * a public URL; when none are live the section hides itself.
+         */
+        $homeEvents = Campaign::query()
+            ->where('status', 1)
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhereDate('end_date', '>=', now()->toDateString());
+            })
+            ->orderByRaw('COALESCE(start_date, date) ASC')
+            ->orderBy('id')
+            ->limit(3)
+            ->get([
+                'id', 'name', 'slug', 'date', 'start_date', 'end_date',
+                'short_description', 'campaign_type', 'image_one', 'hero_button_text',
+            ]);
+
         // The classic name is served and the registry decides which set
         // answers: ThemeViewFinder -> FrontendTheme::resolve() rewrites it to
         // frontend.fm.pages.home when modern is active/previewing, and keeps
@@ -1106,6 +1259,7 @@ class FrontendController extends Controller
             'promo_banners',
             'services',
             'testimonials',
+            'homeEvents',
             'generalsetting'
         ));
     }

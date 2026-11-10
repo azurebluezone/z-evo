@@ -29,7 +29,7 @@
                 </a>
             </div>
 
-            <div class="card-body mt-4">
+            <div class="card-body">
                 <form action="{{ route('brands.update') }}" method="POST" class="row g-4" data-parsley-validate="" enctype="multipart/form-data" id="brandsForm">
                     @csrf
                     <input type="hidden" value="{{ $edit_data->id }}" name="id">
@@ -43,12 +43,12 @@
                             $brandImg = $edit_data->image ?? null;
                             $brandImgPath = $brandImg ? preg_replace('~^public/~', '', $brandImg) : null;
                             $brandImgPath = $brandImgPath ? ltrim($brandImgPath, '/') : null;
-                            $fallbackImg = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
+                            $fallbackImg = \App\Support\MediaPath::fallbackPath();
                             $fallbackImg = preg_replace('~^public/~', '', $fallbackImg);
                             $fallbackImg = ltrim($fallbackImg, '/');
                         @endphp
                         <x-admin.input name="image" label="Brand Image" type="file" class="js-dropify"
-                                       data-default-file="{{ $brandImgPath && file_exists(public_path($brandImgPath)) ? asset($brandImgPath) : asset($fallbackImg) }}" />
+                                       data-default-file="{{ asset(\App\Support\MediaPath::imageOrFallback($brandImg)) }}" />
                     </div>
 
                     <div class="col-12">
@@ -56,11 +56,11 @@
                         <div class="card-header border-bottom">
                             <h6 class="mb-0 fw-semibold">SEO Settings</h6>
                         </div>
-                        <div class="card-body mt-4">
+                        <div class="card-body">
                             @php
                                 $model = $edit_data;
                             @endphp
-                            @include('backEnd.layouts.partials.seo-fields')
+                            @include('backEnd.layouts.partials.seo-meta-form')
                         </div>
                       </div>
                     </div>
@@ -70,9 +70,6 @@
                     </div>
 
                     <div class="col-12">
-                        <x-admin.button variant="success" shape="square" ripple="true" class="mt-2" type="submit">
-                            <i class="ri ri-refresh-line me-1"></i> Update Brand
-                        </x-admin.button>
                     </div>
                 </form>
             </div>

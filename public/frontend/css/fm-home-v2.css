@@ -489,203 +489,241 @@
   flex-shrink: 0;
 }
 
+
 /* --------------------------------------------------------------------------
-   Popular categories
+   Shop by Category - home.html reference (2026-11-07)
+   --------------------------------------------------------------------------
+   DESKTOP >= 992: 12 icon cards in a 6 x 2 grid.
+   BELOW 992:      the grid is hidden and the same 12 cards ride a Swiper
+                   rail of 6 slides, two cards per slide, with pagination.
+   The rail markup is real Swiper structure; when the CDN bundle is present
+   fm-home.js creates the slider. If it is not, the rail still lays out as a
+   scrollable strip instead of collapsing.
    -------------------------------------------------------------------------- */
 .fm-page-home .fm-categories-section {
   padding-top: 20px;
   padding-bottom: 36px;
 }
 
-.fm-page-home .fm-categories-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+/* --- Section header: 19px/800 title with the green accent bar ------------- */
+.fm-page-home .fm-cat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 16px;
+  margin-bottom: 18px;
 }
 
+.fm-page-home .fm-cat-head__title {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding-left: 12px;
+  min-width: 0;
+  /* The layout's mobile guard sets `h2 { font-size: 1.25rem !important }`,
+     which pushed this 19px reference title to 20px and made it wrap at
+     320px. The !important answers that guard; the computed value stays the
+     reference's 19px at every width. */
+  font-size: 19px !important;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #1e293b;
+  letter-spacing: 0;
+}
+
+.fm-page-home .fm-cat-head__title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  border-radius: 4px;
+  background: #0b6b3a;
+}
+
+.fm-page-home .fm-cat-head__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  min-height: 44px;                 /* WCAG tap target */
+  padding-inline: 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0b6b3a;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.2s ease, gap 0.2s ease;
+}
+
+.fm-page-home .fm-cat-head__link:hover {
+  color: #08522c;
+  gap: 7px;
+  text-decoration: none;
+}
+
+.fm-page-home .fm-cat-head__link:focus-visible {
+  outline: 3px solid #0b6b3a;
+  outline-offset: 2px;
+}
+
+/* --- Desktop grid --------------------------------------------------------- */
+.fm-page-home .fm-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-page-home .fm-cat-item {
+  min-width: 0;
+}
+
+/* --- The card, shared by the grid and the rail --------------------------- */
 .fm-page-home .fm-cat-card {
-  background: #ffffff;
-  border: 1px solid var(--fmv2-border);
-  border-radius: var(--fmv2-radius-md);
-  padding: 18px 12px;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  cursor: pointer;
   height: 100%;
+  padding: 16px 8px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  text-align: center;
+  text-decoration: none;
+  color: #1e293b;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .fm-page-home .fm-cat-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--fmv2-shadow-hover);
-  border-color: var(--fmv2-primary-light);
+  border-color: #bbf7d0;
+  box-shadow: 0 8px 18px rgba(11, 107, 58, 0.08);
+  color: #0b6b3a;
 }
 
-.fm-page-home .fm-cat-icon-box {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #f0fdf4;
+.fm-page-home .fm-cat-card:focus-visible {
+  outline: 3px solid #0b6b3a;
+  outline-offset: 2px;
+}
+
+.fm-page-home .fm-cat-card__icon {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--fmv2-primary);
-  transition: background 0.2s, color 0.2s;
-  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  font-size: 24px;
+  line-height: 1;
+  overflow: hidden;
 }
 
-.fm-page-home .fm-cat-card:hover .fm-cat-icon-box {
-  background: var(--fmv2-primary);
-  color: #ffffff;
+.fm-page-home .fm-cat-card__icon i {
+  font-size: inherit;
+  line-height: 1;
 }
 
-.fm-page-home .fm-cat-icon-box svg {
-  width: 28px;
-  height: 28px;
+.fm-page-home .fm-cat-card__icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
 }
 
-.fm-page-home .fm-cat-icon-box img {
-  width: 34px !important;
-  height: 34px !important;
-  object-fit: contain;
-}
-
-.fm-page-home .fm-cat-title {
+.fm-page-home .fm-cat-card__label {
+  margin-top: 2px;
   font-size: 13px;
-  font-weight: 700;
-  color: var(--fmv2-text-dark);
-  line-height: 1.25;
-}
-
-/* --------------------------------------------------------------------------
-   Popular categories - Image Card Style (Ekomart Inspired)
-   -------------------------------------------------------------------------- */
-.fm-page-home .fm-categories-grid-v2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-
-.fm-page-home .fm-category-card {
-  background: #ffffff;
-  border: 1px solid var(--fmv2-border);
-  border-radius: var(--fmv2-radius-lg);
-  overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  height: 100%;
-  box-shadow: var(--fmv2-shadow-sm);
-}
-
-.fm-page-home .fm-category-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--fmv2-shadow-hover);
-  border-color: rgba(16, 185, 129, 0.45);
-}
-
-.fm-page-home .fm-category-card-link {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  font-weight: 600;
   color: inherit;
-  text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
-.fm-page-home .fm-category-media {
+/* --- Tablet / phone: the same cards on a two-row Swiper rail ------------- */
+.fm-page-home .fm-cat-swiper {
+  display: none;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  padding: clamp(18px, 3vw, 28px);
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.6);
 }
 
-.fm-page-home .fm-category-media img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain;
-  object-position: center;
-  transition: transform 0.35s ease;
-  mix-blend-mode: multiply;
-}
-
-.fm-page-home .fm-category-card:hover .fm-category-media img {
-  transform: scale(1.05);
-}
-
-.fm-page-home .fm-category-media-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: clamp(64px, 10vw, 88px);
-  height: clamp(64px, 10vw, 88px);
-  border-radius: 50%;
-  background: #f0fdf4;
-  color: var(--fmv2-primary);
-}
-
-.fm-page-home .fm-category-media-fallback i,
-.fm-page-home .fm-category-media-fallback svg {
-  font-size: clamp(28px, 5vw, 38px);
-}
-
-.fm-page-home .fm-category-body {
+.fm-page-home .fm-cat-slide {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 4px;
-  padding: 14px 12px 16px;
+  gap: 12px;
+  height: 100%;
 }
 
-.fm-page-home .fm-category-title {
-  font-size: clamp(13px, 1.2vw, 15px);
-  font-weight: 700;
-  color: var(--fmv2-text-dark);
-  line-height: 1.25;
-  margin: 0;
-  word-break: break-word;
-}
+@media (max-width: 991.98px) {
+  .fm-page-home .fm-cat-grid {
+    display: none;
+  }
 
-.fm-page-home .fm-category-count {
-  font-size: 12px;
-  color: var(--fmv2-text-muted);
-  margin: 0;
-  line-height: 1.3;
-}
+  .fm-page-home .fm-cat-swiper {
+    display: block;
+    padding-bottom: 25px;
+  }
 
-@media (min-width: 576px) {
-  .fm-page-home .fm-categories-grid-v2 {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+  .fm-page-home .fm-cat-slide .fm-cat-card {
+    padding: 14px 8px;
+  }
+
+  .fm-page-home .fm-cat-slide .fm-cat-card__icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
+    font-size: 22px;
   }
 }
 
-@media (min-width: 768px) {
-  .fm-page-home .fm-categories-grid-v2 {
-    grid-template-columns: repeat(4, 1fr);
-  }
+/* Dots sit in the flow under the rail, not over the cards. The 3-class
+   selectors outrank the Swiper bundle's defaults even though the CDN sheet
+   loads later from the page's css stack. */
+.fm-page-home .fm-cat-swiper .swiper-pagination {
+  position: static;
+  margin-top: 8px;
+  line-height: 0;
 }
 
-@media (min-width: 992px) {
-  .fm-page-home .fm-categories-grid-v2 {
-    grid-template-columns: repeat(6, 1fr);
-  }
+.fm-page-home .fm-cat-swiper .swiper-pagination-bullet {
+  width: 8px;
+  /* The layout's tap-target guard gives every [role="button"] a 42px
+     min-height on phones; Swiper bullets are role="button" too, which turned
+     the 8px dots into 8x42 vertical pills. The dots are decorative controls
+     with a clickable parent, so they keep their 8px height. */
+  height: 8px !important;
+  min-height: 8px !important;
+  margin: 0 3px !important;
+  background: #cbd5e1;
+  opacity: 1;
+  transition: width 0.2s ease, background 0.2s ease;
 }
 
-@media (min-width: 1200px) {
-  .fm-page-home .fm-categories-grid-v2 {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 18px;
-  }
+.fm-page-home .fm-cat-swiper .swiper-pagination-bullet-active {
+  width: 18px;
+  border-radius: 4px;
+  background: #0b6b3a;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .fm-page-home .fm-cat-card,
+  .fm-page-home .fm-cat-head__link,
+  .fm-page-home .fm-cat-swiper .swiper-pagination-bullet {
+    transition: none;
+  }
+
+  .fm-page-home .fm-cat-card:hover {
+    transform: none;
+  }
+}
 /* --------------------------------------------------------------------------
    Flash sale banner + live countdown
    -------------------------------------------------------------------------- */

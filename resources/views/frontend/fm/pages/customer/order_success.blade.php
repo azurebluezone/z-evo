@@ -400,6 +400,14 @@
                     }, { eventID: purchaseEventId });
                 }
 
+                // The TikTok pixel and the Events API call in CustomerController
+                // carry the same order-scoped id; TikTok keeps one conversion.
+                try {
+                    if (window.__ttTracker && typeof window.__ttTracker.trackPurchase === 'function') {
+                        window.__ttTracker.trackPurchase(purchaseData, purchaseEventId);
+                    }
+                } catch (e) {}
+
                 // GA4 half. A no-op unless analytics consent was granted and a
                 // measurement id is configured.
                 try {

@@ -1,0 +1,223 @@
+{
+  "plugin": "zombiecoder",
+  "version": "0.1.0",
+  "startedAt": "2026-11-10T01:37:41.542Z",
+  "finishedAt": "2026-11-10T01:37:41.881Z",
+  "root": "/home/sahon/Desktop/new evo/public/img",
+  "steps": [
+    {
+      "step": "bootstrap-dirs",
+      "ok": true
+    },
+    {
+      "step": "memory-index",
+      "ok": true,
+      "detail": "memory/index.json ready"
+    },
+    {
+      "step": "load-config",
+      "ok": true
+    },
+    {
+      "step": "origin-handshake",
+      "ok": true,
+      "detail": "skipped (no origin URL)"
+    },
+    {
+      "step": "resolve-models",
+      "ok": true
+    },
+    {
+      "step": "probe-mcp",
+      "ok": true,
+      "detail": "skipped (no MCP URL)"
+    },
+    {
+      "step": "scan-project",
+      "ok": true
+    },
+    {
+      "step": "write-ssot",
+      "ok": true
+    },
+    {
+      "step": "ensure-syllabus",
+      "ok": true
+    },
+    {
+      "step": "agent-modes",
+      "ok": true
+    },
+    {
+      "step": "agent-folder",
+      "ok": true
+    },
+    {
+      "step": "agent-config",
+      "ok": true
+    },
+    {
+      "step": "agent-reload",
+      "ok": true,
+      "detail": "reloaded"
+    },
+    {
+      "step": "agent-bind",
+      "ok": true,
+      "detail": "9 agents inherit the session model + shared rules (no per-agent pin)"
+    },
+    {
+      "step": "prepare-skills",
+      "ok": true,
+      "detail": "0 new, 4 shared (/home/sahon/.opencode/zombiecoder/skills)"
+    },
+    {
+      "step": "register-skills",
+      "ok": true,
+      "detail": "0 registered"
+    },
+    {
+      "step": "register-rpc",
+      "ok": true
+    },
+    {
+      "step": "register-tools",
+      "ok": true,
+      "detail": "21 registered"
+    },
+    {
+      "step": "project-onboarding",
+      "ok": true
+    },
+    {
+      "step": "hook-context",
+      "ok": true
+    },
+    {
+      "step": "hook-compaction",
+      "ok": true
+    },
+    {
+      "step": "hook-idle",
+      "ok": true
+    },
+    {
+      "step": "archive-session-idle",
+      "ok": true,
+      "detail": "subscribed to session.idle"
+    },
+    {
+      "step": "hook-model-request",
+      "ok": true
+    },
+    {
+      "step": "hook-session-index",
+      "ok": true
+    },
+    {
+      "step": "hook-response-gate",
+      "ok": true
+    },
+    {
+      "step": "hook-tool-before",
+      "ok": true
+    },
+    {
+      "step": "hook-tool-after",
+      "ok": true
+    },
+    {
+      "step": "write-report",
+      "ok": true,
+      "detail": "written"
+    }
+  ],
+  "outputs": {
+    "install": {
+      "dir": "/home/sahon/.opencode",
+      "global": true,
+      "configFile": "/home/sahon/.opencode/opencode.json"
+    },
+    "createdDirs": [],
+    "originUrl": null,
+    "originHandshake": "skipped (no origin URL)",
+    "modelStrategy": "free-fallback",
+    "modelAssignment": {
+      "manu": "opencode/beam-free",
+      "jarin": "opencode/big-pickle",
+      "brishti": "opencode/deepseek-v4.1-flash-free",
+      "rashed": "opencode/flint-40b-free",
+      "halim": "opencode/glm-5.3-flash-free",
+      "majnu": "opencode/iceman-free",
+      "nila": "opencode/inkling-2-small-free",
+      "tuhin": "opencode/longcat-2.5-free",
+      "zombiecoder": "opencode/mimo-v2.6-flash-free"
+    },
+    "customProviderReachable": false,
+    "agentAssignment": {
+      "manu": "opencode/beam-free",
+      "jarin": "opencode/big-pickle",
+      "brishti": "opencode/deepseek-v4.1-flash-free",
+      "rashed": "opencode/flint-40b-free",
+      "halim": "opencode/glm-5.3-flash-free",
+      "majnu": "opencode/iceman-free",
+      "nila": "opencode/inkling-2-small-free",
+      "tuhin": "opencode/longcat-2.5-free",
+      "zombiecoder": "opencode/mimo-v2.6-flash-free"
+    },
+    "agentAssignmentSource": "runtime model plan (free-fallback)",
+    "mcpUrl": null,
+    "mcpReachable": false,
+    "mcpTools": [],
+    "scan": {
+      "files": 155,
+      "dirs": 0,
+      "bytes": 7414042,
+      "languages": 3
+    },
+    "ssot": {
+      "file": "/home/sahon/Desktop/new evo/public/img/.zombiecoder/SSOT.md",
+      "bytes": 16987,
+      "sha256": "ba3334f43a617be90679c0913475c70b45b93451ad1ce41c7e5ccc349790af4e",
+      "writtenAt": "2026-11-10T01:37:41.556Z"
+    },
+    "syllabus": {
+      "file": "/home/sahon/Desktop/new evo/public/img/.zombiecoder/syllabus.md",
+      "created": false,
+      "bytes": 6040
+    },
+    "agentModes": {},
+    "agentFolder": {
+      "dir": "/home/sahon/.opencode/agents",
+      "written": [],
+      "unchanged": [
+        "/home/sahon/.opencode/agents/manu.md",
+        "/home/sahon/.opencode/agents/jarin.md",
+        "/home/sahon/.opencode/agents/brishti.md",
+        "/home/sahon/.opencode/agents/rashed.md",
+        "/home/sahon/.opencode/agents/halim.md",
+        "/home/sahon/.opencode/agents/majnu.md",
+        "/home/sahon/.opencode/agents/nila.md",
+        "/home/sahon/.opencode/agents/tuhin.md",
+        "/home/sahon/.opencode/agents/zombiecoder.md"
+      ]
+    },
+    "agentConfig": {
+      "file": "/home/sahon/.opencode/opencode.json",
+      "updated": []
+    },
+    "bound": "9 agents inherit the session model + shared rules (no per-agent pin)",
+    "skillCatalog": "0 new, 4 shared (/home/sahon/.opencode/zombiecoder/skills)",
+    "skills": "0 registered",
+    "rpc": {
+      "ok": true
+    },
+    "tools": "21 registered",
+    "onboarding": {
+      "created": false,
+      "marker": "onboarding:0432345c7aee",
+      "file": "/home/sahon/Desktop/new evo/public/img/.zombiecoder/syllabus.md"
+    },
+    "refreshMs": 300000
+  }
+}

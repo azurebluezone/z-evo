@@ -14,7 +14,7 @@
                 </a>
             </div>
 
-            <div class="card-body mt-4">
+            <div class="card-body">
                 <form method="POST" action="{{ route('admin.attributes.values.store', $attribute->id) }}" class="row g-4">
                     @csrf
                     

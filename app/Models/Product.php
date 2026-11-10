@@ -197,7 +197,7 @@ class Product extends Model
         $img = $this->relationLoaded('image') ? ($this->image?->image ?? null) : ($this->image()->first()?->image ?? null);
         $img = preg_replace('~^public/~', '', (string) $img);
         $img = ltrim($img, '/');
-        return $img !== '' ? $img : 'assets/images/default.png';
+        return $img !== '' ? $img : \App\Support\MediaPath::fallbackPath();
     }
 
     public function getPriceAttribute()

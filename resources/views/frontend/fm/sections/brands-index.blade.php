@@ -50,11 +50,7 @@
         <div class="fm-brand-grid">
         @forelse($fmBrands as $fmBrand)
             @php
-                $fmBrandImg = preg_replace('~^public/~', '', (string) ($fmBrand->image ?? ''));
-                $fmBrandImg = ltrim($fmBrandImg, '/');
-                if ($fmBrandImg === '' || ! \Illuminate\Support\Facades\File::exists(public_path($fmBrandImg))) {
-                    $fmBrandImg = 'assets/images/default.png';
-                }
+                $fmBrandImg = \App\Support\MediaPath::imageOrFallback($fmBrand->image ?? '');
             @endphp
 
             <a class="fm-brand-card" href="{{ route('products.brand', $fmBrand->slug) }}">

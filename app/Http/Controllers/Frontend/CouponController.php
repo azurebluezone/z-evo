@@ -16,15 +16,11 @@ class CouponController extends Controller
         $code = strtoupper(trim($codeRaw));
 
         /*
-         * NEVER trust a client-sent subtotal.
-         *
-         * This used to read $request->input('subtotal'), which the browser JS
-         * sends, so anyone could claim "my cart is ৳50000" on a real ৳890 cart
-         * and receive a ৳25000 discount -> a negative-amount order. The only
-         * honest subtotal is the server-side cart this session actually holds.
+         * NEVER trust a client-sent subtotal. The discount is priced from the
+         * server-side cart only; Coupon::calculateDiscountForItems() also
+         * restricts product-specific coupons to their eligible lines.
          */
-        $cartRaw = str_replace(',', '', (string) Cart::instance('shopping')->subtotal());
-        $subtotal = (float) str_replace('.00', '', $cartRaw);
+        $cartItems = Cart::instance('shopping')->content();
 
         if ($code === '') {
             return response()->json([
@@ -45,26 +41,22 @@ class CouponController extends Controller
         }
 
         if (!$coupon->isUsageAvailable()) {
+            Session::forget('discount');
+            Session::forget('coupon_code');
+            Session::forget('coupon_id');
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Coupon usage limit reached',
             ]);
         }
 
-        $eligibleSubtotal = $subtotal;
-        if ($coupon->isRestrictedToProducts()) {
-            $allowedIds = $coupon->products()->pluck('products.id')->all();
-            $eligibleSubtotal = 0.0;
-
-            foreach (Cart::instance('shopping')->content() as $item) {
-                if (in_array((int) $item->id, $allowedIds, true)) {
-                    $eligibleSubtotal += ((float) $item->price) * ((float) $item->qty);
-                }
-            }
-        }
-
-        $discount = $coupon->calculateDiscount((float) $eligibleSubtotal);
+        $discount = $coupon->calculateDiscountForItems($cartItems);
         if ($discount <= 0) {
+            Session::forget('discount');
+            Session::forget('coupon_code');
+            Session::forget('coupon_id');
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Coupon is not applicable for this cart',

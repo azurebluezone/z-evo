@@ -13,7 +13,7 @@
                 @php
                     $imgPath = preg_replace('~^public/~', '', (string) ($profile->image ?? ''));
                     $imgPath = ltrim($imgPath, '/');
-                    $fallbackImg = 'assets/images/empty.png';
+                    $fallbackImg = \App\Support\MediaPath::fallbackPath();
                     $imgSrc = $imgPath ? asset($imgPath) : asset($fallbackImg);
                 @endphp
                 <img src="{{ $imgSrc }}" class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover;" alt="profile-image" onerror="this.src='{{ asset($fallbackImg) }}'">

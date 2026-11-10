@@ -163,7 +163,7 @@
                                                 <div class="product-content">
                                                     <div class="product-before-content">
                                                         <h6 class="title">
-                                                            <a data-src="{{ asset($product->thumbnail_image ?? 'assets/images/default.png') }}" href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a>
+                                                            <a data-src="{{ asset($product->thumbnail_image ?? \App\Support\MediaPath::fallbackPath()) }}" href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a>
                                                         </h6>
 
                                                         <div class="single_content__info">

@@ -29,23 +29,23 @@ class ShopPromises
         return [
             (object) [
                 'icon'  => 'bi-truck',
-                'title' => 'Fast delivery',
-                'text'  => 'Inside Dhaka in 24 hours, nationwide in 2-3 days',
+                'title' => 'Delivery',
+                'text'  => 'Delivery charge is shown at checkout',
             ],
             (object) [
                 'icon'  => 'bi-shield-check',
-                'title' => 'Secure payment',
-                'text'  => 'Cash on delivery, cards and mobile banking',
+                'title' => 'Cash on delivery',
+                'text'  => 'Pay when your order reaches you',
             ],
             (object) [
                 'icon'  => 'bi-arrow-counterclockwise',
-                'title' => 'Easy returns',
-                'text'  => 'Return any product within 7 days',
+                'title' => 'Returns',
+                'text'  => 'Contact support before sending an item back',
             ],
             (object) [
                 'icon'  => 'bi-headset',
                 'title' => 'Support',
-                'text'  => 'Every day from 9 am to 9 pm',
+                'text'  => 'Reach us through the contact page',
             ],
         ];
     }

@@ -1,0 +1,24 @@
+/* Visitor analytics page.
+   Only the two containers need fixed heights: ApexCharts and Leaflet both
+   measure their parent, and the old gradient placeholders hid the fact that
+   neither was ever drawn. */
+.visitors-chart {
+    width: 100%;
+    min-height: 380px;
+}
+
+.visitors-map {
+    height: 340px;
+    border-radius: .5rem;
+    z-index: 1;
+}
+
+@media (max-width: 575.98px) {
+    .visitors-chart {
+        min-height: 300px;
+    }
+
+    .visitors-map {
+        height: 260px;
+    }
+}

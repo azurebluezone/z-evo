@@ -125,6 +125,7 @@ class EventRecorder
                 'fbclid' => $this->clamp($event['fbclid'] ?? null),
                 'ttclid' => $this->clamp($event['ttclid'] ?? null),
                 'gclid' => $this->clamp($event['gclid'] ?? null),
+                'campaign_id' => $this->campaignId($event),
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
@@ -144,6 +145,14 @@ class EventRecorder
             $inserted = DB::table('event_logs')->insertOrIgnore($rows);
         } else {
             $inserted = 0;
+        }
+
+        // Any new event changes the dashboard aggregates. Bumping the version
+        // here means the next admin page view rebuilds instead of serving a
+        // five-minute-old snapshot; the TTL is only the backstop for writes
+        // that bypass this class.
+        if ($eventCount > 0 || $duplicates > 0) {
+            \App\Support\AnalyticsCache::invalidate();
         }
 
         $this->touchVisitor($visitorId, [
@@ -393,7 +402,7 @@ class EventRecorder
                 $event['ts'], $event['event_time'], $event['event_id'],
                 $event['channel'], $event['click_target'], $event['outbound_host'],
                 $event['scroll_depth'], $event['fbclid'], $event['ttclid'],
-                $event['gclid'], $event['name'], $event['event_name'],
+                $event['gclid'], $event['campaign_id'], $event['name'], $event['event_name'],
                 $event['page_path']
             );
 
@@ -414,6 +423,26 @@ class EventRecorder
         return $trackingMethod === self::METHOD_SERVER
             ? self::STATUS_SERVER_ONLY
             : self::STATUS_BROWSER_ONLY;
+    }
+
+    /**
+     * @param  array<string, mixed>  $event
+     */
+    private function campaignId(array $event): ?int
+    {
+        $raw = $event['campaign_id'] ?? null;
+
+        if ($raw === null && isset($event['event_data']) && is_array($event['event_data'])) {
+            $raw = $event['event_data']['campaign_id'] ?? null;
+        }
+
+        if (!is_numeric($raw)) {
+            return null;
+        }
+
+        $id = (int) $raw;
+
+        return $id > 0 ? $id : null;
     }
 
     private function clamp(?string $value, int $max = 190): ?string

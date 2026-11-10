@@ -25,17 +25,17 @@
                             $productImg = $value->image && $value->image->image ? $value->image->image : null;
                             $productImgPath = $productImg ? preg_replace('~^public/~', '', $productImg) : null;
                             $productImgPath = $productImgPath ? ltrim($productImgPath, '/') : null;
-                            $fallbackImg = $generalsetting->frontend_empty_image ?? 'assets/images/empty.png';
+                            $fallbackImg = \App\Support\MediaPath::fallbackPath();
                             $fallbackImg = preg_replace('~^public/~', '', $fallbackImg);
                             $fallbackImg = ltrim($fallbackImg, '/');
                         @endphp
                         <img
-                            src="{{ $productImgPath && file_exists(public_path($productImgPath)) ? asset($productImgPath) : asset($fallbackImg) }}"
+                            src="{{ asset(\App\Support\MediaPath::imageOrFallback($productImg)) }}"
                             class="backend-image"
                             style="max-width: 50px; max-height: 50px; object-fit: cover;"
 
                             alt="{{ $value->name }}"
-                            onerror="this.src='{{ asset('assets/images/empty.png') }}'">
+                            onerror="this.src='{{ \App\Support\MediaPath::fallbackUrl() }}'">
                     </td>
                     <td class="d-none d-sm-table-cell fw-semibold text-primary">
                         {{-- Click the price to edit it in place. The value is

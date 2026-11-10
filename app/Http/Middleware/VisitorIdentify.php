@@ -78,7 +78,7 @@ class VisitorIdentify
         // a record whose geo columns are still empty.
         $needsGeo = !$visitor
             || empty($visitor->country)
-            || empty($visitor->division);
+            || (empty($visitor->latitude) && empty($visitor->division));
 
         $geo = null;
         if ($needsGeo) {
@@ -109,7 +109,11 @@ class VisitorIdentify
                 'country' => $geo['country'] ?? null,
                 'city' => $geo['city'] ?? null,
                 'division' => $geo['division'] ?? null,
+                'district' => $geo['district'] ?? null,
                 'isp' => $geo['isp'] ?? null,
+                'latitude' => $geo['latitude'] ?? null,
+                'longitude' => $geo['longitude'] ?? null,
+                'timezone' => $geo['timezone'] ?? null,
                 'device_type' => $fingerprint['device_type'],
                 'browser' => $fingerprint['browser'],
                 'os' => $fingerprint['os'],
@@ -129,11 +133,13 @@ class VisitorIdentify
             ]);
         } else {
             $dirty = false;
+            $ipChanged = false;
 
             // --- Refresh mutable identity fields ---------------------------------
             if ($visitor->ip !== $ip) {
                 $visitor->ip = $ip;
                 $dirty = true;
+                $ipChanged = true;
                 // A new IP means a new network: previous geo may no longer apply.
                 if ($geo === null && !empty($visitor->country)) {
                     $geo = $this->geo->resolve($ip);
@@ -153,15 +159,25 @@ class VisitorIdentify
                 $dirty = true;
             }
 
-            // --- Geo enrichment (only fills blanks, never overwrites) -----------
+            // --- Geo enrichment ------------------------------------------------
+            // Same IP: only fill blanks, never overwrite a known location.
+            // Changed IP: this is a different network, so the new answer wins.
             if ($geo !== null) {
                 foreach ([
                     'country' => $geo['country'] ?? null,
                     'city' => $geo['city'] ?? null,
                     'division' => $geo['division'] ?? null,
+                    'district' => $geo['district'] ?? null,
                     'isp' => $geo['isp'] ?? null,
+                    'latitude' => $geo['latitude'] ?? null,
+                    'longitude' => $geo['longitude'] ?? null,
+                    'timezone' => $geo['timezone'] ?? null,
                 ] as $column => $value) {
-                    if (!empty($value) && empty($visitor->{$column})) {
+                    $shouldWrite = $ipChanged
+                        ? !empty($value)
+                        : (!empty($value) && empty($visitor->{$column}));
+
+                    if ($shouldWrite) {
                         $visitor->{$column} = $value;
                         $dirty = true;
                     }

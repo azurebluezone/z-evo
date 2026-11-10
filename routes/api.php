@@ -86,7 +86,13 @@ Route::post('/tiktok/track', function (Request $request) {
                 }
                 $eventData = is_array($ev['event_data'] ?? null) ? $ev['event_data'] : [];
                 $userData = is_array($ev['user_data'] ?? null) ? $ev['user_data'] : [];
-                if ($tiktokTracking->sendEvent($eventName, $eventData, $userData)) {
+                $userData['ttclid'] = $userData['ttclid'] ?? $request->cookie('ttclid');
+                $userData['ttp'] = $userData['ttp'] ?? $request->cookie('_ttp');
+                $eventId = is_string($ev['event_id'] ?? null) ? $ev['event_id'] : null;
+
+                // The browser generates one id and sends it to both the pixel
+                // and this endpoint; forwarding it is what lets TikTok dedupe.
+                if ($tiktokTracking->sendEvent($eventName, $eventData, $userData, $eventId)) {
                     $ok++;
                 }
             }
@@ -97,12 +103,20 @@ Route::post('/tiktok/track', function (Request $request) {
         $eventName = $request->input('event_name');
         $eventData = $request->input('event_data', []);
         $userData = $request->input('user_data', []);
+        $userData['ttclid'] = $userData['ttclid'] ?? $request->cookie('ttclid');
+        $userData['ttp'] = $userData['ttp'] ?? $request->cookie('_ttp');
+        $eventId = $request->input('event_id');
 
         if (!$eventName) {
             return response()->json(['error' => 'Event name is required'], 400);
         }
 
-        $result = $tiktokTracking->sendEvent($eventName, $eventData, $userData);
+        $result = $tiktokTracking->sendEvent(
+            $eventName,
+            $eventData,
+            $userData,
+            is_string($eventId) ? $eventId : null
+        );
 
         if ($result) {
             return response()->json(['success' => true, 'message' => 'Event tracked successfully']);

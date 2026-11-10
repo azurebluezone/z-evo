@@ -1,0 +1,12 @@
+    img.backend-image {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 0;
+        background: #f3f4f6;
+        display: inline-block;
+        border: 1px solid #e0e0e0;
+    }
+    #productsTable td {
+        vertical-align: middle;
+    }

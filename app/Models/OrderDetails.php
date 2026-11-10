@@ -8,6 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class OrderDetails extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'campaign_id' => 'integer',
+        'regular_price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
+        'purchase_price' => 'decimal:2',
+    ];
+
+    public function campaign()
+    {
+        return $this->belongsTo(Campaign::class, 'campaign_id');
+    }
+
     public function image()
     {
         return $this->belongsTo(Productimage::class, 'product_id', 'product_id')->select('id','product_id','image');

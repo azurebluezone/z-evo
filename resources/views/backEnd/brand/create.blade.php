@@ -26,7 +26,7 @@
                 <h5 class="mb-0 text-uppercase fw-bold">Create Brand</h5>
             </div>
 
-            <div class="card-body mt-4">
+            <div class="card-body">
                 <form action="{{ route('brands.store') }}" method="POST" class="row g-4" data-parsley-validate="" enctype="multipart/form-data" id="brandsForm">
                     @csrf
 
@@ -43,11 +43,11 @@
                         <div class="card-header border-bottom">
                             <h6 class="mb-0 fw-semibold">SEO Settings</h6>
                         </div>
-                        <div class="card-body mt-4">
+                        <div class="card-body">
                             @php
                                 $model = new App\Models\Brand();
                             @endphp
-                            @include('backEnd.layouts.partials.seo-fields')
+                            @include('backEnd.layouts.partials.seo-meta-form')
                         </div>
                       </div>
                     </div>

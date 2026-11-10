@@ -11,12 +11,12 @@
                     <div class="small-card-item text-center">
                         <a href="{{ route('products.category', $category->slug) }}" class="d-block text-center">
                             @php
-                                $raw = (string) ($category->image ?? 'uploads/category/default.png');
+                                $raw = (string) ($category->image ?? '');
                                 $isUrl = preg_match('~^https?://~i', $raw) === 1;
                                 $path = $isUrl ? $raw : ltrim(preg_replace('~^public/~', '', $raw), '/');
                                 $src = !empty($path)
                                     ? ($isUrl ? $path : asset($path))
-                                    : asset('uploads/category/default.png');
+                                    : asset(\App\Support\MediaPath::fallbackPath());
                             @endphp
                             <img src="{{ $src }}" 
                                  data-src="{{ $src }}" 

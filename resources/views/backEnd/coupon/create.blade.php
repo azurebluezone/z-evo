@@ -29,7 +29,7 @@
             </a>
         </div>
     </div>
-    <div class="card-body mt-4">
+    <div class="card-body">
         <form action="{{ route('coupons.store') }}" method="post" class="row g-4" id="couponsForm">
             @csrf
 
@@ -134,7 +134,7 @@
 
             <div class="col-12">
                 <label for="product_ids" class="form-label fw-semibold">Products (Optional)</label>
-                <select name="product_ids[]" id="product_ids" class="form-select select2-ajax" multiple style="width: 100%;">
+                <select name="product_ids[]" id="product_ids" class="form-select select2-ajax" data-select2-ajax-url="{{ route('flash-sales.products.ajax') }}" data-placeholder="Search for products..." data-close-on-select="true" multiple style="width: 100%;">
                     @if(is_array(old('product_ids')))
                         @foreach(old('product_ids') as $pid)
                             <option value="{{ $pid }}" selected>{{ $pid }}</option>
@@ -176,60 +176,10 @@
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #d9dee3;
-        border-radius: 0.375rem;
-        min-height: 38px;
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: #696cff;
-        border: none;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 4px;
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-        color: white;
-        margin-right: 5px;
-    }
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background-color: #696cff;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-coupon-create.css') }}">
 @endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#product_ids').select2({
-            ajax: {
-                url: '{{ route("flash-sales.products.ajax") }}',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        q: params.term,
-                        page: params.page
-                    };
-                },
-                processResults: function (data, params) {
-                    params.page = params.page || 1;
-                    return {
-                        results: data.data,
-                        pagination: {
-                            more: data.current_page < data.last_page
-                        }
-                    };
-                },
-                cache: true
-            },
-            placeholder: 'Search for products...',
-            minimumInputLength: 1,
-            allowClear: true,
-            closeOnSelect: false
-        });
-    });
-</script>
+
 @endpush
