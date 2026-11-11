@@ -115,7 +115,7 @@ class FrontendController extends Controller
             $templateView = 'templates.' . $campaign->template->view_name;
         }
         if (!$templateView || !view()->exists($templateView)) {
-            $templateView = 'templates.default';
+            abort(404, 'Template view not found');
         }
 
         $pricing = [
@@ -142,6 +142,12 @@ class FrontendController extends Controller
             : [];
 
         $storedContent = is_array($campaign->extra_fields) ? $campaign->extra_fields : [];
+        // A campaign-level gallery wins over the product gallery. Product rows
+        // in this catalogue share one placeholder image, so the generated
+        // campaign gallery is what keeps each landing design distinct.
+        $campaignGallery = !empty($storedContent['gallery_images'])
+            ? $storedContent['gallery_images']
+            : $gallery;
 
         $extraFields = array_merge($storedContent, [
             'old_price' => $campaignActive
@@ -168,8 +174,11 @@ class FrontendController extends Controller
                 'new_price' => $productModel->new_price,
                 'purchase_price' => $productModel->purchase_price,
                 'stock' => $productModel->stock,
+                'pro_unit' => $productModel->pro_unit,
+                'pro_video' => $productModel->pro_video,
+                'meta_description' => $productModel->meta_description,
             ] : null,
-            'gallery_images' => $gallery,
+            'gallery_images' => $campaignGallery,
             // The campaign window is authoritative; a stored date is only a
             // fallback for templates that show a countdown without an end date.
             'countdown_date' => $campaign->end_date
@@ -209,7 +218,9 @@ class FrontendController extends Controller
             'currency' => 'BDT',
         ];
 
-        return view($templateView, compact('landingPage', 'campaign', 'campaignTracking'));
+        $tpl = \App\Support\LandingTemplateVars::make($landingPage, $campaign->template, $campaign);
+
+        return view($templateView, compact('landingPage', 'campaign', 'campaignTracking', 'tpl'));
     }
 
     public function checkStock(Request $request)
@@ -1210,7 +1221,7 @@ class FrontendController extends Controller
             })
             ->orderByRaw('COALESCE(start_date, date) ASC')
             ->orderBy('id')
-            ->limit(3)
+            ->limit(9)
             ->get([
                 'id', 'name', 'slug', 'date', 'start_date', 'end_date',
                 'short_description', 'campaign_type', 'image_one', 'hero_button_text',

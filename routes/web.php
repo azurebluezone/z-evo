@@ -1296,6 +1296,8 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::post('landing-pages/destroy', [LandingPageController::class, 'destroy'])->name('landing-pages.destroy');
     Route::get('landing-pages/template-config/{id}', [LandingPageController::class, 'templateConfig'])->name('landing-pages.template-config');
     Route::get('landing-pages/templates/{id}/preview', [LandingPageController::class, 'previewTemplate'])->name('landing-pages.templates.preview');
+    Route::get('landing-pages/{id}/template-variables', [LandingPageController::class, 'templateVariables'])->name('landing-pages.template-variables');
+    Route::post('landing-pages/{id}/template-variables', [LandingPageController::class, 'updateTemplateVariables'])->name('landing-pages.template-variables.update');
 
     // settings route 
     Route::get('settings/manage', [GeneralSettingController::class, 'index'])->name('settings.index');

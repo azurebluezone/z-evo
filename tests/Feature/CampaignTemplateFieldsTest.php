@@ -43,24 +43,27 @@ class CampaignTemplateFieldsTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_admin_create_persists_whitelisted_extra_fields(): void
+    public function test_admin_create_persists_registry_content_fields(): void
     {
         $product = $this->createProduct();
-        $name = 'QA Template Fields ' . Str::random(8);
+        $name = 'QA Registry Fields ' . Str::random(8);
 
         $create = $this->actingAs($this->admin())->get('/admin/campaign/create');
         $create->assertOk();
         $create->assertSee('Landing Content');
-        $create->assertSee('name="extra_fields[features][__INDEX__][title]"', false);
-        $create->assertSee('name="extra_fields[video_url]"', false);
+        $create->assertSee('name="extra_fields[trust_items][__INDEX__][title]"', false);
+        $create->assertSee('name="extra_fields[announce_text]"', false);
+        $create->assertDontSee('name="extra_fields[features]', false);
+        $create->assertDontSee('One row per item');
+        $create->assertDontSee("Fields follow the selected template's enabled variables");
 
         $response = $this->actingAs($this->admin())->post('/admin/campaign/save', [
             'name' => $name,
-            'short_description' => 'QA template short description',
-            'description' => 'QA template campaign description',
+            'short_description' => 'QA registry short description',
+            'description' => 'QA registry campaign description',
             'review' => 'QA review',
             'campaign_type' => 'product',
-            'template_id' => $this->templateId('sample-template'),
+            'template_id' => $this->templateId('ht2'),
             'product_id' => $product->id,
             'status' => 1,
             'image_one' => '',
@@ -68,36 +71,27 @@ class CampaignTemplateFieldsTest extends TestCase
             'campaign_price_enabled' => 1,
             'allow_coupon' => 0,
             'sort_order' => 0,
-            'show_features' => 1,
-            'show_benefits' => 1,
-            'show_testimonials' => 1,
-            'show_faq' => 1,
             'extra_fields' => [
-                'contact_phone' => '01700000000',
-                'email' => 'hello@example.com',
-                'video_url' => 'https://www.youtube.com/embed/qa123',
-                'features' => [
-                    ['title' => 'Fast delivery', 'description' => 'Ships in 24 hours', 'image' => ''],
-                    ['title' => '', 'description' => '', 'image' => ''],
-                    ['title' => 'Secure packaging', 'description' => '', 'image' => ''],
+                'announce_text' => 'Free delivery this week',
+                'hero_badge' => 'New arrival',
+                'trust_items' => [
+                    ['icon' => 'fas fa-truck', 'title' => 'Fast delivery', 'text' => 'Ships in 24 hours'],
+                    ['icon' => '', 'title' => '', 'text' => ''],
+                    ['icon' => 'fas fa-shield', 'title' => 'Secure packaging', 'text' => ''],
                 ],
-                'benefits' => [
-                    ['icon' => 'fas fa-leaf', 'title' => 'Natural', 'text' => 'No chemicals'],
+                'variants' => [
+                    ['label' => 'Single pack', 'price' => 900, 'old_price' => 1200, 'image' => '', 'badge' => 'Best value'],
                 ],
-                'testimonials' => [
-                    ['name' => 'Rahim', 'text' => 'Great product', 'rating' => 5],
+                'comparison' => [
+                    ['feature' => 'Fabric', 'ours' => 'Premium cotton', 'theirs' => 'Polyester'],
+                ],
+                'reviews' => [
+                    ['name' => 'Rahim', 'location' => 'Dhaka', 'text' => 'Great product', 'rating' => 5],
                 ],
                 'faqs' => [
                     ['question' => 'How long is delivery?', 'answer' => 'Two working days'],
                 ],
-                'why_us' => [
-                    ['text' => 'Best price in town'],
-                ],
-                'packages' => [
-                    ['name' => 'One pack', 'price' => 900, 'image' => ''],
-                ],
                 'unexpected_key' => 'must be dropped',
-                'features_extra' => 'must be dropped',
             ],
         ]);
 
@@ -110,27 +104,24 @@ class CampaignTemplateFieldsTest extends TestCase
 
         $stored = $campaign->extra_fields;
         $this->assertIsArray($stored);
-        $this->assertSame('01700000000', $stored['contact_phone']);
-        $this->assertSame('hello@example.com', $stored['email']);
-        $this->assertCount(2, $stored['features']);
-        $this->assertSame('Fast delivery', $stored['features'][0]['title']);
-        $this->assertSame('Ships in 24 hours', $stored['features'][0]['description']);
-        $this->assertSame('Secure packaging', $stored['features'][1]['title']);
-        $this->assertSame('Natural', $stored['benefits'][0]['title']);
-        $this->assertSame('Great product', $stored['testimonials'][0]['text']);
+        $this->assertSame('Free delivery this week', $stored['announce_text']);
+        $this->assertSame('New arrival', $stored['hero_badge']);
+        $this->assertCount(2, $stored['trust_items']);
+        $this->assertSame('Fast delivery', $stored['trust_items'][0]['title']);
+        $this->assertSame('Secure packaging', $stored['trust_items'][1]['title']);
+        $this->assertSame('Single pack', $stored['variants'][0]['label']);
+        $this->assertSame('Premium cotton', $stored['comparison'][0]['ours']);
+        $this->assertSame('Great product', $stored['reviews'][0]['text']);
         $this->assertSame('How long is delivery?', $stored['faqs'][0]['question']);
-        $this->assertSame('Best price in town', $stored['why_us'][0]['text']);
-        $this->assertSame('One pack', $stored['packages'][0]['name']);
         $this->assertArrayNotHasKey('unexpected_key', $stored);
-        $this->assertArrayNotHasKey('features_extra', $stored);
 
         $this->assertSame(1200, (int) DB::table('products')->where('id', $product->id)->value('new_price'));
     }
 
-    public function test_admin_update_replaces_extra_fields_and_edit_screen_prefills_them(): void
+    public function test_admin_update_replaces_registry_fields_and_edit_screen_prefills_them(): void
     {
         $product = $this->createProduct();
-        $campaign = $this->createCampaign($product->id, 'sample-template', []);
+        $campaign = $this->createCampaign($product->id, 'ht2', []);
 
         $response = $this->actingAs($this->admin())->post('/admin/campaign/update', [
             'hidden_id' => $campaign->id,
@@ -139,23 +130,19 @@ class CampaignTemplateFieldsTest extends TestCase
             'description' => 'Updated campaign description',
             'review' => 'Updated review',
             'campaign_type' => 'product',
-            'template_id' => $this->templateId('sample-template'),
+            'template_id' => $this->templateId('ht2'),
             'product_id' => $product->id,
             'status' => 1,
             'campaign_price' => 900,
             'campaign_price_enabled' => 1,
             'allow_coupon' => 0,
-            'show_features' => 1,
-            'show_benefits' => 1,
-            'show_testimonials' => 0,
-            'show_faq' => 1,
             'extra_fields' => [
-                'email' => 'updated@example.com',
-                'features' => [
-                    ['title' => 'Updated feature', 'description' => 'Updated copy', 'image' => ''],
+                'announce_text' => 'Updated announcement',
+                'trust_items' => [
+                    ['icon' => 'fas fa-check', 'title' => 'Updated trust', 'text' => 'Updated copy'],
                 ],
-                'testimonials' => [
-                    ['name' => 'Karim', 'text' => 'Hidden after update', 'rating' => 4],
+                'faqs' => [
+                    ['question' => 'Updated question?', 'answer' => 'Updated answer'],
                 ],
             ],
         ]);
@@ -164,195 +151,18 @@ class CampaignTemplateFieldsTest extends TestCase
         $response->assertSessionHasNoErrors();
 
         $campaign->refresh();
-        $this->assertSame('updated@example.com', $campaign->extra_fields['email']);
-        $this->assertSame('Updated feature', $campaign->extra_fields['features'][0]['title']);
-        $this->assertSame(0, (int) $campaign->show_testimonials);
+        $this->assertSame('Updated announcement', $campaign->extra_fields['announce_text']);
+        $this->assertSame('Updated trust', $campaign->extra_fields['trust_items'][0]['title']);
+        $this->assertSame('Updated question?', $campaign->extra_fields['faqs'][0]['question']);
 
         $edit = $this->actingAs($this->admin())->get('/admin/campaign/' . $campaign->id . '/edit');
         $edit->assertOk();
         $edit->assertSee('name="template_id"', false);
         $edit->assertSee('Landing Content');
-        $edit->assertSee('name="extra_fields[features][0][title]"', false);
-        $edit->assertSee('value="Updated feature"', false);
-        $edit->assertSee('name="extra_fields[testimonials][0][text]"', false);
-        $edit->assertSee('Hidden after update');
-    }
-
-    public function test_sample_template_renders_stored_content_and_computed_values_win(): void
-    {
-        $product = $this->createProduct();
-        $campaign = $this->createCampaign($product->id, 'sample-template', [
-            'new_price' => 1,
-            'old_price' => 2,
-            'product_id' => 999999,
-            'campaign_id' => 999999,
-            'features' => [
-                ['title' => 'Rendered feature', 'description' => 'Rendered feature copy', 'image' => ''],
-            ],
-            'benefits' => [
-                ['icon' => 'fas fa-leaf', 'title' => 'Rendered benefit', 'text' => 'Rendered benefit copy'],
-            ],
-            'testimonials' => [
-                ['name' => 'Rendered customer', 'text' => 'Rendered testimonial', 'rating' => 5],
-            ],
-            'faqs' => [
-                ['question' => 'Rendered question?', 'answer' => 'Rendered answer'],
-            ],
-        ]);
-
-        $response = $this->get('/campaign/' . $campaign->slug);
-
-        $response->assertOk();
-        $response->assertSee('Rendered feature');
-        $response->assertSee('Rendered feature copy');
-        $response->assertSee('Rendered benefit');
-        $response->assertSee('Rendered benefit copy');
-        $response->assertSee('Rendered customer');
-        $response->assertSee('Rendered testimonial');
-        $response->assertSee('Rendered question?');
-        $response->assertSee('Rendered answer');
-
-        // Stored price/product identity can never override the real values.
-        $response->assertSee('900');
-        $response->assertSee('1200');
-        $response->assertDontSee('value="999999"', false);
-        $response->assertSee('value="' . $product->id . '"', false);
-        $response->assertSee('value="' . $campaign->id . '"', false);
-    }
-
-    public function test_switches_hide_optional_sections(): void
-    {
-        $product = $this->createProduct();
-        $campaign = $this->createCampaign($product->id, 'sample-template', [
-            'features' => [['title' => 'Switch feature', 'description' => '']],
-            'benefits' => [['title' => 'Switch benefit', 'text' => '']],
-            'testimonials' => [['name' => 'Switch customer', 'text' => 'Switch testimonial']],
-            'faqs' => [['question' => 'Switch question?', 'answer' => 'Switch answer']],
-        ], [
-            'show_features' => 0,
-            'show_benefits' => 1,
-            'show_testimonials' => 0,
-            'show_faq' => 0,
-        ]);
-
-        $response = $this->get('/campaign/' . $campaign->slug);
-
-        $response->assertOk();
-        $response->assertDontSee('Switch feature');
-        $response->assertSee('Switch benefit');
-        $response->assertDontSee('Switch customer');
-        $response->assertDontSee('Switch testimonial');
-        $response->assertDontSee('Switch question?');
-        $response->assertDontSee('Switch answer');
-    }
-
-    public function test_template_one_accepts_array_and_legacy_string_content(): void
-    {
-        $product = $this->createProduct();
-        $campaign = $this->createCampaign($product->id, 'template-1', [
-            'features' => [
-                ['title' => 'Array feature', 'description' => 'Array feature copy'],
-            ],
-            'why_us' => [
-                ['text' => 'Array reason'],
-            ],
-        ]);
-
-        $arrayPage = $this->get('/campaign/' . $campaign->slug);
-        $arrayPage->assertOk();
-        $arrayPage->assertSee('Array feature');
-        $arrayPage->assertSee('Array feature copy');
-        $arrayPage->assertSee('Array reason');
-
-        DB::table('campaigns')->where('id', $campaign->id)->update([
-            'show_features' => 0,
-            'extra_fields' => json_encode([
-                'features' => ['Legacy string feature'],
-                'why_us' => ['Legacy string reason'],
-            ]),
-        ]);
-
-        $hiddenPage = $this->get('/campaign/' . $campaign->slug);
-        $hiddenPage->assertOk();
-        $hiddenPage->assertDontSee('Legacy string feature');
-        $hiddenPage->assertDontSee('Legacy string reason');
-
-        DB::table('campaigns')->where('id', $campaign->id)->update([
-            'show_features' => 1,
-            'extra_fields' => json_encode([
-                'features' => ['Legacy string feature'],
-                'why_us' => ['Legacy string reason'],
-            ]),
-        ]);
-
-        $stringPage = $this->get('/campaign/' . $campaign->slug);
-        $stringPage->assertOk();
-        $stringPage->assertSee('Legacy string feature');
-        $stringPage->assertSee('Legacy string reason');
-    }
-
-    public function test_template_two_three_and_herbal_health_render_new_row_shapes(): void
-    {
-        $product = $this->createProduct();
-
-        $templateTwo = $this->createCampaign($product->id, 'template-2', [
-            'features' => [['title' => 'Template two feature', 'description' => 'Template two copy']],
-            'why_us' => [['text' => 'Template two reason']],
-        ]);
-        $pageTwo = $this->get('/campaign/' . $templateTwo->slug);
-        $pageTwo->assertOk();
-        $pageTwo->assertSee('Template two feature');
-        $pageTwo->assertSee('Template two copy');
-        $pageTwo->assertSee('Template two reason');
-
-        $templateThree = $this->createCampaign($product->id, 'template-3', [
-            'features' => [['title' => 'Template three feature', 'description' => 'Template three copy']],
-            'benefits' => [['title' => 'Template three benefit', 'text' => 'Template three benefit copy']],
-            'packages' => [['name' => 'Template three pack', 'price' => 950, 'image' => '']],
-        ]);
-        $pageThree = $this->get('/campaign/' . $templateThree->slug);
-        $pageThree->assertOk();
-        $pageThree->assertSee('Template three feature');
-        $pageThree->assertSee('Template three copy');
-        $pageThree->assertSee('Template three benefit');
-        $pageThree->assertSee('Template three benefit copy');
-        $pageThree->assertSee('Template three pack');
-
-        $herbal = $this->createCampaign($product->id, 'herbal-health', [
-            'benefits' => [['icon' => 'fas fa-leaf', 'title' => 'Herbal benefit', 'text' => 'Herbal benefit copy']],
-            'testimonials' => [['name' => 'Herbal customer', 'text' => 'Herbal testimonial', 'rating' => 4]],
-        ], [
-            'show_benefits' => 1,
-            'show_testimonials' => 1,
-        ]);
-        $pageHerbal = $this->get('/campaign/' . $herbal->slug);
-        $pageHerbal->assertOk();
-        $pageHerbal->assertSee('Herbal benefit');
-        $pageHerbal->assertSee('Herbal benefit copy');
-        $pageHerbal->assertSee('Herbal customer');
-        $pageHerbal->assertSee('Herbal testimonial');
-    }
-
-    public function test_show_cta_hides_marketing_cta_but_keeps_order_form(): void
-    {
-        $product = $this->createProduct();
-
-        $withoutCta = $this->createCampaign($product->id, 'template-1', [], [
-            'show_cta' => 0,
-            'hero_button_text' => 'QA CTA label',
-        ]);
-        $hidden = $this->get('/campaign/' . $withoutCta->slug);
-        $hidden->assertOk();
-        $hidden->assertDontSee('QA CTA label');
-        $hidden->assertSee('class="btn-submit"', false);
-
-        $withCta = $this->createCampaign($product->id, 'template-1', [], [
-            'show_cta' => 1,
-            'hero_button_text' => 'QA CTA label',
-        ]);
-        $visible = $this->get('/campaign/' . $withCta->slug);
-        $visible->assertOk();
-        $visible->assertSee('QA CTA label');
+        $edit->assertSee('name="extra_fields[trust_items][0][title]"', false);
+        $edit->assertSee('value="Updated trust"', false);
+        $edit->assertSee('name="extra_fields[faqs][0][question]"', false);
+        $edit->assertSee('Updated question?');
     }
 
     public function test_invalid_content_is_rejected(): void
@@ -367,17 +177,16 @@ class CampaignTemplateFieldsTest extends TestCase
                 'description' => 'QA invalid content',
                 'review' => 'QA review',
                 'campaign_type' => 'product',
-                'template_id' => $this->templateId('sample-template'),
+                'template_id' => $this->templateId('ht2'),
                 'product_id' => $product->id,
                 'status' => 1,
                 'image_one' => '',
                 'extra_fields' => [
-                    'email' => 'not-an-email',
-                    'facebook' => 'not-a-url',
-                    'features' => [
-                        ['title' => str_repeat('x', 300)],
+                    'announce_text' => str_repeat('x', 2100),
+                    'variants' => [
+                        ['label' => 'Broken', 'price' => -5],
                     ],
-                    'testimonials' => [
+                    'reviews' => [
                         ['name' => 'QA', 'text' => 'QA', 'rating' => 9],
                     ],
                 ],
@@ -385,10 +194,9 @@ class CampaignTemplateFieldsTest extends TestCase
 
         $response->assertRedirect('/admin/campaign/create');
         $response->assertSessionHasErrors([
-            'extra_fields.email',
-            'extra_fields.facebook',
-            'extra_fields.features.0.title',
-            'extra_fields.testimonials.0.rating',
+            'extra_fields.announce_text',
+            'extra_fields.variants.0.price',
+            'extra_fields.reviews.0.rating',
         ]);
     }
 
@@ -398,7 +206,7 @@ class CampaignTemplateFieldsTest extends TestCase
         $rows = [];
 
         for ($i = 0; $i < 20; $i++) {
-            $rows[] = ['title' => 'Feature ' . $i];
+            $rows[] = ['title' => 'Trust ' . $i];
         }
 
         $name = 'QA Capped Content ' . Str::random(8);
@@ -411,15 +219,15 @@ class CampaignTemplateFieldsTest extends TestCase
                 'description' => 'QA capped content',
                 'review' => 'QA review',
                 'campaign_type' => 'product',
-                'template_id' => $this->templateId('sample-template'),
+                'template_id' => $this->templateId('ht2'),
                 'product_id' => $product->id,
                 'status' => 1,
                 'image_one' => '',
-                'extra_fields' => ['features' => $rows],
+                'extra_fields' => ['trust_items' => $rows],
             ]);
 
         $response->assertRedirect('/admin/campaign/create');
-        $response->assertSessionHasErrors('extra_fields.features');
+        $response->assertSessionHasErrors('extra_fields.trust_items');
         $this->assertSame(0, Campaign::where('name', $name)->count());
     }
 
@@ -488,11 +296,6 @@ class CampaignTemplateFieldsTest extends TestCase
             'campaign_price' => 900,
             'campaign_price_enabled' => 1,
             'allow_coupon' => 0,
-            'show_features' => 1,
-            'show_benefits' => 1,
-            'show_testimonials' => 1,
-            'show_faq' => 1,
-            'show_cta' => 1,
             'extra_fields' => $extraFields,
         ], $overrides));
 

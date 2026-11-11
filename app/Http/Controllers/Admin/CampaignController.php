@@ -65,26 +65,34 @@ class CampaignController extends Controller
     public function store(Request $request)
 {
     $this->validate($request, [
-        'short_description' => 'required',
-        'description' => 'required',
-        'name' => 'required',
-        'review' => 'required',
+        'short_description' => 'nullable|string',
+        'description' => 'nullable|string',
+        'name' => 'nullable|string|max:255',
+        'review' => 'nullable|string',
         'status' => 'nullable|boolean',
         'is_featured' => 'nullable|boolean',
         'sort_order' => 'nullable|integer|min:0|max:999999',
-        'campaign_type' => 'required|in:product,service,landing,promotional',
-        'template_id' => 'required|exists:templates,id',
-        'product_id' => 'required|exists:products,id',
+        'campaign_type' => 'nullable|in:product,service,landing,promotional',
+        'template_id' => 'nullable|exists:templates,id',
+        'product_id' => 'nullable|exists:products,id',
         'campaign_price' => 'nullable|numeric|min:0',
         'campaign_discount_percent' => 'nullable|numeric|gt:0|lt:100',
         'start_date' => 'nullable|date',
         'end_date' => 'nullable|date|after_or_equal:start_date',
-        'image.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Added validation for image array
+        'image.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
     ]);
     $this->validate($request, $this->contentRules());
 
     $input = $request->except(['image', 'files']);
     $input['extra_fields'] = (new CampaignContent())->normalize((array) $request->input('extra_fields', []));
+
+    // Optional campaign fields: store safe defaults so a status-on campaign
+    // publishes even when the editor leaves the optional fields blank.
+    $input['name'] = $request->filled('name') ? $request->input('name') : 'Campaign ' . now()->format('YmdHis');
+    $input['short_description'] = $request->input('short_description', '');
+    $input['description'] = $request->input('description', '');
+    $input['review'] = $request->input('review', '');
+    $input['campaign_type'] = $request->input('campaign_type') ?: 'product';
 
     // The `date` column is NOT NULL and has no default; the form does not post
     // it, so without this every admin campaign create ended in a SQL error.
@@ -176,7 +184,7 @@ class CampaignController extends Controller
     // Repeat similar process for image_two and image_three
     // ...
 
-    $input['slug'] = $this->uniqueSlug($request->name);
+    $input['slug'] = $this->uniqueSlug($input['name']);
     $campaign = Campaign::create($input);
 
     // Handle multiple images
@@ -270,14 +278,14 @@ class CampaignController extends Controller
     public function update(Request $request)
     { 
         $this->validate($request, [
-            'name' => 'required',
-            'short_description' => 'required',
-            'description' => 'required',
+            'name' => 'nullable|string|max:255',
+            'short_description' => 'nullable|string',
+            'description' => 'nullable|string',
             'status' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0|max:999999',
-            'campaign_type' => 'required|in:product,service,landing,promotional',
-            'product_id' => 'required|exists:products,id',
+            'campaign_type' => 'nullable|in:product,service,landing,promotional',
+            'product_id' => 'nullable|exists:products,id',
             'campaign_price' => 'nullable|numeric|min:0',
             'campaign_discount_percent' => 'nullable|numeric|gt:0|lt:100',
             'start_date' => 'nullable|date',
@@ -291,6 +299,12 @@ class CampaignController extends Controller
         }
         $input = $request->except('hidden_id','product_ids','files','image');
         $input['extra_fields'] = (new CampaignContent())->normalize((array) $request->input('extra_fields', []));
+
+        $input['name'] = $request->filled('name') ? $request->input('name') : ($update_data->name ?: 'Campaign ' . $update_data->id);
+        $input['short_description'] = $request->input('short_description', $update_data->short_description ?: '');
+        $input['description'] = $request->input('description', $update_data->description ?: '');
+        $input['review'] = $request->input('review', $update_data->review ?: '');
+        $input['campaign_type'] = $request->input('campaign_type') ?: ($update_data->campaign_type ?: 'product');
 
         $input['date'] = $request->input('date', $update_data->date ?: now()->toDateString());
         $input['campaign_price_enabled'] = $request->boolean('campaign_price_enabled') ? 1 : 0;
@@ -427,8 +441,8 @@ class CampaignController extends Controller
             $input['image_three'] = $update_data->image_three;
         }
         // Keep the public URL stable unless the campaign name really changed.
-        $input['slug'] = $request->name !== $update_data->name
-            ? $this->uniqueSlug($request->name, $update_data->id)
+        $input['slug'] = $request->filled('name') && $request->name !== $update_data->name
+            ? $this->uniqueSlug($input['name'], $update_data->id)
             : $update_data->slug;
         $update_data->update($input);
 
@@ -541,6 +555,12 @@ class CampaignController extends Controller
             'extra_fields.facebook' => 'nullable|url|max:500',
             'extra_fields.instagram' => 'nullable|url|max:500',
             'extra_fields.youtube' => 'nullable|url|max:500',
+            'extra_fields.announce_text' => 'nullable|string|max:2000',
+            'extra_fields.announce_highlight' => 'nullable|string|max:255',
+            'extra_fields.header_cta' => 'nullable|string|max:255',
+            'extra_fields.hero_badge' => 'nullable|string|max:255',
+            'extra_fields.video_caption' => 'nullable|string|max:2000',
+            'extra_fields.submit_label' => 'nullable|string|max:255',
         ];
 
         $limits = [
@@ -552,6 +572,18 @@ class CampaignController extends Controller
             'text' => 2000,
             'answer' => 2000,
             'image' => 500,
+            'label' => 255,
+            'badge' => 255,
+            'feature' => 255,
+            'ours' => 2000,
+            'theirs' => 2000,
+            'location' => 255,
+            'avatar' => 500,
+            'date' => 50,
+            'verified' => 50,
+            'old_price' => 50,
+            'price' => 50,
+            'rating' => 10,
         ];
 
         foreach (CampaignContent::ROW_FIELDS as $field => $keys) {
@@ -565,6 +597,9 @@ class CampaignController extends Controller
 
         $rules['extra_fields.testimonials.*.rating'] = 'nullable|numeric|min:1|max:5';
         $rules['extra_fields.packages.*.price'] = 'nullable|numeric|min:0';
+        $rules['extra_fields.variants.*.price'] = 'nullable|numeric|min:0';
+        $rules['extra_fields.variants.*.old_price'] = 'nullable|numeric|min:0';
+        $rules['extra_fields.reviews.*.rating'] = 'nullable|numeric|min:1|max:5';
 
         return $rules;
     }

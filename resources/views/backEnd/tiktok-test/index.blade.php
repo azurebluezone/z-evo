@@ -2,7 +2,7 @@
 @section('title', 'TikTok Server-Side Tracking Test')
 
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
+<div class="w-100">
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">

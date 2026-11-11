@@ -25,7 +25,7 @@
       </div>
 
 <div class="app-ecommerce">
-<div class="container-xxl flex-grow-1 container-p-y">
+<div class="w-100">
 
     <div class="row">
         <div class="col-12">
@@ -44,7 +44,7 @@
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
                             <label for="banner_title" class="form-label">Banner Title *</label>
-                            <input type="text" class="form-control @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ $edit_data->banner_title}}"  id="banner_title" required="">
+                            <input type="text" class="form-control rounded-0 @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ $edit_data->banner_title}}"  id="banner_title">
                             @error('banner_title')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -57,7 +57,7 @@
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
                             <label for="banner" class="form-label">Image</label>
-                            <input type="file" class="form-control @error('banner') is-invalid @enderror" name="banner" value="{{ $edit_data->banner }}"  id="banner" >
+                            <input type="file" class="form-control rounded-0 @error('banner') is-invalid @enderror" name="banner" value="{{ $edit_data->banner }}"  id="banner" >
                             @php
                                 $bannerPath = preg_replace('~^public/~', '', (string) ($edit_data->banner ?? ''));
                                 $bannerPath = ltrim($bannerPath, '/');
@@ -77,7 +77,7 @@
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
                             <label for="banner_title" class="form-label">Banner Title</label>
-                            <input type="text" class="form-control @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ $edit_data->banner_title}}"  id="banner_title">
+                            <input type="text" class="form-control rounded-0 @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ $edit_data->banner_title}}"  id="banner_title">
                             @error('banner_title')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -90,7 +90,7 @@
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
                             <label for="name" class="form-label">Landing Page Title *</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ $edit_data->name}}"  id="name" required="">
+                            <input type="text" class="form-control rounded-0 @error('name') is-invalid @enderror" name="name" value="{{ $edit_data->name}}"  id="name">
                             @error('name')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -103,7 +103,7 @@
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
                             <label for="product_id" class="form-label">Products *</label>
-                             <select class="select2 form-control @error('product_id') is-invalid @enderror" id="product_id" name="product_id" data-placeholder="Choose ...">
+                             <select class="select2 form-select rounded-0 @error('product_id') is-invalid @enderror" id="product_id" name="product_id" data-placeholder="Choose ...">
                                 <option value="">Select..</option>
                                 @php $selectedProduct = old('product_id', $edit_data->product_id); @endphp
                                 @foreach($products as $value)
@@ -128,7 +128,7 @@
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
                             <label for="template_id" class="form-label">Template Design *</label>
-                            <select class="select2 form-control @error('template_id') is-invalid @enderror" name="template_id" id="template_id" data-placeholder="Choose Template...">
+                            <select class="select2 form-select rounded-0 @error('template_id') is-invalid @enderror" name="template_id" id="template_id" data-placeholder="Choose Template...">
                                 <option value="">Select Template..</option>
                                 @foreach($templates as $template)
                                 <option value="{{ $template->id }}" @if((string) old('template_id', $edit_data->template_id) === (string) $template->id) selected @endif>
@@ -165,7 +165,7 @@
 
                                 <div class="col-md-4">
                                     <label for="campaign_price" class="form-label">Offer price (BDT)</label>
-                                    <input type="number" step="0.01" min="0" class="form-control @error('campaign_price') is-invalid @enderror" name="campaign_price" value="{{ old('campaign_price', $edit_data->campaign_price) }}" id="campaign_price">
+                                    <input type="number" step="0.01" min="0" class="form-control rounded-0 @error('campaign_price') is-invalid @enderror" name="campaign_price" value="{{ old('campaign_price', $edit_data->campaign_price) }}" id="campaign_price">
                                     <small class="text-muted">Fixed price for a simple product.</small>
                                     @error('campaign_price')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
@@ -174,7 +174,7 @@
 
                                 <div class="col-md-4">
                                     <label for="campaign_discount_percent" class="form-label">Discount percent</label>
-                                    <input type="number" step="0.01" min="0.01" max="99.99" class="form-control @error('campaign_discount_percent') is-invalid @enderror" name="campaign_discount_percent" value="{{ old('campaign_discount_percent', $edit_data->campaign_discount_percent) }}" id="campaign_discount_percent">
+                                    <input type="number" step="0.01" min="0.01" max="99.99" class="form-control rounded-0 @error('campaign_discount_percent') is-invalid @enderror" name="campaign_discount_percent" value="{{ old('campaign_discount_percent', $edit_data->campaign_discount_percent) }}" id="campaign_discount_percent">
                                     <small class="text-muted">Percent wins over the fixed price; use it for variant products.</small>
                                     @error('campaign_discount_percent')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
@@ -198,7 +198,7 @@
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
                             <label for="image_one" class="form-label">Image One</label>
-                            <input type="file" class="form-control @error('image_one') is-invalid @enderror" name="image_one" value="{{ $edit_data->image_one }}"  id="image_one" >
+                            <input type="file" class="form-control rounded-0 @error('image_one') is-invalid @enderror" name="image_one" value="{{ $edit_data->image_one }}"  id="image_one" >
                             @php
                                 $imageOnePath = preg_replace('~^public/~', '', (string) ($edit_data->image_one ?? ''));
                                 $imageOnePath = ltrim($imageOnePath, '/');
@@ -217,7 +217,7 @@
                     <div class="col-sm-6 mb-3">
                         <label for="image">Review Image *</label>
                         <div class="input-group">
-                            <input type="file" name="image[]" class="form-control @error('image') is-invalid @enderror" />
+                            <input type="file" name="image[]" class="form-control rounded-0 @error('image') is-invalid @enderror" />
                             <x-admin.button variant="outline-success" class="btn-increment" type="button"><i class="ri ri-add-line"></i></x-admin.button>
                             @error('image')
                             <span class="invalid-feedback" role="alert">
@@ -227,7 +227,7 @@
                         </div>
                         <div class="clone hide" style="display: none;">
                             <div class="input-group mt-2">
-                                <input type="file" name="image[]" class="form-control" />
+                                <input type="file" name="image[]" class="form-control rounded-0" />
                                 <x-admin.button variant="outline-danger" type="button"><i class="ri ri-delete-bin-line"></i></x-admin.button>
                             </div>
                         </div>
@@ -249,7 +249,7 @@
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
                             <label for="review" class="form-label">Review *</label>
-                            <input type="text" class="form-control @error('review') is-invalid @enderror" name="review" value="{{ $edit_data->review}}"  id="review" required="">
+                            <input type="text" class="form-control rounded-0 @error('review') is-invalid @enderror" name="review" value="{{ $edit_data->review}}"  id="review">
                             @error('review')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -266,7 +266,7 @@
                                 id="campaign-short-description-editor"
                                 class="js-quill-editor"
                                 data-quill-theme="snow"
-                                data-quill-toolbar-preset="mini"
+                                data-quill-toolbar-preset="full"
                                 data-quill-target="#short_description"
                                 data-quill-placeholder="Enter short description here..."
                                 data-quill-initial-html="{{ e((string) old('short_description', $edit_data->short_description)) }}"
@@ -288,7 +288,7 @@
                                 id="campaign-description-editor"
                                 class="js-quill-editor"
                                 data-quill-theme="snow"
-                                data-quill-toolbar-preset="mini"
+                                data-quill-toolbar-preset="full"
                                 data-quill-target="#description"
                                 data-quill-placeholder="Write campaign description..."
                                 data-quill-initial-html="{{ e((string) old('description', $edit_data->description)) }}"
@@ -327,7 +327,7 @@
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
                             <label for="campaign_type" class="form-label">Campaign Type *</label>
-                            <select class="form-select @error('campaign_type') is-invalid @enderror" name="campaign_type">
+                            <select class="form-select rounded-0 @error('campaign_type') is-invalid @enderror" name="campaign_type">
                                 <option value="product" @if($edit_data->campaign_type == 'product') selected @endif>Product</option>
                                 <option value="service" @if($edit_data->campaign_type == 'service') selected @endif>Service</option>
                                 <option value="landing" @if($edit_data->campaign_type == 'landing') selected @endif>Landing Page</option>
@@ -345,7 +345,7 @@
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
                             <label for="start_date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control @error('start_date') is-invalid @enderror" name="start_date" value="{{ $edit_data->start_date ? $edit_data->start_date->format('Y-m-d') : '' }}">
+                            <input type="date" class="form-control rounded-0 @error('start_date') is-invalid @enderror" name="start_date" value="{{ $edit_data->start_date ? $edit_data->start_date->format('Y-m-d') : '' }}">
                             @error('start_date')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -357,7 +357,7 @@
                     <div class="col-sm-4 mb-3">
                         <div class="form-group">
                             <label for="end_date" class="form-label">End Date</label>
-                            <input type="date" class="form-control @error('end_date') is-invalid @enderror" name="end_date" value="{{ $edit_data->end_date ? $edit_data->end_date->format('Y-m-d') : '' }}">
+                            <input type="date" class="form-control rounded-0 @error('end_date') is-invalid @enderror" name="end_date" value="{{ $edit_data->end_date ? $edit_data->end_date->format('Y-m-d') : '' }}">
                             @error('end_date')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -369,7 +369,7 @@
                     <div class="col-sm-2 mb-3">
                         <div class="form-group">
                             <label for="sort_order" class="form-label">Sort Order</label>
-                            <input type="number" class="form-control @error('sort_order') is-invalid @enderror" name="sort_order" value="{{ $edit_data->sort_order ?? 0 }}">
+                            <input type="number" class="form-control rounded-0 @error('sort_order') is-invalid @enderror" name="sort_order" value="{{ $edit_data->sort_order ?? 0 }}">
                             @error('sort_order')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -386,7 +386,7 @@
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
                             <label for="hero_title" class="form-label">Hero Title</label>
-                            <input type="text" class="form-control @error('hero_title') is-invalid @enderror" name="hero_title" value="{{ $edit_data->hero_title }}">
+                            <input type="text" class="form-control rounded-0 @error('hero_title') is-invalid @enderror" name="hero_title" value="{{ $edit_data->hero_title }}">
                             @error('hero_title')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -398,7 +398,7 @@
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
                             <label for="hero_button_text" class="form-label">Hero Button Text</label>
-                            <input type="text" class="form-control @error('hero_button_text') is-invalid @enderror" name="hero_button_text" value="{{ $edit_data->hero_button_text }}">
+                            <input type="text" class="form-control rounded-0 @error('hero_button_text') is-invalid @enderror" name="hero_button_text" value="{{ $edit_data->hero_button_text }}">
                             @error('hero_button_text')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -410,7 +410,7 @@
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
                             <label for="hero_subtitle" class="form-label">Hero Subtitle</label>
-                            <textarea name="hero_subtitle" rows="3" class="form-control @error('hero_subtitle') is-invalid @enderror">{{ $edit_data->hero_subtitle }}</textarea>
+                            <textarea name="hero_subtitle" rows="3" class="form-control rounded-0 @error('hero_subtitle') is-invalid @enderror">{{ $edit_data->hero_subtitle }}</textarea>
                             @error('hero_subtitle')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -419,60 +419,6 @@
                         </div>
                     </div>
 
-                    <!-- Section Visibility -->
-                    <div class="col-12">
-                        <h5 class="mt-3 mb-2">Section Visibility</h5>
-                    </div>
-
-                    <div class="col-sm-3 mb-3">
-                        <div class="form-group">
-                            <label class="d-block">Show Features</label>
-                            <label class="switch">
-                                <input type="checkbox" value="1" name="show_features" @if($edit_data->show_features)checked @endif>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 mb-3">
-                        <div class="form-group">
-                            <label class="d-block">Show Benefits</label>
-                            <label class="switch">
-                                <input type="checkbox" value="1" name="show_benefits" @if($edit_data->show_benefits)checked @endif>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 mb-3">
-                        <div class="form-group">
-                            <label class="d-block">Show Testimonials</label>
-                            <label class="switch">
-                                <input type="checkbox" value="1" name="show_testimonials" @if($edit_data->show_testimonials)checked @endif>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 mb-3">
-                        <div class="form-group">
-                            <label class="d-block">Show FAQ</label>
-                            <label class="switch">
-                                <input type="checkbox" value="1" name="show_faq" @if($edit_data->show_faq)checked @endif>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 mb-3">
-                        <div class="form-group">
-                            <label class="d-block">Show CTA</label>
-                            <label class="switch">
-                                <input type="checkbox" value="1" name="show_cta" @if($edit_data->show_cta)checked @endif>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
 
                     <div class="col-sm-3 mb-3">
                         <div class="form-group">

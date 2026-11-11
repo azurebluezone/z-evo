@@ -21,6 +21,16 @@ class CampaignContent
         'facebook',
         'instagram',
         'youtube',
+        // New landing-template content variables. Product, campaign and system
+        // values are resolved automatically and never posted here.
+        'announce_text',
+        'announce_highlight',
+        'header_cta',
+        'hero_badge',
+        'hero_image',
+        'hero_image_alt',
+        'video_caption',
+        'submit_label',
     ];
 
     public const ROW_FIELDS = [
@@ -30,6 +40,11 @@ class CampaignContent
         'faqs' => ['question', 'answer'],
         'why_us' => ['text'],
         'packages' => ['name', 'price', 'image'],
+        'trust_items' => ['icon', 'title', 'text'],
+        'variants' => ['label', 'price', 'old_price', 'image', 'badge'],
+        'comparison' => ['feature', 'ours', 'theirs'],
+        'reviews' => ['name', 'location', 'text', 'rating', 'avatar', 'date', 'verified'],
+        'gallery_images' => ['image'],
     ];
 
     public function normalize(array $raw): array

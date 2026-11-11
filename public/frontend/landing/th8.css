@@ -1,0 +1,61 @@
+/* split-source: th8.html | custom-animations */
+/* split-source: th8.html | base-typography */
+
+    @keyframes zombieShimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+    .zombie-shimmer-effect {
+      position: relative;
+      overflow: hidden;
+    }
+    .zombie-shimmer-effect::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      transform: skewX(-20deg);
+      animation: zombieShimmer 3s infinite;
+    }
+
+    @keyframes zombiePulseGlow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    .zombie-pulse-badge {
+      animation: zombiePulseGlow 2.5s infinite ease-in-out;
+    }
+  
+
+
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      background-color: #060913;
+      color: #f3f4f6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-brand-cinzel {
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.08em;
+    }
+    .zombie-gold-gradient-text {
+      background: linear-gradient(135deg, #fff2cc 0%, #e6af2e 50%, #d89614 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .zombie-border-glow {
+      border: 1px solid rgba(230, 175, 46, 0.28);
+    }
+    .zombie-accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .zombie-accordion-content.active {
+      max-height: 250px;
+    }
+  

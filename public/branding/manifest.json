@@ -1,0 +1,39 @@
+{
+  "source": "work/zevo/",
+  "generated_at": "2026-11-12",
+  "purpose": "Tracked branding filebox: logo, brand intro video and the final landing card fallback.",
+  "files": [
+    {
+      "name": "logo.png",
+      "path": "public/branding/logo.png",
+      "role": "brand logo",
+      "bytes": 122602,
+      "mime": "image/png",
+      "sha256": "aa0a9681a2a3368e9ee10a8375d504308a61277f0191d260b8ee1a8d863861ae",
+      "width": 866,
+      "height": 288,
+      "format": "PNG"
+    },
+    {
+      "name": "card-fallback.jpg",
+      "path": "public/branding/card-fallback.jpg",
+      "role": "final card image fallback",
+      "bytes": 921471,
+      "mime": "image/png",
+      "sha256": "5ab83dfd978d4277466aca403b87a5ebe341ce1e0ab101ad6168cd2f5260e460",
+      "width": 2172,
+      "height": 724,
+      "format": "PNG"
+    },
+    {
+      "name": "brand-intro.mp4",
+      "path": "public/branding/brand-intro.mp4",
+      "role": "brand introduction video",
+      "bytes": 3693807,
+      "mime": "video/mp4",
+      "sha256": "ab2363037f9c8ad69900d835f52134a7d73f82ec31a46b0d9c63ad3bfefd21df",
+      "duration_seconds": 8.0,
+      "note": "ffprobe reports 8s duration but no decodable video stream; the MP4 container is kept as supplied."
+    }
+  ]
+}

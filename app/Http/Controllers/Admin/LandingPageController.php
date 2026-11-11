@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Campaign;
 use App\Models\LandingPage;
 use App\Models\Template;
 use Illuminate\Support\Str;
@@ -13,9 +14,84 @@ class LandingPageController extends Controller
 {
     public function index()
     {
-        $landingPages = LandingPage::with('template')->orderBy('created_at', 'desc')->get();
-        $templates = Template::active()->orderBy('id', 'desc')->get();
-        return view('backEnd.landing-pages.index', compact('landingPages', 'templates'));
+        // The registry is the source of truth for the new designs. Keeping the
+        // inactive new rows visible here lets an editor finish a template's
+        // variable map before it is offered to campaigns.
+        $registryTemplates = array_keys((array) config('landing_templates.templates', []));
+        $templates = Template::where('is_active', true)
+            ->orWhereIn('view_name', $registryTemplates)
+            ->orderBy('id')
+            ->get();
+
+        // One card image per design: LandingCardImage resolves the campaign
+        // hero, the generated design hero, the Appearance fallback and finally
+        // the tracked branding fallback, so a card never renders a broken file.
+        $campaignsByTemplate = Campaign::query()
+            ->where('status', 1)
+            ->whereNotNull('template_id')
+            ->orderBy('id')
+            ->get()
+            ->keyBy('template_id');
+
+        return view('backEnd.landing-pages.index', compact('templates', 'campaignsByTemplate'));
+    }
+
+    /** Per-template toggle for the 72 measured landing variables. */
+    public function templateVariables($id)
+    {
+        $template = Template::findOrFail($id);
+        $registry = (array) config('landing_templates', []);
+        $groups = (array) ($registry['groups'] ?? []);
+        $templateKey = \App\Support\LandingTemplateVars::templateKeyFor($template);
+        $displayName = (string) (config('landing_templates.templates.' . $templateKey . '.name') ?: $template->name);
+        $enabled = \App\Support\LandingTemplateVars::enabledVariablesFor($template);
+        $config = \App\Support\LandingTemplateVars::configArray($template);
+        $customised = array_key_exists('enabled_variables', $config);
+        $contentFields = \App\Support\LandingTemplateVars::contentFieldsFor($template);
+
+        $totalVariables = 0;
+        foreach ($groups as $group) {
+            $totalVariables += count((array) ($group['variables'] ?? []));
+        }
+
+        return view('backEnd.landing-pages.template-variables', compact(
+            'template',
+            'groups',
+            'templateKey',
+            'displayName',
+            'enabled',
+            'customised',
+            'contentFields',
+            'totalVariables'
+        ));
+    }
+
+    /** Persist the enabled variable list into templates.config. */
+    public function updateTemplateVariables(Request $request, $id)
+    {
+        $template = Template::findOrFail($id);
+        $registry = (array) config('landing_templates', []);
+        $valid = [];
+
+        foreach ((array) ($registry['groups'] ?? []) as $group) {
+            foreach (array_keys((array) ($group['variables'] ?? [])) as $key) {
+                $valid[] = $key;
+            }
+        }
+
+        $enabled = array_values(array_intersect(
+            $valid,
+            array_map('strval', (array) $request->input('enabled_variables', []))
+        ));
+
+        $config = \App\Support\LandingTemplateVars::configArray($template);
+        $config['enabled_variables'] = $enabled;
+        $template->config = $config;
+        $template->save();
+
+        Toastr::success('Success', count($enabled) . ' template variables enabled');
+
+        return redirect()->route('landing-pages.template-variables', $template->id);
     }
 
     public function previewTemplate($id)
@@ -25,7 +101,7 @@ class LandingPageController extends Controller
         $template = Template::findOrFail($id);
 
         $landingPage = new LandingPage();
-        $landingPage->title = $template->name;
+        $landingPage->title = (string) (config('landing_templates.templates.' . $template->view_name . '.name') ?: $template->name);
         $landingPage->subtitle = $template->description;
         $landingPage->description = null;
         $landingPage->cta_text = 'Order Now';
@@ -43,10 +119,12 @@ class LandingPageController extends Controller
 
         $templateView = 'templates.' . $template->view_name;
         if (!view()->exists($templateView)) {
-            $templateView = 'templates.default';
+            abort(404, 'Template view not found: ' . $templateView);
         }
 
-        return view($templateView, compact('landingPage'));
+        $tpl = \App\Support\LandingTemplateVars::make($landingPage, $template, null);
+
+        return view($templateView, compact('landingPage', 'tpl'));
     }
 
     public function create()

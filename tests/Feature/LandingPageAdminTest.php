@@ -46,12 +46,12 @@ class LandingPageAdminTest extends TestCase
     private function template(): Template
     {
         return Template::query()->firstOrCreate(
-            ['view_name' => 'default'],
+            ['view_name' => 'ht2'],
             [
-                'name' => 'Default',
+                'name' => 'Premium Collection',
                 'description' => 'Test template',
                 'is_active' => true,
-                'config' => ['extra_fields' => ['old_price', 'new_price']],
+                'config' => ['landing_template' => 'ht2', 'enabled_variables' => []],
             ]
         );
     }
@@ -72,16 +72,20 @@ class LandingPageAdminTest extends TestCase
         ]);
     }
 
-    public function test_index_lists_landing_pages_and_offers_create(): void
+    public function test_index_lists_the_nine_designs_with_view_and_edit(): void
     {
-        $page = $this->landingPage();
+        $template = $this->template();
 
         $response = $this->actingAs($this->admin())->get('/admin/landing-pages/manage');
 
         $response->assertOk();
-        $response->assertSee($page->title);
-        $response->assertSee(route('landing-pages.create'), false);
-        $response->assertSee(route('landing-pages.show', $page->id), false);
+        $response->assertSee('Landing Page Designs');
+        $response->assertSee('Premium Collection');
+        $response->assertSee('Rose Editorial Abaya');
+        $response->assertSee(route('landing-pages.templates.preview', $template->id), false);
+        $response->assertSee(route('landing-pages.template-variables', $template->id), false);
+        $response->assertDontSee('T1 - Funnel checkout');
+        $response->assertDontSee('TH6 - Rose editorial');
     }
 
     public function test_show_page_renders_the_page_and_its_template(): void
@@ -128,8 +132,8 @@ class LandingPageAdminTest extends TestCase
             ->getJson('/admin/landing-pages/template-config/' . $template->id);
 
         $response->assertOk();
-        $response->assertJsonPath('view_name', 'default');
-        $response->assertJsonPath('config.extra_fields.0', 'old_price');
+        $response->assertJsonPath('view_name', 'ht2');
+        $response->assertJsonPath('config.landing_template', 'ht2');
     }
 
     /**

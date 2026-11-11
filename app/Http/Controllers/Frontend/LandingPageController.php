@@ -18,12 +18,14 @@ class LandingPageController extends Controller
         // Get template view name
         $templateView = 'templates.' . $landingPage->template->view_name;
         
-        // Check if template view exists, otherwise use default
+        // Check if template view exists, otherwise stop with a 404.
         if (!view()->exists($templateView)) {
-            $templateView = 'templates.default';
+            abort(404, 'Template view not found: ' . $templateView);
         }
 
-        return view($templateView, compact('landingPage'));
+        $tpl = \App\Support\LandingTemplateVars::make($landingPage, $landingPage->template, null);
+
+        return view($templateView, compact('landingPage', 'tpl'));
     }
 
     public function index()

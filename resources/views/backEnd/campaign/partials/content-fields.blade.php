@@ -1,12 +1,17 @@
 {{--
     Template-specific landing content.
 
-    The fields are generated from templates.config.extra_fields, but the
-    request is whitelisted again by App\Services\CampaignContent. Product
-    title/description/image/gallery and prices are intentionally absent: the
-    controller merges those under the stored content.
+    Fields come from config/landing_templates.php through
+    LandingTemplateVars::contentFieldsFor(): only content variables enabled for
+    the selected template are shown, and repeater columns follow the same
+    toggle list. Product, campaign and system values are resolved by the
+    template and are never typed here.
+
+    The request is whitelisted again by App\Services\CampaignContent.
 --}}
 @php
+    $registry = (array) config('landing_templates', []);
+
     $storedExtra = old('extra_fields', $edit_data->extra_fields ?? []);
     if (!is_array($storedExtra)) {
         $storedExtra = [];
@@ -18,94 +23,71 @@
     );
 
     $templateFieldMap = $templates->mapWithKeys(function ($template) use ($supportedFields) {
-        $configured = $template->config['extra_fields'] ?? [];
+        $fields = \App\Support\LandingTemplateVars::contentFieldsFor($template);
+        $fieldKeys = [];
+        $columns = [];
 
-        // template-3 describes the three links as one "social_links" entry;
-        // the form and the template read facebook/instagram/youtube separately.
-        $expanded = [];
-        foreach ($configured as $field) {
-            if ($field === 'social_links') {
-                array_push($expanded, 'facebook', 'instagram', 'youtube');
-            } else {
-                $expanded[] = $field;
+        foreach ($fields as $field => $definition) {
+            $fieldKeys[] = $field;
+
+            if (($definition['type'] ?? '') === 'rows') {
+                $columns[$field] = array_keys((array) ($definition['columns'] ?? []));
             }
         }
 
-        return [(string) $template->id => array_values(array_intersect($expanded, $supportedFields))];
+        return [(string) $template->id => [
+            'fields' => array_values(array_intersect($fieldKeys, $supportedFields)),
+            'columns' => $columns,
+        ]];
     });
 
-    $textDefinitions = [
-        'video_url' => ['label' => 'Video URL', 'type' => 'url', 'hint' => 'Embed URL used by template 3.'],
-        'countdown_date' => ['label' => 'Countdown fallback', 'type' => 'datetime-local', 'hint' => 'Only used when the campaign has no end date.'],
-        'contact_phone' => ['label' => 'Contact phone', 'type' => 'text', 'hint' => 'Falls back to the store phone.'],
-        'email' => ['label' => 'Email', 'type' => 'email', 'hint' => 'Footer contact email.'],
-        'facebook' => ['label' => 'Facebook URL', 'type' => 'url', 'hint' => 'Template 3 footer.'],
-        'instagram' => ['label' => 'Instagram URL', 'type' => 'url', 'hint' => 'Template 3 footer.'],
-        'youtube' => ['label' => 'YouTube URL', 'type' => 'url', 'hint' => 'Template 3 footer.'],
-    ];
+    // Scalar content fields plus one definition per repeater. The registry is
+    // the only source: legacy hard-coded Feature/Benefit/Testimonial rows are
+    // no longer part of any active design.
+    $textDefinitions = [];
+    $rowDefinitions = [];
 
-    $rowDefinitions = [
-        'features' => [
-            'label' => 'Features',
-            'hint' => 'Template 1 and 2 use the title; template 3 and sample also render description/image.',
-            'columns' => [
-                ['key' => 'title', 'label' => 'Title', 'type' => 'text', 'class' => 'col-md-4'],
-                ['key' => 'description', 'label' => 'Description', 'type' => 'textarea', 'class' => 'col-md-5'],
-                ['key' => 'image', 'label' => 'Image URL', 'type' => 'text', 'class' => 'col-md-3'],
-            ],
-        ],
-        'benefits' => [
-            'label' => 'Benefits',
-            'hint' => 'Herbal Health uses icon/title/text; other templates accept the same rows.',
-            'columns' => [
-                ['key' => 'icon', 'label' => 'Icon class', 'type' => 'text', 'class' => 'col-md-3'],
-                ['key' => 'title', 'label' => 'Title', 'type' => 'text', 'class' => 'col-md-4'],
-                ['key' => 'text', 'label' => 'Text', 'type' => 'textarea', 'class' => 'col-md-5'],
-            ],
-        ],
-        'testimonials' => [
-            'label' => 'Testimonials',
-            'hint' => 'The comment is shown as text; rating is 1 to 5.',
-            'columns' => [
-                ['key' => 'name', 'label' => 'Customer name', 'type' => 'text', 'class' => 'col-md-3'],
-                ['key' => 'text', 'label' => 'Comment', 'type' => 'textarea', 'class' => 'col-md-5'],
-                ['key' => 'rating', 'label' => 'Rating', 'type' => 'number', 'step' => '1', 'class' => 'col-md-2'],
-            ],
-        ],
-        'faqs' => [
-            'label' => 'FAQ',
-            'hint' => 'Question and answer pairs. supported by sample-template.',
-            'columns' => [
-                ['key' => 'question', 'label' => 'Question', 'type' => 'text', 'class' => 'col-md-4'],
-                ['key' => 'answer', 'label' => 'Answer', 'type' => 'textarea', 'class' => 'col-md-7'],
-            ],
-        ],
-        'why_us' => [
-            'label' => 'Why choose us',
-            'hint' => 'One short reason per row. supported by template 1 and 2.',
-            'columns' => [
-                ['key' => 'text', 'label' => 'Reason', 'type' => 'textarea', 'class' => 'col-md-11'],
-            ],
-        ],
-        'packages' => [
-            'label' => 'Packages',
-            'hint' => 'Display-only packages for template 3. Prices are not used for checkout.',
-            'columns' => [
-                ['key' => 'name', 'label' => 'Name', 'type' => 'text', 'class' => 'col-md-4'],
-                ['key' => 'price', 'label' => 'Price', 'type' => 'number', 'step' => '0.01', 'class' => 'col-md-3'],
-                ['key' => 'image', 'label' => 'Image URL', 'type' => 'text', 'class' => 'col-md-4'],
-            ],
-        ],
-    ];
+    foreach ((array) ($registry['groups'] ?? []) as $group) {
+        foreach ((array) ($group['variables'] ?? []) as $key => $definition) {
+            if (($definition['source'] ?? '') !== 'content') {
+                continue;
+            }
+
+            $repeater = $definition['repeater'] ?? null;
+
+            if ($repeater) {
+                if (!isset($rowDefinitions[$repeater])) {
+                    $rowDefinitions[$repeater] = [
+                        'label' => $registry['repeaters'][$repeater]['label'] ?? $repeater,
+                        'columns' => [],
+                    ];
+                }
+
+                $column = $definition['column'] ?? null;
+                if ($column && !isset($rowDefinitions[$repeater]['columns'][$column])) {
+                    $columnDefinition = $registry['repeaters'][$repeater]['columns'][$column] ?? [];
+                    $rowDefinitions[$repeater]['columns'][$column] = [
+                        'key' => $column,
+                        'label' => $columnDefinition['label'] ?? ($definition['label'] ?? $column),
+                        'type' => $columnDefinition['type'] ?? 'text',
+                        'class' => $columnDefinition['class'] ?? 'col-md-4',
+                    ] + (isset($columnDefinition['step']) ? ['step' => $columnDefinition['step']] : []);
+                }
+
+                continue;
+            }
+
+            $textDefinitions[$key] = [
+                'label' => $definition['label'] ?? $key,
+                'type' => ($definition['type'] ?? 'text') === 'textarea' ? 'textarea' : ($definition['type'] ?? 'text'),
+            ];
+        }
+    }
 @endphp
 
 <div class="col-12" id="landingContentPanel" data-template-fields='@json($templateFieldMap)'>
     <div class="border rounded p-3 mb-3">
-        <h6 class="text-uppercase fw-bold mb-1">Landing Content</h6>
-        <p class="text-muted small mb-3">
-            Fields follow the selected template. Empty rows are skipped; product title, description and images always
-            come from the product record.
-        </p>
+        <h6 class="text-uppercase fw-bold mb-3">Landing Content</h6>
 
         <p class="text-muted small mb-0 d-none" id="landingContentEmpty">
             This template does not use extra content fields.
@@ -122,14 +104,22 @@
                 @endphp
                 <div class="col-md-4 landing-content-field" data-field="{{ $field }}">
                     <label class="form-label" for="extra_{{ $field }}">{{ $definition['label'] }}</label>
-                    <input
-                        type="{{ $definition['type'] }}"
-                        class="form-control @error('extra_fields.' . $field) is-invalid @enderror"
-                        id="extra_{{ $field }}"
-                        name="extra_fields[{{ $field }}]"
-                        value="{{ $value }}"
-                    >
-                    <small class="text-muted">{{ $definition['hint'] }}</small>
+                    @if(($definition['type'] ?? 'text') === 'textarea')
+                        <textarea
+                            class="form-control rounded-0 @error('extra_fields.' . $field) is-invalid @enderror"
+                            id="extra_{{ $field }}"
+                            name="extra_fields[{{ $field }}]"
+                            rows="2"
+                        >{{ $value }}</textarea>
+                    @else
+                        <input
+                            type="{{ $definition['type'] }}"
+                            class="form-control rounded-0 @error('extra_fields.' . $field) is-invalid @enderror"
+                            id="extra_{{ $field }}"
+                            name="extra_fields[{{ $field }}]"
+                            value="{{ $value }}"
+                        >
+                    @endif
                     @error('extra_fields.' . $field)
                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                     @enderror
@@ -140,10 +130,7 @@
         @foreach($rowDefinitions as $field => $definition)
             <div class="landing-content-field border rounded p-3 mb-3" data-field="{{ $field }}">
                 <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                    <div>
-                        <h6 class="mb-0">{{ $definition['label'] }}</h6>
-                        <small class="text-muted">{{ $definition['hint'] }}</small>
-                    </div>
+                    <h6 class="mb-0">{{ $definition['label'] }}</h6>
                     <button type="button" class="btn btn-sm btn-outline-primary js-add-row" data-field="{{ $field }}">
                         Add row
                     </button>
@@ -157,19 +144,19 @@
                             <div class="row g-2 align-items-end border rounded p-2 mb-2 js-row">
                                 @foreach($definition['columns'] as $column)
                                     @php $cell = $row[$column['key']] ?? ''; @endphp
-                                    <div class="{{ $column['class'] }}">
+                                    <div class="{{ $column['class'] }}" data-column="{{ $column['key'] }}">
                                         <label class="form-label small mb-1">{{ $column['label'] }}</label>
                                         @if($column['type'] === 'textarea')
                                             <textarea
                                                 rows="2"
-                                                class="form-control"
+                                                class="form-control rounded-0"
                                                 name="extra_fields[{{ $field }}][{{ $index }}][{{ $column['key'] }}]"
                                             >{{ is_scalar($cell) ? $cell : '' }}</textarea>
                                         @else
                                             <input
                                                 type="{{ $column['type'] }}"
                                                 @isset($column['step']) step="{{ $column['step'] }}" @endisset
-                                                class="form-control"
+                                                class="form-control rounded-0"
                                                 name="extra_fields[{{ $field }}][{{ $index }}][{{ $column['key'] }}]"
                                                 value="{{ is_scalar($cell) ? $cell : '' }}"
                                             >
@@ -187,19 +174,19 @@
                 <template class="js-row-template" data-template-field="{{ $field }}">
                     <div class="row g-2 align-items-end border rounded p-2 mb-2 js-row">
                         @foreach($definition['columns'] as $column)
-                            <div class="{{ $column['class'] }}">
+                            <div class="{{ $column['class'] }}" data-column="{{ $column['key'] }}">
                                 <label class="form-label small mb-1">{{ $column['label'] }}</label>
                                 @if($column['type'] === 'textarea')
                                     <textarea
                                         rows="2"
-                                        class="form-control"
+                                        class="form-control rounded-0"
                                         name="extra_fields[{{ $field }}][__INDEX__][{{ $column['key'] }}]"
                                     ></textarea>
                                 @else
                                     <input
                                         type="{{ $column['type'] }}"
                                         @isset($column['step']) step="{{ $column['step'] }}" @endisset
-                                        class="form-control"
+                                        class="form-control rounded-0"
                                         name="extra_fields[{{ $field }}][__INDEX__][{{ $column['key'] }}]"
                                         value=""
                                     >

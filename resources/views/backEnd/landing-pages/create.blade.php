@@ -22,7 +22,7 @@ Create Landing Page
       </div>
 
 <div class="app-ecommerce">
-<div class="container-xxl flex-grow-1 container-p-y">
+<div class="w-100">
     <div class="row">
         <div class="col-12">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">

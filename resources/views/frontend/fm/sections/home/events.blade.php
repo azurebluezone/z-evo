@@ -1,6 +1,6 @@
 {{--
     FM:SECTION home/events --------------------------------------------------
-    "Events" - up to three live campaigns, not three invented grocery days.
+    "Events" - up to nine live campaigns, not invented grocery days.
 
     The old version hardcoded "Farmers Market Day", "Organic Harvest Fest" and
     "Smart Grocery Demo Day" with relative dates. Those were design-mockup

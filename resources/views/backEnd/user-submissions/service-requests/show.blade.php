@@ -2,7 +2,7 @@
 @section('title','Service Request Details')
 
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
+<div class="w-100">
     <div class="row">
         <div class="col-12">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">

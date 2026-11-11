@@ -1,5 +1,9 @@
 // Admin campaign form: show only the content fields the selected template
-// declares in templates.config.extra_fields, and add/remove repeatable rows.
+// enables, and add/remove repeatable rows.
+//
+// Old templates put an array of field names in templates.config.extra_fields.
+// New templates use an object: { fields: [...], columns: { repeater: [...] } }
+// so a toggled-off repeater column is hidden and disabled.
 // Vanilla JS on purpose: this page needs no jQuery/Select2 for this panel.
 (function () {
     'use strict';
@@ -18,13 +22,29 @@
         fieldMap = {};
     }
 
+    function setInputsDisabled(node, disabled) {
+        node.querySelectorAll('input, select, textarea').forEach(function (input) {
+            input.disabled = disabled;
+        });
+    }
+
     function syncTemplateFields() {
         if (!templateSelect) {
             return;
         }
 
         var selected = String(templateSelect.value || '');
-        var allowed = Object.prototype.hasOwnProperty.call(fieldMap, selected) ? fieldMap[selected] : null;
+        var entry = Object.prototype.hasOwnProperty.call(fieldMap, selected) ? fieldMap[selected] : null;
+        var allowed = null;
+        var allowedColumns = null;
+
+        if (Array.isArray(entry)) {
+            allowed = entry;
+        } else if (entry && typeof entry === 'object') {
+            allowed = Array.isArray(entry.fields) ? entry.fields : [];
+            allowedColumns = entry.columns && typeof entry.columns === 'object' ? entry.columns : null;
+        }
+
         var visibleGroups = 0;
 
         panel.querySelectorAll('[data-field]').forEach(function (node) {
@@ -32,12 +52,29 @@
                 return;
             }
 
-            var visible = allowed === null || allowed.indexOf(node.getAttribute('data-field')) !== -1;
+            var field = node.getAttribute('data-field');
+            var visible = allowed === null || allowed.indexOf(field) !== -1;
+
             node.classList.toggle('d-none', !visible);
+            setInputsDisabled(node, !visible);
 
             if (visible && node.classList.contains('landing-content-field')) {
                 visibleGroups += 1;
             }
+
+            if (!visible || !allowedColumns || !Array.isArray(allowedColumns[field])) {
+                return;
+            }
+
+            var columns = allowedColumns[field];
+
+            node.querySelectorAll('[data-column]').forEach(function (columnNode) {
+                var column = columnNode.getAttribute('data-column');
+                var showColumn = columns.indexOf(column) !== -1;
+
+                columnNode.classList.toggle('d-none', !showColumn);
+                setInputsDisabled(columnNode, !showColumn);
+            });
         });
 
         var emptyState = document.getElementById('landingContentEmpty');
@@ -67,6 +104,7 @@
 
             rows.insertAdjacentHTML('beforeend', template.innerHTML.replace(/__INDEX__/g, String(nextIndex)));
             nextIndex += 1;
+            syncTemplateFields();
             return;
         }
 

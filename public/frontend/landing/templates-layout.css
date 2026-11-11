@@ -1,0 +1,326 @@
+/* Shared shell for the new public/frontend/landing designs.
+   Only the app-name header and the main system order form use these classes:
+   each design keeps its own CSS for the rest of the page. */
+
+:root {
+    --zlt-ink: #0f172a;
+    --zlt-muted: #475569;
+    --zlt-line: #e2e8f0;
+    --zlt-soft: #f8fafc;
+    --zlt-red: #dc2626;
+    --zlt-red-dark: #b91c1c;
+    --zlt-green: #059669;
+    --zlt-radius: 1rem;
+}
+
+.zlt-body {
+    margin: 0;
+    color: var(--zlt-ink);
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+}
+
+.zlt-container {
+    width: 100%;
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+}
+
+.zlt-header {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid var(--zlt-line);
+    backdrop-filter: blur(12px);
+}
+
+.zlt-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 68px;
+}
+
+.zlt-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--zlt-ink);
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+}
+
+.zlt-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 0.8rem;
+    background: linear-gradient(135deg, var(--zlt-red), #f97316);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 900;
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.22);
+}
+
+.zlt-brand-sub {
+    display: block;
+    margin-top: 0.1rem;
+    color: var(--zlt-muted);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.zlt-nav {
+    display: none;
+    align-items: center;
+    gap: 1.4rem;
+    color: #334155;
+    font-size: 0.94rem;
+    font-weight: 600;
+}
+
+.zlt-nav a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.zlt-nav a:hover {
+    color: var(--zlt-red);
+}
+
+.zlt-header-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.15rem;
+    border-radius: 0.75rem;
+    background: var(--zlt-red);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.zlt-header-cta:hover {
+    background: var(--zlt-red-dark);
+    transform: translateY(-1px);
+}
+
+.zlt-order {
+    padding: 3.5rem 0 4.5rem;
+    background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    border-top: 1px solid var(--zlt-line);
+}
+
+.zlt-order-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    align-items: start;
+}
+
+.zlt-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.zlt-order-copy h2 {
+    margin: 0.75rem 0 0.6rem;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    line-height: 1.25;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.zlt-order-copy p {
+    margin: 0;
+    color: var(--zlt-muted);
+    line-height: 1.7;
+}
+
+.zlt-order-points {
+    display: grid;
+    gap: 0.65rem;
+    margin: 1.2rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.zlt-order-points li {
+    display: flex;
+    gap: 0.55rem;
+    align-items: flex-start;
+    color: #334155;
+    font-size: 0.92rem;
+}
+
+.zlt-order-points li::before {
+    content: "✓";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.1rem;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: var(--zlt-green);
+    font-size: 0.7rem;
+    font-weight: 900;
+}
+
+.zlt-order-card {
+    padding: 1.35rem;
+    border: 1px solid var(--zlt-line);
+    border-radius: var(--zlt-radius);
+    background: #fff;
+    box-shadow: 0 18px 40px -24px rgba(15, 23, 42, 0.28);
+}
+
+.zlt-order-product {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--zlt-line);
+}
+
+.zlt-order-product img {
+    width: 4.5rem;
+    height: 4.5rem;
+    flex: 0 0 auto;
+    border-radius: 0.75rem;
+    object-fit: cover;
+    background: var(--zlt-soft);
+}
+
+.zlt-order-product strong {
+    display: block;
+    font-size: 0.98rem;
+    line-height: 1.4;
+}
+
+.zlt-order-product .zlt-price {
+    display: inline-block;
+    margin-top: 0.2rem;
+    color: var(--zlt-red);
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+.zlt-field {
+    display: grid;
+    gap: 0.35rem;
+    margin-bottom: 0.9rem;
+}
+
+.zlt-field label {
+    color: #334155;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.zlt-field select {
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.65rem;
+    background: #fff;
+    color: var(--zlt-ink);
+    font: inherit;
+    font-size: 0.92rem;
+}
+
+.zlt-order-summary {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.9rem;
+    margin: 0.4rem 0 1rem;
+    border: 1px solid var(--zlt-line);
+    border-radius: 0.8rem;
+    background: var(--zlt-soft);
+    font-size: 0.88rem;
+}
+
+.zlt-order-summary div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--zlt-muted);
+}
+
+.zlt-order-summary .zlt-total {
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--zlt-line);
+    color: var(--zlt-ink);
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.zlt-order-summary .zlt-total span:last-child {
+    color: var(--zlt-red);
+    font-size: 1.15rem;
+}
+
+.zlt-submit {
+    width: 100%;
+    padding: 0.95rem 1rem;
+    border: 0;
+    border-radius: 0.8rem;
+    background: var(--zlt-red);
+    color: #fff;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 14px 28px -16px rgba(220, 38, 38, 0.7);
+    transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.zlt-submit:hover {
+    background: var(--zlt-red-dark);
+    transform: translateY(-1px);
+}
+
+.zlt-order-note {
+    margin: 0.75rem 0 0;
+    color: var(--zlt-muted);
+    font-size: 0.76rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .zlt-nav {
+        display: flex;
+    }
+
+    .zlt-order-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+        gap: 2.5rem;
+    }
+
+    .zlt-order-card {
+        padding: 1.6rem;
+    }
+}

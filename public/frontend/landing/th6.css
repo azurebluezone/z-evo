@@ -1,0 +1,54 @@
+/* split-source: th6.html | zombie-custom-theme */
+
+    .zombie-glow-orb {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.65;
+    }
+    
+    .zombie-curved-img-frame {
+      border-radius: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -15px rgba(225, 29, 72, 0.12);
+    }
+
+    .zombie-curved-img-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 2.5rem;
+      border: 1.5px solid rgba(244, 114, 182, 0.25);
+      pointer-events: none;
+    }
+
+    .zombie-pill-badge {
+      background: linear-gradient(135deg, #fff5f5 0%, #ffe4e6 100%);
+      border: 1px solid rgba(225, 29, 72, 0.18);
+    }
+
+    .zombie-glass-card {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(244, 114, 182, 0.18);
+    }
+
+    .zombie-order-blended-box {
+      background: linear-gradient(180deg, rgba(254, 242, 242, 0.5) 0%, rgba(255, 255, 255, 0.95) 100%);
+      border: 1px solid rgba(225, 29, 72, 0.15);
+    }
+
+    .zombie-shimmer-btn {
+      background: linear-gradient(90deg, #E11D48 0%, #BE123C 50%, #E11D48 100%);
+      background-size: 200% auto;
+      transition: all 0.4s ease;
+    }
+    .zombie-shimmer-btn:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -6px rgba(225, 29, 72, 0.45);
+    }
+  

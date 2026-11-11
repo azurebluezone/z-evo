@@ -1,0 +1,1260 @@
+{
+    "generated_at": "2026-11-11",
+    "root": "/home/sahon/Desktop/new evo",
+    "directories": {
+        "public/admin/assets/img": {
+            "label": "Admin template (vertical-menu-template) images",
+            "count": 77,
+            "bytes": 680628,
+            "images": [
+                {
+                    "path": "public/admin/assets/img/avatars/1.png",
+                    "bytes": 43160,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "799d429c4ab5da3628dbad27ac4a32a543e8da1245f972af183f20e21f55d648"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/10.png",
+                    "bytes": 9237,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "fc453aa903d1661a028e47a525053fb2788878258359c27afb8276db52bf4c76"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/11.png",
+                    "bytes": 8725,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "750536a070c9e109ff9e5ee2203afbdec79b8747c1b7316e506c6426b157b078"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/12.png",
+                    "bytes": 10799,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "d36a85f1a6fdf5e0194f4a0e2ec805389250824741baa0082b6cbf64bb8613d8"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/13.png",
+                    "bytes": 7811,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "5cf88b37095e33dd6fba5f61b1962066ea8d72f8a2450f1aedd44f6f38909fa2"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/14.png",
+                    "bytes": 8118,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "f166144b79f18de9dba61c6c938292c91edefb78a7d76fbe2c006f4cce348f86"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/2.png",
+                    "bytes": 9237,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "fc453aa903d1661a028e47a525053fb2788878258359c27afb8276db52bf4c76"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/3.png",
+                    "bytes": 8725,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "750536a070c9e109ff9e5ee2203afbdec79b8747c1b7316e506c6426b157b078"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/4.png",
+                    "bytes": 10799,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "d36a85f1a6fdf5e0194f4a0e2ec805389250824741baa0082b6cbf64bb8613d8"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/5.png",
+                    "bytes": 7811,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "5cf88b37095e33dd6fba5f61b1962066ea8d72f8a2450f1aedd44f6f38909fa2"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/6.png",
+                    "bytes": 8118,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "f166144b79f18de9dba61c6c938292c91edefb78a7d76fbe2c006f4cce348f86"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/7.png",
+                    "bytes": 8009,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "588cec17efdb400466723976fa7d995a64a403b949c8d218a4d9dfd061000df5"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/8.png",
+                    "bytes": 9125,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "3994a9bad511ba7da97d8ec9b958bf94f1ec5fec2efd4d08bf35f05015fe4254"
+                },
+                {
+                    "path": "public/admin/assets/img/avatars/9.png",
+                    "bytes": 8032,
+                    "format": "PNG",
+                    "width": 200,
+                    "height": 200,
+                    "sha256": "08a2c8d8d736f8e74e45f562d1acd061f66c5e4fa74a92814749102354f8eed0"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/content-compact.svg",
+                    "bytes": 1090,
+                    "format": "SVG",
+                    "sha256": "2a46e30bd3a3f73f55660ee7b4f1c2356c09a3f2a61a8b3436ce095fbfbf8592"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/content-wide.svg",
+                    "bytes": 1086,
+                    "format": "SVG",
+                    "sha256": "17f3b50d81aa4640a7be9f9e1b8b791e4e84cf086f3fb69e3623ba8d453f1f7d"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/direction-ltr.svg",
+                    "bytes": 1630,
+                    "format": "SVG",
+                    "sha256": "a6b6f0661b6e2a2280ae23a826806cfb47369350637ab99afb488f3628df396d"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/direction-rtl.svg",
+                    "bytes": 1630,
+                    "format": "SVG",
+                    "sha256": "c30da3de5030631b7b6c225173de5f1b54514a5c9645aea2a73b698ac6166108"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/horizontal-fixed.svg",
+                    "bytes": 1100,
+                    "format": "SVG",
+                    "sha256": "6581a93120304f652e5f60f0a4d66e9632d5ffa23b46d0888c0dd08d7a758bc0"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/horizontal-static.svg",
+                    "bytes": 1245,
+                    "format": "SVG",
+                    "sha256": "862ecc4b31b1b6a5a73e119d0c7c6622f957b421f3b8d31d94a3aff959dfe98f"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/layouts-collapsed.svg",
+                    "bytes": 1820,
+                    "format": "SVG",
+                    "sha256": "6968deae7c28b3727e0eace3b9f88f5648537db71fda278c1deba95c74f039f3"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/layouts-expanded.svg",
+                    "bytes": 1820,
+                    "format": "SVG",
+                    "sha256": "959e48172f965ed5049c7f8ffc531c118317c36416feb0bdb852250603420764"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/navbar-hidden.svg",
+                    "bytes": 1256,
+                    "format": "SVG",
+                    "sha256": "a59bf775a5d8cb3ec004d9aab2f5421b01b97d1c710fc104d949d31b96ac0075"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/navbar-static.svg",
+                    "bytes": 1836,
+                    "format": "SVG",
+                    "sha256": "1551823214684536a3d423c4c1d639ce35a0a85518e15fe444389ff8e7ea6aec"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/navbar-sticky.svg",
+                    "bytes": 1837,
+                    "format": "SVG",
+                    "sha256": "92d052948e0f743d3a4a9da82845079c5f8d0635e028a7a737dd9bb2cb58ebb1"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/skin-border.svg",
+                    "bytes": 1715,
+                    "format": "SVG",
+                    "sha256": "5297fd67a65bfc939878279c61ffc88c6553d0baaaba202858bd93f5e9f6136e"
+                },
+                {
+                    "path": "public/admin/assets/img/customizer/skin-default.svg",
+                    "bytes": 1820,
+                    "format": "SVG",
+                    "sha256": "959e48172f965ed5049c7f8ffc531c118317c36416feb0bdb852250603420764"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/brands/dribbble-rounded.png",
+                    "bytes": 1264,
+                    "format": "PNG",
+                    "width": 69,
+                    "height": 68,
+                    "sha256": "11b7a2bdc009fff8de510c6142c747790bd22c6be06183c365ab922d68228778"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/brands/facebook-rounded.png",
+                    "bytes": 710,
+                    "format": "PNG",
+                    "width": 69,
+                    "height": 68,
+                    "sha256": "49e3407b5d9ce7515f37af089049c59bcd1497ee911146b33eec2485b2dcf6f9"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/brands/google.png",
+                    "bytes": 1932,
+                    "format": "PNG",
+                    "width": 38,
+                    "height": 38,
+                    "sha256": "7e4d29cb10aa31564c5ac2dc06f2a88b298ff207ba7ae5b5cb484bc278f35e1c"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/brands/instagram-rounded.png",
+                    "bytes": 2435,
+                    "format": "PNG",
+                    "width": 69,
+                    "height": 68,
+                    "sha256": "3b0a576b0f8938e1bf5ce01887f5fe78be52979c9ebaf1a40251d19552de4c6d"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/brands/reddit-rounded.png",
+                    "bytes": 1988,
+                    "format": "PNG",
+                    "width": 68,
+                    "height": 68,
+                    "sha256": "64c06142a893271f888830f04a3e6ab94d9cc340357b634c3684780e4470614c"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/brands/twitter-light.png",
+                    "bytes": 74208,
+                    "format": "PNG",
+                    "width": 1200,
+                    "height": 1200,
+                    "sha256": "421028366cde427a7869e26804e3bea93a65bce3d71a173c7e20265ee8c94102"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/misc/3d-illustration.png",
+                    "bytes": 649,
+                    "format": "PNG",
+                    "width": 22,
+                    "height": 22,
+                    "sha256": "ea47a1a90e38e1c6fd87ae8f5092a25321cc5ed6319dc2240757e3334465c325"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/misc/4-square.png",
+                    "bytes": 473,
+                    "format": "PNG",
+                    "width": 22,
+                    "height": 22,
+                    "sha256": "938b67fee23cce70c81b62075627291e4295a963b7474bb680641c03e22436ee"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/misc/card-icon-bag.png",
+                    "bytes": 952,
+                    "format": "PNG",
+                    "width": 48,
+                    "height": 49,
+                    "sha256": "726e57ed26bba32e1da5c6b53eb8b5af2e6a73b54bd20e310b429cf07f77bd70"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/misc/card-icon-laptop.png",
+                    "bytes": 280,
+                    "format": "PNG",
+                    "width": 48,
+                    "height": 49,
+                    "sha256": "27999af747e895039d672f5e94aec4c687269a049636136bda5972770a9d264d"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/misc/delta-web-app.png",
+                    "bytes": 501,
+                    "format": "PNG",
+                    "width": 20,
+                    "height": 22,
+                    "sha256": "d53364e27548553e43451f83ad0a69d9a4cb964a3c940f9fcb31369fbfd85054"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/misc/ecommerce-website.png",
+                    "bytes": 708,
+                    "format": "PNG",
+                    "width": 24,
+                    "height": 22,
+                    "sha256": "75f0376dfd5732a301b3296e5348b1b7b014bd6fefa34f0acb128c72416442e9"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/misc/finance-app-design.png",
+                    "bytes": 565,
+                    "format": "PNG",
+                    "width": 34,
+                    "height": 22,
+                    "sha256": "54f8ef8ec547c6af58873e944b04f4600974d4c37d429e480ab94c118fae9e52"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/misc/pdf.png",
+                    "bytes": 763,
+                    "format": "PNG",
+                    "width": 49,
+                    "height": 49,
+                    "sha256": "bf90fb911eeeb069c5f815bc1baf47cdc855d472cc5fd34598ed1663d7bb1996"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/payments/ae-light.png",
+                    "bytes": 2179,
+                    "format": "PNG",
+                    "width": 76,
+                    "height": 46,
+                    "sha256": "77e03b4d649db112b354e766cde832511e6644d188e58dffb094ba67e8ff58be"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/payments/master-light.png",
+                    "bytes": 2454,
+                    "format": "PNG",
+                    "width": 76,
+                    "height": 46,
+                    "sha256": "0f2c732b53761b328a01c89aa05e29670e926e5b2676ea7ac7dd0e6a2935d7f0"
+                },
+                {
+                    "path": "public/admin/assets/img/icons/payments/visa-light.png",
+                    "bytes": 1770,
+                    "format": "PNG",
+                    "width": 76,
+                    "height": 46,
+                    "sha256": "5a237271380276b993ebfd0a88e882d412bbdc611ca856eb438899d26e21f3b1"
+                },
+                {
+                    "path": "public/admin/assets/img/illustrations/card-ratings-illustration.png",
+                    "bytes": 10530,
+                    "format": "PNG",
+                    "width": 198,
+                    "height": 270,
+                    "sha256": "1aed6da5554c42b2c3ab359f42acbbf94bbd0c3825ea6d863c1d193166b9d97e"
+                },
+                {
+                    "path": "public/admin/assets/img/illustrations/card-session-illustration.png",
+                    "bytes": 12001,
+                    "format": "PNG",
+                    "width": 168,
+                    "height": 268,
+                    "sha256": "a64475657c4d92308a2c8534e45f0a5947c9b8062acc189656236630b7ddb82b"
+                },
+                {
+                    "path": "public/admin/assets/img/illustrations/faq-illustration.png",
+                    "bytes": 20838,
+                    "format": "PNG",
+                    "width": 272,
+                    "height": 391,
+                    "sha256": "d428787f85cc8d4b2705877b09b2a7947f6c1ea912b7fac61a7a5df8f3c973c9"
+                },
+                {
+                    "path": "public/admin/assets/img/illustrations/illustration-john-light.png",
+                    "bytes": 21865,
+                    "format": "PNG",
+                    "width": 596,
+                    "height": 372,
+                    "sha256": "51c7aba7cbe05a0ae616790fd6b52f68c08886ab02583f183e2799088337c506"
+                },
+                {
+                    "path": "public/admin/assets/img/illustrations/trophy.png",
+                    "bytes": 14567,
+                    "format": "PNG",
+                    "width": 212,
+                    "height": 280,
+                    "sha256": "64bd21846a29b8b4e58e7bea15e01fb4b33b99eee48bc6fe494b4e8f84140553"
+                },
+                {
+                    "path": "public/admin/assets/img/layouts/layout-collapsed-menu-light.png",
+                    "bytes": 34323,
+                    "format": "PNG",
+                    "width": 1444,
+                    "height": 1028,
+                    "sha256": "fd39b4bbfe20150cf42a5d2a75bd258a51a72797a0e66c389d4fc9ad3301db5f"
+                },
+                {
+                    "path": "public/admin/assets/img/layouts/layout-container-light.png",
+                    "bytes": 38675,
+                    "format": "PNG",
+                    "width": 1444,
+                    "height": 1028,
+                    "sha256": "0100facf8536e1f2b0cd75a8a88cd9a6d6363bbe65b6c00d850885da4cd7f841"
+                },
+                {
+                    "path": "public/admin/assets/img/layouts/layout-content-navbar-and-sidebar-light.png",
+                    "bytes": 42367,
+                    "format": "PNG",
+                    "width": 1444,
+                    "height": 1028,
+                    "sha256": "f3c1f2229836de74e8b7e6d119125d9e6eb2bbf74f1d9aa181a58aba7488117e"
+                },
+                {
+                    "path": "public/admin/assets/img/layouts/layout-content-navbar-light.png",
+                    "bytes": 39266,
+                    "format": "PNG",
+                    "width": 1444,
+                    "height": 1028,
+                    "sha256": "7bedcd575356b99940784f7ec3717f721899dfda8fe8dbf3d8e9d672413c1fba"
+                },
+                {
+                    "path": "public/admin/assets/img/layouts/layout-fluid-light.png",
+                    "bytes": 33696,
+                    "format": "PNG",
+                    "width": 1444,
+                    "height": 1028,
+                    "sha256": "aaf613646227782d65ff2e1d40e6858013781c60566dcfbb6f0d9d1961823a92"
+                },
+                {
+                    "path": "public/admin/assets/img/layouts/layout-without-menu-light.png",
+                    "bytes": 26000,
+                    "format": "PNG",
+                    "width": 1444,
+                    "height": 1028,
+                    "sha256": "09af9894aff29728bfcaee70a1c0e116f509b5ec2bf383bd73effe3c631043cb"
+                },
+                {
+                    "path": "public/admin/assets/img/layouts/layout-without-navbar-light.png",
+                    "bytes": 39899,
+                    "format": "PNG",
+                    "width": 1444,
+                    "height": 1028,
+                    "sha256": "7780f35c2df3603d4c44d500535ff9ffd521cdf446fe6690cffa5934125cc676"
+                },
+                {
+                    "path": "public/admin/assets/img/products/apple-iMac-3k.png",
+                    "bytes": 4445,
+                    "format": "PNG",
+                    "width": 50,
+                    "height": 40,
+                    "sha256": "8ae4b79c2a503af0b4828400402630637d5f6d678caaf2ccea90e6e052b90a24"
+                },
+                {
+                    "path": "public/admin/assets/img/products/apple-iMac-4k.png",
+                    "bytes": 4421,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "5d8eef7fd319d438aacb6bb878bd15fd690cb9737c82bb0725abd0948e1ee1fa"
+                },
+                {
+                    "path": "public/admin/assets/img/products/apple-iPhone-13-pro.png",
+                    "bytes": 3780,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "333a1d0939c1d318d3b5e83560d3e7d93a2b73fdbca4fa4e1b754d112fe07fea"
+                },
+                {
+                    "path": "public/admin/assets/img/products/apple-iPhone-13.png",
+                    "bytes": 3152,
+                    "format": "PNG",
+                    "width": 26,
+                    "height": 52,
+                    "sha256": "4f3d2888381175fc27793254431f1082b8667db3ad4f002e79afe359bbc04d7c"
+                },
+                {
+                    "path": "public/admin/assets/img/products/apple-mac-mini.png",
+                    "bytes": 2249,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "38fbb9ceff556bd74db62e5b33deeef1858385bbc028841317dd4fade43cc432"
+                },
+                {
+                    "path": "public/admin/assets/img/products/card-accounting-logo.png",
+                    "bytes": 1393,
+                    "format": "PNG",
+                    "width": 168,
+                    "height": 184,
+                    "sha256": "19108b6fd2024479925c326ecb12c7550f0e9a409e33410773d7ae8564c0bb19"
+                },
+                {
+                    "path": "public/admin/assets/img/products/card-marketing-expense-logo.png",
+                    "bytes": 1992,
+                    "format": "PNG",
+                    "width": 168,
+                    "height": 184,
+                    "sha256": "a80f17f7157fb4e8f53aaf56887712a4675ae56c3a149e22430ac36c8010f05b"
+                },
+                {
+                    "path": "public/admin/assets/img/products/card-sales-overview-logo.png",
+                    "bytes": 1289,
+                    "format": "PNG",
+                    "width": 168,
+                    "height": 184,
+                    "sha256": "8e8d4d0a5e527ebc528a05ddc91d30773ce95059518eb72f223a0391e760b788"
+                },
+                {
+                    "path": "public/admin/assets/img/products/card-weekly-sales-controller.png",
+                    "bytes": 5977,
+                    "format": "PNG",
+                    "width": 240,
+                    "height": 220,
+                    "sha256": "e8486676a5833f75e7fcbb558a921192bd3763efb93c4d1e8019e0a8f658a233"
+                },
+                {
+                    "path": "public/admin/assets/img/products/card-weekly-sales-phone.png",
+                    "bytes": 3247,
+                    "format": "PNG",
+                    "width": 240,
+                    "height": 220,
+                    "sha256": "1d9e643ec29c44182bd1e11027818f9b5366ef3536de2bff22e2b38d3f08686a"
+                },
+                {
+                    "path": "public/admin/assets/img/products/card-weekly-sales-watch.png",
+                    "bytes": 6872,
+                    "format": "PNG",
+                    "width": 240,
+                    "height": 220,
+                    "sha256": "4855b075016d948853ff40bfb0797d8b80350e48baa545142c909b6fff60cb85"
+                },
+                {
+                    "path": "public/admin/assets/img/products/dell-inspiron-3000.png",
+                    "bytes": 3702,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "88201b4560a3c7afa01cf9cd3ad6d1688ef5b15401fa1a4156c5364b90192fd8"
+                },
+                {
+                    "path": "public/admin/assets/img/products/gaming-remote.png",
+                    "bytes": 3177,
+                    "format": "PNG",
+                    "width": 58,
+                    "height": 40,
+                    "sha256": "5ec2bf186da0575b986fdffcc7944fc6464c76f4b99b9d57343e27a0e4b49e2b"
+                },
+                {
+                    "path": "public/admin/assets/img/products/google-pixel-6.png",
+                    "bytes": 5319,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "164a947283357556535de3eefc865834c7f72d8769f65ce283dfbbb08f37a428"
+                },
+                {
+                    "path": "public/admin/assets/img/products/hp-envy-x360.png",
+                    "bytes": 3800,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "b9ade92e5ce1dfaba59f47bec76937bee376b296bea7937f594f2f2fa53795fa"
+                },
+                {
+                    "path": "public/admin/assets/img/products/nintendo-switch.png",
+                    "bytes": 3748,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "02706f6b218f95896534c8572c5b77b2aeaf532d69e55b1e42872d0ccc25c099"
+                },
+                {
+                    "path": "public/admin/assets/img/products/oneplus-9-pro.png",
+                    "bytes": 3030,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "f64e500e2808bab409c063178e805f00581825f3195968f95a7fdf5f172aa7a0"
+                },
+                {
+                    "path": "public/admin/assets/img/products/samsung-s22.png",
+                    "bytes": 3460,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "d4c0966fd10902db52bed87d3b4bc41ef93255e6af28eed11f57101ce031facd"
+                },
+                {
+                    "path": "public/admin/assets/img/products/sony-play-station-5.png",
+                    "bytes": 2099,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "a4edb7d496759c34a2087aac5e0e383e320d928edda4de87f349e1d2a2df495e"
+                },
+                {
+                    "path": "public/admin/assets/img/products/sup-game-box-400.png",
+                    "bytes": 5791,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "fd6a2c4a313c83515d3365b0d9856451777d68907f4e07a854e21d2e960bf119"
+                },
+                {
+                    "path": "public/admin/assets/img/products/xbox-series-x.png",
+                    "bytes": 2236,
+                    "format": "PNG",
+                    "width": 195,
+                    "height": 195,
+                    "sha256": "c2987614825cca9ba4cf8e23c1703643ba130067a6910e98747728257b24e28e"
+                }
+            ]
+        },
+        "public/frontend/landing/pictures": {
+            "label": "Landing template images (shared + generated)",
+            "count": 56,
+            "bytes": 4718081,
+            "images": [
+                {
+                    "path": "public/frontend/landing/pictures/1.jpg",
+                    "bytes": 44202,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "7ddf80ce700feeb28b11580a5bb4ddfe8549e6e51df2e34c3476cb9170ea911a"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/card-fallback.jpg",
+                    "bytes": 53034,
+                    "format": "JPEG",
+                    "width": 800,
+                    "height": 500,
+                    "sha256": "16dae878779789fd9bdc7a440053776361917504a66dd0561d62e46fde3137f9"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/ht2-hero.jpg",
+                    "bytes": 72282,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "c298c5eccd4fc9ddba0ee0014478f8a28c6e66d5d6a865a50e3552be82243411"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/product-fallback.jpg",
+                    "bytes": 41379,
+                    "format": "JPEG",
+                    "width": 900,
+                    "height": 900,
+                    "sha256": "57c1bed5fb805b6d45b6cfc3282e537f61427831e265c43edc0aa58e3630f571"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/t1-hero.jpg",
+                    "bytes": 76298,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "35f01a17a5ff81ee0bcf24a12e75f8e8630a9924307b31454dde8bf6d374e53a"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/th3-hero.jpg",
+                    "bytes": 71997,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "60350e70e58b5da15f5085b553310f5968f5516b6b944e5d8cf12ea1bf7d658d"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/th4-hero.jpg",
+                    "bytes": 72725,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "fa67f1164dc1e8370d730b3c4288bb0788110783474e3f072eba76178386c442"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/th5-hero.jpg",
+                    "bytes": 74702,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "4ea036d32dc9a1d211e3ad85924bee3b66905195f807f8d7a037bbfac4cedaee"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/th6-hero.jpg",
+                    "bytes": 70950,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "f6736a9048bbcbe52346de603758d75d66a75fe62fa3dfe6bdf88f03241070ec"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/th7-hero.jpg",
+                    "bytes": 73621,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "638cf1cf973730dac47caeccdd76cdcfd6f160b8e7f8c20d5a24e24a5a9646f2"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/th8-hero.jpg",
+                    "bytes": 69921,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "d9d8c059b7721b8e306e86b414b3654a2c286285f6d38a68bd8fa2de1861326a"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/th9-hero.jpg",
+                    "bytes": 80723,
+                    "format": "JPEG",
+                    "width": 1400,
+                    "height": 1000,
+                    "sha256": "ac7fb6d7416ade34658f45088e443c95eed4c55745fe2cafaa5bf2be18c7f5a5"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/wallet-detail.jpg",
+                    "bytes": 38983,
+                    "format": "JPEG",
+                    "width": 1000,
+                    "height": 1000,
+                    "sha256": "d0e641d3d84ab72cf1cb4017099ded55d8f2afb26020a7baf43bceb22c4809e1"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/wallet-front.jpg",
+                    "bytes": 47455,
+                    "format": "JPEG",
+                    "width": 1000,
+                    "height": 1000,
+                    "sha256": "3bc92f6c7b0cbcf6e9a25e51534d9dfaa4ecfafb191f6eced529467da2ebd687"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/wallet-lifestyle.jpg",
+                    "bytes": 43087,
+                    "format": "JPEG",
+                    "width": 1000,
+                    "height": 1000,
+                    "sha256": "1b3a2318aedc50d476e1642fa4cae1cd0b3662e300636c6b498810ddae4130e2"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/generated/wallet-open.jpg",
+                    "bytes": 46110,
+                    "format": "JPEG",
+                    "width": 1000,
+                    "height": 1000,
+                    "sha256": "cbd4f88cc85bbb6eeaf446b7e616e5b0524e229de19d7cd6b8cd50b6a3a96bec"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuA2Y-zBnjf6L80H9nWj.jpg",
+                    "bytes": 47243,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 286,
+                    "sha256": "9b6caff3fb335e5a31ebaef517e32fee82bf9146a7f17351d91f1d454dc7dcdf"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuA2e3D8rXdjQd-dffO3.jpg",
+                    "bytes": 44202,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "7ddf80ce700feeb28b11580a5bb4ddfe8549e6e51df2e34c3476cb9170ea911a"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuAENipNF7AzJhwWVCUn.jpg",
+                    "bytes": 87464,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 512,
+                    "sha256": "0d6ab11925ef16f52a6545d750eabcd599b068f0ea1869fcb7335f291df35208"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuAPmr-pp4A9knvccqTC.jpg",
+                    "bytes": 41734,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "9884f58aa91ce15a81328896db00957f9a11013a359008cbf2abff8fb0a9a400"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuAQF29xTx-R2TtWBeXi.jpg",
+                    "bytes": 52422,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 512,
+                    "sha256": "016701c26010b5d273e0446f0a1ab4ecf8f2515c5dd921260c2d6c6ad40029ed"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuAUHcSgTx0EmZwy3n3J.jpg",
+                    "bytes": 42581,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 512,
+                    "sha256": "806052fdb377e3efd985cef836e71dd7ad9bfe45b3005a27ea87294e5cc52e4d"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuAchctxgxCaIIENA65-.jpg",
+                    "bytes": 49352,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "1d52fe8638ff454c736d4519b7d54c546e96d80ed86f74c08107158eaff303a7"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuAfpj1wkSJtAjLlm_XM.jpg",
+                    "bytes": 49518,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "3629cda373642fee375496ce0c58de3c034239911cb56c9b3c8c243602e5833d"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuAji7wMgVbCPOP120xE.jpg",
+                    "bytes": 45634,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "7f7c9c773a339ee064d9ac8aca3d834b772513e56fce222510e36e86ebd7af0e"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuAueDt1v3x8eMt5bCcK.jpg",
+                    "bytes": 34363,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "76151b58a7dd9a6fedf0f08aa6aa036509c05580501b7cfa7b7109e039bb5e67"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuB7FvcsY2E0dYU41xjV.jpg",
+                    "bytes": 34744,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "9e172062ad28392f3b2fc09161b4f78338f2efec321fd7cd50eb93d45183b6bb"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBH_ipiKzXy7ix00u3q.jpg",
+                    "bytes": 67624,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "96ab0b00192316f473ac7b0c343a12b2942df9ef7312b6fe17f7afa7d05df64c"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBJ9LiZgi4t2Jka6BEm.jpg",
+                    "bytes": 52874,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "2255166cdb0d43763e822573a77a1c3ed32b00d3e93833afb3bd4e9a351a7383"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBPxkuDPwMCdFXrSBEg.jpg",
+                    "bytes": 40991,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "6590e57072701c184cab8795b0b355b00178a49a5149b8ef1b083eafd40b497a"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBQwqDx66xJGwtPFINS.jpg",
+                    "bytes": 86637,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 512,
+                    "sha256": "f5a94b525c02c3978cb8ff27c886cc673e9924620e8988703cc5421157ce8800"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBRg0-mlqtAYrpPA56U.jpg",
+                    "bytes": 51650,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 512,
+                    "sha256": "5ae1921c6bf251f5cd2b2fee6265bd895b1b241d713fcc7a43049d48466e1943"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBVGSiMG7aedSbgBiQa.jpg",
+                    "bytes": 74847,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 512,
+                    "sha256": "354c74d558c09901f517585b8e8f41055954d5d7bd570c84182fe66dd713ea61"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBWCOBqQy-gSvh4sJU_.jpg",
+                    "bytes": 44007,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 286,
+                    "sha256": "39f5f5844aafe6fd000652ae8b0e3af7dad1e2af586a784a8b8dbee1f56a892e"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBcHoJgS_hnNpJGVdrL.jpg",
+                    "bytes": 41640,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "013bb0ec28bda5e1ae495f38fecdd256cc6760c890f4e9bb25837641d0c15e07"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBd9wKV8WtcTb0Ano2y.jpg",
+                    "bytes": 41840,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "06949df637c7fcf71e8fcffa4c443c1cf06b8ed98b993df5ec2db08306a4e26b"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuBp94rogq2w1hgbg2Gt.jpg",
+                    "bytes": 59829,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "15b64c5796dc70600e3f44087e4a650da6ba0447f63e1c020c624e243d191462"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuByo3_0hyjuEFO8G1X4.jpg",
+                    "bytes": 61104,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 286,
+                    "sha256": "cd4ad0735a649d82c510b9c4cffdae686beac740925e6e55d0831ba94c31a28a"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuCJCgY4j0cMEHn5RgX6.jpg",
+                    "bytes": 39591,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 512,
+                    "sha256": "341ae324ce866955ff08678d3aad49e75d7d30858c30defbc2b1a49f2a55e59b"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuCgEqLE_Nx7muqRGoja.jpg",
+                    "bytes": 46679,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "c69ddfdf277480b216b892d8135090d3f3904670bbcdfcf52528734dfc4ac765"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuCilwMxph2ceimhEuzW.jpg",
+                    "bytes": 40719,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "9b43ac1844ed13f428bcad3c17d90ed7f36186f6117b00f0382291fda8839a0c"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuCm5jbPaD__V-mlpssg.jpg",
+                    "bytes": 77562,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 512,
+                    "sha256": "6cb3bef54f9627ddb13a84978a5453388851830ead63844178d9b7269bb56b9a"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuDFJI2mZ3QIowCBPxve.jpg",
+                    "bytes": 35442,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "88113d1d5ba06a56a6b3b20f07e9a412f69fa01d1857f6fc1c34103a166025fd"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuDOYKkahgRpqBbrMZt4.jpg",
+                    "bytes": 31484,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 286,
+                    "sha256": "1b369f005df43bc580c16142a5caa1d481dbef21aeb3c8316096254fbd5e4d74"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuDOZ6bc2VFYf4xmUJSM.jpg",
+                    "bytes": 58376,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "7f11724bce29883cec64db23c1cf909b7919583cc243f34a68eadb43df5dc29b"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuDc9Jq0T8e9Ta2_DDgM.jpg",
+                    "bytes": 41701,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "95d54ceda042d22592604d1b33a5c41d816eed174c9c1319199a1d4dd1b26b70"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuDf04APypQ37RCDqlth.jpg",
+                    "bytes": 82585,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "3a7f948653da114ac4eb16dd5c60ef49ff72d169bd021e5d07c15bf79aa903bd"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/gimg-AB6AXuDi6BHL9QBiLEdGfAIf.jpg",
+                    "bytes": 45833,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "0c6f34cae4123d77cc75d7a2e5bcde47b5c7ef051030c1da983ff6557f3d507c"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/photo-1583391733956-3750e0ff4e8b.jpg",
+                    "bytes": 314101,
+                    "format": "JPEG",
+                    "width": 1200,
+                    "height": 1500,
+                    "sha256": "d1e2cd99ad0a0185fa4b7dc120f626d2effb26e8a387b21ceb8fcb76f3de589d"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/photo-1609357605129-26f69add5d6e.jpg",
+                    "bytes": 344046,
+                    "format": "JPEG",
+                    "width": 1200,
+                    "height": 1800,
+                    "sha256": "f08a57274e15ebb5095ef0597852410b276fc5a863b3be95c4cc5073f9d40d8f"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/photo-1610030469983-98e550d6193c.jpg",
+                    "bytes": 298403,
+                    "format": "JPEG",
+                    "width": 1200,
+                    "height": 1800,
+                    "sha256": "7c4cdf290072dd787f8322c69a3b2886b69b935e5b821d98795cf8a203249311"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/photo-1617627143750-d86bc21e42bb.jpg",
+                    "bytes": 379505,
+                    "format": "JPEG",
+                    "width": 1200,
+                    "height": 1800,
+                    "sha256": "c0ec0ca74933bfe939cfd2ca22bef350acc5a2e26c04985ab6172488bdab5c31"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/wallet-black.jpg",
+                    "bytes": 379947,
+                    "format": "JPEG",
+                    "width": 2048,
+                    "height": 1536,
+                    "sha256": "25972c62317bbe55a437ca3ab0bc0974ef10f32e7944a5f4db58e856448c71e5"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/wallet-brown.jpg",
+                    "bytes": 60051,
+                    "format": "JPEG",
+                    "width": 1024,
+                    "height": 683,
+                    "sha256": "fc7ca0890d6a6495a4365f3f573e2faf698674ca30dddc6bd99fa609c81bf339"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/wallet-duo-tone.jpg",
+                    "bytes": 121232,
+                    "format": "JPEG",
+                    "width": 799,
+                    "height": 1023,
+                    "sha256": "9014af8b1a0f2112b0906e0a1f0ff61deab6980430331e1faf3d6f907b10eb6d"
+                },
+                {
+                    "path": "public/frontend/landing/pictures/wallet-navy.jpg",
+                    "bytes": 191055,
+                    "format": "JPEG",
+                    "width": 1024,
+                    "height": 768,
+                    "sha256": "fc3bf9dd47232cc5db32ae66d6a59f7058a322e713dd598b92c2010202edfda0"
+                }
+            ]
+        },
+        "public/uploads": {
+            "label": "User uploads referenced by database rows",
+            "count": 22,
+            "bytes": 797902,
+            "images": [
+                {
+                    "path": "public/uploads/category/1793195390-cat_test.webp",
+                    "bytes": 4962,
+                    "format": "WEBP",
+                    "width": 250,
+                    "height": 250,
+                    "sha256": "a97a6fb98ccf0d4a9af301feb4756332c219a4001c0ff5ee5f4c7a1dd075b34b"
+                },
+                {
+                    "path": "public/uploads/category/default.png",
+                    "bytes": 6096,
+                    "format": "PNG",
+                    "width": 600,
+                    "height": 600,
+                    "sha256": "976f6c67ee995e4c2b1f47b29deff13dfefcbd55264c4d764cb4c7dea5cfc463"
+                },
+                {
+                    "path": "public/uploads/default/no-image.png",
+                    "bytes": 27489,
+                    "format": "PNG",
+                    "width": 250,
+                    "height": 250,
+                    "sha256": "f6f947592da1d668f072c7d34bd8536ede3dab0ac40b17bc8ba2d6aaf37b578e"
+                },
+                {
+                    "path": "public/uploads/product/desi-ghee-demo.jpg",
+                    "bytes": 37817,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "3cfd57a69137e2f6128b3bdfb91ca2da18b259126da83a3d38967d36a7a51f3a"
+                },
+                {
+                    "path": "public/uploads/product/mustard-oil-demo.jpg",
+                    "bytes": 22779,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "737e772e653c0fd472ea50b4ebc97dc10bbfcb07c0585ef21a2d78a71be6b60e"
+                },
+                {
+                    "path": "public/uploads/product/mustard-oil-demo.svg",
+                    "bytes": 4573,
+                    "format": "SVG",
+                    "sha256": "c0984c04eeaaba894fa56ea91e0830d47806469c216a716c33f94fbcd3f9097f"
+                },
+                {
+                    "path": "public/uploads/product/raw-honey-demo.jpg",
+                    "bytes": 44000,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "2d08d573513c447f5da4434ef22e266df7f0cf4214378167f0a545fc13a8e49a"
+                },
+                {
+                    "path": "public/uploads/product/red-apple-demo.jpg",
+                    "bytes": 62675,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "d6af366806c99928eabfdc47c667e13b022d8f83f343afc5e94a0b44823da8d7"
+                },
+                {
+                    "path": "public/uploads/product/red-rice-demo.jpg",
+                    "bytes": 281157,
+                    "format": "JPEG",
+                    "width": 960,
+                    "height": 540,
+                    "sha256": "d09e34c4c536c82e81fc904142565785035383e568b41d199f2fa57789a53329"
+                },
+                {
+                    "path": "public/uploads/product/sourdough-demo.jpg",
+                    "bytes": 51162,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 286,
+                    "sha256": "b792b6e19c9e074ec2c7de2df4a24950eee5167161b1f4e8c1b3cc889f72b43e"
+                },
+                {
+                    "path": "public/uploads/product/sourdough-loaf-demo.jpg",
+                    "bytes": 48292,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "1b5d8abe48e095f7276be41a5796c323945907ba66b4f29e50a370a0048cee24"
+                },
+                {
+                    "path": "public/uploads/product/sourdough-slice-demo.jpg",
+                    "bytes": 45655,
+                    "format": "JPEG",
+                    "width": 512,
+                    "height": 279,
+                    "sha256": "2e1eb398b5ac14ebf34c53eea879cb0cef6e16bc5abc8a509d64c508a9baabe5"
+                },
+                {
+                    "path": "public/uploads/settings/1793587204-logo.webp",
+                    "bytes": 41094,
+                    "format": "WEBP",
+                    "width": 866,
+                    "height": 288,
+                    "sha256": "eedad513f479d0404238f312b2098fd73df9b66370074a6449cd4c8fb3b7aa2b"
+                },
+                {
+                    "path": "public/uploads/settings/1793587205-logo.webp",
+                    "bytes": 41094,
+                    "format": "WEBP",
+                    "width": 866,
+                    "height": 288,
+                    "sha256": "eedad513f479d0404238f312b2098fd73df9b66370074a6449cd4c8fb3b7aa2b"
+                },
+                {
+                    "path": "public/uploads/settings/1793914434-empty.webp",
+                    "bytes": 3170,
+                    "format": "WEBP",
+                    "width": 600,
+                    "height": 600,
+                    "sha256": "ac2211b197bf21eeb5d6436c3e412ae1f6efa4e8746b25fd38fdfe8fe85a9d09"
+                },
+                {
+                    "path": "public/uploads/settings/1794437047-9675cd191056c3b60965431f2d95a6d74a87cfee7ac898af11bb50522d458eb6.webp",
+                    "bytes": 71766,
+                    "format": "WEBP",
+                    "width": 2172,
+                    "height": 724,
+                    "sha256": "6f24859a9b670444e37d5360156b1a85a2a900dba2bec68e5fe4b9f08fa411a3"
+                },
+                {
+                    "path": "public/uploads/settings/default-favicon.webp",
+                    "bytes": 296,
+                    "format": "WEBP",
+                    "width": 32,
+                    "height": 32,
+                    "sha256": "9167860d9211f7d7e9b05e9c4562efc36528498a51c05f58229e53885e3ec095"
+                },
+                {
+                    "path": "public/uploads/settings/default-logo.webp",
+                    "bytes": 1176,
+                    "format": "WEBP",
+                    "width": 320,
+                    "height": 80,
+                    "sha256": "5618333c51f132e50360a1bf56e0c26dd367688799d34522a5ac610bbc56cea9"
+                },
+                {
+                    "path": "public/uploads/users/default-avatar.png",
+                    "bytes": 1572,
+                    "format": "PNG",
+                    "width": 256,
+                    "height": 256,
+                    "sha256": "521b882d9c5c19b2f4951eea6bb7c0c97e1e030373c58e2c0bceea6dcbcc74b8"
+                },
+                {
+                    "path": "public/uploads/variant/variant-blue.svg",
+                    "bytes": 359,
+                    "format": "SVG",
+                    "sha256": "515edcd3deea91c8cc930365070cd91d9059378a4ce9a480f0dd8550435e49ce"
+                },
+                {
+                    "path": "public/uploads/variant/variant-green.svg",
+                    "bytes": 360,
+                    "format": "SVG",
+                    "sha256": "3979cd7366280fd9273a9739d3b59496f50a8bd00a7eb9b37a72c525028a2554"
+                },
+                {
+                    "path": "public/uploads/variant/variant-red.svg",
+                    "bytes": 358,
+                    "format": "SVG",
+                    "sha256": "2ab5c94109d5bcb154520c1d33c44afe05b8a3c8d9598d98c750316aad74f2b7"
+                }
+            ]
+        },
+        "public/branding": {
+            "label": "Tracked branding filebox",
+            "count": 2,
+            "bytes": 1044073,
+            "images": [
+                {
+                    "path": "public/branding/card-fallback.jpg",
+                    "bytes": 921471,
+                    "format": "PNG",
+                    "width": 2172,
+                    "height": 724,
+                    "sha256": "5ab83dfd978d4277466aca403b87a5ebe341ce1e0ab101ad6168cd2f5260e460"
+                },
+                {
+                    "path": "public/branding/logo.png",
+                    "bytes": 122602,
+                    "format": "PNG",
+                    "width": 866,
+                    "height": 288,
+                    "sha256": "aa0a9681a2a3368e9ee10a8375d504308a61277f0191d260b8ee1a8d863861ae"
+                }
+            ]
+        }
+    },
+    "totals": {
+        "count": 157,
+        "bytes": 7240684
+    }
+}

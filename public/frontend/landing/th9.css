@@ -1,0 +1,34 @@
+/* split-source: th9.html | typography */
+/* split-source: th9.html | custom-decorations */
+
+    body {
+      font-family: 'Anek Bangla', 'Hind Siliguri', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #faf7f8;
+      color: #1e293b;
+    }
+    .zombie-pulse-btn {
+      animation: zombiePulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
+    @keyframes zombiePulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.6);
+      }
+      50% {
+        box-shadow: 0 0 0 14px rgba(225, 29, 72, 0);
+      }
+    }
+  
+
+
+    .zombie-ribbon {
+      background: linear-gradient(135deg, #e11d48, #be123c);
+    }
+    .zombie-badge-glow {
+      box-shadow: 0 4px 15px rgba(225, 29, 72, 0.15);
+    }
+    .zombie-card-active {
+      border-color: #e11d48 !important;
+      background-color: #fff1f2 !important;
+    }
+  

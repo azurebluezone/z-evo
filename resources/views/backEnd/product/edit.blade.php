@@ -159,6 +159,7 @@
                       <div
                         id="full-editor"
                         class="js-quill-editor border-0 rounded-0"
+                        data-quill-toolbar-preset="full"
                         data-quill-theme="snow"
                         data-quill-target="#description"
                         data-quill-placeholder="Write product description..."

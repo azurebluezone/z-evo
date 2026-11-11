@@ -86,7 +86,7 @@ class LandingCampaignOrderTest extends TestCase
     {
         $product = $this->createProduct(1200);
         $campaign = $this->createCampaign((int) $product->id, 900, true, [
-            'template_id' => 3,
+            'template_id' => (int) DB::table('templates')->where('view_name', 'ht2')->value('id'),
             'image_one' => '',
         ]);
 
