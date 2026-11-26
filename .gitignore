@@ -47,8 +47,12 @@
 
 # ---------- machine-local / agent tooling ----------
 /work/
-/.zombiecoder/
-/.opencode/
+# Agent state appears at any depth: tooling has created nested workspaces such
+# as public/img/.zombiecoder and public/assets/.../banner/.zombiecoder, which a
+# root-anchored rule never matched. Keep this unanchored so every copy is
+# ignored, then `git status` cannot pick a nested state directory up again.
+.zombiecoder/
+.opencode/
 /.mcp.json
 /.vscode/
 /.idea/
@@ -91,3 +95,19 @@ Thumbs.db
 # its own with `php artisan storage:link`. The tracked public/storage/.gitignore
 # was removed along with the directory it lived in.
 /public/storage
+
+
+# ---------- generated output that must never ship ----------
+# Python bytecode from the asset and report scripts under tools/.
+__pycache__/
+*.pyc
+*.pyo
+
+# Verification output: suite logs, screenshots, staging path lists, temp files.
+# The release gate writes here, so the directory churns on every run.
+/tools/verify/.artifacts/
+
+# Rendered owner briefs and OpenCode session transcripts. A session dump holds
+# whole agent conversations, so it must never sit in a public web root or in
+# git; the briefs and audio are build output, not source.
+/public/reports/

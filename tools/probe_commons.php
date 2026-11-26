@@ -25,7 +25,7 @@ $app = require_once $root . '/bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
-const USER_AGENT = 'ArafatEcommerce/1.0 (product photography research; contact: admin@example.com)';
+const USER_AGENT = 'ZEvoCommerce/1.0 (product photography research; contact: admin@example.com)';
 
 /** Words that mark a file as a drawing, map or diagram rather than a photograph. */
 function isIllustration(string $title): bool
