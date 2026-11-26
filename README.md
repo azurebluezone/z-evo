@@ -282,7 +282,8 @@ data.
 - `.zombiecoder/` at any depth, so nested agent workspaces cannot slip in
 - `__pycache__/` and `*.pyc` from the asset tooling
 - `tools/verify/.artifacts/` (suite logs, screenshots, staging lists)
-- `public/reports/` (rendered briefs and OpenCode session transcripts)
+- `storage/app/reports/` (rendered briefs and OpenCode session transcripts,
+  deliberately outside the web root)
 
 Never `git add -f` around these rules; a committed session dump or upload is
 hard to remove from public history.
@@ -294,3 +295,16 @@ hard to remove from public history.
 - Payment and courier keys live in the database, so restrict admin access
 - Keep `APP_DEBUG=false` and `APP_ENV=production` on live servers
 - Courier webhook tokens are stored masked and printed only on demand
+
+### Known framework risk (recorded 2026-11-26)
+
+`composer audit` reports five advisories against `laravel/framework`: one high
+(CRLF injection in the default email rule), one medium (temporary signed URL
+path confusion), two low and one unrated duplicate. Every advisory lists its fix
+in 12.71+ or 13.40+, so the pinned `10.x-dev` branch cannot receive them, and
+Laravel 10 is past security support.
+
+The remediation is a planned major upgrade to Laravel 12, checking the Spatie
+and payment packages against it, and pinning a tagged framework release instead
+of the dev branch. Until that upgrade lands: keep `APP_DEBUG=false`, serve the
+app only over TLS, and never pass untrusted input into mail headers.

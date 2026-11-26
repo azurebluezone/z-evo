@@ -1,11 +1,11 @@
 {
-    "name": "laravel/laravel",
+    "name": "zevo/commerce",
     "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "description": "Z Evo-Commerce - Laravel 10 storefront, admin panel and API.",
+    "keywords": ["ecommerce", "laravel", "bangladesh", "storefront", "admin"],
     "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.4",
         "brian2694/laravel-toastr": "^5.57",
         "doctrine/dbal": "^3.5.1",
         "guzzlehttp/guzzle": "^7.2",

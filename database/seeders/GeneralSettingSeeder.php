@@ -9,7 +9,12 @@ class GeneralSettingSeeder extends Seeder
 {
     public function run(): void
     {
-        GeneralSetting::firstOrCreate(
+        // updateOrCreate, not firstOrCreate: an existing install already owns
+        // row 1, so firstOrCreate would silently keep an old default such as
+        // "GS Corporation" or "Z EVO" and the new site name would never reach
+        // it. This seeder is the demo baseline; a live install customises the
+        // row after seeding.
+        GeneralSetting::updateOrCreate(
             ['id' => 1],
             [
                 'name' => 'Z Evo-Commerce',

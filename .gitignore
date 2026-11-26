@@ -109,5 +109,7 @@ __pycache__/
 
 # Rendered owner briefs and OpenCode session transcripts. A session dump holds
 # whole agent conversations, so it must never sit in a public web root or in
-# git; the briefs and audio are build output, not source.
+# git; the briefs and audio are build output, not source. They now live under
+# storage/app/reports, which is outside the web root and ignored here.
 /public/reports/
+/storage/app/reports/

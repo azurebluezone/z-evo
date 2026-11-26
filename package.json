@@ -1,27 +1,27 @@
 {
   "name": "z-evo-commerce",
   "version": "1.0.0",
+  "private": true,
   "description": "Z Evo-Commerce - Laravel 10 storefront, admin panel and API",
-  "main": "vite.config.js",
   "directories": {
     "test": "tests"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/developerszone-sahon/z-evo-commerce.git"
+    "url": "git+https://github.com/azurebluezone/z-evo.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "keywords": [
+    "ecommerce",
+    "laravel",
+    "bangladesh"
+  ],
+  "author": "Z Evo-Commerce",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/developerszone-sahon/z-evo-commerce/issues"
+    "url": "https://github.com/azurebluezone/z-evo/issues"
   },
-  "homepage": "https://github.com/developerszone-sahon/z-evo-commerce#readme",
-  "dependencies": {
+  "homepage": "https://github.com/azurebluezone/z-evo#readme",
+  "devDependencies": {
     "@playwright/test": "^1.58.2"
   }
 }
