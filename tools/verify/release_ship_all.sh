@@ -62,10 +62,13 @@ else
 fi
 
 echo "=== 4. In-scope tree is clean ==="
+# Junk paths (pycache, session dumps, verification artifacts, nested agent
+# state) are excluded from the deliverable by design, so they are filtered out
+# here; stage 3 already proves none of them is tracked.
 dirty=$(git status --porcelain --untracked-files=all -- \
         app config database docs public resources routes storage tests tools \
         composer.json composer.lock \
-    | grep -vE '^\?\? tools/verify/\.artifacts/' || true)
+    | grep -vE '__pycache__|\.pyc$|tools/verify/\.artifacts/|\.zombiecoder/|public/reports/' || true)
 if [ -z "$dirty" ]; then
     note "every in-scope change is committed"
 else
