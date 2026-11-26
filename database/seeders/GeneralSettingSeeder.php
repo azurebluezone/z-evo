@@ -12,7 +12,7 @@ class GeneralSettingSeeder extends Seeder
         GeneralSetting::firstOrCreate(
             ['id' => 1],
             [
-                'name' => 'GS Corporation',
+                'name' => 'Z Evo-Commerce',
                 'white_logo' => 'uploads/settings/default-logo.webp',
                 'dark_logo' => 'uploads/settings/default-logo.webp',
                 'favicon' => 'uploads/settings/default-favicon.webp',

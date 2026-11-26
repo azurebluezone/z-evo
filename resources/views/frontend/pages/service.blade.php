@@ -452,7 +452,7 @@
     <div class="hero-text">
       <h1>Best Water Purifier<br />Service In Dhaka</h1>
       <p>
-        Through GS Corporation Bd, you can connect with trusted water purifier
+        Through Z Evo-Commerce, you can connect with trusted water purifier
         services in Dhaka. We provide users with a broad network of knowledgeable
         and experienced water purifier specialists in Dhaka. Get the best drinking
         water possible by resolving your water purifier problems.
@@ -658,12 +658,12 @@
           <div class="review-header">
             <div class="review-avatar placeholder bg-blue">A</div>
             <div class="review-meta">
-              <h4 class="review-name">Arafat Rahman</h4>
+              <h4 class="review-name">Rahim Uddin</h4>
               <p class="review-date">12:13 24 Feb 21</p>
             </div>
           </div>
           <div class="stars">★★★★★</div>
-          <p class="review-text">GS Corporation Bd is one of the best purifier company ...they provide</p>
+          <p class="review-text">Z Evo-Commerce is one of the best purifier company ...they provide</p>
         </div>
       </div>
       <div class="nav-btn" data-media-type="banani-button">

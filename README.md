@@ -1,31 +1,59 @@
-# Arafat 20 — E-Commerce Platform
+# Z Evo-Commerce
 
-A complete e-commerce stack on **Laravel 10**: storefront, admin panel and REST API in one codebase.
-Catalog with variants, order lifecycle, courier integration, bKash/ShurjoPay checkout, marketing
-pixels and built-in analytics.
+Z Evo-Commerce is a Laravel 10 storefront, admin back office and JSON API in one
+codebase. It covers a three-level catalogue with per-variant stock, a full order
+lifecycle with courier hand-off, online payments, campaign landing pages and
+first-party visitor analytics.
 
-> Measured from the codebase: **551 route definitions**, **83 controllers**, **57 models**,
-> **478 Blade views**, **122 migrations**.
+<!-- measured: routes=558 controllers=88 models=63 views=495 migrations=148 -->
+
+| Snapshot | Measured value |
+| --- | --- |
+| Framework | Laravel 10.50.5 |
+| PHP at build time | 8.4.27 (Composer dependency floor: 8.4.1) |
+| Route definitions | 558 (539 in `routes/web.php`, 19 in `routes/api.php`) |
+| Controllers | 88 classes under `app/Http/Controllers` |
+| Eloquent models | 63 classes under `app/Models` |
+| Blade views | 495 files under `resources/views` |
+| Migrations | 148 files under `database/migrations` |
+| Default local database | MySQL, database name `z_evo` |
+
+The numbers above are counted from the tree, not copied from a design document.
+`tools/verify/rebrand_check.sh` re-measures them and fails when the README and
+the code disagree, so this table cannot drift silently.
 
 ---
 
 ## Table of contents
 
-1. [Tech stack](#tech-stack)
-2. [Feature overview](#feature-overview)
+1. [Feature overview](#feature-overview)
+2. [Tech stack](#tech-stack)
 3. [Storefront](#storefront)
 4. [Admin panel](#admin-panel)
 5. [Payments](#payments)
-6. [SMS & notifications](#sms--notifications)
-7. [Courier & shipping](#courier--shipping)
-8. [Marketing, analytics & tracking](#marketing-analytics--tracking)
-9. [REST API](#rest-api)
-10. [Requirements](#requirements)
-11. [Installation](#installation)
-12. [Demo accounts](#demo-accounts)
-13. [Project structure](#project-structure)
-14. [Testing](#testing)
+6. [Courier and shipping](#courier-and-shipping)
+7. [Marketing, analytics and tracking](#marketing-analytics-and-tracking)
+8. [REST API](#rest-api)
+9. [Requirements](#requirements)
+10. [Installation](#installation)
+11. [Demo accounts](#demo-accounts)
+12. [Project structure](#project-structure)
+13. [Testing](#testing)
+14. [Repository hygiene](#repository-hygiene)
 15. [Security notes](#security-notes)
+
+---
+
+## Feature overview
+
+- **Three surfaces** — storefront, admin dashboard and token-authenticated API
+- **Three-level catalogue** — category, subcategory, child category
+- **Variants** — attributes, attribute values, colours, sizes, per-variant stock
+- **Order lifecycle** — order board, statuses, courier assignment, returns, refunds
+- **Homepage builder** — every home section has its own enable flag and title
+- **Campaign landing pages** — nine registry designs, one live campaign per design
+- **Role-based access** — Admin, Manager and Support roles
+- **First-party analytics** — visitor sessions, event log, charts and a Leaflet map
 
 ---
 
@@ -33,111 +61,101 @@ pixels and built-in analytics.
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Laravel 10.50.3 |
-| Runtime | PHP **>= 8.2** (enforced by `vendor/composer/platform_check.php`) |
-| Database | MySQL / MariaDB |
-| Views | Blade, custom front-end theme `fm` (123 views) |
-| Permissions | `spatie/laravel-permission` (roles + permissions) |
+| Framework | Laravel 10.50.5 |
+| Runtime | PHP 8.4.1 or newer (enforced by `vendor/composer/platform_check.php`) |
+| Database | MySQL 5.7+ / MariaDB 10.5+ |
+| Views | Blade; the `fm` storefront theme ships as 126 separate views |
+| Permissions | `spatie/laravel-permission` |
 | Media | `spatie/laravel-medialibrary`, `intervention/image` |
 | Cart | `hardevine/shoppingcart` |
 | API auth | `laravel/sanctum` |
-| Payments | `shurjopayv2/laravel8`, bKash (custom controller) |
+| Payments | `shurjopayv2/laravel8`, custom bKash flow |
 | Geo | `stevebauman/location` |
 | UI helpers | `laravel/ui`, `spatie/laravel-html`, `brian2694/laravel-toastr` |
-| Browser tests | Playwright (`@playwright/test`) |
-| Unit tests | PHPUnit, Faker, Mockery |
-
----
-
-## Feature overview
-
-- **3 panels** — storefront, admin dashboard, token-authenticated API
-- **3-level catalogue** — category → subcategory → child category
-- **Variant system** — attributes, attribute values, colors, sizes, per-variant stock
-- **Order lifecycle** — order board, statuses, courier assignment, returns & refunds
-- **Homepage builder** — every home section can be toggled and titled from settings
-- **Role-based access** — Admin / Manager / Support
+| Tests | PHPUnit, Faker, Mockery; Playwright for browser journeys |
 
 ---
 
 ## Storefront
 
-- **Composable home page** — hero, top categories, brands, hot deal, flash sale, featured,
-  collections, promo, service, best selling, discount products, recommended and footer sections,
-  each with its own enable flag and title in `general_settings`
-- **Catalogue** — category, subcategory and child-category pages, brand pages, attribute filters
-- **Product page** — image gallery, variant/color/size selection, reviews, recommendations,
-  flash-sale pricing, campaign association
-- **Cart & checkout** — session cart (`hardevine/shoppingcart`), shipping charge by district,
-  coupon validation
+- **Composable home page** — hero, top categories, brands, hot deal, flash sale,
+  featured, collections, promo, service, best selling, discount products,
+  recommended and footer sections, each with its own toggle and title
+- **Catalogue** — category, subcategory and child-category pages, brand pages,
+  attribute filters
+- **Product page** — gallery, variant/colour/size selection, reviews,
+  recommendations, flash-sale pricing, campaign association
+- **Cart and checkout** — session cart, district shipping charge, coupon rules
 - **Customer area** — account, order history, notifications, addresses
-- **Landing pages** — database-driven landing pages with their own controller and views
-- **Engagement** — contact form, service request form, newsletter subscription, visitor tracking
-- **Theming** — switchable front-end theme (`FrontendThemeController`), `fm` theme ships
-  sections, partials and components as separate Blade files
+- **Landing pages** — database-driven campaigns with their own controller, order
+  form and tracking hooks
+- **Engagement** — contact form, service request, newsletter, visitor tracking
+- **Theming** — switchable front-end theme via `FrontendThemeController`
 
 ## Admin panel
 
-**Dashboard & reporting**
-`DashboardController`, `AnalyticsDashboardController`, `ReportsController`, `SocialEventDashboardController`
+**Dashboard and reporting**
+`DashboardController`, `AnalyticsDashboardController`, `ReportsController`,
+`SocialEventDashboardController`
 
 **Catalogue**
-`ProductController`, `VariantController`, `AttributeController`, `CategoryController`,
-`SubcategoryController`, `ChildcategoryController`, `BrandController`, `ColorController`,
-`SizeController`, `InventoryController`, `ProductRecommendationController`
+`ProductController`, `VariantController`, `AttributeController`,
+`CategoryController`, `SubcategoryController`, `ChildcategoryController`,
+`BrandController`, `ColorController`, `SizeController`, `InventoryController`,
+`ProductRecommendationController`, `ReviewController`
 
 **Sales**
-`OrderController`, `OrderBoardController`, `OrderStatusController`, `ReturnsRefundsController`,
-`CouponController`, `CampaignController`, `FlashSaleController`
+`OrderController`, `OrderBoardController`, `OrderStatusController`,
+`ReturnsRefundsController`, `CouponController`, `CampaignController`,
+`FlashSaleController`
 
-**Customers & access**
-`CustomerManageController`, `UserController`, `RoleController`, `PermissionController`,
-`VisitorManageController`, `IpBlock` (model)
+**Customers and access**
+`CustomerManageController`, `UserController`, `RoleController`,
+`PermissionController`, `VisitorManageController`, `PhoneBlockController`
 
-**Shipping & courier**
-`CourierController`, `CourierSettingsController`, `CourierFraudCheckerController`,
-`OrderCourierController`, `ShippingChargeController`, `ShippingVerificationController`
+**Shipping and courier**
+`CourierController`, `CourierSettingsController`,
+`CourierFraudCheckerController`, `OrderCourierController`,
+`ShippingChargeController`, `ShippingVerificationController`
 
-**Marketing & content**
-`BannerController`, `BannerCategoryController`, `PromoBannerController`, `HomepageSettingsController`,
-`HomepageCollectionController`, `WebsiteSetupController`, `FrontendThemeController`,
-`CreatePageController`, `LandingPageController`, `NotificationTemplateController`,
+**Marketing and content**
+`BannerController`, `BannerCategoryController`, `PromoBannerController`,
+`HomepageSettingsController`, `HomepageCollectionController`,
+`WebsiteSetupController`, `FrontendThemeController`, `CreatePageController`,
+`LandingPageController`, `NotificationTemplateController`,
 `SocialMediaController`, `SocialEventController`, `SocialEventPlatformController`,
-`FacebookTrackingController`, `PixelsController`, `TagManagerController`, `TikTokTestController`
+`FacebookTrackingController`, `PixelsController`, `TagManagerController`,
+`TikTokTestController`
 
-**Settings & ops**
-`GeneralSettingController` (64 settings columns incl. branding, footer, colours, section toggles),
-`ApiIntegrationController`, `EditorUploadController`, `ServiceRequestsController`,
-`UserSubmissionsController`, `UiDemoController`, `ContactController`
+**Settings and operations**
+`GeneralSettingController`, `ApiIntegrationController`, `EditorUploadController`,
+`ServiceRequestsController`, `UserSubmissionsController`, `UiDemoController`,
+`ContactController`
 
 ## Payments
 
-- **bKash** — `Frontend/BkashController` (create/execute/callback flow)
-- **ShurjoPay** — `Frontend/ShurjopayControllers` on top of `shurjopayv2/laravel8`
-- Payment gateways are stored in `payment_gateways` and filtered by `status` + `type`
+- **bKash** — `Frontend/BkashController` with create, execute and callback steps
+- **ShurjoPay** — `Frontend/ShurjopayControllers` on `shurjopayv2/laravel8`
+- Gateways live in `payment_gateways` and are filtered by `status` and `type`
 
-## SMS & notifications
+## Courier and shipping
 
-- `SmsGateway` model with per-gateway credentials and notification flags
-- `NotificationTemplate` for transactional messages, editable from the admin panel
-- Customer notification feed (`CustomerNotificationController`)
+- Courier credentials in `Courierapi`, shipments in `CourierShipment`
+- Fraud check in `CourierFraudCheck` before dispatch
+- Per-district shipping charges and manual shipping verification
+- Signed webhook receiver: `Api/CourierWebhookController`
+- Admin settings mask stored secrets and label each one **Saved** or **Not set**;
+  a token is only fetched when an admin presses **Copy token**
 
-## Courier & shipping
+## Marketing, analytics and tracking
 
-- Courier API credentials (`Courierapi`), shipment records (`CourierShipment`)
-- Fraud checker (`CourierFraudCheck`) before dispatch
-- Per-district shipping charges, manual shipping verification
-- Webhook receiver: `Api/CourierWebhookController`
-
-## Marketing, analytics & tracking
-
-- **Facebook Conversions API** — pixel id, conversion token, API version, server-side and
-  enhanced e-commerce flags, custom events
-- **TikTok Events API** — pixel id, access token, server-side/browser flags, test mode
-- **Google Tag Manager** — server container id/url and server-side flag
-- **SEO** — `SeoMeta` model for per-entity metadata
-- **First-party analytics** — `VisitorMaster`, `EventLog`, event ingestion endpoint,
-  IP blocking, analytics dashboard and reports
+- **Facebook Conversions API** — pixel id, conversion token, API version,
+  server-side and enhanced e-commerce flags, custom events
+- **TikTok Events API** — pixel id, access token, server/browser flags, test mode
+- **Google Tag Manager** — server container id and URL
+- **SEO** — `SeoMeta` per-entity metadata
+- **First-party analytics** — `VisitorMaster`, `EventLog`, ingestion endpoint,
+  phone blocking, dashboard charts and a Leaflet visitor map
 
 ## REST API
 
@@ -150,11 +168,12 @@ pixels and built-in analytics.
 
 ## Requirements
 
-- PHP **8.2** or newer with `pdo_mysql`, `mbstring`, `xml`, `curl`, `zip`, `gd`, `bcmath`, `intl`
+- PHP **8.4.1** or newer with `pdo_mysql`, `mbstring`, `xml`, `curl`, `zip`,
+  `gd`, `bcmath` and `intl`
 - Composer 2
 - MySQL 5.7+ / MariaDB 10.5+
-- Nginx or Apache (document root → `public/`)
-- No Node build step required at runtime
+- Nginx or Apache with the document root pointed at `public/`
+- No Node build step is required at runtime
 
 ## Installation
 
@@ -166,13 +185,13 @@ composer install --no-dev --optimize-autoloader
 cp .env.example .env
 php artisan key:generate
 
-# 3. database (edit DB_* in .env first)
+# 3. database (fill DB_* in .env first)
 php artisan migrate --force
 
-# 4. demo content (idempotent seeders)
+# 4. demo content (idempotent seeders, including the CMS pages)
 php artisan db:seed --force
 
-# 5. storage permissions
+# 5. writable storage
 chmod -R ug+rwX storage bootstrap/cache
 ```
 
@@ -189,7 +208,7 @@ server {
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
         fastcgi_read_timeout 300;
     }
 
@@ -197,20 +216,22 @@ server {
 }
 ```
 
-Recommended PHP limits for catalogue uploads: `upload_max_filesize=100M`, `post_max_size=100M`,
-`memory_limit=512M`, `max_execution_time=300`, `max_input_vars=5000`.
+Recommended PHP limits for catalogue uploads: `upload_max_filesize=100M`,
+`post_max_size=100M`, `memory_limit=512M`, `max_execution_time=300`,
+`max_input_vars=5000`.
 
 ## Demo accounts
 
-Created by `CreateAdminUserSeeder` **only for local development**:
+Created by `database/seeders/CreateAdminUserSeeder.php` **for local development
+only**:
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@gmail.com` | `105585` (changed from the seeded `123456`; this is the working local password) |
+| Admin | `admin@gmail.com` | `105585` |
 | Manager | `manager@gmail.com` | `123456` |
 | Support | `support@gmail.com` | `123456` |
 
-> Change or delete these accounts before any public deployment.
+> Rotate or delete these accounts before any public deployment.
 
 ---
 
@@ -219,34 +240,57 @@ Created by `CreateAdminUserSeeder` **only for local development**:
 ```
 app/
   Http/Controllers/
-    Admin/      60 back-office controllers
-    Api/        3 JSON/token endpoints
-    Auth/       login, register, password reset, verification
-    Frontend/   storefront, cart, checkout, payments, landing pages
-  Models/       57 Eloquent models
+    Admin/       64 back-office controllers
+    Api/          4 JSON endpoints
+    Auth/         login, register, password reset, verification
+    Frontend/     storefront, cart, checkout, payments, landing pages
+  Models/        63 Eloquent models
 database/
-  migrations/   122 schema migrations
-  seeders/      settings, roles, demo storefront, Shinjuku catalogue
+  migrations/   148 schema migrations
+  seeders/      settings, roles, demo catalogue, campaigns, CMS pages
 resources/views/
   backEnd/      admin screens
   frontend/
-    fm/         current theme (sections, partials, components)
+    fm/         126 views: current theme (sections, partials, components)
     pages/      static and landing pages
-routes/web.php  551 route definitions
+routes/
+  web.php       539 route definitions
+  api.php        19 route definitions
 public/         assets and uploads (product images under uploads/product/)
+tools/verify/   release gates and environment checks
 ```
 
 ## Testing
 
 ```bash
-php artisan test              # PHPUnit
+php artisan test              # PHPUnit, full suite
 vendor/bin/phpunit            # direct runner
-npx playwright test           # browser suite (if configured)
+npx playwright test           # browser suite, when configured
 ```
+
+Tests run against the configured development database, so features that need
+rows create and clean up their own fixtures instead of depending on seeded demo
+data.
+
+## Repository hygiene
+
+`.gitignore` keeps generated and machine-local material out of history:
+
+- `.env` and every `.env.*` variant, while `.env.example` stays tracked
+- `/vendor`, `/node_modules` and build caches
+- user uploads under `public/uploads/`
+- `.zombiecoder/` at any depth, so nested agent workspaces cannot slip in
+- `__pycache__/` and `*.pyc` from the asset tooling
+- `tools/verify/.artifacts/` (suite logs, screenshots, staging lists)
+- `public/reports/` (rendered briefs and OpenCode session transcripts)
+
+Never `git add -f` around these rules; a committed session dump or upload is
+hard to remove from public history.
 
 ## Security notes
 
-- `.env` is git-ignored — never commit credentials or API tokens
+- `.env` is git-ignored: never commit credentials or API tokens
 - Seeded demo passwords must be rotated before production
-- Payment and courier keys live in the database; restrict admin access accordingly
+- Payment and courier keys live in the database, so restrict admin access
 - Keep `APP_DEBUG=false` and `APP_ENV=production` on live servers
+- Courier webhook tokens are stored masked and printed only on demand

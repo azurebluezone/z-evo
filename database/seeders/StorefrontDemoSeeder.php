@@ -302,7 +302,7 @@ class StorefrontDemoSeeder extends Seeder
                 'parent_id'   => 0,
                 'image'       => $this->mediaOr($row['image'], self::SAFE_FALLBACK),
                 'meta_title'  => $row['name'],
-                'meta_decription' => 'Shop ' . $row['name'] . ' at GS Corporation. Fresh, local and delivered fast across Bangladesh.',
+                'meta_decription' => 'Shop ' . $row['name'] . ' at Z Evo-Commerce. Fresh, local and delivered fast across Bangladesh.',
                 'status'      => 1,
                 'home_page'   => 1,
                 'is_featured' => 1,
@@ -347,7 +347,7 @@ class StorefrontDemoSeeder extends Seeder
                         'category_id'  => $category->id,
                         'image'        => $category->image,
                         'meta_title'   => $name,
-                        'meta_decription' => $name . ' - shop online at GS Corporation.',
+                        'meta_decription' => $name . ' - shop online at Z Evo-Commerce.',
                         'status'       => 1,
                     ])
                 );
@@ -419,7 +419,7 @@ class StorefrontDemoSeeder extends Seeder
                 'old_price'     => $old,
                 'new_price'     => $new,
                 'pro_unit'      => $unit,
-                'meta_description' => $name . ' - buy online at GS Corporation.',
+                'meta_description' => $name . ' - buy online at Z Evo-Commerce.',
                 'description'   => $name . ' sourced fresh and delivered to your door across Bangladesh.',
                 'topsale'       => str_contains($flags, 't') ? 1 : 0,
                 'feature_product' => str_contains($flags, 'f') ? 1 : 0,

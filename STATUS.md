@@ -1,13 +1,14 @@
-# STATUS — Arafat (Laravel) ফ্রন্ট-এন্ড আধুনিকায়ন
+# STATUS — Z Evo-Commerce (Laravel) ফ্রন্ট-এন্ড আধুনিকায়ন
 
-> **Path correction (2026-10-28):** the project path was corrected from
-> `/home/sahon/Desktop/arafat` to `/home/sahon/Desktop/new evo`. The brand shown in-app is
-> **"GS Corporation"**. Historical backup paths under `/home/sahon/uds/hi/arafat_bak/` were
-> intentionally left unchanged.
+> **Path correction (2026-10-28):** the project now lives at
+> `/home/sahon/Desktop/new evo`, and the project is **Z Evo-Commerce**. The
+> historical backup directories keep their original `arafat_bak` names because
+> that is where those files still are; the old demo general-settings name
+> (`GeneralSettingSeeder`) is a separate rebrand task.
 
 **তারিখ:** ২০২৬-১০-২৮ (সর্বশেষ: ফ্রন্টএন্ড ধাপ শেষ — colour variant + default asset + event tracking + admin Pages; §৬.৬;
 আগের সেশন: ২০২৬-১০-০৮ কন্টাক্ট/অ্যাবাউট + হেডার বাগ; ২০২৬-১০-০৭ ইংরেজিকরণ + এআই-সার্চ)
-**প্রকল্প:** `/home/sahon/Desktop/new evo` — Laravel 10.50.3, MySQL `z_evo` (৩০ সক্রিয় পণ্য; ব্র্যান্ড নাম ইন-অ্যাপ "GS Corporation")
+**প্রকল্প:** `/home/sahon/Desktop/new evo` — Z Evo-Commerce, Laravel 10.50.5, MySQL `z_evo`; ডেমো `general_settings`-এ পুরোনো নাম এখনো আছে (স্টোরফ্রন্ট রিব্র্যান্ড আলাদা কাজ)
 **ডিজাইন সোর্স:** `/home/sahon/Downloads/01/hi/` (Bootstrap 5 HTML ফাইল; হেডার/ফুটার/মোবাইল মেনুর
 ক্যাননিক্যাল উৎস `freshmart_homepage_index.html`)
 **এই ডকুমেন্টের উদ্দেশ্য:** একটি সম্পূর্ণ সেলফ-কন্টেইনড অনবোর্ডিং ডক — শুধু এই ফাইল পড়ে একজন নতুন

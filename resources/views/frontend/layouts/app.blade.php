@@ -5,7 +5,7 @@
     <!-- Accessibility Enhancements -->
     <meta name="theme-color" content="#f3532b">
     <meta name="msapplication-TileColor" content="#f3532b">
-    <meta name="description" content="@yield('meta_description', 'GS Corporation BD - Your trusted online shopping destination with wide range of products')">
+    <meta name="description" content="@yield('meta_description', 'Z Evo-Commerce - Your trusted online shopping destination with wide range of products')">
     <meta name="keywords" content="online shopping, ecommerce, products, fashion, electronics">
     <link rel="canonical" href="{{ url()->current() }}">
     
@@ -119,7 +119,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @php
         $generalsetting = $generalsetting ?? \App\Models\GeneralSetting::first();
-        $appName = $generalsetting->name ?? 'GS Corporation BD';
+        $appName = $generalsetting->name ?? 'Z Evo-Commerce';
         $pageTitleRaw = trim($__env->yieldContent('title', ''));
         $primaryColorHex = ltrim((string) ($generalsetting->primary_color ?? 'f3532b'), '#');
         $primaryColorHex = preg_match('~^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$~', $primaryColorHex) ? strtolower($primaryColorHex) : 'f3532b';

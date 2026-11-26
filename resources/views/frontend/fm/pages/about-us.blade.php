@@ -93,7 +93,7 @@
 @endphp
 
 @section('title', 'About us')
-@section('meta_description', 'Adora is a Bangladesh baby-fashion retailer: newborn sizes through 3-4 years and up, delivered across the country with cash on delivery.')
+@section('meta_description', 'Z Evo-Commerce is a Bangladesh online shop: newborn sizes through 3-4 years and up, delivered across the country with cash on delivery.')
 
 @section('content')
     <main class="fm-about" data-purpose="about">

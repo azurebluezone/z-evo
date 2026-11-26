@@ -23,7 +23,7 @@
                     </svg>
                 </span>
             </span>
-            <span class="app-brand-text demo menu-text fw-semibold ms-2">{{ $generalsetting->name ?? config('app.name', 'Adora Style') }}</span>
+            <span class="app-brand-text demo menu-text fw-semibold ms-2">{{ $generalsetting->name ?? config('app.name', 'Z Evo-Commerce') }}</span>
         </a>
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

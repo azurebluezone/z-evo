@@ -44,7 +44,7 @@
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <div class="sv-hero-text-content">
-                                            <div class="sv-hero-brand">SUNNAH HEAVEN</div>
+                                            <div class="sv-hero-brand">Z EVO-COMMERCE</div>
                                             <a href="#" class="sv-hero-cta">SHOP NOW</a>
                                         </div>
                                     </div>

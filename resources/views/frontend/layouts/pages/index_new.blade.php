@@ -16,7 +16,7 @@
                         <div class="row align-items-center">
                             <div class="col-lg-6">
                                 <div class="sv-hero-text-content">
-                                    <div class="sv-hero-brand">{{ $slider->brand ?? 'Sunnah Heaven' }}</div>
+                                    <div class="sv-hero-brand">{{ $slider->brand ?? 'Z Evo-Commerce' }}</div>
                                     <h1 class="sv-hero-title">{{ $slider->title }}</h1>
                                     <p class="sv-hero-description">{{ $slider->description ?? 'Premium Islamic Fashion Collection' }}</p>
                                     <a href="{{ $slider->link ?? '#' }}" class="sv-hero-cta">SHOP NOW</a>
@@ -33,7 +33,7 @@
                     <div class="row align-items-center">
                         <div class="col-lg-6">
                             <div class="sv-hero-text-content">
-                                <div class="sv-hero-brand">Sunnah Heaven</div>
+                                <div class="sv-hero-brand">Z Evo-Commerce</div>
                                 <h1 class="sv-hero-title">Premium Islamic Fashion</h1>
                                 <p class="sv-hero-description">Discover our exclusive collection of modest and elegant Islamic clothing</p>
                                 <a href="#products" class="sv-hero-cta">SHOP NOW</a>

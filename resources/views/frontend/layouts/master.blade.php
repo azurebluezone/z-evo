@@ -950,9 +950,9 @@
         <div class="mobile-menu-logo">
             <div class="logo-image">
                 @if($generalsetting->white_logo ?? $generalsetting->logo ?? null)
-                <img src="{{ asset($generalsetting->white_logo ?? $generalsetting->logo) }}" alt="{{ $generalsetting->name ?? 'Sunnah Heaven' }}" />
+                <img src="{{ asset($generalsetting->white_logo ?? $generalsetting->logo) }}" alt="{{ $generalsetting->name ?? 'Z Evo-Commerce' }}" />
                 @else
-                <span class="mobile-menu-logo-text">{{ $generalsetting->name ?? 'Sunnah Heaven' }}</span>
+                <span class="mobile-menu-logo-text">{{ $generalsetting->name ?? 'Z Evo-Commerce' }}</span>
                 @endif
             </div>
             <div class="mobile-menu-close">
@@ -1024,18 +1024,18 @@
                     </div>
                     <a href="{{route('home')}}" class="modern-logo modern-logo-desktop d-none d-md-flex">
                         @if($generalsetting->white_logo ?? null)
-                        <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name ?? 'Sunnah Heaven' }}" style="max-height: 50px; width: auto;">
+                        <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name ?? 'Z Evo-Commerce' }}" style="max-height: 50px; width: auto;">
                         @else
-                        {{ $generalsetting->name ?? 'SUNNAH HEAVEN' }}
+                        {{ $generalsetting->name ?? 'Z EVO-COMMERCE' }}
                         @endif
                     </a>
                 </div>
                 <div class="col-md-6 col-4 modern-header-search order-2 order-md-2 d-flex justify-content-md-end justify-content-center align-items-center">
                     <a href="{{route('home')}}" class="modern-logo modern-logo-mobile sv-hdr-mobile-logo d-md-none">
                         @if($generalsetting->white_logo ?? null)
-                        <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name ?? 'Sunnah Heaven' }}" style="max-height: 40px; width: auto;">
+                        <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name ?? 'Z Evo-Commerce' }}" style="max-height: 40px; width: auto;">
                         @else
-                        <span>{{ $generalsetting->name ?? 'SUNNAH HEAVEN' }}</span>
+                        <span>{{ $generalsetting->name ?? 'Z EVO-COMMERCE' }}</span>
                         @endif
                     </a>
                     <div class="modern-search-container modern-search-desktop d-none d-md-block">
@@ -1117,13 +1117,13 @@
             @yield('content')
         </div>
         <!-- content end -->
-        <!-- ===== SUNNAH HEAVEN FOOTER - CONFLICT FREE VERSION ===== -->
+        <!-- ===== Z EVO-COMMERCE FOOTER - CONFLICT FREE VERSION ===== -->
         <footer class="sh-footer-v2">
             <div class="container">
                 <div class="row">
                     <!-- About Section -->
                     <div class="col-lg-3 col-md-6 col-sm-6 sh-footer-col">
-                        <h5 class="sh-footer-heading">About {{ $generalsetting->name ?? 'Sunnah Heaven' }}</h5>
+                        <h5 class="sh-footer-heading">About {{ $generalsetting->name ?? 'Z Evo-Commerce' }}</h5>
                         <p class="sh-footer-desc">Your trusted destination for authentic modest fashion. We provide high-quality Islamic clothing that combines tradition with contemporary style.</p>
                         <div class="sh-social-wrapper">
                             @foreach($socialicons as $value)
@@ -1262,7 +1262,7 @@
 
         <style>
             /* ========================================
-   SUNNAH HEAVEN FOOTER V2 - CONFLICT FREE
+   Z EVO-COMMERCE FOOTER V2 - CONFLICT FREE
    ======================================== */
 
         /* Reset for Footer Only */
