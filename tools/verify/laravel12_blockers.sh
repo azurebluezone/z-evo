@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 #
+# HISTORICAL: this gate measured the Laravel 10 -> 12 blockers before the
+# upgrade. The upgrade landed on 2026-11-26 (Laravel 12.74.0), so the stages
+# that assert ^10.0 now fail by design. The live release gate is
+# tools/verify/laravel12_upgrade.sh.
+#
 # Release gate for contract gc-mwxb6p2g: a measured Laravel 10 -> 12
 # assessment, not an upgrade.
 #

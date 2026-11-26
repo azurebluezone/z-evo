@@ -1,5 +1,12 @@
 # Laravel 10 to 12 upgrade assessment
 
+> **Status: COMPLETED 2026-11-26.** The upgrade landed on Laravel 12.74.0
+> (sanctum 4.5.0, permission 6.25.0, collision 8.9.6, phpunit 11.5.58, carbon
+> 3.15.1). The durable record is `STATUS.md` §0; the live release gate is
+> `tools/verify/laravel12_upgrade.sh`. This file is kept only as the
+> pre-upgrade measurement that `tools/verify/laravel12_blockers.sh` reads.
+> Do not use the plan below as instructions.
+
 Measured 2026-11-26 against the live tree at `~/Desktop/new evo`, HEAD
 `199f5b0`. Scope: assessment only. No dependency and no application code is
 changed by this document.

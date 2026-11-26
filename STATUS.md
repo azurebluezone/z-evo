@@ -8,12 +8,38 @@
 
 **তারিখ:** ২০২৬-১০-২৮ (সর্বশেষ: ফ্রন্টএন্ড ধাপ শেষ — colour variant + default asset + event tracking + admin Pages; §৬.৬;
 আগের সেশন: ২০২৬-১০-০৮ কন্টাক্ট/অ্যাবাউট + হেডার বাগ; ২০২৬-১০-০৭ ইংরেজিকরণ + এআই-সার্চ)
-**প্রকল্প:** `/home/sahon/Desktop/new evo` — Z Evo-Commerce, Laravel 10.50.5, MySQL `z_evo`; ডেমো `general_settings`-এ পুরোনো নাম এখনো আছে (স্টোরফ্রন্ট রিব্র্যান্ড আলাদা কাজ)
+**প্রকল্প:** `/home/sahon/Desktop/new evo` — Z Evo-Commerce, Laravel 12.74.0, MySQL `z_evo`; ডেমো `general_settings`-এ পুরোনো নাম এখনো আছে (স্টোরফ্রন্ট রিব্র্যান্ড আলাদা কাজ)
 **ডিজাইন সোর্স:** `/home/sahon/Downloads/01/hi/` (Bootstrap 5 HTML ফাইল; হেডার/ফুটার/মোবাইল মেনুর
 ক্যাননিক্যাল উৎস `freshmart_homepage_index.html`)
 **এই ডকুমেন্টের উদ্দেশ্য:** একটি সম্পূর্ণ সেলফ-কন্টেইনড অনবোর্ডিং ডক — শুধু এই ফাইল পড়ে একজন নতুন
 সেশনের এজেন্ট/ডেভেলপার প্রকল্পের বর্তমান অবস্থা বুঝে কাজ শুরু করতে পারবে। এখানে যা নেই, সেটা
 `/home/sahon/z/monu_the_builder/` (Colab GPU গেটওয়ে — আলাদা প্রকল্প, তার নিজস্ব ডকুমেন্ট আছে)।
+
+---
+
+## ০. Laravel 12.74 upgrade (২০২৬-১১-২৬)
+
+Laravel 10.50.5 → **12.74.0**। এক Composer রানে চারটা direct package বদলেছে:
+
+| Package | ছিল | এখন |
+| --- | --- | --- |
+| `laravel/framework` | 10.50.5 (`^10.0`, lock `10.x-dev`) | 12.74.0 (`^12.74`) |
+| `laravel/sanctum` | v3.3.3 (`^3.2`) | v4.5.0 (`^4.5`) |
+| `spatie/laravel-permission` | 5.11.1 (`^5.10`) | 6.25.0 (`^6.25`) |
+| `nunomaduro/collision` | v7.12.0 (`^7.0`) | v8.9.6 (`^8.9`) |
+| `phpunit/phpunit` | 10.5.67 | 11.5.58 (`^11.1`) |
+
+সাথে `nesbot/carbon` 3.15.1, `nunomaduro/termwind` 2.4.1, symfony 7.x। `doctrine/dbal` বাদ (Laravel 11+ আর লাগে না)। `minimum-stability: dev` + `prefer-stable` সরানো — lock এখন tagged release, branch alias নয়।
+
+কোড-লেভেল এডিট (সবই upgrade-এর জন্য বাধ্যতামূলক ছিল):
+
+- `app/Http/Kernel.php:67-69` — `Spatie\Permission\Middlewares\*` → `Spatie\Permission\Middleware\*`
+- `config/sanctum.php` — `verify_csrf_token` বাদ; `authenticate_session` / `encrypt_cookies` / `validate_csrf_token` + `token_prefix`
+- `config/permission.php` — v6 key যোগ: `register_octane_reset_listener`, `events_enabled`, `team_resolver`, `use_passport_client_credentials`
+- `tests/TestCase.php` — Doctrine `getDoctrineSchemaManager()` dead block মুছে ফেলা (Laravel 11-এ method removed, `catch (\Throwable)`-এ লুকিয়ে ছিল)
+- `database/migrations/2023_02_20_022411_create_customers_table.php:22` — `float('balance')` → `double('balance', 8, 2)`; লাইভ কলামও `double(8,2)`, তাই fresh install আর schema drift করবে না
+
+প্রমাণ: `bash tools/verify/laravel12_upgrade.sh` → `ZC-LARAVEL12-UPGRADE-OK`; `php artisan test` → 232 passed (3582 assertions); `composer audit` → কোনো advisory নেই। পুরোনো `tools/verify/laravel12_blockers.sh` এখন ঐতিহাসিক — সে `^10.0` দাবি করে, তাই ইচ্ছাকৃতভাবেই fail করে।
 
 ---
 

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('slug')->length('155');
             $table->string('phone')->length('55');
             $table->string('email')->length('55');
-            $table->float('balance')->default(0);
+            $table->double('balance', 8, 2)->default(0);
             $table->integer('district')->nullable();
             $table->integer('area')->nullable();
             $table->string('address')->nullable();
