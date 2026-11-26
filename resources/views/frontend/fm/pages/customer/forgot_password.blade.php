@@ -7,24 +7,19 @@
                      POST /customer/forgot-verify          (customer.forgot.verify)
     Sections       : fm-auth-body, fm-auth-foot
 
-    WHY type="tel", NOT type="number"
-    The classic used type="number". A numeric input silently discards a leading
-    zero, and the lookup below is Customer::where('phone', …) - so "1XXXXXXXXX"
-    never matches and the customer is told their number was not found.
+    EMAIL OTP ONLY
+    forgot_verify() validates `email`, looks the customer up by email and mails
+    the one-time code. The SMS path was removed from this flow, so there is no
+    phone field here at all.
 
-    @error('phone') is kept even though forgot_verify() performs no
-    $this->validate() call: it is the field the customer can get wrong, it costs
-    nothing, and if validation is ever added to the handler this page is already
-    correct.
-
-    forgot_verify() sends the OTP and puts the phone in the session under
-    'verify_phone'; forgot_reset() then refuses to render without it. That is why
-    there is no account context here and why the card is standalone.
+    forgot_verify() puts the email in the session under 'verify_email';
+    forgot_reset() then refuses to render without it. That is why there is no
+    account context here and why the card is standalone.
 -------------------------------------------------------------------------- --}}
 
 @extends('frontend.fm.layouts.auth', [
     'fmAuthTitle'   => 'Reset your password',
-    'fmAuthSub'     => 'Enter the phone number on your account and we will send you a one-time code.',
+    'fmAuthSub'     => 'Enter the email address on your account and we will send you a one-time code.',
     'fmAuthEyebrow' => 'Password',
     'fmAuthAside'   => false,
 ])
@@ -35,21 +30,20 @@
         @csrf
 
         <div class="fm-au__field">
-            <label class="fm-au__label" for="forgotPhone">
-                Phone number <span class="req">*</span>
+            <label class="fm-au__label" for="forgotEmail">
+                Email address <span class="req">*</span>
             </label>
-            <input type="tel"
-                   id="forgotPhone"
-                   name="phone"
-                   class="fm-au__input @error('phone') is-invalid @enderror"
-                   value="{{ old('phone') }}"
-                   placeholder="01XXXXXXXXX"
-                   inputmode="numeric"
-                   autocomplete="tel"
+            <input type="email"
+                   id="forgotEmail"
+                   name="email"
+                   class="fm-au__input @error('email') is-invalid @enderror"
+                   value="{{ old('email') }}"
+                   placeholder="you@example.com"
+                   autocomplete="email"
                    autofocus
                    required>
-            <p class="fm-au__hint">The number you used when you registered.</p>
-            <p class="fm-au__error">@error('phone') {{ $message }} @enderror</p>
+            <p class="fm-au__hint">The address you used when you registered.</p>
+            <p class="fm-au__error">@error('email') {{ $message }} @enderror</p>
         </div>
 
         <button type="submit" class="fm-au__btn">

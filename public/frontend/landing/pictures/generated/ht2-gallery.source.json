@@ -1,0 +1,51 @@
+{
+    "source": "work/zevo/1788849471061.png",
+    "source_sha256": "db7536e031294c7bf5af9abb7b7ae0e12b7d7aff9bc13001ad856b9b493154fd",
+    "outputs": {
+        "ht2-gallery-01.jpg": {
+            "crop": [
+                120,
+                80,
+                920,
+                880
+            ],
+            "resize": "1000x1000",
+            "sha256": "b92ce0008fa11a61ecf9b0dc7501017b6c2ab6c1cf251e8705d1e93c6950bfe0",
+            "bytes": 157813
+        },
+        "ht2-gallery-02.jpg": {
+            "crop": [
+                430,
+                180,
+                790,
+                540
+            ],
+            "resize": "1000x1000",
+            "sha256": "505cdd0f42eec176756aaccad2ccbf1b2a4405cc9da41f172b5606965185cc1d",
+            "bytes": 135670
+        },
+        "ht2-gallery-03.jpg": {
+            "crop": [
+                540,
+                380,
+                920,
+                760
+            ],
+            "resize": "1000x1000",
+            "sha256": "01146dc77c9a0d9c005221b7cc67229239640c15b9b42fe54e0d80875fa0aed8",
+            "bytes": 123599
+        },
+        "ht2-gallery-04.jpg": {
+            "crop": [
+                190,
+                250,
+                570,
+                630
+            ],
+            "resize": "1000x1000",
+            "sha256": "7d1ce13ed68b58558edd842714b12b355d58aa306ec4b3fee165004502585b23",
+            "bytes": 160020
+        }
+    },
+    "note": "Authentic ZEvo panjabi/saree artwork from work/zevo; square gallery crops replace the wallet placeholders on campaign 803."
+}

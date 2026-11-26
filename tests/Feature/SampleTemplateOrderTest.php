@@ -20,8 +20,12 @@ use Tests\TestCase;
  */
 class SampleTemplateOrderTest extends TestCase
 {
+    use GrantsVariantStock;
+
     private array $createdProductIds = [];
     private array $createdCampaignIds = [];
+    private array $createdOrderIds = [];
+    private array $createdPhones = [];
 
     protected function setUp(): void
     {
@@ -34,12 +38,36 @@ class SampleTemplateOrderTest extends TestCase
     {
         Cart::instance('shopping')->destroy();
 
+        if (!empty($this->createdOrderIds)) {
+            DB::table('order_details')->whereIn('order_id', $this->createdOrderIds)->delete();
+            DB::table('inventory_reservations')->whereIn('order_id', $this->createdOrderIds)->delete();
+            DB::table('payments')->whereIn('order_id', $this->createdOrderIds)->delete();
+            DB::table('shippings')->whereIn('order_id', $this->createdOrderIds)->delete();
+            DB::table('orders')->whereIn('id', $this->createdOrderIds)->delete();
+        }
+
+        if (!empty($this->createdPhones)) {
+            DB::table('customers')->whereIn('phone', $this->createdPhones)->delete();
+        }
+
         if (!empty($this->createdCampaignIds)) {
             DB::table('campaigns')->whereIn('id', $this->createdCampaignIds)->delete();
         }
 
         if (!empty($this->createdProductIds)) {
-            DB::table('productimages')->whereIn('product_id', $this->createdProductIds)->delete();
+            $variantIds = DB::table('product_variants')
+                ->whereIn('product_id', $this->createdProductIds)
+                ->pluck('id')
+                ->all();
+
+            if (!empty($variantIds)) {
+                DB::table('variant_stocks')->whereIn('variant_id', $variantIds)->delete();
+                DB::table('inventory_movements')->whereIn('variant_id', $variantIds)->delete();
+                DB::table('inventory_reservations')->whereIn('variant_id', $variantIds)->delete();
+            }
+
+            DB::table('productimages')->where('product_id', $this->createdProductIds)->delete();
+            DB::table('product_variants')->whereIn('product_id', $this->createdProductIds)->delete();
             DB::table('products')->whereIn('id', $this->createdProductIds)->delete();
         }
 
@@ -65,26 +93,46 @@ class SampleTemplateOrderTest extends TestCase
         $response->assertDontSee('href="' . route('landing.order') . '"', false);
     }
 
-    public function test_sample_template_form_fields_reach_the_campaign_cart(): void
+    public function test_sample_template_form_fields_place_the_campaign_order(): void
     {
         [$product, $campaign] = $this->createCampaignPage();
 
         $this->get('/campaign/' . $campaign->slug)->assertOk();
 
-        $this->post('/landing-order', [
+        // The landing form places the order directly now (OrderPlacementService);
+        // it no longer parks a line in the cart for a later checkout.
+        $area = DB::table('shipping_charges')->where('status', 1)->orderBy('id')->first();
+        $this->assertNotNull($area, 'Checkout needs at least one active shipping area.');
+
+        $phone = '018' . str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+        $this->createdPhones[] = $phone;
+
+        $response = $this->post('/landing-order', [
             'product_id' => $product->id,
             'campaign_id' => $campaign->id,
             'quantity' => 1,
-        ])->assertRedirect(route('customer.checkout'));
+            'name' => 'Sample Template Buyer',
+            'phone' => $phone,
+            'address' => '12 Sample Road, Dhaka',
+            'area' => $area->id,
+            'payment_method' => 'Cash On Delivery',
+        ]);
 
-        $this->assertSame(1, Cart::instance('shopping')->count());
+        $customerId = (int) DB::table('customers')->where('phone', $phone)->value('id');
+        $this->assertGreaterThan(0, $customerId, 'The landing order did not create a customer.');
 
-        $item = Cart::instance('shopping')->content()->first();
-        $this->assertSame(900.0, (float) $item->price);
-        $this->assertSame((int) $campaign->id, (int) $item->options->campaign_id);
-        $this->assertSame(1200.0, (float) $item->options->regular_price);
-        $this->assertSame('campaign', $item->options->price_source);
-        $this->assertSame((int) $product->id, (int) $item->id);
+        $orderId = (int) DB::table('orders')->where('customer_id', $customerId)->orderByDesc('id')->value('id');
+        $this->assertGreaterThan(0, $orderId, 'The landing order did not create an order.');
+        $this->createdOrderIds[] = $orderId;
+
+        $response->assertRedirect(route('customer.order_success', ['id' => $orderId]));
+
+        $detail = DB::table('order_details')->where('order_id', $orderId)->first();
+        $this->assertNotNull($detail, 'The order has no line.');
+        $this->assertSame(900.0, (float) $detail->sale_price);
+        $this->assertSame(1200.0, (float) $detail->regular_price);
+        $this->assertSame((int) $campaign->id, (int) $detail->campaign_id);
+        $this->assertSame((int) $product->id, (int) $detail->product_id);
 
         $this->assertSame(1200, (int) DB::table('products')->where('id', $product->id)->value('new_price'));
     }
@@ -94,8 +142,8 @@ class SampleTemplateOrderTest extends TestCase
      */
     private function createCampaignPage(): array
     {
-        $templateId = DB::table('templates')->where('view_name', 'sample-template')->value('id');
-        $this->assertNotNull($templateId, 'The sample-template row is missing from the templates table.');
+        $templateId = DB::table('templates')->where('view_name', 'ht2')->value('id');
+        $this->assertNotNull($templateId, 'The ht2 template row is missing from the templates table.');
 
         $productId = DB::table('products')->insertGetId([
             'name' => 'Sample Template Product ' . Str::random(6),
@@ -106,7 +154,6 @@ class SampleTemplateOrderTest extends TestCase
             'purchase_price' => 800,
             'old_price' => 1500,
             'new_price' => 1200,
-            'stock' => 20,
             'meta_description' => null,
             'description' => 'Sample template product description',
             'topsale' => null,
@@ -118,6 +165,7 @@ class SampleTemplateOrderTest extends TestCase
         ]);
         $this->createdProductIds[] = $productId;
         $product = DB::table('products')->where('id', $productId)->first();
+        $this->grantDefaultStock($product);
 
         $campaignId = DB::table('campaigns')->insertGetId([
             'name' => 'Sample Template Campaign ' . Str::random(6),

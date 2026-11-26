@@ -25,6 +25,7 @@ use App\Services\PathaoClient;
 use App\Models\CourierFraudCheck;
 use App\Models\CourierShipment;
 use App\Services\CourierOrderSender;
+use App\Services\PathaoOrderSender;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -33,6 +34,7 @@ use Session;
 use Cart;
 use Gloudemans\Shoppingcart\Exceptions\InvalidRowIDException;
 use Mail;
+use App\Models\InventoryMovement;
 
 class OrderController extends Controller
 {
@@ -75,129 +77,30 @@ class OrderController extends Controller
         return $base . $path;
     }
 
-    private function pathaoUrl(string $base, string $path): string
-    {
-        // Sandbox URL (courier-api-sandbox.pathao.com) does not need /aladdin prefix
-        // Production URL (api-hermes.pathao.com) requires /aladdin
-        $path = ltrim($path, '/');
-        if (str_contains($base, 'sandbox')) {
-            return $this->joinUrl($base, $path);
-        }
-        if (str_starts_with($path, 'aladdin/')) {
-            return $this->joinUrl($base, $path);
-        }
-        return $this->joinUrl($base, 'aladdin/' . $path);
-    }
-
-    /**
-     * Real parcel data for a Pathao order, derived from the order itself.
+    /*
+     * There is no Pathao URL builder here any more.
      *
-     * B15: both Pathao send paths used to hardcode item_quantity=1,
-     * item_weight=0.5, a generic 'Special note...' item_description (and one
-     * used sender_name='Test' plus 'Order from Adora'). A multi-item order was
-     * therefore booked as a single 0.5kg parcel described as a note, and the
-     * customer's rider saw the wrong thing. This derives the values instead.
-     *
-     * Weight note: order_details stores no per-item weight, so 0.5kg remains the
-     * documented fallback until product weights are captured. Quantity and
-     * description ARE real.
-     *
-     * @return array{item_quantity:int, item_weight:float, item_description:string, sender_name:string}
+     * This class used to carry its own copy of the base-path rule, and that copy
+     * said the sandbox host serves the API at the root. Measured live:
+     * POST {sandbox}/aladdin/api/v1/issue-token answers 200, POST
+     * {sandbox}/api/v1/issue-token answers 404. PathaoClient::buildUrl() now
+     * holds the verified rule, so a fix cannot land in one caller and miss
+     * another. Parcel data and location detection moved to
+     * PathaoOrderSender for the same reason.
      */
-    private function pathaoParcelData(Order $order): array
-    {
-        $details = $order->orderdetails()->get(['product_name', 'qty']);
 
-        $qty = max(1, (int) $details->sum('qty'));
-
-        $description = mb_substr(
-            $details->pluck('product_name')->filter()->unique()->take(3)->implode(', '),
-            0,
-            200
-        );
-        if ($description === '') {
-            $description = 'Order #' . $order->invoice_id;
-        }
-
-        $senderName = \App\Models\GeneralSetting::query()->value('name');
-        $senderName = trim((string) $senderName) !== '' ? trim((string) $senderName) : 'Store';
-
-        return [
-            'item_quantity'    => $qty,
-            'item_weight'      => 0.5,
-            'item_description' => $description,
-            'sender_name'      => mb_substr($senderName, 0, 100),
-        ];
-    }
-
-    /**
-     * Fetch Pathao city + store reference data for the orders screen.
+    /*
+     * The orders screen used to fetch Pathao's city list and store list on
+     * every page load. Both are ~20 second calls on the real API, and the guard
+     * here was a 2 second timeout - so the fetch ALWAYS failed, opened the
+     * circuit breaker for five minutes, and left $pathaostore empty. The Pathao
+     * button is rendered only when that list is non-empty, so the button was
+     * permanently hidden and the page still paid 4 seconds for the attempt.
      *
-     * Guard rails (added after a 39s page load was traced to these two calls):
-     *  - hard response timeout, so an unreachable courier API fails fast
-     *  - circuit breaker: after a failure the calls are skipped for a while, so the
-     *    orders screen never pays the timeout again on every single request
-     *  - success cached 6h; a failure opens the breaker for 5 minutes
-     *  - never throws: an unreachable courier degrades to empty reference data
-     *
-     * @param  \App\Models\Courierapi|null  $pathaoInfo
-     * @return array{cities: array, stores: array}
+     * Nothing on the list screen actually needs the store list: the send action
+     * resolves the store itself (PathaoOrderSender). The button is now gated on
+     * "Pathao is configured and enabled", which is a local DB read.
      */
-    private function pathaoReferenceData($pathaoInfo): array
-    {
-        $fallback = ['cities' => [], 'stores' => []];
-
-        if (!$pathaoInfo) {
-            return $fallback;
-        }
-
-        $breakerKey = 'admin.courier.pathao.breaker';
-
-        // Circuit open: the courier API recently failed, so do not call it at all.
-        if (Cache::has($breakerKey)) {
-            return $fallback;
-        }
-
-        $baseUrl = $pathaoInfo->url;
-        $token = $pathaoInfo->token;
-        $timeout = 2;
-
-        try {
-            $data = Cache::remember('admin.courier.pathao.reference', now()->addHours(6), function () use ($baseUrl, $token, $timeout) {
-                $cities = Http::timeout($timeout)
-                    ->get($this->pathaoUrl($baseUrl, 'api/v1/city-list'))
-                    ->json();
-
-                $stores = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $token,
-                    'Content-Type' => 'application/json',
-                ])->timeout($timeout)
-                    ->get($this->pathaoUrl($baseUrl, 'api/v1/stores'))
-                    ->json();
-
-                // A Cloudflare/API error body is non-empty but unusable downstream,
-                // so normalise anything unexpected to an empty list.
-                return [
-                    'cities' => is_array($cities) ? $cities : [],
-                    'stores' => is_array($stores) ? $stores : [],
-                ];
-            });
-
-            // A structurally broken payload is treated like a transport failure.
-            if (empty($data['stores'])) {
-                throw new \RuntimeException('Pathao returned an unusable reference payload.');
-            }
-
-            return $data;
-        } catch (\Throwable $e) {
-            Cache::put($breakerKey, true, now()->addMinutes(5));
-            Log::warning('Pathao reference data unavailable, circuit open for 5 minutes.', [
-                'message' => $e->getMessage(),
-            ]);
-
-            return $fallback;
-        }
-    }
 
     private function normalizePhone(string $phone): string
     {
@@ -517,20 +420,12 @@ class OrderController extends Controller
         }
         $steadfast = $steadfastQuery->first();
 
-        $pathaoQuery = Courierapi::query()->where('type', 'pathao');
-        if ($courierEnabledColumnExists) {
-            $pathaoQuery->where('status', 1);
-        }
-        $pathao_info = $pathaoQuery->select('id', 'type', 'url', 'token')->when($courierEnabledColumnExists, function ($q) {
-            return $q->addSelect('status');
-        })->first();
-        // Pathao reference data (city list + store list).
-        // These are third-party calls: they are cached and hard-timeout bounded so a
-        // slow/unreachable courier API can never block the orders screen again.
-        $pathaoReference = $this->pathaoReferenceData($pathao_info);
-        $pathaocities = $pathaoReference['cities'];
-        $pathaostore = $pathaoReference['stores'];
-        return view('backEnd.order.index',compact('show_data','order_status','orderstatus','order_kpis','users', 'steadfast','pathaostore','pathaocities'));
+        // The Pathao button is shown when the account is usable, which is a
+        // local DB check. The old code asked Pathao for its store list here and
+        // hid the button whenever that (always failing) call came back empty.
+        $pathaoReady = PathaoClient::enabled() !== null;
+
+        return view('backEnd.order.index',compact('show_data','order_status','orderstatus','order_kpis','users', 'steadfast','pathaoReady'));
     } 
     
     /**
@@ -640,86 +535,41 @@ class OrderController extends Controller
             return response()->json(['status' => 'failed', 'message' => 'No orders selected'], 422);
         }
 
+        // The store/city/zone/area the admin picked in the popup. Anything left
+        // empty is resolved by the sender, so this path and the bulk one cannot
+        // disagree about what a valid Pathao payload is.
+        $shop = [
+            'store_id' => $request->pathaostore,
+            'city_id'  => $request->pathaocity,
+            'zone_id'  => $request->pathaozone,
+            'area_id'  => $request->pathaoarea,
+        ];
+
         foreach ($orders_id as $order_id) {
-            $order = Order::with('shipping')->find($order_id);
-            if (!$order) {
+            $order = Order::with(['shipping', 'orderdetails'])->find($order_id);
+
+            if (! $order) {
                 return response()->json(['status' => 'failed', 'message' => 'Order not found']);
             }
-            $order_count = OrderDetails::select('order_id')->where('order_id', $order->id)->count();
-            // return $request->all();
-            // pathao
-            $courierEnabledColumnExists = Schema::hasColumn('courier_apis', 'status');
-            $pathaoQuery = Courierapi::query()->where('type', 'pathao');
-            if ($courierEnabledColumnExists) {
-                $pathaoQuery->where('status', 1);
-            }
-            $pathao_info = $pathaoQuery->select('id', 'type', 'url', 'token')->when($courierEnabledColumnExists, function ($q) {
-                return $q->addSelect('status');
-            })->first();
-            if ($pathao_info) {
-                // B15: real parcel data instead of hardcoded qty/weight/description
-                // and sender_name='Test'.
-                $parcel = $this->pathaoParcelData($order);
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $pathao_info->token,
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'application/json',
-                ])->post($this->pathaoUrl($pathao_info->url, 'api/v1/orders'), [
-                    'store_id' => $request->pathaostore,
-                    'merchant_order_id' => $order->invoice_id,
-                    'sender_name' => $parcel['sender_name'],
-                    'sender_phone' => $order->shipping ? $order->shipping->phone : '',
-                    'recipient_name' => $order->shipping ? $order->shipping->name : '',
-                    'recipient_phone' => $order->shipping ? $order->shipping->phone : '',
-                    'recipient_address' => $order->shipping ? $order->shipping->address : '',
-                    'recipient_city' => $request->pathaocity,
-                    'recipient_zone' => $request->pathaozone,
-                    'recipient_area' => $request->pathaoarea,
-                    'delivery_type' => 48,
-                    'item_type' => 2,
-                    'special_instruction' => 'Special note- product must be check after delivery',
-                    'item_quantity' => $parcel['item_quantity'],
-                    'item_weight' => $parcel['item_weight'],
-                    'amount_to_collect' => round($order->amount),
-                    'item_description' => $parcel['item_description'],
-                ]);
-            }
-            if (!isset($response)) {
-                return response()->json(['status' => 'failed', 'message' => 'Pathao is not configured']);
+
+            $result = app(PathaoOrderSender::class)->send($order, $shop);
+
+            if (! $result['ok']) {
+                Toastr::error($result['message'], 'Courier Order Failed');
+
+                return response()->json(['status' => 'failed', 'message' => $result['message']]);
             }
 
-            if ($response->status() === 200) {
-                $consignmentId = data_get($response->json(), 'data.consignment_id');
+            Toastr::success($result['consignment_id'], 'Courier Tracking ID');
 
-                try {
-                    CourierShipment::query()->updateOrCreate(
-                        [
-                            'order_id' => $order->id,
-                            'provider' => 'pathao',
-                        ],
-                        [
-                            'merchant_order_id' => (string) $order->invoice_id,
-                            'consignment_id' => $consignmentId ? (string) $consignmentId : null,
-                            'tracking_code' => null,
-                            'current_status' => (string) data_get($response->json(), 'data.order_status'),
-                            'raw_payload' => $response->json(),
-                            'last_synced_at' => now(),
-                        ]
-                    );
-                } catch (\Throwable $e) {
-                }
-
-                Toastr::success($consignmentId ?: 'Success', 'Courier Tracking ID');
-                return response()->json(['status' => 'success', 'message' => $consignmentId ?: 'Success']);
-            }
-
-            $message = data_get($response->json(), 'message', 'Courier Order Failed');
-            Toastr::error($message, 'Courier Order Faild');
-            return response()->json(['status' => 'failed', 'message' => $message]);
-            return redirect()->back();
-
-
+            return response()->json([
+                'status'         => 'success',
+                'message'        => $result['consignment_id'],
+                'consignment_id' => $result['consignment_id'],
+            ]);
         }
+
+        return response()->json(['status' => 'failed', 'message' => 'No orders selected'], 422);
     }
     
     public function invoice($invoice_id){
@@ -811,13 +661,57 @@ class OrderController extends Controller
     public function order_process(Request $request)
     {
 
-        $statusRow = OrderStatus::find($request->status);
-        $link = $statusRow ? $statusRow->slug : '';
-        $order = Order::find($request->id);
-        $courier = $order->order_status;
-        $order->order_status = $request->status;
-        $order->admin_note = $request->admin_note;
-        $order->save();
+        $statusRow = OrderStatus::findOrFail($request->status);
+        $link = $statusRow->slug;
+        $order = Order::findOrFail($request->id);
+        $courier = (int) $order->order_status;
+        $noteBefore = (string) ($order->admin_note ?? '');
+
+        /*
+         * Only touch the note when the form actually carried the field.
+         *
+         * This assignment used to be unconditional, but the process/status
+         * form ("Update Order") has no note input, so every status save wrote
+         * NULL over the note typed on the order edit screen. That is why the
+         * admin note kept disappearing.
+         */
+        $audit = app(\App\Services\AuditLogger::class);
+        if ($request->has('admin_note')) {
+            $order->admin_note = $request->admin_note;
+            $order->save();
+            $audit->orderNote($order, $noteBefore, (string) $order->admin_note);
+        }
+
+        /*
+         * Every status move goes through OrderLifecycle.
+         *
+         * This form used to write order_status directly and stop there. The
+         * list-view dropdown and the Kanban board both call OrderLifecycle, so
+         * an order shipped from this screen left no SALE movement and never
+         * reduced stock - the exact order path an admin uses most. Lifecycle
+         * also writes the audit row, so it is not duplicated here.
+         */
+        if ((string) $courier !== (string) $statusRow->id) {
+            try {
+                app(\App\Services\OrderLifecycle::class)->transition(
+                    $order,
+                    (string) $statusRow->slug,
+                    null,
+                    auth()->id()
+                );
+            } catch (\Throwable $e) {
+                Log::warning('Admin order status change failed', [
+                    'order_id' => $order->id,
+                    'status_id' => $statusRow->id,
+                    'slug' => $statusRow->slug,
+                    'error' => $e->getMessage(),
+                ]);
+
+                Toastr::error('Status was not changed: ' . $e->getMessage(), 'Stock');
+
+                return redirect('admin/order/' . $link);
+            }
+        }
 
         $shipping_update = Shipping::where('order_id', $order->id)->first();
         $shippingfee = ShippingCharge::find($request->area);
@@ -864,7 +758,7 @@ class OrderController extends Controller
                         continue;
                     }
 
-                    $product = Product::select('id','stock','product_code','name')->find($order_details->product_id);
+                    $product = Product::select('id','product_code','name')->find($order_details->product_id);
                     if (!$product) {
                         continue;
                     }
@@ -921,7 +815,7 @@ class OrderController extends Controller
                         ->where('variant_id', $variantId)
                         ->exists();
                     if (!$stockRowExists) {
-                        $initial = (int) ($product->stock ?? 0);
+                            $initial = 0;
                         DB::table('variant_stocks')->insert([
                             'variant_id' => $variantId,
                             'on_hand' => $initial,
@@ -949,7 +843,7 @@ class OrderController extends Controller
                         continue;
                     }
 
-                    DB::table('inventory_movements')->insert([
+                    InventoryMovement::record([
                         'variant_id' => $variantId,
                         'type' => 'ON_THE_WAY_DEDUCT',
                         'qty_delta' => -1 * $qty,
@@ -969,11 +863,6 @@ class OrderController extends Controller
                             'updated_at' => now(),
                         ]);
 
-                    DB::table('products')
-                        ->where('id', $product->id)
-                        ->update([
-                            'stock' => DB::raw('GREATEST(0, stock - ' . (int) $qty . ')'),
-                        ]);
                 }
 
                 // Clear any active reservations once approved
@@ -1082,6 +971,12 @@ class OrderController extends Controller
  * rule is the point: two copies is how a product ends up with stock
  * decremented twice, or not at all.
  *
+ * @deprecated 2026-11-16 — no caller remains. changeOrderStatus() now delegates
+ *             every transition to App\Services\OrderLifecycle, whose
+ *             InventoryLedger writes RESERVE/SALE/RELEASE. This method is kept
+ *             only until the DROP-LEGACY-STOCK step removes the old
+ *             ON_THE_WAY_DEDUCT movement types with it; do not call it.
+ *
  * @param  array<int,int>  $orderIds
  */
 private function applyOrderStatusStock(array $orderIds, $statusId): void
@@ -1102,7 +997,7 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
                             continue;
                         }
 
-                        $product = Product::select('id','stock','product_code','name')->find($order_details->product_id);
+                        $product = Product::select('id','product_code','name')->find($order_details->product_id);
                         if (!$product) {
                             continue;
                         }
@@ -1157,7 +1052,7 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
                             ->where('variant_id', $variantId)
                             ->exists();
                         if (!$stockRowExists) {
-                            $initial = (int) ($product->stock ?? 0);
+                            $initial = 0;
                             DB::table('variant_stocks')->insert([
                                 'variant_id' => $variantId,
                                 'on_hand' => $initial,
@@ -1184,7 +1079,7 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
                             continue;
                         }
 
-                        DB::table('inventory_movements')->insert([
+                        InventoryMovement::record([
                             'variant_id' => $variantId,
                             'type' => 'ON_THE_WAY_DEDUCT',
                             'qty_delta' => -1 * $qty,
@@ -1204,11 +1099,6 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
                                 'updated_at' => now(),
                             ]);
 
-                        DB::table('products')
-                            ->where('id', $product->id)
-                            ->update([
-                                'stock' => DB::raw('GREATEST(0, stock - ' . (int) $qty . ')'),
-                            ]);
                     }
 
                     if (Schema::hasTable('inventory_reservations')) {
@@ -1232,7 +1122,7 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
                             continue;
                         }
 
-                        $product = Product::select('id','stock','product_code','name')->find($order_details->product_id);
+                        $product = Product::select('id','product_code','name')->find($order_details->product_id);
                         if (!$product) {
                             continue;
                         }
@@ -1289,7 +1179,7 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
                             ->where('variant_id', $variantId)
                             ->exists();
                         if (!$stockRowExists) {
-                            $initial = (int) ($product->stock ?? 0);
+                            $initial = 0;
                             DB::table('variant_stocks')->insert([
                                 'variant_id' => $variantId,
                                 'on_hand' => $initial,
@@ -1312,7 +1202,7 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
                         }
 
                         // Ledger write (truth)
-                        DB::table('inventory_movements')->insert([
+                        InventoryMovement::record([
                             'variant_id' => $variantId,
                             'type' => 'DELIVERED_DEDUCT',
                             'qty_delta' => -1 * $qty,
@@ -1323,10 +1213,6 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
-
-                        // Existing behavior (back-compat): deduct product stock too
-                        $product->stock = (int) ($product->stock ?? 0) - $qty;
-                        $product->save();
 
                         // Cache update
                         DB::table('variant_stocks')
@@ -1345,8 +1231,9 @@ private function applyOrderStatusStock(array $orderIds, $statusId): void
 /**
  * Change the status of the selected orders from the list view.
  *
- * A thin caller now: it validates, writes the new status and hands the stock
- * side-effects to applyOrderStatusStock(), which the Kanban board also calls.
+ * A thin caller: it validates and hands every order to changeOrderStatus(),
+ * which delegates the stock side-effects to App\Services\OrderLifecycle. The
+ * Kanban board calls the same routine, so both paths share one implementation.
  */
 public function order_status(Request $request)
     {
@@ -1358,14 +1245,49 @@ public function order_status(Request $request)
 
         $ids = array_map('intval', $data['order_ids']);
 
-        $this->changeOrderStatus($ids, (int) $data['order_status']);
+        $failures = $this->changeOrderStatus($ids, (int) $data['order_status']);
 
-        return response()->json(['status'=>'success','message'=>'Order status change successfully']);
+        if ($failures !== []) {
+            $message = count($failures) . ' order(s) could not change status: ' . $failures[0]['message'];
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['status' => 'failed', 'message' => $message, 'failures' => $failures]);
+            }
+
+            Toastr::error($message, 'Failed');
+
+            return redirect()->back(302, [], route('admin.orders', ['slug' => 'all']));
+        }
+
+        $message = 'Order status change successfully';
+
+        /*
+         * Only AJAX callers want JSON.
+         *
+         * The per-row dropdown is a plain <form> submit, so answering JSON
+         * printed {"status":"success","message":"..."} on a blank page instead
+         * of returning the admin to the order list. The bulk modal and the
+         * Kanban board call this endpoint over AJAX and still get JSON.
+         */
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => $message]);
+        }
+
+        Toastr::success($message, 'Success');
+
+        // Fallback keeps a direct POST (no referer) on the order list instead
+        // of dumping the admin on the dashboard.
+        return redirect()->back(302, [], route('admin.orders', ['slug' => 'all']));
     }
 
     /**
      * The one status-change routine. The list view's dropdown and the Kanban
      * board's drag both land here.
+     *
+     * Every order moves through App\Services\OrderLifecycle: one transaction
+     * that writes the status, the stock side-effect in the ledger and the audit
+     * row. Nothing is duplicated here any more, so the board and the dropdown
+     * cannot disagree about stock.
      *
      * Public because OrderBoardController reuses it, not to be called freely:
      * it assumes the ids and the status have already been validated. The two
@@ -1373,16 +1295,47 @@ public function order_status(Request $request)
      * permission-checked route.
      *
      * @param  array<int,int>  $ids
+     * @return array<int, array{order_id:int, message:string}> orders that failed
      */
-    public function changeOrderStatus(array $ids, int $statusId): void
+    public function changeOrderStatus(array $ids, int $statusId): array
     {
         if ($ids === []) {
-            return;
+            return [];
         }
 
-        Order::whereIn('id', $ids)->update(['order_status' => $statusId]);
+        $status = OrderStatus::find($statusId);
 
-        $this->applyOrderStatusStock($ids, $statusId);
+        if (! $status || trim((string) $status->slug) === '') {
+            return [['order_id' => 0, 'message' => 'Unknown order status #' . $statusId]];
+        }
+
+        $failures = [];
+
+        foreach (Order::whereIn('id', $ids)->orderBy('id')->get() as $order) {
+            if ((string) $order->order_status === (string) $statusId) {
+                continue;   // it did not move
+            }
+
+            try {
+                app(\App\Services\OrderLifecycle::class)->transition(
+                    $order,
+                    (string) $status->slug
+                );
+            } catch (\Throwable $e) {
+                // One order with a stock problem must not stop the batch, but
+                // the caller is told which one failed and why.
+                Log::warning('Order status change failed', [
+                    'order_id' => $order->id,
+                    'status_id' => $statusId,
+                    'slug' => $status->slug,
+                    'error' => $e->getMessage(),
+                ]);
+
+                $failures[] = ['order_id' => (int) $order->id, 'message' => $e->getMessage()];
+            }
+        }
+
+        return $failures;
     }
 
     public function bulk_destroy(Request $request){
@@ -1597,6 +1550,9 @@ public function order_status(Request $request)
                      * the courier webhook says so, or when an admin sets it.
                      */
                     try {
+                        $deliveryFee = data_get($responseData, 'consignment.delivery_fee')
+                            ?? data_get($responseData, 'delivery_fee');
+
                         CourierShipment::query()->updateOrCreate(
                             [
                                 'order_id' => $order->id,
@@ -1607,6 +1563,7 @@ public function order_status(Request $request)
                                 'consignment_id' => isset($responseData['consignment']['consignment_id']) ? (string) $responseData['consignment']['consignment_id'] : (isset($responseData['consignment_id']) ? (string) $responseData['consignment_id'] : null),
                                 'tracking_code' => isset($responseData['consignment']['tracking_code']) ? (string) $responseData['consignment']['tracking_code'] : (isset($responseData['tracking_code']) ? (string) $responseData['tracking_code'] : null),
                                 'current_status' => isset($responseData['consignment']['status']) ? (string) $responseData['consignment']['status'] : null,
+                                'shipping_cost' => is_numeric($deliveryFee) ? (float) $deliveryFee : null,
                                 'raw_payload' => $responseData,
                                 'last_synced_at' => now(),
                             ]
@@ -1632,22 +1589,77 @@ public function order_status(Request $request)
             'results' => $results,
         ]);
     }
+    /*
+     * Inventory is a projection: product_variants + variant_stocks hold the
+     * SSOT and inventory_movements is the append-only ledger. The legacy
+     * product-level stock column was dropped, so this report reads the
+     * projection only.
+     *
+     * Units are on_hand - physically present stock. A damaged unit is still
+     * in the warehouse, so it counts here although it is not sellable. Money
+     * uses the variant's own price/cost when it sets one, falling back to the
+     * product, because a variant override is what the shopper actually pays.
+     */
     public function stock_report(Request $request){
-        $products = Product::select('id', 'name','new_price','stock')
-            ->where('status', 1);
+        $products = Product::query()->where('products.status', 1);
         if ($request->keyword) {
-            $products = $products->where('name', 'LIKE', '%' . $request->keyword . "%");
+            $products->where('products.name', 'LIKE', '%' . $request->keyword . '%');
         }
         if ($request->category_id) {
-            $products = $products->where('category_id', $request->category_id);
+            $products->where('products.category_id', $request->category_id);
         }
         if ($request->start_date && $request->end_date) {
-            $products =$products->whereBetween('updated_at', [$request->start_date,$request->end_date]);
+            // The filter inputs are dates, so end_date must mean the end of
+            // that day; comparing against the raw string cut it at midnight.
+            $products->whereBetween('products.updated_at', [
+                \Carbon\Carbon::parse($request->start_date)->startOfDay(),
+                \Carbon\Carbon::parse($request->end_date)->endOfDay(),
+            ]);
         }
-        $total_purchase = $products->sum(\DB::raw('purchase_price * stock'));
-        $total_stock = $products->sum('stock');
-        $total_price = $products->sum(\DB::raw('new_price * stock'));
-        $products = $products->paginate(10);
+
+        // Footer totals cover the whole filter, not the ten rows on this page.
+        $totals = (clone $products)
+            ->join('product_variants as v', function ($join) {
+                $join->on('v.product_id', '=', 'products.id')->where('v.status', 1);
+            })
+            ->join('variant_stocks as s', 's.variant_id', '=', 'v.id')
+            ->selectRaw('COALESCE(SUM(s.on_hand), 0) as units')
+            ->selectRaw('COALESCE(SUM(COALESCE(NULLIF(v.price_override, 0), products.new_price) * s.on_hand), 0) as stock_value')
+            ->selectRaw('COALESCE(SUM(COALESCE(NULLIF(v.purchase_price, 0), products.purchase_price) * s.on_hand), 0) as stock_cost')
+            ->first();
+
+        $total_stock = (int) ($totals->units ?? 0);
+        $total_price = (float) ($totals->stock_value ?? 0);
+        $total_purchase = (float) ($totals->stock_cost ?? 0);
+
+        $products = $products
+            ->select('products.id', 'products.name', 'products.new_price')
+            ->selectSub(function ($query) {
+                $query->from('product_variants as v')
+                    ->join('variant_stocks as s', 's.variant_id', '=', 'v.id')
+                    ->whereColumn('v.product_id', 'products.id')
+                    ->where('v.status', 1)
+                    ->selectRaw('COALESCE(SUM(s.on_hand), 0)');
+            }, 'variant_stock')
+            ->selectSub(function ($query) {
+                $query->from('product_variants as v')
+                    ->join('variant_stocks as s', 's.variant_id', '=', 'v.id')
+                    ->whereColumn('v.product_id', 'products.id')
+                    ->where('v.status', 1)
+                    ->selectRaw('COALESCE(SUM(COALESCE(NULLIF(v.price_override, 0), products.new_price) * s.on_hand), 0)');
+            }, 'variant_stock_value')
+            ->paginate(10)
+            ->withQueryString();
+
+        $products->getCollection()->transform(function ($product) {
+            $units = (int) ($product->variant_stock ?? 0);
+            $value = (float) ($product->variant_stock_value ?? 0);
+            $product->setAttribute('stock_on_hand', $units);
+            $product->setAttribute('stock_value', $value);
+            $product->setAttribute('unit_price', $units > 0 ? $value / $units : (float) ($product->new_price ?? 0));
+            return $product;
+        });
+
         $categories = Category::where('status',1)->get();
         return view('backEnd.reports.stock',compact('products','categories','total_purchase','total_stock','total_price'));
     }
@@ -1727,6 +1739,7 @@ public function order_status(Request $request)
             'phone'=>'required',
             'address'=>'required',
             'area'=>'required',
+            'admin_note' => 'nullable|string|max:5000',
         ], [
             'name.required' => 'Customer name is required',
             'phone.required' => 'Phone number is required',
@@ -1778,8 +1791,26 @@ public function order_status(Request $request)
             $order->shipping_charge  = $shippingfee->amount;
             $order->customer_id      =  $customer_id;
             $order->order_status     = 1;
-            $order->note             = $request->note;
+            // The POS form always had a visible "Admin Note" after this fix;
+            // the column has existed since 2026_03_03_124223.
+            $order->admin_note       = $request->admin_note;
+
+            /*
+             * No `note` here.
+             *
+             * This used to be `$order->note = $request->note;`, but the orders
+             * table has never had a `note` column - the admin note lives in
+             * `admin_note` (added by 2026_03_03_124223) and the POS form has no
+             * note field at all, so `$request->note` was always null. Setting
+             * the attribute anyway put `note` into the INSERT statement, and
+             * EVERY order created from the POS screen died with
+             * "SQLSTATE[42S22]: Unknown column 'note' in 'field list'".
+             * The admin could not create an order here at all.
+             */
             $order->save();
+
+            // The audit trail: a new order is the first thing that happened.
+            app(\App\Services\AuditLogger::class)->orderCreated($order);
 
             // POS coupon usage log: the till session carries pos_coupon_code
             // (set by cart_apply_coupon). Record it against this order so the
@@ -1926,7 +1957,7 @@ public function order_status(Request $request)
     }
     public function cart_add(Request $request){
         $product = Product::with('image')
-            ->select('id','name','stock','new_price','old_price','purchase_price','slug')
+            ->select('id','name','new_price','old_price','purchase_price','slug')
             ->where(['id' => $request->id])
             ->first();
         
@@ -2121,6 +2152,7 @@ public function order_status(Request $request)
             'address'=>'required',
             'area'=>'required',
             'order_status' => 'nullable|integer|exists:order_statuses,id',
+            'admin_note' => 'nullable|string|max:5000',
         ]);
 
         if(Cart::instance('pos_shopping')->count() <= 0) {
@@ -2161,8 +2193,20 @@ public function order_status(Request $request)
             if ($request->filled('order_status')) {
                 $order->order_status = (int) $request->order_status;
             }
-            $order->note             = $request->note;
+            /*
+             * The admin note is a real column (2026_03_03_124223) and the edit
+             * screen now carries a field for it. Guard on has() so any other
+             * caller that posts the old payload does not wipe the note, and keep
+             * the previous text for the audit trail.
+             */
+            $noteBefore = (string) ($order->admin_note ?? '');
+            if ($request->has('admin_note')) {
+                $order->admin_note = $request->admin_note;
+            }
             $order->save();
+            if ($request->has('admin_note')) {
+                app(\App\Services\AuditLogger::class)->orderNote($order, $noteBefore, (string) $order->admin_note);
+            }
 
             // Admin Approve Trigger: Pending -> On The Way (Edit Order screen)
             if ($request->filled('order_status')) {
@@ -2179,7 +2223,7 @@ public function order_status(Request $request)
                                 continue;
                             }
 
-                            $product = Product::select('id','stock','product_code','name')->find($order_details->product_id);
+                            $product = Product::select('id','product_code','name')->find($order_details->product_id);
                             if (!$product) {
                                 continue;
                             }
@@ -2234,7 +2278,7 @@ public function order_status(Request $request)
                                 ->where('variant_id', $variantId)
                                 ->exists();
                             if (!$stockRowExists) {
-                                $initial = (int) ($product->stock ?? 0);
+                                $initial = 0;
                                 DB::table('variant_stocks')->insert([
                                     'variant_id' => $variantId,
                                     'on_hand' => $initial,
@@ -2261,7 +2305,7 @@ public function order_status(Request $request)
                                 continue;
                             }
 
-                            DB::table('inventory_movements')->insert([
+                            InventoryMovement::record([
                                 'variant_id' => $variantId,
                                 'type' => 'ON_THE_WAY_DEDUCT',
                                 'qty_delta' => -1 * $qty,
@@ -2281,11 +2325,6 @@ public function order_status(Request $request)
                                     'updated_at' => now(),
                                 ]);
 
-                            DB::table('products')
-                                ->where('id', $product->id)
-                                ->update([
-                                    'stock' => DB::raw('GREATEST(0, stock - ' . (int) $qty . ')'),
-                                ]);
                         }
 
                         if (Schema::hasTable('inventory_reservations')) {
@@ -2376,129 +2415,20 @@ public function order_status(Request $request)
                 continue;
             }
 
-            $courierEnabledColumnExists = Schema::hasColumn('courier_apis', 'status');
-            $pathaoQuery = Courierapi::query()->where('type', 'pathao');
-            if ($courierEnabledColumnExists) {
-                $pathaoQuery->where('status', 1);
-            }
-            $pathao_info = $pathaoQuery->select('id', 'type', 'url', 'token', 'username', 'password', 'client_id', 'client_secret')
-                ->when($courierEnabledColumnExists, function ($q) {
-                    return $q->addSelect('status');
-                })->first();
+            /*
+             * One sender for every Pathao send.
+             *
+             * This block used to do four things inline: fetch a token with
+             * Http::post() and NO timeout, fetch the store list, take
+             * `$stores[0]` as the pickup point, then POST a payload that always
+             * carried `recipient_area => null` (the documentation says to omit
+             * optional location fields, not send null). All of that now lives
+             * in PathaoOrderSender, which also records the consignment.
+             */
+            $sent = app(PathaoOrderSender::class)->send($order);
 
-            if (!$pathao_info) {
-                $results[] = ['order_id' => $order_id, 'status' => 'failed', 'message' => 'Pathao is not configured'];
-                continue;
-            }
-
-            // Get token if not available
-            $token = $pathao_info->token;
-            if (!$token && $pathao_info->client_id && $pathao_info->client_secret) {
-                $tokenResponse = Http::post($this->pathaoUrl($pathao_info->url, 'api/v1/issue-token'), [
-                    'client_id' => $pathao_info->client_id,
-                    'client_secret' => $pathao_info->client_secret,
-                    'grant_type' => 'password',
-                    'username' => $pathao_info->username,
-                    'password' => $pathao_info->password,
-                ]);
-                if ($tokenResponse->successful()) {
-                    $token = $tokenResponse->json('access_token');
-                    $pathao_info->update(['token' => $token]);
-                }
-            }
-
-            if (!$token) {
-                $results[] = ['order_id' => $order_id, 'status' => 'failed', 'message' => 'Pathao authentication failed'];
-                continue;
-            }
-
-            // Get stores and use first one
-            $storesResponse = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type' => 'application/json',
-            ])->get($this->pathaoUrl($pathao_info->url, 'api/v1/stores'));
-
-            if (!$storesResponse->successful()) {
-                $results[] = ['order_id' => $order_id, 'status' => 'failed', 'message' => 'Failed to fetch Pathao stores'];
-                continue;
-            }
-
-            $stores = $storesResponse->json('data.data', []);
-            if (empty($stores)) {
-                $results[] = ['order_id' => $order_id, 'status' => 'failed', 'message' => 'No Pathao stores available'];
-                continue;
-            }
-
-            $store = $stores[0];
-            $store_id = $store['store_id'];
-
-            // Auto-detect location from address
-            $address = $order->shipping ? $order->shipping->address : '';
-            $location = $this->detectPathaoLocation($address, $token, $pathao_info->url);
-
-            if (!$location) {
-                // B15: this used to fall back to the STORE's city/zone with no
-                // trace, so an unrecognised address silently booked the parcel to
-                // the shop's own area - the rider would deliver it to the wrong
-                // place. Log it loudly; the fallback still runs so the flow does
-                // not hard-fail, but it is no longer invisible.
-                Log::warning('Pathao location detection failed, using store location as recipient', [
-                    'order_id' => $order->id,
-                    'address'  => $address,
-                ]);
-                // Fallback: use store location as recipient location
-                $location = [
-                    'city_id' => $store['city_id'] ?? 1,
-                    'zone_id' => $store['zone_id'] ?? 1,
-                    'area_id' => $store['area_id'] ?? null,
-                ];
-            }
-
-            // Create order
-            // B15: real parcel data instead of qty=1, weight=0.5 and
-            // item_description='Order from Adora'.
-            $parcel = $this->pathaoParcelData($order);
-
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-            ])->post($this->pathaoUrl($pathao_info->url, 'api/v1/orders'), [
-                'store_id' => $store_id,
-                'merchant_order_id' => $order->invoice_id,
-                'recipient_name' => $order->shipping ? $order->shipping->name : '',
-                'recipient_phone' => $order->shipping ? $order->shipping->phone : '',
-                'recipient_address' => $order->shipping ? $order->shipping->address : '',
-                'recipient_city' => $location['city_id'],
-                'recipient_zone' => $location['zone_id'],
-                'recipient_area' => $location['area_id'] ?? null,
-                'delivery_type' => 48,
-                'item_type' => 2,
-                'special_instruction' => 'Special note- product must be check after delivery',
-                'item_quantity' => $parcel['item_quantity'],
-                'item_weight' => $parcel['item_weight'],
-                'amount_to_collect' => round($order->amount),
-                'item_description' => $parcel['item_description'],
-            ]);
-
-            if ($response->status() === 200) {
-                $consignmentId = data_get($response->json(), 'data.consignment_id');
-
-                // Save shipment record
-                CourierShipment::query()->updateOrCreate(
-                    [
-                        'order_id' => $order->id,
-                        'provider' => 'pathao',
-                    ],
-                    [
-                        'merchant_order_id' => (string) $order->invoice_id,
-                        'consignment_id' => $consignmentId ? (string) $consignmentId : null,
-                        'tracking_code' => null,
-                        'current_status' => (string) data_get($response->json(), 'data.order_status', 'Pending'),
-                        'raw_payload' => $response->json(),
-                        'last_synced_at' => now(),
-                    ]
-                );
+            if ($sent['ok']) {
+                $consignmentId = $sent['consignment_id'];
 
                 // Auto change order status to "On The Way"
                 $onTheWayStatus = OrderStatus::where('slug', 'on-the-way')->orWhere('name', 'like', '%Way%')->first();
@@ -2518,7 +2448,7 @@ public function order_status(Request $request)
                                 continue;
                             }
 
-                            $product = Product::select('id','stock','product_code','name')->find($order_details->product_id);
+                            $product = Product::select('id','product_code','name')->find($order_details->product_id);
                             if (!$product) {
                                 continue;
                             }
@@ -2573,7 +2503,7 @@ public function order_status(Request $request)
                                 ->where('variant_id', $variantId)
                                 ->exists();
                             if (!$stockRowExists) {
-                                $initial = (int) ($product->stock ?? 0);
+                                $initial = 0;
                                 DB::table('variant_stocks')->insert([
                                     'variant_id' => $variantId,
                                     'on_hand' => $initial,
@@ -2600,7 +2530,7 @@ public function order_status(Request $request)
                                 continue;
                             }
 
-                            DB::table('inventory_movements')->insert([
+                            InventoryMovement::record([
                                 'variant_id' => $variantId,
                                 'type' => 'ON_THE_WAY_DEDUCT',
                                 'qty_delta' => -1 * $qty,
@@ -2620,11 +2550,6 @@ public function order_status(Request $request)
                                     'updated_at' => now(),
                                 ]);
 
-                            DB::table('products')
-                                ->where('id', $product->id)
-                                ->update([
-                                    'stock' => DB::raw('GREATEST(0, stock - ' . (int) $qty . ')'),
-                                ]);
                         }
 
                         if (Schema::hasTable('inventory_reservations')) {
@@ -2643,7 +2568,7 @@ public function order_status(Request $request)
                 $results[] = [
                     'order_id' => $order_id,
                     'status' => 'failed',
-                    'message' => data_get($response->json(), 'message', 'Pathao order creation failed'),
+                    'message' => $sent['message'],
                 ];
             }
         }
@@ -2654,91 +2579,5 @@ public function order_status(Request $request)
         ]);
     }
 
-    /**
-     * Detect Pathao city/zone/area from address string
-     */
-    private function detectPathaoLocation(string $address, string $token, string $baseUrl): ?array
-    {
-        // Common Bangladesh city keywords
-        $cityKeywords = [
-            'dhaka' => 1,
-            'chittagong' => 2,
-            'chattogram' => 2,
-            'sylhet' => 3,
-            'rajshahi' => 4,
-            'khulna' => 5,
-            'barishal' => 6,
-            'barisal' => 6,
-            'rangpur' => 7,
-            'mymensingh' => 8,
-        ];
-
-        $addressLower = strtolower($address);
-        $city_id = null;
-
-        // Detect city from address
-        foreach ($cityKeywords as $keyword => $id) {
-            if (strpos($addressLower, $keyword) !== false) {
-                $city_id = $id;
-                break;
-            }
-        }
-
-        // Default to Dhaka if no city found
-        if (!$city_id) {
-            $city_id = 1;
-        }
-
-        // Get zones for the city
-        $zonesResponse = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-            'Content-Type' => 'application/json',
-        ])->get($this->pathaoUrl($baseUrl, 'api/v1/cities/' . $city_id . '/zone-list'));
-
-        if (!$zonesResponse->successful()) {
-            return ['city_id' => $city_id, 'zone_id' => 1];
-        }
-
-        $zones = $zonesResponse->json('data.data', []);
-        if (empty($zones)) {
-            return ['city_id' => $city_id, 'zone_id' => 1];
-        }
-
-        // Try to match zone from address
-        $zone_id = $zones[0]['zone_id'];
-        foreach ($zones as $zone) {
-            if (strpos($addressLower, strtolower($zone['zone_name'])) !== false) {
-                $zone_id = $zone['zone_id'];
-                break;
-            }
-        }
-
-        // Get areas for the zone
-        $areasResponse = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-            'Content-Type' => 'application/json',
-        ])->get($this->pathaoUrl($baseUrl, 'api/v1/zones/' . $zone_id . '/area-list'));
-
-        $area_id = null;
-        if ($areasResponse->successful()) {
-            $areas = $areasResponse->json('data.data', []);
-            if (!empty($areas)) {
-                // Try to match area from address
-                $area_id = $areas[0]['area_id'];
-                foreach ($areas as $area) {
-                    if (strpos($addressLower, strtolower($area['area_name'])) !== false) {
-                        $area_id = $area['area_id'];
-                        break;
-                    }
-                }
-            }
-        }
-
-        return [
-            'city_id' => $city_id,
-            'zone_id' => $zone_id,
-            'area_id' => $area_id,
-        ];
-    }
 
 }

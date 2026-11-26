@@ -176,7 +176,7 @@ class PageStats
 
     /**
      * @param  array<string,mixed>  $definition
-     * @return array<int,array{0:string,1:mixed}>
+     * @return array<int,array<int,mixed>>
      */
     public function scopes(array $definition): array
     {
@@ -188,6 +188,16 @@ class PageStats
 
         foreach ($definition['where_all'] ?? [] as $scope) {
             $scopes[] = $scope;
+        }
+
+        /*
+         * Some lists are a named subset rather than one equality ("the nine
+         * landing designs", not "every template row"). where_in keeps that
+         * subset in the same scope pipeline as where / where_all.
+         */
+        if (! empty($definition['where_in'])) {
+            [$column, $values] = $definition['where_in'];
+            $scopes[] = ['__in__', $column, array_values((array) $values)];
         }
 
         return $scopes;
@@ -299,7 +309,7 @@ class PageStats
     }
 
     /**
-     * @param  array<int,array{0:string,1:mixed}>  $scopes
+     * @param  array<int,array<int,mixed>>  $scopes
      */
     private function countScoped(string $table, array $scopes): ?int
     {
@@ -310,7 +320,7 @@ class PageStats
 
     /**
      * @param  array<int,mixed>  $values
-     * @param  array<int,array{0:string,1:mixed}>  $scopes
+     * @param  array<int,array<int,mixed>>  $scopes
      */
     private function countWhereInScoped(string $table, string $column, array $values, array $scopes = []): ?int
     {
@@ -324,7 +334,7 @@ class PageStats
     }
 
     /**
-     * @param  array<int,array{0:string,1:mixed}>  $scopes
+     * @param  array<int,array<int,mixed>>  $scopes
      */
     private function countWhereOp(string $table, string $column, string $operator, mixed $value, array $scopes = []): ?int
     {
@@ -338,7 +348,7 @@ class PageStats
     }
 
     /**
-     * @param  array<int,array{0:string,1:mixed}>  $scopes
+     * @param  array<int,array<int,mixed>>  $scopes
      */
     private function countWhereNullScoped(string $table, string $column, array $scopes = []): ?int
     {
@@ -352,7 +362,7 @@ class PageStats
     }
 
     /**
-     * @param  array<int,array{0:string,1:mixed}>  $scopes
+     * @param  array<int,array<int,mixed>>  $scopes
      */
     private function countSinceScoped(string $table, Carbon $since, array $scopes = []): ?int
     {
@@ -370,8 +380,13 @@ class PageStats
      */
     private function applyScopes(Builder $query, array $scopes): Builder
     {
-        foreach ($scopes as [$column, $value]) {
-            $query->where($column, $value);
+        foreach ($scopes as $scope) {
+            if (($scope[0] ?? null) === '__in__') {
+                $query->whereIn($scope[1], $scope[2]);
+                continue;
+            }
+
+            $query->where($scope[0], $scope[1]);
         }
 
         return $query;
@@ -383,7 +398,13 @@ class PageStats
     private function scopeKey(array $scopes): string
     {
         return implode('&', array_map(
-            static fn (array $scope): string => $scope[0] . '=' . (string) $scope[1],
+            static function (array $scope): string {
+                if (($scope[0] ?? null) === '__in__') {
+                    return $scope[1] . ' in ' . implode(',', array_map('strval', $scope[2]));
+                }
+
+                return $scope[0] . '=' . (string) $scope[1];
+            },
             $scopes
         ));
     }

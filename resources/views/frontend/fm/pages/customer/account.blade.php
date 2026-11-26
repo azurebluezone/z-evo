@@ -44,6 +44,19 @@
         $accountImageUrl = $accountImage !== ''
             ? \App\Support\MediaPath::url($accountImage, 'settings')
             : '';
+
+        // No upload on file: MediaPath answers with the bundled 600px
+        // illustration, which rendered as a giant "No image" block inside the
+        // details list. Show the initial instead.
+        $accountHasImage = $accountImageUrl !== ''
+            && $accountImageUrl !== \App\Support\MediaPath::fallbackUrl();
+        $accountInitial = mb_substr(
+            trim((string) ($customer->name ?? '')) !== ''
+                ? mb_strtoupper(trim((string) $customer->name))
+                : 'M',
+            0,
+            1
+        );
     @endphp
 
     {{-- Shown only for the first 30 minutes after a guest checkout created the
@@ -91,11 +104,14 @@
         <div class="fm-acct__row">
             <dt>Image</dt>
             <dd>
-                @if($accountImageUrl !== '')
+                @if($accountHasImage)
                     <img src="{{ $accountImageUrl }}"
                          alt="Your profile photo"
                          class="fm-acct__thumb"
                          width="56" height="56">
+                @else
+                    <span class="fm-acct__thumb fm-acct__thumb--initial" aria-hidden="true">{{ $accountInitial }}</span>
+                    <span class="visually-hidden">No profile photo uploaded</span>
                 @endif
             </dd>
         </div>

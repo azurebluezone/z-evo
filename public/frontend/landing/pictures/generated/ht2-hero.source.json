@@ -1,0 +1,8 @@
+{
+    "source": "work/zevo/1788849471061.png",
+    "source_sha256": "db7536e031294c7bf5af9abb7b7ae0e12b7d7aff9bc13001ad856b9b493154fd",
+    "output_sha256": "91bb122f9584a99dbfd7d0d9a6fa551a39c6b0bce0a4dc343989fb2ecf59108d",
+    "transform": "crop 1024x576 at x=0,y=160; resize 1600x900; JPEG quality 88",
+    "replaces_sha256": "c298c5eccd4fc9ddba0ee0014478f8a28c6e66d5d6a865a50e3552be82243411",
+    "note": "Authentic ZEvo branded panjabi/saree artwork from work/zevo replaces the synthetic HT2 placeholder."
+}

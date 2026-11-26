@@ -62,7 +62,7 @@ Create Landing Page
                                 <option value="">Select Template</option>
                                 @foreach($templates as $template)
                                     <option value="{{ $template->id }}" {{ old('template_id') == $template->id ? 'selected' : '' }}>
-                                        {{ $template->name }}
+                                        {{ \App\Support\LandingTemplateVars::displayName($template) }}
                                     </option>
                                 @endforeach
                             </select>
@@ -146,7 +146,7 @@ Create Landing Page
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label class="form-label d-block">Status</label>
+                            <label class="form-label d-block fw-semibold">Status</label>
                             <label class="switch">
                                 <input type="checkbox" id="status" name="status" checked>
                                 <span class="switch-toggle-slider">

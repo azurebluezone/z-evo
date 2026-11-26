@@ -23,7 +23,8 @@ return [
             'name' => 'Premium Collection',
             'view' => 'ht2',
             'body_class' => 'bg-white text-brand-dark',
-            'default_groups' => ['meta', 'announcement', 'hero', 'trust', 'gallery', 'variants', 'comparison', 'reviews', 'order', 'faq', 'sticky'],
+            'card_image' => 'frontend/landing/pictures/designs/ht2.png',
+            'default_groups' => ['meta', 'announcement', 'hero', 'video', 'trust', 'gallery', 'variants', 'comparison', 'reviews', 'order', 'faq', 'sticky'],
             'assets' => [
                 'css' => [
                     'https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap',
@@ -41,6 +42,7 @@ return [
             'name' => 'Funnel Offer',
             'view' => 't1',
             'body_class' => '',
+            'card_image' => 'frontend/landing/pictures/designs/t1.png',
             'default_groups' => ['meta', 'announcement', 'hero', 'video', 'trust', 'gallery', 'variants', 'comparison', 'reviews', 'order', 'sticky'],
             'assets' => [
                 'css' => [
@@ -59,6 +61,7 @@ return [
             'name' => 'Premium Wall Art',
             'view' => 'th3',
             'body_class' => 'bg-white text-brand-dark',
+            'card_image' => 'frontend/landing/pictures/designs/th3.png',
             'default_groups' => ['meta', 'announcement', 'hero', 'video', 'trust', 'gallery', 'variants', 'comparison', 'reviews', 'order', 'faq', 'sticky'],
             'assets' => [
                 'css' => [
@@ -77,6 +80,7 @@ return [
             'name' => 'Artisan Honey',
             'view' => 'th4',
             'body_class' => '',
+            'card_image' => 'frontend/landing/pictures/designs/th4.png',
             'default_groups' => ['meta', 'announcement', 'hero', 'video', 'trust', 'gallery', 'variants', 'comparison', 'reviews', 'order', 'faq', 'sticky'],
             'assets' => [
                 'css' => [
@@ -95,6 +99,7 @@ return [
             'name' => 'Natural Honey',
             'view' => 'th5',
             'body_class' => '',
+            'card_image' => 'frontend/landing/pictures/designs/th5.png',
             'default_groups' => ['meta', 'announcement', 'hero', 'video', 'trust', 'gallery', 'variants', 'comparison', 'reviews', 'order', 'faq', 'sticky'],
             'assets' => [
                 'css' => [
@@ -113,6 +118,7 @@ return [
             'name' => 'Rose Editorial Abaya',
             'view' => 'th6',
             'body_class' => 'bg-[#FFFDFD] text-slate-800 font-bangla antialiased selection:bg-rose-100 selection:text-rose-700 relative overflow-x-hidden',
+            'card_image' => 'frontend/landing/pictures/designs/th6.png',
             'default_groups' => ['meta', 'announcement', 'hero', 'video', 'trust', 'gallery', 'variants', 'reviews', 'order', 'sticky'],
             'assets' => [
                 'css' => [
@@ -131,6 +137,7 @@ return [
             'name' => 'Fashion Editorial Abaya',
             'view' => 'th7',
             'body_class' => '',
+            'card_image' => 'frontend/landing/pictures/designs/th7.png',
             'default_groups' => ['meta', 'announcement', 'hero', 'video', 'trust', 'gallery', 'variants', 'reviews', 'order', 'faq', 'sticky'],
             'assets' => [
                 'css' => [
@@ -146,6 +153,7 @@ return [
             'name' => 'Dark Premium Panjabi',
             'view' => 'th8',
             'body_class' => 'bg-zombie-midnight text-gray-200 selection:bg-zombie-gold selection:text-black',
+            'card_image' => 'frontend/landing/pictures/designs/th8.png',
             'default_groups' => ['meta', 'announcement', 'hero', 'trust', 'gallery', 'variants', 'reviews', 'order', 'faq', 'sticky'],
             'assets' => [
                 'css' => [
@@ -164,6 +172,7 @@ return [
             'name' => 'Soft Commerce Hoodie',
             'view' => 'th9',
             'body_class' => 'bg-[#FFF9FA] text-slate-800 antialiased font-bangla selection:bg-rose-200 selection:text-rose-900 pb-20 md:pb-6',
+            'card_image' => 'frontend/landing/pictures/designs/th9.png',
             'default_groups' => ['meta', 'announcement', 'hero', 'trust', 'gallery', 'variants', 'reviews', 'order', 'faq', 'sticky'],
             'assets' => [
                 'css' => [
@@ -334,7 +343,23 @@ return [
         'trust_items' => [
             'label' => 'Trust badges',
             'columns' => [
-                'icon' => ['label' => 'Icon class', 'type' => 'text', 'class' => 'col-md-3'],
+                'icon' => [
+                    'label' => 'Icon',
+                    'type' => 'icon',
+                    'class' => 'col-md-3',
+                    'options' => [
+                        'fa-solid fa-shield-halved' => 'Shield — original / warranty',
+                        'fa-solid fa-truck-fast' => 'Truck — fast delivery',
+                        'fa-solid fa-hand-holding-dollar' => 'Hand + coin — cash on delivery',
+                        'fa-solid fa-rotate-left' => 'Return arrow — easy return',
+                        'fa-solid fa-box-open' => 'Open box — check before payment',
+                        'fa-solid fa-lock' => 'Lock — secure payment',
+                        'fa-solid fa-headset' => 'Headset — customer support',
+                        'fa-solid fa-circle-check' => 'Check circle — verified quality',
+                        'fa-solid fa-star' => 'Star — top rated',
+                        'fa-solid fa-gift' => 'Gift — free gift',
+                    ],
+                ],
                 'title' => ['label' => 'Title', 'type' => 'text', 'class' => 'col-md-4'],
                 'text' => ['label' => 'Text', 'type' => 'textarea', 'class' => 'col-md-5'],
             ],
@@ -345,7 +370,7 @@ return [
                 'label' => ['label' => 'Label', 'type' => 'text', 'class' => 'col-md-3'],
                 'price' => ['label' => 'Price', 'type' => 'number', 'step' => '0.01', 'class' => 'col-md-2'],
                 'old_price' => ['label' => 'Old price', 'type' => 'number', 'step' => '0.01', 'class' => 'col-md-2'],
-                'image' => ['label' => 'Image URL', 'type' => 'text', 'class' => 'col-md-3'],
+                'image' => ['label' => 'Image', 'type' => 'image', 'class' => 'col-md-3'],
                 'badge' => ['label' => 'Badge', 'type' => 'text', 'class' => 'col-md-2'],
             ],
         ],
@@ -361,10 +386,10 @@ return [
             'label' => 'Customer reviews',
             'columns' => [
                 'name' => ['label' => 'Name', 'type' => 'text', 'class' => 'col-md-3'],
-                'location' => ['label' => 'Location', 'type' => 'text', 'class' => 'col-md-2'],
-                'text' => ['label' => 'Review', 'type' => 'textarea', 'class' => 'col-md-4'],
-                'rating' => ['label' => 'Rating', 'type' => 'number', 'step' => '1', 'class' => 'col-md-1'],
-                'avatar' => ['label' => 'Avatar URL', 'type' => 'text', 'class' => 'col-md-2'],
+                'location' => ['label' => 'Location', 'type' => 'text', 'class' => 'col-md-3'],
+                'text' => ['label' => 'Review', 'type' => 'textarea', 'class' => 'col-md-6'],
+                'rating' => ['label' => 'Rating', 'type' => 'number', 'step' => '1', 'class' => 'col-md-2'],
+                'avatar' => ['label' => 'Avatar', 'type' => 'image', 'class' => 'col-md-3'],
                 'date' => ['label' => 'Date', 'type' => 'text', 'class' => 'col-md-2'],
                 'verified' => ['label' => 'Verified label', 'type' => 'text', 'class' => 'col-md-2'],
             ],

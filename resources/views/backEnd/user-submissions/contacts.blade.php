@@ -37,6 +37,9 @@
             <x-admin.button variant="outline-danger" size="sm" type="button" id="contacts-bulk-delete-btn">
                 <i class="icon-base ri ri-delete-bin-7-line me-1"></i>Delete Selected
             </x-admin.button>
+            <a href="{{ route('admin.notification-templates.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="icon-base ri ri-mail-open-line me-1"></i>Template Manager
+            </a>
         </div>
     </div>
 

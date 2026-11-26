@@ -15,7 +15,18 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Shared-hosting queue drain. With QUEUE_CONNECTION=database there is
+        // no supervisor or Horizon on a cheap host: this runs at most 50
+        // seconds every minute, exits when the queue is empty, and the overlap
+        // lock stops a slow worker from being started twice. With the default
+        // sync driver it is a no-op.
+        //
+        // Requires the one cron line documented in
+        // docs/PLAN-notifications-2026-11-16.md:
+        //   * * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1
+        $schedule->command('queue:work --stop-when-empty --max-time=50 --tries=3')
+            ->everyMinute()
+            ->withoutOverlapping(10);
     }
 
     /**

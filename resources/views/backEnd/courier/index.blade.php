@@ -4,20 +4,6 @@
 <div class="row">
     <div class="col-12">
 
-        <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
-            <div>
-                <h4 class="mb-0">Couriers</h4>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-                <x-admin.button variant="outline-secondary" size="sm" href="{{ route('admin.courier.shipments') }}">
-                    <i class="ri ri-list-check-2 me-1"></i>Shipments
-                </x-admin.button>
-                <x-admin.button variant="primary" size="sm" href="{{ route('admin.courier.settings') }}">
-                    <i class="ri ri-settings-3-line me-1"></i>API settings
-                </x-admin.button>
-            </div>
-        </div>
-
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
@@ -25,9 +11,23 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="ri ri-truck-line me-2"></i>Courier accounts</h5>
+        {{-- House layout: title and its buttons share the card header, like
+             Manage Orders / Manage Coupons, instead of a loose page header. --}}
+        <div class="card rounded-0">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3 gap-2">
+                <h5 class="mb-0 text-uppercase fw-bold">
+                    <i class="ri ri-truck-line me-2"></i>Couriers
+                </h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <x-admin.button variant="outline-secondary" shape="square" ripple="true"
+                                    href="{{ route('admin.courier.shipments') }}">
+                        <i class="ri ri-list-check-2 me-1"></i>Shipments
+                    </x-admin.button>
+                    <x-admin.button variant="primary" shape="square" ripple="true"
+                                    href="{{ route('admin.courier.settings') }}">
+                        <i class="ri ri-settings-3-line me-1"></i>API Settings
+                    </x-admin.button>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -47,14 +47,13 @@
                         <tr>
                             <td>
                                 <strong>{{ $courier->label() }}</strong>
-                                <div class="text-muted small">{{ $courier->type }}</div>
                             </td>
                             <td><code class="small">{{ $courier->url ?: '—' }}</code></td>
                             <td>
                                 @if($courier->isConfigured())
                                     <span class="badge bg-label-success">Complete</span>
                                 @else
-                                    <span class="badge bg-label-danger">No API Connect</span>
+                                    <span class="badge bg-label-danger">Incomplete</span>
                                 @endif
                             </td>
                             <td>
@@ -62,9 +61,6 @@
                                     <span class="badge bg-label-primary">Enabled</span>
                                 @else
                                     <span class="badge bg-label-secondary">Disabled</span>
-                                    @if(! $courier->isConfigured())
-                                        <div class="text-muted small">Set API credentials to connect</div>
-                                    @endif
                                 @endif
                             </td>
                             <td>

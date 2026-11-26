@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use App\Models\InventoryMovement;
 
 class InventoryController extends Controller
 {
@@ -12,9 +14,47 @@ class InventoryController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
 
-        $variants = DB::table('product_variants as v')
+        $search = function ($query) use ($q) {
+            $like = '%' . $q . '%';
+            $maybeId = is_numeric($q) ? (int) $q : null;
+            $query->where(function ($qq) use ($like, $maybeId) {
+                $qq->where('p.name', 'like', $like)
+                    ->orWhere('v.sku', 'like', $like)
+                    ->orWhere('v.title', 'like', $like);
+
+                if ($maybeId) {
+                    $qq->orWhere('v.id', '=', $maybeId);
+                }
+            });
+        };
+
+        $base = DB::table('product_variants as v')
             ->leftJoin('products as p', 'p.id', '=', 'v.product_id')
             ->leftJoin('variant_stocks as s', 's.variant_id', '=', 'v.id')
+            ->when($q !== '', $search);
+
+        /*
+         * Available-to-promise, not the raw projection.
+         *
+         * `variant_stocks.reserved` is kept at 0 for compatibility; real
+         * checkout holds live in inventory_reservations. Reading only
+         * s.available told the admin a fully reserved variant was sellable.
+         * The storefront already subtracts the holds, so the admin list must
+         * use the same number or the two screens disagree.
+         */
+        $availableToPromise = 'GREATEST(COALESCE(s.available, 0) - COALESCE(s.reserved, 0) - ('
+            . 'SELECT COALESCE(SUM(r.qty), 0) FROM inventory_reservations r '
+            . 'WHERE r.variant_id = v.id AND r.expires_at > NOW()), 0)';
+
+        // KPIs count the whole filtered result, not the 50 rows on this page.
+        $kpiTotal = (clone $base)->count('v.id');
+        $kpiOut = (clone $base)->whereRaw($availableToPromise . ' <= 0')->count();
+        $kpiLow = (clone $base)
+            ->whereRaw($availableToPromise . ' > 0')
+            ->whereRaw($availableToPromise . ' <= 2')
+            ->count();
+
+        $variants = (clone $base)
             ->select(
                 'v.id',
                 'v.sku',
@@ -23,23 +63,9 @@ class InventoryController extends Controller
                 'p.name as product_name',
                 DB::raw('COALESCE(s.on_hand, 0) as on_hand'),
                 DB::raw('COALESCE(s.reserved, 0) as reserved'),
-                DB::raw('COALESCE(s.available, 0) as available'),
+                DB::raw($availableToPromise . ' as available'),
                 DB::raw('COALESCE(s.damaged, 0) as damaged')
             )
-            ->when($q !== '', function ($query) use ($q) {
-                $like = '%' . $q . '%';
-                $maybeId = is_numeric($q) ? (int) $q : null;
-                $query->where(function ($qq) use ($like, $maybeId) {
-                    $qq->where('p.name', 'like', $like)
-                        ->orWhere('v.sku', 'like', $like)
-                        ->orWhere('v.title', 'like', $like)
-                        ->orWhere('v.id', '=', -1);
-
-                    if ($maybeId) {
-                        $qq->orWhere('v.id', '=', $maybeId);
-                    }
-                });
-            })
             ->orderBy('v.id', 'desc')
             ->paginate(50)
             ->appends($request->query());
@@ -53,7 +79,15 @@ class InventoryController extends Controller
         $damagedTotal = (int) DB::table('variant_stocks')->sum('damaged');
 
         $filters = ['q' => $q];
-        return view('backEnd.inventory.index', compact('variants', 'filters', 'activeReservedTotal', 'damagedTotal'));
+        return view('backEnd.inventory.index', compact(
+            'variants',
+            'filters',
+            'activeReservedTotal',
+            'damagedTotal',
+            'kpiTotal',
+            'kpiLow',
+            'kpiOut'
+        ));
     }
 
     public function adjustment(Request $request)
@@ -164,10 +198,13 @@ class InventoryController extends Controller
     public function adjustmentStore(Request $request)
     {
         $request->validate([
-            'variant_id' => 'required|integer',
+            'variant_id' => 'required|integer|exists:product_variants,id',
             'type' => 'nullable|string|in:ADJUSTMENT,RECEIVE,DAMAGE,LOST',
             'qty_delta' => 'required|integer|not_in:0',
             'note' => 'nullable|string|max:255',
+        ], [
+            'variant_id.exists' => 'That variant no longer exists. Pick another one.',
+            'qty_delta.not_in' => 'Enter a positive number to add stock or a negative number to reduce it.',
         ]);
 
         $variantId = (int) $request->variant_id;
@@ -175,10 +212,33 @@ class InventoryController extends Controller
         $qtyDelta = (int) $request->qty_delta;
         $note = $request->note;
 
-        DB::transaction(function () use ($variantId, $type, $qtyDelta, $note) {
+        /*
+         * DAMAGE and LOST name a positive COUNT of units, not a warehouse
+         * delta. Normalising once here keeps the projection and the ledger
+         * row pointing in the same direction:
+         *
+         *   RECEIVE  +N on hand
+         *   DAMAGE    N moved from sellable to damaged; on_hand is unchanged
+         *             because a damaged unit is still physically in the
+         *             warehouse
+         *   LOST     -N on hand, nothing added to damaged
+         */
+        $unitCount = abs($qtyDelta);
+        $onHandDelta = match ($type) {
+            'RECEIVE' => $unitCount,
+            'DAMAGE' => 0,
+            'LOST' => -$unitCount,
+            default => $qtyDelta,
+        };
+        $damagedDelta = $type === 'DAMAGE' ? $unitCount : 0;
+        $ledgerQty = $type === 'DAMAGE' ? $unitCount : $onHandDelta;
+
+        DB::transaction(function () use ($variantId, $type, $qtyDelta, $onHandDelta, $damagedDelta, $ledgerQty, $unitCount, $note) {
             $variant = DB::table('product_variants')->where('id', $variantId)->first();
             if (!$variant) {
-                abort(404);
+                throw ValidationException::withMessages([
+                    'variant_id' => 'That variant no longer exists. Pick another one.',
+                ]);
             }
 
             $stock = DB::table('variant_stocks')->where('variant_id', $variantId)->lockForUpdate()->first();
@@ -196,32 +256,32 @@ class InventoryController extends Controller
 
             $currentOnHand = (int) ($stock->on_hand ?? 0);
             $currentReserved = (int) ($stock->reserved ?? 0);
-            $newOnHand = $currentOnHand + $qtyDelta;
+            $currentDamaged = (int) ($stock->damaged ?? 0);
+            $newOnHand = $currentOnHand + $onHandDelta;
             if ($newOnHand < 0) {
-                abort(422, 'Stock cannot go below 0');
+                throw ValidationException::withMessages([
+                    'qty_delta' => 'Stock cannot go below 0. Only ' . $currentOnHand . ' unit(s) are on hand.',
+                ]);
             }
 
-            $newAvailable = $newOnHand - $currentReserved;
-            if ($newAvailable < 0) {
-                $newAvailable = 0;
+            $sellable = max(0, $currentOnHand - $currentDamaged - $currentReserved);
+            if ($type === 'DAMAGE' && $unitCount > $sellable) {
+                throw ValidationException::withMessages([
+                    'qty_delta' => 'Only ' . $sellable . ' sellable unit(s) can be marked damaged.',
+                ]);
             }
 
-            $bucket = 'sellable';
-            if (in_array($type, ['DAMAGE', 'LOST'], true)) {
-                $bucket = 'damaged';
-            }
+            $bucket = $type === 'DAMAGE' ? 'damaged' : 'sellable';
             $hasBucket = DB::getSchemaBuilder()->hasColumn('inventory_movements', 'bucket');
-
-            $damagedDelta = 0;
             $hasDamaged = DB::getSchemaBuilder()->hasColumn('variant_stocks', 'damaged');
-            if ($hasDamaged && $bucket === 'damaged' && $qtyDelta > 0) {
-                $damagedDelta = $qtyDelta;
-            }
+
+            $newDamaged = $currentDamaged + $damagedDelta;
+            $newAvailable = max(0, $newOnHand - $newDamaged - $currentReserved);
 
             $movement = [
                 'variant_id' => $variantId,
                 'type' => $type,
-                'qty_delta' => $qtyDelta,
+                'qty_delta' => $ledgerQty,
                 'ref_type' => 'manual',
                 'ref_id' => null,
                 'created_by' => auth()->id(),
@@ -232,31 +292,17 @@ class InventoryController extends Controller
             if ($hasBucket) {
                 $movement['bucket'] = $bucket;
             }
-            DB::table('inventory_movements')->insert($movement);
+            InventoryMovement::record($movement);
 
             $stockUpdate = [
                 'on_hand' => $newOnHand,
                 'available' => $newAvailable,
                 'updated_at' => now(),
             ];
-            if ($hasDamaged && $damagedDelta !== 0) {
-                $stockUpdate['damaged'] = (int) ($stock->damaged ?? 0) + (int) $damagedDelta;
+            if ($hasDamaged) {
+                $stockUpdate['damaged'] = $newDamaged;
             }
             DB::table('variant_stocks')->where('variant_id', $variantId)->update($stockUpdate);
-
-            if (!empty($variant->product_id)) {
-                $product = DB::table('products')->where('id', $variant->product_id)->lockForUpdate()->first();
-                if ($product) {
-                    $newLegacy = (int) ($product->stock ?? 0) + $qtyDelta;
-                    if ($newLegacy < 0) {
-                        $newLegacy = 0;
-                    }
-                    DB::table('products')->where('id', $variant->product_id)->update([
-                        'stock' => $newLegacy,
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
         });
 
         return redirect()->route('admin.inventory.index')->with('success', 'Stock adjusted successfully');

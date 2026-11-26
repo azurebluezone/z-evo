@@ -26,8 +26,15 @@ class LandingPageAdminTest extends TestCase
 {
     private const SLUG_PREFIX = 'qa-landing-';
 
+    private ?int $templateId = null;
+    private ?string $originalTemplateName = null;
+
     protected function tearDown(): void
     {
+        if ($this->templateId !== null && $this->originalTemplateName !== null) {
+            Template::query()->whereKey($this->templateId)->update(['name' => $this->originalTemplateName]);
+        }
+
         LandingPage::where('slug', 'like', self::SLUG_PREFIX . '%')->delete();
 
         parent::tearDown();
@@ -45,7 +52,7 @@ class LandingPageAdminTest extends TestCase
 
     private function template(): Template
     {
-        return Template::query()->firstOrCreate(
+        $template = Template::query()->firstOrCreate(
             ['view_name' => 'ht2'],
             [
                 'name' => 'Premium Collection',
@@ -54,6 +61,20 @@ class LandingPageAdminTest extends TestCase
                 'config' => ['landing_template' => 'ht2', 'enabled_variables' => []],
             ]
         );
+
+        // The page must print the registry name, never the legacy DB label.
+        // The live row may already be named after the registry, which would
+        // make that assertion meaningless, so hold a legacy label for the
+        // length of the test and restore it in tearDown.
+        if ($this->templateId === null) {
+            $this->templateId = (int) $template->id;
+            $this->originalTemplateName = (string) $template->name;
+
+            $template->name = 'HT2 - Premium product';
+            $template->save();
+        }
+
+        return $template;
     }
 
     private function landingPage(): LandingPage
@@ -97,7 +118,8 @@ class LandingPageAdminTest extends TestCase
         $response->assertOk();
         $response->assertSee('Landing Page Detail');
         $response->assertSee($page->title);
-        $response->assertSee($this->template()->name);
+        $response->assertSee(\App\Support\LandingTemplateVars::displayName($this->template()));
+        $response->assertDontSee($this->template()->name);
         $response->assertSee('old_price');
     }
 

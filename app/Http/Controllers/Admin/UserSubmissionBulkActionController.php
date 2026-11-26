@@ -8,7 +8,7 @@ use App\Models\Customer;
 use App\Models\NewsletterSubscriber;
 use App\Models\NotificationTemplate;
 use App\Models\ServiceRequest;
-use App\Notifications\GenericDbNotification;
+use App\Services\NotificationDispatcher;
 use Illuminate\Http\Request;
 use Toastr;
 
@@ -63,10 +63,13 @@ class UserSubmissionBulkActionController extends Controller
                     $skipped++;
                     continue;
                 }
-                $customer->notify(new GenericDbNotification($template->title, $template->body, [
+                app(NotificationDispatcher::class)->sendTemplate($template, [$customer], [
+                    'customer_name' => (string) $customer->name,
+                    'customer_phone' => (string) $customer->phone,
+                ], [
                     'source' => 'newsletter',
                     'source_id' => $item->id,
-                ]));
+                ]);
                 $sent++;
             }
         } elseif ($type === 'contacts') {
@@ -77,10 +80,13 @@ class UserSubmissionBulkActionController extends Controller
                     $skipped++;
                     continue;
                 }
-                $customer->notify(new GenericDbNotification($template->title, $template->body, [
+                app(NotificationDispatcher::class)->sendTemplate($template, [$customer], [
+                    'customer_name' => (string) $customer->name,
+                    'customer_phone' => (string) $customer->phone,
+                ], [
                     'source' => 'contacts',
                     'source_id' => $item->id,
-                ]));
+                ]);
                 $sent++;
             }
         } elseif ($type === 'service_requests') {
@@ -91,10 +97,13 @@ class UserSubmissionBulkActionController extends Controller
                     $skipped++;
                     continue;
                 }
-                $customer->notify(new GenericDbNotification($template->title, $template->body, [
+                app(NotificationDispatcher::class)->sendTemplate($template, [$customer], [
+                    'customer_name' => (string) $customer->name,
+                    'customer_phone' => (string) $customer->phone,
+                ], [
                     'source' => 'service_requests',
                     'source_id' => $item->id,
-                ]));
+                ]);
                 $sent++;
             }
         }

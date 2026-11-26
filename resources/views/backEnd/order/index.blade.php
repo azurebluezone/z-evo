@@ -47,7 +47,7 @@
       </x-admin.button>
       @endif
 
-      @if(isset($pathaostore) && !empty($pathaostore))
+      @if(!empty($pathaoReady))
       <x-admin.button variant="outline-success" shape="square" ripple="true" class="individual-courier-btn" type="button" data-courier="pathao-auto" data-url="{{ route('admin.order.pathao.auto') }}" title="Auto-send to Pathao">
         <i class="ri ri-road-map-line me-1"></i> Pathao
       </x-admin.button>
@@ -185,6 +185,8 @@
 </div>
 
 @push('script')
-<script src="{{ asset('admin/assets/js/admin-page-order-index.js') }}"></script>
+{{-- Versioned by mtime: a cached copy of the old script would keep the
+     per-row dropdown dead after this fix ships. --}}
+<script src="{{ asset('admin/assets/js/admin-page-order-index.js') }}?v={{ filemtime(public_path('admin/assets/js/admin-page-order-index.js')) }}"></script>
   @endpush
   @endsection

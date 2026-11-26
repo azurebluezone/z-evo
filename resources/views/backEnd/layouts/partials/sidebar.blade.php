@@ -285,6 +285,11 @@
             <ul class="menu-sub">
                 {{-- Overview first: it is the screen that answers "is my
                      courier working?", which is the question this menu is for. --}}
+                <li class="menu-item {{ request()->routeIs('admin.courier.dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('admin.courier.dashboard') }}" class="menu-link">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
                 <li class="menu-item {{ request()->routeIs('admin.courier.index') ? 'active' : '' }}">
                     <a href="{{ route('admin.courier.index') }}" class="menu-link">
                         <div>Couriers</div>
@@ -305,12 +310,15 @@
                         <div>Fraud Checker</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="javascript:void(0);" class="menu-link disabled" tabindex="-1" aria-disabled="true">
-                        <div>{!! $comingSoon('Status Fast Courier') !!}</div>
-                    </a>
-                </li>
             </ul>
+        </li>
+
+        <!-- Audit Log -->
+        <li class="menu-item {{ request()->routeIs('admin.audit-log.*') ? 'active open' : '' }}">
+            <a href="{{ route('admin.audit-log.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ri ri-file-history-line"></i>
+                <div>Audit Log</div>
+            </a>
         </li>
 
         <!-- Shipping -->
@@ -443,6 +451,11 @@
                 <li class="menu-item {{ request()->routeIs('admin.user-submissions.service-requests.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.user-submissions.service-requests.index') }}" class="menu-link">
                         <div>Service Requests</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.notification-templates.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.notification-templates.index') }}" class="menu-link">
+                        <div>Template Manager</div>
                     </a>
                 </li>
             </ul>
@@ -595,14 +608,6 @@
                     </a>
                 </li>
             </ul>
-        </li>
-
-        <!-- Template Manager -->
-        <li class="menu-item {{ request()->routeIs('admin.notification-templates.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.notification-templates.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-mail-open-line"></i>
-                <div>Template Manager</div>
-            </a>
         </li>
 
         <!-- Communications -->

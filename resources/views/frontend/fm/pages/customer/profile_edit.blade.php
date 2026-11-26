@@ -56,6 +56,12 @@
         $profileImageUrl = $profileImage !== ''
             ? \App\Support\MediaPath::url($profileImage, 'settings')
             : '';
+
+        // The fallback artwork is a 600px illustration; showing it here as
+        // "current profile photo" looked like a broken upload and squeezed the
+        // hint beside it into a vertical strip.
+        $profileHasImage = $profileImageUrl !== ''
+            && $profileImageUrl !== \App\Support\MediaPath::fallbackUrl();
     @endphp
 
     <form action="{{ route('customer.profile_update') }}"
@@ -184,7 +190,7 @@
             <div class="fm-acct__field fm-acct__field--wide">
                 <label class="fm-acct__label" for="profileImage">Profile photo</label>
 
-                @if($profileImageUrl !== '')
+                @if($profileHasImage)
                     <div class="d-flex align-items-center gap-3 mb-2">
                         <img src="{{ $profileImageUrl }}"
                              alt="Current profile photo"
@@ -198,7 +204,7 @@
                 <input type="file"
                        id="profileImage"
                        name="image"
-                       class="form-control @error('image') is-invalid @enderror"
+                       class="form-control fm-acct__file @error('image') is-invalid @enderror"
                        accept="image/*">
                 <p class="fm-acct__hint">JPG, PNG or WEBP. Leave empty to keep the current photo.</p>
                 <p class="fm-acct__error">@error('image') {{ $message }} @enderror</p>

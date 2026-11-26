@@ -67,4 +67,53 @@
       box-shadow: none !important;
       padding: 2.5rem 0 !important;
     }
-  
+
+/* ---------------------------------------------------------------------------
+   Landing order form - the order section of this design's own HTML twin
+   (~/Videos/lp/th3.html). The shared .zlt-* form is restyled here, so every
+   design keeps its own palette while the form and its fields stay one.
+   --------------------------------------------------------------------------- */    body[data-landing-template="th3"] {
+      --zlt-red: #dc2626;
+      --zlt-red-dark: #b91c1c;
+      --zlt-green: #047857;
+      --zlt-radius: 1rem;
+    }
+
+    body[data-landing-template="th3"] .zlt-order {
+      background: #ffffff;
+      border-top-color: #e2e8f0;
+    }
+
+    body[data-landing-template="th3"] .zlt-eyebrow {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    body[data-landing-template="th3"] .zlt-order-card {
+      border-radius: 1rem;
+      border-color: #e2e8f0;
+      box-shadow: 0 20px 45px -25px rgba(15, 23, 42, 0.35);
+    }
+
+    body[data-landing-template="th3"] .zlt-step-number {
+      background: #047857;
+    }
+
+    body[data-landing-template="th3"] .zlt-option {
+      border-radius: 0.75rem;
+    }
+
+    body[data-landing-template="th3"] .zlt-option.is-active {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    body[data-landing-template="th3"] .zlt-submit {
+      background: #dc2626;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px -12px rgba(220, 38, 38, 0.55);
+    }
+
+    body[data-landing-template="th3"] .zlt-submit:hover {
+      background: #b91c1c;
+    }

@@ -139,7 +139,11 @@ class Chapter2AnalyticsAndEventsTest extends TestCase
         $response->assertOk();
         $response->assertSee('fm-', false);
         $response->assertDontSee('Farmers Market Day');
-        $response->assertDontSee('fm-events-section', false);
+
+        // The events rail now reads live campaigns instead of hardcoded
+        // grocery days; the mock copy must not come back.
+        $response->assertDontSee('Organic Harvest Fest', false);
+        $response->assertDontSee('Smart Grocery Demo Day', false);
 
         $productQueries = array_values(array_filter(
             $queries,

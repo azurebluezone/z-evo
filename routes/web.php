@@ -8,6 +8,8 @@ use App\Http\Controllers\Frontend\CustomerController;
 use App\Http\Controllers\Frontend\BkashController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\CourierDashboardController;
 use App\Http\Controllers\Admin\OrderCourierController;
 use App\Http\Controllers\Admin\OrderBoardController;
 use App\Http\Controllers\Admin\UserController;
@@ -886,6 +888,11 @@ Route::group(['prefix' => 'customer', 'namespace' => 'Frontend', 'middleware' =>
 
     Route::get('/account', [CustomerController::class, 'account'])->name('customer.account');
 
+    // Same dashboard behind a second, more discoverable name. `/customer/account`
+    // stays the canonical URL every existing redirect and view already links to,
+    // so this is an alias rather than a move.
+    Route::get('/dashboard', [CustomerController::class, 'account'])->name('customer.dashboard');
+
     Route::get('/notifications', [\App\Http\Controllers\Frontend\CustomerNotificationController::class, 'index'])->name('customer.notifications.index');
     Route::post('/notifications/read-all', [\App\Http\Controllers\Frontend\CustomerNotificationController::class, 'readAll'])->name('customer.notifications.readAll');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\Frontend\CustomerNotificationController::class, 'read'])->name('customer.notifications.read');
@@ -1109,13 +1116,25 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     // wildcard first, "shipments" would be read as a courier type and 404.
     // ---------------------------------------------------------------------
     Route::get('courier', [CourierController::class, 'index'])->name('admin.courier.index');
+    // The dashboard is declared with the other literal courier paths, before
+    // the courier/{type} wildcards, for the same reason shipments is.
+    Route::get('courier/dashboard', [CourierDashboardController::class, 'index'])->name('admin.courier.dashboard');
     Route::get('courier/shipments', [CourierController::class, 'shipments'])->name('admin.courier.shipments');
     Route::get('courier/shipments/{shipment}', [CourierController::class, 'shipment'])->name('admin.courier.shipment');
     Route::get('courier/{type}/edit', [CourierController::class, 'edit'])->name('admin.courier.edit');
     Route::post('courier/{type}/toggle', [CourierController::class, 'toggle'])->name('admin.courier.toggle');
     Route::post('courier/{type}/test', [CourierController::class, 'test'])->name('admin.courier.test');
     Route::post('courier/{type}/rotate-token', [CourierController::class, 'rotateToken'])->name('admin.courier.rotate-token');
+    // The webhook token is never printed into the page; Copy asks for it here.
+    Route::post('courier/{type}/webhook-token', [CourierController::class, 'webhookToken'])->name('admin.courier.webhook-token');
     Route::post('courier/{type}', [CourierController::class, 'update'])->name('admin.courier.update');
+
+    // ---------------------------------------------------------------------
+    // audit log: one trail of everything that happened - order notes,
+    // inventory movements, courier actions, refunds and risk lookups.
+    // ---------------------------------------------------------------------
+    Route::get('audit-log', [AuditLogController::class, 'index'])->name('admin.audit-log.index');
+    Route::get('audit-log/{id}', [AuditLogController::class, 'show'])->name('admin.audit-log.show');
 
     // visitors
     Route::get('visitors/manage', [VisitorManageController::class, 'index'])->name('admin.visitors.index');
@@ -1294,6 +1313,8 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::get('landing-pages/{id}/edit', [LandingPageController::class, 'edit'])->name('landing-pages.edit');
     Route::post('landing-pages/update/{id}', [LandingPageController::class, 'update'])->name('landing-pages.update');
     Route::post('landing-pages/destroy', [LandingPageController::class, 'destroy'])->name('landing-pages.destroy');
+    Route::post('landing-pages/active', [LandingPageController::class, 'active'])->name('landing-pages.active');
+    Route::post('landing-pages/inactive', [LandingPageController::class, 'inactive'])->name('landing-pages.inactive');
     Route::get('landing-pages/template-config/{id}', [LandingPageController::class, 'templateConfig'])->name('landing-pages.template-config');
     Route::get('landing-pages/templates/{id}/preview', [LandingPageController::class, 'previewTemplate'])->name('landing-pages.templates.preview');
     Route::get('landing-pages/{id}/template-variables', [LandingPageController::class, 'templateVariables'])->name('landing-pages.template-variables');
@@ -1467,6 +1488,9 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     // A consignment is irreversible (the courier bills for it and the parcel
     // exists upstream), so the admin sees the exact payload before anything is
     // created. See Admin\OrderCourierController.
+    Route::get('order/{order}/courier', [OrderCourierController::class, 'choose'])
+        ->name('admin.order.courier.choose');
+
     Route::get('order/{order}/courier/{provider}', [OrderCourierController::class, 'show'])
         ->name('admin.order.courier.show');
     Route::post('order/{order}/courier/{provider}', [OrderCourierController::class, 'store'])

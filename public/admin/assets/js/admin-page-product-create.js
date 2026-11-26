@@ -371,7 +371,10 @@
               + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_purchase_price[]" value="' + (prev.purchase || '') + '" placeholder="0"></td>'
               + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_sale_price[]" value="' + (prev.sale || '') + '" placeholder="0"></td>'
               + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_discount_price[]" value="' + (prev.discount || '') + '" placeholder="0"></td>'
-              + '<td><input type="file" class="form-control rounded-0" name="variant_image[]" accept="image/*"></td>'
+              // Keyed by row so the second combination's photo cannot land on
+              // the first row when an earlier file input is empty and the
+              // WAF hook removes its name before submit.
+              + '<td><input type="file" class="form-control rounded-0" name="variant_image[' + idx + ']" accept="image/*"></td>'
               + '<td><input type="number" min="0" step="1" class="form-control rounded-0" name="variant_initial_stock[]" value="' + (prev.stock || '') + '" placeholder="0"></td>';
 
             tbody.appendChild(tr);

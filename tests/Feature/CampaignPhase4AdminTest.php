@@ -94,7 +94,6 @@ class CampaignPhase4AdminTest extends TestCase
             'purchase_price' => 800,
             'old_price' => 1500,
             'new_price' => 1200,
-            'stock' => 20,
             'meta_description' => null,
             'description' => 'QA phase4 product description',
             'topsale' => null,
@@ -228,7 +227,8 @@ class CampaignPhase4AdminTest extends TestCase
         $response->assertOk();
         $response->assertSee('QA Phase4 Inactive Product');
         $response->assertSee('(inactive)');
-        $response->assertSee($template->name);
+        $response->assertSee(\App\Support\LandingTemplateVars::displayName($template));
+        $response->assertDontSee($template->name);
 
         $html = $response->getContent();
         $this->assertMatchesRegularExpression(
@@ -412,7 +412,8 @@ class CampaignPhase4AdminTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('QA Phase4 List Product');
-        $response->assertSee($template->name);
+        $response->assertSee(\App\Support\LandingTemplateVars::displayName($template));
+        $response->assertDontSee($template->name);
         $response->assertSee('Nov 01, 2026');
         $response->assertSee('Nov 30, 2026');
         $response->assertSee(route('campaign.preview', $active->id), false);

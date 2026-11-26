@@ -55,28 +55,20 @@
     letter-spacing: -0.02em;
 }
 
-.zlt-brand-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.4rem;
+/* The application logo replaces the typed-out brand name in the header. */
+.zlt-brand-logo {
+    display: block;
+    width: auto;
     height: 2.4rem;
-    border-radius: 0.8rem;
-    background: linear-gradient(135deg, var(--zlt-red), #f97316);
-    color: #fff;
-    font-size: 1.05rem;
-    font-weight: 900;
-    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.22);
+    max-width: 11rem;
+    object-fit: contain;
 }
 
-.zlt-brand-sub {
-    display: block;
-    margin-top: 0.1rem;
-    color: var(--zlt-muted);
-    font-size: 0.64rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+/* Only used when no logo file could be resolved at all. */
+.zlt-brand-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
 .zlt-nav {
@@ -123,11 +115,26 @@
     border-top: 1px solid var(--zlt-line);
 }
 
-.zlt-order-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.75rem;
-    align-items: start;
+/* The order section follows the landing designs: a centred header above one
+   order card, with the fields of a normal product order inside it. */
+.zlt-order-head {
+    max-width: 46rem;
+    margin: 0 auto 2rem;
+    text-align: center;
+}
+
+.zlt-order-head h2 {
+    margin: 0.75rem 0 0.6rem;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    line-height: 1.25;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.zlt-order-head p {
+    margin: 0;
+    color: var(--zlt-muted);
+    line-height: 1.7;
 }
 
 .zlt-eyebrow {
@@ -141,21 +148,6 @@
     font-size: 0.72rem;
     font-weight: 800;
 }
-
-.zlt-order-copy h2 {
-    margin: 0.75rem 0 0.6rem;
-    font-size: clamp(1.5rem, 3vw, 2.2rem);
-    line-height: 1.25;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-}
-
-.zlt-order-copy p {
-    margin: 0;
-    color: var(--zlt-muted);
-    line-height: 1.7;
-}
-
 .zlt-order-points {
     display: grid;
     gap: 0.65rem;
@@ -194,6 +186,43 @@
     border-radius: var(--zlt-radius);
     background: #fff;
     box-shadow: 0 18px 40px -24px rgba(15, 23, 42, 0.28);
+}
+
+/* The application logo that opens the order card. */
+.zlt-order-brand {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.zlt-order-logo {
+    display: block;
+    width: auto;
+    height: 2.1rem;
+    max-width: 9.5rem;
+    object-fit: contain;
+}
+
+/* Session feedback for a rejected order (the form posts back with an error). */
+.zlt-alert {
+    margin: 0 0 1rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.7rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.zlt-alert-error {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.zlt-alert-success {
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #15803d;
 }
 
 .zlt-order-product {
@@ -282,6 +311,172 @@
     font-size: 1.15rem;
 }
 
+.zlt-strike {
+    text-decoration: line-through;
+}
+
+/* One order card, centred, like the landing designs. */
+.zlt-order-form {
+    max-width: 46rem;
+    margin: 0 auto;
+}
+
+/* The numbered steps of the order form. */
+.zlt-step {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--zlt-line);
+}
+
+.zlt-step-title {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 0.9rem;
+    color: var(--zlt-ink);
+    font-size: 0.95rem;
+    font-weight: 900;
+}
+
+.zlt-step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--zlt-red);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 900;
+}
+
+/* Selectable cards: quantity and payment method. */
+.zlt-option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.75rem;
+}
+
+.zlt-option {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.8rem 0.9rem;
+    border: 2px solid var(--zlt-line);
+    border-radius: 0.8rem;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.zlt-option:hover {
+    border-color: #cbd5e1;
+    background: var(--zlt-soft);
+}
+
+.zlt-option.is-active {
+    border-color: var(--zlt-red);
+    background: #fff7f7;
+    box-shadow: 0 10px 24px -18px rgba(220, 38, 38, 0.7);
+}
+
+.zlt-option input {
+    margin: 0 0 0.15rem;
+    accent-color: var(--zlt-red);
+}
+
+.zlt-option-title {
+    color: var(--zlt-ink);
+    font-size: 0.92rem;
+    font-weight: 800;
+}
+
+.zlt-option-price {
+    color: var(--zlt-red);
+    font-size: 0.92rem;
+    font-weight: 900;
+}
+
+.zlt-option-text {
+    color: var(--zlt-muted);
+    font-size: 0.74rem;
+    line-height: 1.5;
+}
+
+/* Text fields with a leading icon, like the landing designs. */
+.zlt-field label {
+    display: block;
+    color: #334155;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.zlt-req {
+    color: var(--zlt-red);
+}
+
+.zlt-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.zlt-input-wrap > i {
+    position: absolute;
+    left: 0.85rem;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+
+.zlt-input-wrap input,
+.zlt-input-wrap textarea {
+    width: 100%;
+    padding: 0.7rem 0.85rem 0.7rem 2.6rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.7rem;
+    background: #fff;
+    color: var(--zlt-ink);
+    font: inherit;
+    font-size: 0.92rem;
+}
+
+.zlt-input-wrap textarea {
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.zlt-input-wrap input:focus,
+.zlt-input-wrap textarea:focus {
+    outline: 2px solid rgba(220, 38, 38, 0.35);
+    outline-offset: 1px;
+    border-color: var(--zlt-red);
+}
+
+.zlt-field select {
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.65rem;
+    background: #fff;
+    color: var(--zlt-ink);
+    font: inherit;
+    font-size: 0.92rem;
+}
+
+.zlt-error {
+    margin: 0.15rem 0 0;
+    color: #b91c1c;
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.zlt-alert-list {
+    margin: 0;
+    padding-left: 1.1rem;
+}
 .zlt-submit {
     width: 100%;
     padding: 0.95rem 1rem;
@@ -315,10 +510,6 @@
         display: flex;
     }
 
-    .zlt-order-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
-        gap: 2.5rem;
-    }
 
     .zlt-order-card {
         padding: 1.6rem;

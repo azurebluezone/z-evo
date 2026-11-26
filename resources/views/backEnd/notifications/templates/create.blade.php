@@ -1,5 +1,7 @@
 @extends('backEnd.layouts.app')
+@push('css')
 <link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-notification-templates.css') }}">
+@endpush
 @section('title','Create Notification Template')
 
 @section('content')
@@ -24,42 +26,12 @@
 <div class="w-100">
   <div class="row">
     <div class="col-12">
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <h4 class="mb-0">Create Template</h4>
-        <a href="{{ route('admin.notification-templates.index') }}" class="btn btn-outline-secondary btn-sm">Back</a>
-      </div>
-
       <div class="card">
         <div class="card-body">
           <form method="post" action="{{ route('admin.notification-templates.store') }}" id="adminForm">
             @csrf
 
-            <div class="mb-3">
-              <label class="form-label">Name</label>
-              <input type="text" name="name" class="form-control" value="{{ old('name') }}">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Title</label>
-              <input type="text" name="title" class="form-control" value="{{ old('title') }}">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label" for="tplBody">Body</label>
-              <input type="hidden" id="tplBody" name="body" value="{{ old('body') }}">
-              <div id="tpl-body-editor"
-                   class="js-quill-editor notification-body-editor"
-                   data-quill-theme="snow"
-                   data-quill-toolbar-preset="full"
-                   data-quill-target="#tplBody"
-                   data-quill-placeholder="Write the notification body (HTML, variables {{ $name }} compatible)..."
-                   data-quill-initial-html="{{ e((string) old('body')) }}"></div>
-            </div>
-
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
-              <label class="form-check-label" for="is_active">Active</label>
-            </div>
+            @include('backEnd.notifications.templates._form')
 
             <x-admin.button variant="primary" type="submit">Save</x-admin.button>
           </form>

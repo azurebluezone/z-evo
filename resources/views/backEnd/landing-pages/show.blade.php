@@ -94,11 +94,7 @@
             </div>
             <div class="card-body">
                 @if($landingPage->template)
-                    <h6 class="mb-1">{{ $landingPage->template->name }}</h6>
-                    <div class="text-muted small mb-2">{{ $landingPage->template->view_name }}</div>
-                    @if($landingPage->template->description)
-                        <p class="text-muted small mb-0">{{ $landingPage->template->description }}</p>
-                    @endif
+                    <h6 class="mb-1">{{ \App\Support\LandingTemplateVars::displayName($landingPage->template) }}</h6>
                 @else
                     <p class="text-muted mb-0">The template of this page no longer exists.</p>
                 @endif

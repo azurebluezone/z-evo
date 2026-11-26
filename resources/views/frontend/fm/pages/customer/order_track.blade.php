@@ -43,7 +43,7 @@
         $trackShop   = (string) ($generalsetting->name ?? config('app.name'));
     @endphp
 
-    <section class="fm-au">
+    <section class="fm-au fm-au--page">
         <div class="fm-au__container">
 
             <ol class="fm-au__crumbs">

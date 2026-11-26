@@ -14,14 +14,27 @@ use Tests\TestCase;
  */
 class LandingOrderFormTest extends TestCase
 {
+    use EnsuresDesignCampaigns;
+
     private const DESIGN_VIEWS = ['ht2', 't1', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9'];
+
+    protected function tearDown(): void
+    {
+        $this->cleanupDesignCampaignFixtures();
+        parent::tearDown();
+    }
 
     public function test_admin_campaign_preview_contains_the_working_order_form(): void
     {
-        $campaign = Campaign::with('template', 'product')->find(806);
+        $campaign = Campaign::with('template', 'product')
+            ->where('status', 1)
+            ->whereNotNull('template_id')
+            ->whereNotNull('product_id')
+            ->orderBy('id')
+            ->first();
 
         if (!$campaign || !$campaign->product || !$campaign->template) {
-            $this->markTestSkipped('Campaign 806 with its product/template is not present in this database.');
+            $this->markTestSkipped('No active campaign with a product and a template is present in this database.');
         }
 
         $response = $this->actingAs($this->admin())->get('/admin/campaign/' . $campaign->id . '/preview');
@@ -39,15 +52,10 @@ class LandingOrderFormTest extends TestCase
 
     public function test_every_public_design_campaign_has_exactly_one_order_form(): void
     {
-        $campaigns = Campaign::with('template')
-            ->where('status', 1)
-            ->whereHas('template', fn ($query) => $query->whereIn('view_name', self::DESIGN_VIEWS))
-            ->orderBy('id')
-            ->get()
-            ->keyBy(fn (Campaign $campaign) => $campaign->template->view_name);
+        $campaigns = collect();
 
         foreach (self::DESIGN_VIEWS as $view) {
-            $this->assertTrue($campaigns->has($view), 'No active campaign exists for design ' . $view . '.');
+            $campaigns->put($view, $this->activeCampaignForDesign($view));
         }
 
         foreach ($campaigns as $view => $campaign) {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\RefundCompleted;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Admin\Concerns\InteractsWithDataTable;
 use App\Models\Order;
@@ -9,37 +10,11 @@ use App\Models\OrderStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Toastr;
+use App\Models\InventoryMovement;
 
 class ReturnsRefundsController extends Controller
 {
     use InteractsWithDataTable;
-    private function resolveLegacyProductRowIdFromOrderDetail($detail): ?int
-    {
-        $directId = isset($detail->product_id) ? (int) $detail->product_id : null;
-        if ($directId) {
-            $exists = DB::table('products')->where('id', $directId)->exists();
-            if ($exists) {
-                return $directId;
-            }
-        }
-
-        $name = (string) ($detail->product_name ?? '');
-        if ($name === '') {
-            return null;
-        }
-
-        // Try to extract last token as product_code (e.g., LR8604, COD12, SP8606)
-        $tokens = preg_split('/\s+/', trim($name));
-        $code = $tokens ? end($tokens) : '';
-        $code = preg_replace('/[^A-Za-z0-9_-]/', '', (string) $code);
-
-        if ($code === '') {
-            return null;
-        }
-
-        $id = DB::table('products')->where('product_code', $code)->value('id');
-        return $id ? (int) $id : null;
-    }
 
     private function resolveVariantIdFromOrderDetail(int $productId, ?string $productSize): ?int
     {
@@ -135,6 +110,20 @@ class ReturnsRefundsController extends Controller
 
         $order = Order::with('orderdetails')->findOrFail($orderId);
 
+        // The audit trail: a return approval restocks and may promise money,
+        // so it is recorded once the decision is taken.
+        app(\App\Services\AuditLogger::class)->record('return.approved', [
+            'subject_type' => 'order',
+            'subject_id'   => $order->id,
+            'description'  => 'Return approved for invoice ' . $order->invoice_id,
+            'after'        => [
+                'return_mode'       => $request->input('return_mode', 'customer_return'),
+                'restock_condition' => $request->input('restock_condition', 'sellable'),
+                'refund_required'   => $request->boolean('refund_required'),
+                'refund_amount'     => $request->input('refund_amount'),
+            ],
+        ]);
+
         DB::transaction(function () use ($order, $request) {
             $row = DB::table('order_returns')->where('order_id', $order->id)->lockForUpdate()->first();
 
@@ -207,15 +196,7 @@ class ReturnsRefundsController extends Controller
 
                 $bucket = $restockCondition === 'damaged' ? 'damaged' : 'sellable';
 
-                if ($bucket === 'sellable') {
-                    // Legacy stock (back-compat)
-                    $legacyProductId = $this->resolveLegacyProductRowIdFromOrderDetail($detail);
-                    if ($legacyProductId) {
-                        DB::table('products')->where('id', $legacyProductId)->increment('stock', $qty);
-                    }
-                }
-
-                DB::table('inventory_movements')->insert([
+                InventoryMovement::record([
                     'variant_id' => $variantId,
                     'type' => $bucket === 'damaged' ? 'RETURN_DAMAGED' : 'RETURN',
                     'bucket' => $bucket,
@@ -295,7 +276,9 @@ class ReturnsRefundsController extends Controller
             'refund_note' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($orderId, $request) {
+        $changed = false;
+
+        DB::transaction(function () use ($orderId, $request, &$changed) {
             $row = DB::table('order_returns')->where('order_id', $orderId)->lockForUpdate()->first();
             if (!$row) {
                 return;
@@ -312,7 +295,33 @@ class ReturnsRefundsController extends Controller
                 'refund_note' => $request->input('refund_note'),
                 'updated_at' => now(),
             ]);
+
+            $changed = true;
+
+            // The audit trail: money leaving the shop is worth a line.
+            app(\App\Services\AuditLogger::class)->record('return.refunded', [
+                'subject_type' => 'order',
+                'subject_id'   => $orderId,
+                'description'  => 'Refund marked for order #' . $orderId,
+                'before'       => ['status' => $row->status ?? null, 'refunded' => (int) ($row->refunded ?? 0)],
+                'after'        => [
+                    'status'        => 'refunded',
+                    'refund_amount' => $request->input('refund_amount'),
+                    'refund_note'   => $request->input('refund_note'),
+                ],
+            ]);
         });
+
+        if ($changed) {
+            $order = Order::find($orderId);
+            if ($order) {
+                event(new RefundCompleted(
+                    $order,
+                    (float) ($request->input('refund_amount') ?? 0),
+                    $request->input('refund_note')
+                ));
+            }
+        }
 
         Toastr::success('Success', 'Refund marked successfully');
         return redirect()->back();

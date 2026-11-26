@@ -72,7 +72,7 @@
         $invGrand    = (float) ($order->amount ?? ($invSubtotal + $invShipping - $invDiscount));
     @endphp
 
-    <section class="fm-au">
+    <section class="fm-au fm-au--page">
         <div class="fm-au__container" style="max-width:860px;">
 
             {{-- Toolbar. Marked no-print so it never reaches the paper; the
@@ -98,7 +98,7 @@
                         @if($invLogoUrl !== '')
                             <img src="{{ $invLogoUrl }}"
                                  alt="{{ $invShop }}"
-                                 class="max-h-12 w-auto object-contain"
+                                 class="max-h-12 w-auto object-contain fm-invoice-logo"
                                  style="max-height:48px;width:auto;object-fit:contain;margin-bottom:.75rem;">
                         @endif
                         <h1 class="fm-acct__card-title">{{ $invShop }}</h1>

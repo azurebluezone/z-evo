@@ -4,29 +4,28 @@
 <div class="row">
     <div class="col-12">
         <div class="card rounded-0">
-            <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
-                <h5 class="mb-0 text-uppercase fw-bold">Inventory Adjustment</h5>
-                <div class="d-flex gap-2 align-items-center">
-                    <form method="GET" action="{{ route('admin.inventory.adjustment') }}" class="d-flex gap-2 align-items-center">
-                        <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" class="form-control rounded-0" style="min-width: 320px;" placeholder="Search product / sku / variant" />
-                        @if(!empty($filters['variant_id']))
-                            <input type="hidden" name="variant_id" value="{{ $filters['variant_id'] }}" />
-                        @endif
-                        <x-admin.button variant="outline-primary" shape="square" ripple="true" type="submit">
-                            <i class="ri ri-search-line me-1"></i> Filter
-                        </x-admin.button>
-                        <a href="{{ route('admin.inventory.adjustment') }}" class="btn btn-outline-secondary btn-square waves-effect">Reset</a>
-                    </form>
-                    <a href="{{ route('admin.inventory.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
-                        <i class="ri ri-arrow-left-line me-1"></i> Back to Stock
-                    </a>
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h5 class="mb-0 text-uppercase fw-bold">Inventory Adjustment</h5>
+                    <div class="inventory-toolbar">
+                        <form method="GET" action="{{ route('admin.inventory.adjustment') }}" class="inventory-toolbar">
+                            <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" class="form-control rounded-0 inventory-search" placeholder="Search product / sku / variant" />
+                            @if(!empty($filters['variant_id']))
+                                <input type="hidden" name="variant_id" value="{{ $filters['variant_id'] }}" />
+                            @endif
+                            <x-admin.button variant="outline-primary" shape="square" ripple="true" type="submit">
+                                <i class="ri ri-search-line me-1"></i> Filter
+                            </x-admin.button>
+                            <a href="{{ route('admin.inventory.adjustment') }}" class="btn btn-outline-secondary btn-square waves-effect">Reset</a>
+                        </form>
+                        <a href="{{ route('admin.inventory.index') }}" class="btn btn-outline-secondary btn-square waves-effect">
+                            <i class="ri ri-arrow-left-line me-1"></i> Back to Stock
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <div class="card-body">
-                <div class="card rounded-0 border-info shadow-none mb-4">
-                </div>
-
                 <form method="POST" action="{{ route('admin.inventory.adjustment.store') }}" class="row g-4">
                     @csrf
 

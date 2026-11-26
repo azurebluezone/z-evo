@@ -53,7 +53,7 @@
     $ratingValue = (float) ($product->reviews_avg_ratting ?? 0);
     $ratingCount = (int) ($product->reviews_count ?? 0);
 
-    $inStock = (int) ($product->stock ?? 0) > 0;
+    $inStock = method_exists($product, 'isInStock') ? $product->isInStock() : false;
     $unit    = $product->pro_unit ?: null;
 @endphp
 

@@ -8416,3 +8416,41 @@ table.table.print-payment-table tbody tr td {
       min-width: 220px !important;
     }
 }
+
+/* ---------------------------------------------------------------------------
+ * Storefront product-card stock state.
+ *
+ * Home rails (featured, best selling, discount, recommended, flash sale and the
+ * AJAX-paginated collections) render one card per product. Availability is
+ * batched once in FrontendController::frontendHome()/homeSectionProducts(), so
+ * these rules only paint that state: an out-of-stock badge over the image and
+ * a disabled action that cannot start a doomed cart POST.
+ * ------------------------------------------------------------------------ */
+.product-card .product-stock-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: #6c757d;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.product-card a.add-to-cart-btn {
+  text-decoration: none;
+}
+.product-card .add-to-cart-btn:disabled,
+.product-card .add-to-cart-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: #f1f1f1;
+  color: rgba(0, 0, 0, 0.55);
+}
+.product-card .add-to-cart-btn:disabled:hover {
+  background: #f1f1f1;
+  color: rgba(0, 0, 0, 0.55);
+}

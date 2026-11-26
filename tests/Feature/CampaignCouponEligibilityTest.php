@@ -28,6 +28,8 @@ use Tests\TestCase;
  */
 class CampaignCouponEligibilityTest extends TestCase
 {
+    use SeedsCampaignCartLines;
+    use GrantsVariantStock;
     private array $createdProductIds = [];
     private array $createdCampaignIds = [];
     private array $createdCouponIds = [];
@@ -268,19 +270,12 @@ class CampaignCouponEligibilityTest extends TestCase
 
     private function addCampaignLine(object $product, object $campaign, int $qty = 1): void
     {
-        $this->post('/landing-order', [
-            'product_id' => $product->id,
-            'campaign_id' => $campaign->id,
-            'quantity' => $qty,
-        ])->assertRedirect(route('customer.checkout'));
+        $this->seedCampaignCartLine($product, $campaign, $qty);
     }
 
     private function addNormalLine(object $product, int $qty = 1): void
     {
-        $this->post('/landing-order', [
-            'product_id' => $product->id,
-            'quantity' => $qty,
-        ])->assertRedirect(route('customer.checkout'));
+        $this->seedNormalCartLine($product, $qty);
     }
 
     private function createProduct(float $newPrice): object
@@ -294,7 +289,6 @@ class CampaignCouponEligibilityTest extends TestCase
             'purchase_price' => 800,
             'old_price' => 1500,
             'new_price' => $newPrice,
-            'stock' => 20,
             'meta_description' => null,
             'description' => 'QA coupon campaign product description',
             'topsale' => null,
@@ -307,7 +301,13 @@ class CampaignCouponEligibilityTest extends TestCase
 
         $this->createdProductIds[] = $id;
 
-        return DB::table('products')->where('id', $id)->first();
+        $product = DB::table('products')->where('id', $id)->first();
+
+        // Stock is variant-owned now; a product fixture without a balance
+        // cannot be ordered.
+        $this->grantDefaultStock($product);
+
+        return $product;
     }
 
     private function createCampaign(int $productId, float $price, int $allowCoupon): object

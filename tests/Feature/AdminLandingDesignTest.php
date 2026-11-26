@@ -75,7 +75,8 @@ class AdminLandingDesignTest extends TestCase
 
     public function test_manage_page_lists_the_nine_designs_with_view_and_edit(): void
     {
-        $response = $this->actingAs($this->admin())->get('/admin/landing-pages/manage');
+        $admin = $this->admin();
+        $response = $this->actingAs($admin)->get('/admin/landing-pages/manage');
 
         $response->assertOk();
         $html = $response->getContent();
@@ -85,12 +86,57 @@ class AdminLandingDesignTest extends TestCase
         $this->assertStringContainsString('Premium Collection', $html);
         $this->assertStringContainsString('Rose Editorial Abaya', $html);
         $this->assertStringContainsString('Soft Commerce Hoodie', $html);
-        $this->assertStringContainsString('generated/ht2-hero.jpg', $html);
-        $this->assertStringContainsString('generated/th9-hero.jpg', $html);
         $this->assertStringContainsString('> View', $html);
         $this->assertStringContainsString('> Edit', $html);
         $this->assertStringNotContainsString('T1 - Funnel checkout', $html);
         $this->assertStringNotContainsString('TH6 - Rose editorial', $html);
+
+        // The nine real previews from work/zevo/lpage, served from the stable
+        // public designs path instead of the old generated placeholder heroes.
+        foreach (['ht2', 't1', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9'] as $view) {
+            $relative = 'frontend/landing/pictures/designs/' . $view . '.png';
+            $this->assertFileExists(public_path($relative), $relative . ' is not published.');
+            $this->assertStringContainsString($relative, $html, $view . ' card image is not the published design preview.');
+        }
+        $this->assertStringNotContainsString('generated/ht2-hero.jpg', $html);
+        $this->assertStringNotContainsString('generated/th9-hero.jpg', $html);
+
+        // Status controls: green Active button on an active design, posting to
+        // the inactive route, one form per card.
+        $this->assertSame(9, substr_count($html, 'data-status-toggle'));
+        $this->assertSame(9, substr_count($html, 'data-design-status="active"'));
+        $this->assertStringContainsString('btn btn-sm btn-success w-100 waves-effect', $html);
+        $this->assertStringContainsString('> Active', $html);
+        $this->assertStringContainsString(route('landing-pages.inactive'), $html);
+
+        // Flip one design off: the same card must turn red and post to active.
+        $template = Template::query()->where('view_name', 'th9')->firstOrFail();
+        $wasActive = (bool) $template->is_active;
+
+        try {
+            $this->actingAs($admin)
+                ->post(route('landing-pages.inactive'), ['hidden_id' => $template->id])
+                ->assertRedirect();
+            $this->assertFalse($template->fresh()->is_active, 'Inactive action did not clear templates.is_active.');
+
+            $inactiveHtml = $this->actingAs($admin)->get('/admin/landing-pages/manage')->getContent();
+            $this->assertStringContainsString('data-design-status="inactive"', $inactiveHtml);
+            $this->assertStringContainsString('btn btn-sm btn-danger w-100 waves-effect', $inactiveHtml);
+            $this->assertStringContainsString('> Inactive', $inactiveHtml);
+            $this->assertStringContainsString(route('landing-pages.active'), $inactiveHtml);
+
+            $this->actingAs($admin)
+                ->post(route('landing-pages.active'), ['hidden_id' => $template->id])
+                ->assertRedirect();
+            $this->assertTrue($template->fresh()->is_active, 'Active action did not set templates.is_active.');
+        } finally {
+            $template->is_active = $wasActive;
+            $template->save();
+        }
+
+        // The edit form uses the same label style as product create.
+        $editView = file_get_contents(resource_path('views/backEnd/landing-pages/edit.blade.php'));
+        $this->assertStringContainsString('class="form-label d-block fw-semibold">Status</label>', $editView);
     }
 
     public function test_template_variables_page_is_english_and_clean(): void

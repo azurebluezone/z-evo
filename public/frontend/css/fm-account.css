@@ -525,15 +525,25 @@
 
     .fm-acct-nav__id { padding-bottom: .75rem; margin-bottom: .75rem; }
 
+    /* A scroll strip under the identity block. The scrollbar used to draw a
+       visible line through the pills on Android, and the last item was cut
+       mid-word with nothing to suggest the strip scrolls, so the bar is hidden
+       and the right edge fades out instead. */
     .fm-acct-nav__menu ul {
         display: flex;
         gap: .4rem;
+        padding-right: .5rem;
         overflow-x: auto;
-        scrollbar-width: thin;
+        scrollbar-width: none;
+        scroll-snap-type: x proximity;
         -webkit-overflow-scrolling: touch;
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent 100%);
+        mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent 100%);
     }
 
-    .fm-acct-nav__menu li { flex: 0 0 auto; }
+    .fm-acct-nav__menu ul::-webkit-scrollbar { display: none; }
+
+    .fm-acct-nav__menu li { flex: 0 0 auto; scroll-snap-align: start; }
 
     .fm-acct-nav__link {
         margin-bottom: 0;
@@ -562,6 +572,107 @@
     .fm-acct__title { font-size: 1.25rem; }
 
     .fm-acct__actions .fm-acct__actions-btn { width: 100%; }
+}
+
+/* --------------------------------------------------------------------------
+   12. Polish overrides
+   -------------------------------------------------------------------------- */
+
+/* The storefront layout carries
+       #fm-audit-fix img { max-width:100% !important; height:auto !important; }
+   which beat the 56px height declared on .fm-acct__thumb / .fm-acct-nav__avatar.
+   The result was a 600x600 "No image" placeholder filling the account panel and
+   squeezing the sibling hint text into a one-character-wide column. An id-qualified
+   selector wins the specificity fight, so the avatar keeps its box. */
+#fm-audit-fix .fm-acct__thumb,
+#fm-audit-fix .fm-acct-nav__avatar {
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+    object-fit: cover;
+}
+
+/* No uploaded photo on file: draw the initial instead of the bundled
+   "No image" artwork, which reads as a broken image at 56px. */
+.fm-acct__thumb--initial {
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #047857;
+    background: #eaf5ee;
+    border: 1px solid #d6e8dd;
+    border-radius: .5rem;
+}
+
+/* .fm-au is the auth wrapper: its 60vh min-height centres the login panel.
+   Invoice, order success and tracking reuse the same container and card, so
+   they inherited that height and left a screen of empty space above the
+   footer on mobile. Two classes so the rule wins regardless of whether
+   fm-auth.css is loaded before or after this file. */
+.fm-au.fm-au--page {
+    min-height: 0;
+    padding: 1.75rem 0 3rem;
+}
+
+@media (max-width: 575.98px) {
+    .fm-au.fm-au--page { padding: 1rem 0 2rem; }
+}
+
+/* The invoice wordmark is 866x288. #fm-audit-fix forces height:auto, so the
+   inline 48px max-height collapsed the box to 48x48 and object-fit letterboxed
+   the artwork down to a ~16px strip. Pin the box to the artwork's ratio. */
+#fm-audit-fix .fm-invoice-logo {
+    width: auto !important;
+    max-width: 220px !important;
+    height: 44px !important;
+    max-height: 44px !important;
+    /* .fm-card img sets aspect-ratio:1/1 for product shots; it wins over an
+       auto width and turned the 3:1 wordmark into a 44x44 square. */
+    aspect-ratio: auto !important;
+    object-fit: contain;
+    object-position: left center;
+    margin-bottom: .75rem;
+}
+
+/* Native file inputs. The browser default drew its own chrome and, inside the
+   two-column form, squeezed "Choose File" and "No file chosen" into one narrow
+   block on a 375px screen. */
+.fm-acct__file {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    padding: .55rem .7rem;
+    border: 1px dashed #cfe0d5;
+    border-radius: .625rem;
+    background: #fbfdfb;
+    font-size: .8125rem;
+    line-height: 1.4;
+    color: #192a1e;
+    cursor: pointer;
+}
+
+.fm-acct__file::file-selector-button {
+    margin: 0 .7rem 0 0;
+    padding: .45rem .85rem;
+    border: 1px solid #047857;
+    border-radius: .5rem;
+    background: #fff;
+    color: #047857;
+    font-size: .8125rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color .15s ease;
+}
+
+.fm-acct__file::file-selector-button:hover { background: #eaf5ee; }
+
+.fm-acct__file:focus-visible {
+    outline: 2px solid #047857;
+    outline-offset: 2px;
 }
 
 /* --------------------------------------------------------------------------

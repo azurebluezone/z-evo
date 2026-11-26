@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Events\PaymentFailed;
+use App\Events\PaymentStatusChanged;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Order;
@@ -176,6 +178,20 @@ class BkashController extends Controller
             $response = $this->execute($allRequest['paymentID']);
             $arr = json_decode($response,true);
             if(array_key_exists("statusCode",$arr) && $arr['statusCode'] != '0000'){
+                // The payment row stays pending: the customer may retry. The
+                // failed attempt still deserves a customer notification.
+                $failedOrder = Order::find($allRequest['orderId']);
+                if ($failedOrder) {
+                    $failedPayment = Payment::where('order_id', $failedOrder->id)->first();
+                    if ($failedPayment) {
+                        event(new PaymentFailed(
+                            $failedOrder,
+                            $failedPayment,
+                            'gateway status ' . $arr['statusCode']
+                        ));
+                    }
+                }
+
                 Toastr::error('Opps, Your bkash payment failed', 'Failed!');
                 return redirect('customer/order-success/'.$allRequest['orderId']);
             }else if(array_key_exists("message",$arr)){
@@ -199,10 +215,16 @@ class BkashController extends Controller
                 Toastr::error('Opps, Payment record missing', 'Failed!');
                 return redirect('customer/order-success/'.$allRequest['orderId']);
             }
+            $previousStatus = (string) $payment->payment_status;
+
             $payment->trx_id = $allRequest['paymentID'];
             $payment->payment_status = 'paid';
             $payment->save();
-            
+
+            if ($previousStatus !== 'paid') {
+                event(new PaymentStatusChanged($order, $payment, $previousStatus, 'paid'));
+            }
+
             Toastr::success('Thanks, Your bkash payment successfully done', 'Success!');
             return redirect('customer/order-success/'.$allRequest['orderId']);
         }

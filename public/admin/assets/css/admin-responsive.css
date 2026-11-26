@@ -87,6 +87,32 @@
   flex: 0 0 auto;
 }
 
+/* Inventory search + action row: the input is fluid, never pinned to 320px. */
+.inventory-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.inventory-toolbar .inventory-search {
+  flex: 1 1 220px;
+  min-width: 0;
+  max-width: 320px;
+}
+
+@media (max-width: 575.98px) {
+  .inventory-toolbar .inventory-search {
+    max-width: none;
+  }
+
+  .inventory-toolbar .btn {
+    flex: 0 0 auto;
+  }
+}
+
 /* ==========================================================================
    4. Toolbars that live in the card *body*
    (filter strips, search + export rows, bulk-action rows)

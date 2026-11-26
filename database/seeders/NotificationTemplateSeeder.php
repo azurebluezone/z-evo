@@ -2,55 +2,27 @@
 
 namespace Database\Seeders;
 
-use App\Models\NotificationTemplate;
+use App\Support\NotificationTemplateCatalog;
 use Illuminate\Database\Seeder;
 
+/**
+ * Event-keyed e-commerce notification templates.
+ *
+ * install() inserts missing rows, adopts the five legacy generic rows and
+ * never overwrites an admin edit. The data migration calls the same routine,
+ * so `migrate` and `migrate:fresh --seed` converge on the same catalog.
+ */
 class NotificationTemplateSeeder extends Seeder
 {
     public function run(): void
     {
-        $templates = [
-            [
-                'name' => 'General: Welcome',
-                'title' => 'Welcome',
-                'body' => "Welcome to our store. We're happy to have you.",
-                'is_active' => true,
-            ],
-            [
-                'name' => 'General: Offer',
-                'title' => 'Special Offer',
-                'body' => 'Check out our latest offers and discounts.',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Support: We Received Your Request',
-                'title' => 'Request received',
-                'body' => 'We have received your request. Our team will contact you soon.',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Support: Request Approved',
-                'title' => 'Request approved',
-                'body' => 'Your request has been approved. Thank you.',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Support: Request Pending',
-                'title' => 'Request pending',
-                'body' => 'Your request is pending review. We will update you soon.',
-                'is_active' => true,
-            ],
-        ];
+        $stats = NotificationTemplateCatalog::install();
 
-        foreach ($templates as $tpl) {
-            NotificationTemplate::query()->firstOrCreate(
-                ['name' => $tpl['name']],
-                [
-                    'title' => $tpl['title'],
-                    'body' => $tpl['body'],
-                    'is_active' => $tpl['is_active'],
-                ]
-            );
-        }
+        $this->command?->info(sprintf(
+            'Notification templates: %d inserted, %d legacy adopted, %d already present.',
+            $stats['inserted'],
+            $stats['adopted'],
+            $stats['present']
+        ));
     }
 }

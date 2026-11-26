@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Courierapi;
+use App\Services\PathaoClient;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -81,16 +82,19 @@ class CourierCheckCommand extends Command
         }
 
         /*
-         * Service check FIRST.
+         * Service check FIRST - for SteadFast only.
          *
-         * GET /ping needs no credentials. SteadFast's own guide says to make it
-         * first: if it answers, the base URL is right and this server can reach
-         * them, so anything failing afterwards is the keys or the request - not
-         * the connection. Without it, a DNS failure and a revoked key produce
-         * the same unhelpful 401-shaped mystery.
+         * GET /ping is SteadFast's own credential-free probe. Pathao has no
+         * equivalent endpoint; its base URL is proved by the token call itself,
+         * so printing "checking /ping" while checking Pathao (and then a
+         * get_balance endpoint with empty SteadFast keys) described a different
+         * courier. That is exactly the kind of mixed message this command
+         * exists to avoid.
          */
-        $this->line('    service   : checking /ping (no credentials needed)');
-        $this->checkPing($configUrlForPing ?? ($this->pingUrl() ?? ''));
+        if ($provider === 'steadfast') {
+            $this->line('    service   : checking /ping (no credentials needed)');
+            $this->checkPing($configUrlForPing ?? ($this->pingUrl() ?? ''));
+        }
 
         try {
             $config = Courierapi::where('type', $provider)->first();
@@ -114,13 +118,13 @@ class CourierCheckCommand extends Command
             return false;
         }
 
-        $this->line('    endpoint : ' . $this->balanceEndpoint($config));
-        $this->line('    key      : ' . $this->mask((string) $config->api_key));
-        $this->line('    secret   : ' . $this->mask((string) $config->secret_key));
-
         if ($config->type === 'pathao') {
             return $this->checkPathao($config);
         }
+
+        $this->line('    endpoint : ' . $this->balanceEndpoint($config));
+        $this->line('    key      : ' . $this->mask((string) $config->api_key));
+        $this->line('    secret   : ' . $this->mask((string) $config->secret_key));
 
         return $this->checkSteadfast($config);
     }
@@ -236,48 +240,50 @@ class CourierCheckCommand extends Command
 
     private function checkPathao(Courierapi $config): bool
     {
-        if (filled($config->token)) {
-            $this->info('  OK - an access token is already stored.');
+        $client = new PathaoClient($config);
 
-            return true;
-        }
+        /*
+         * Ask for a token instead of trusting the stored one.
+         *
+         * The old version answered "OK - an access token is already stored" and
+         * never made a request, so a revoked account, a wrong base URL or an
+         * expired token all reported healthy. It also built `{base}/issue-token`
+         * - no /aladdin and no api/v1 - which is not a Pathao endpoint at all.
+         */
+        $token = $client->refreshToken();
 
-        $url = rtrim((string) $config->url, '/') . '/issue-token';
+        if ($token === null) {
+            $this->error('  Failed'
+                . ($client->lastStatus !== null ? ' - HTTP ' . $client->lastStatus : ' - no answer') . '.');
+            $this->line('    ' . ($client->lastError ?? 'No token returned.'));
 
-        try {
-            $response = (new Client(['timeout' => self::TIMEOUT, 'http_errors' => false]))
-                ->post($url, [
-                    'headers' => ['Accept' => 'application/json', 'Content-Type' => 'application/json'],
-                    'json' => [
-                        'client_id'     => (string) $config->client_id,
-                        'client_secret' => (string) $config->client_secret,
-                        'grant_type'    => 'password',
-                        'username'      => (string) $config->username,
-                        'password'      => (string) $config->password,
-                    ],
-                ]);
-        } catch (\Throwable $e) {
-            $this->error('  Network failure: ' . $e->getMessage());
+            if ($client->lastStatus === null) {
+                $this->line('    That is a transport problem (base URL / network / timeout), not a credential one.');
+            }
 
             return false;
         }
 
-        $status = (int) $response->getStatusCode();
-        $body   = json_decode((string) $response->getBody(), true);
+        $this->info('  OK - a fresh access token was issued and stored.');
 
-        if ($status === 200 && is_array($body) && filled($body['access_token'] ?? null)) {
-            // Store it so the order screen does not have to re-authenticate.
-            $config->update(['token' => (string) $body['access_token']]);
+        // A token alone does not prove parcels can be booked; the pickup store
+        // does, and it is the cheapest authenticated read Pathao documents.
+        $stores = $client->stores();
 
-            $this->info('  OK - credentials accepted, access token stored.');
+        if (! $stores['ok']) {
+            $this->line('    Token works, but the store list could not be read: ' . $stores['message']);
 
-            return true;
+            return false;
         }
 
-        $this->error("  Failed - HTTP {$status}.");
-        $this->line('    pathao said: ' . (data_get($body, 'message') ?: substr((string) $response->getBody(), 0, 200)));
+        $store = PathaoClient::preferredStore($stores['stores']);
 
-        return false;
+        $this->line('    stores: ' . count($stores['stores'])
+            . ($store
+                ? ' | pickup store: ' . ($store['store_name'] ?? '?') . ' (id ' . ($store['store_id'] ?? '?') . ')'
+                : ' | no active store, so there is no pickup point'));
+
+        return $store !== null;
     }
 
     private function balanceEndpoint(Courierapi $config): string

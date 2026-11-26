@@ -1,0 +1,51 @@
+/*
+ * Campaign create/edit form.
+ *
+ * The bundled Quill stylesheet forces every editor body to 15rem
+ * (.ql-snow .ql-editor { min-block-size: 15rem }). That is right for a full
+ * article editor but wrong for the template repeaters, where each row needs a
+ * short review/description box. Scope the override to the campaign form and
+ * let the container decide the height.
+ */
+#campaignForm .ql-snow .ql-editor {
+  min-block-size: 88px;
+}
+
+#campaignForm #campaign-short-description-editor .ql-editor {
+  min-block-size: 140px;
+}
+
+#campaignForm #campaign-hero-subtitle-editor .ql-editor {
+  min-block-size: 120px;
+}
+
+#campaignForm #campaign-description-editor .ql-editor {
+  min-block-size: 260px;
+}
+
+/* Repeater editors sit in half-width columns; keep their toolbars compact. */
+#landingContentPanel .ql-toolbar.ql-snow {
+  padding: 4px 6px;
+}
+
+#landingContentPanel .ql-snow .ql-editor {
+  padding-block: 6px;
+  padding-inline: 10px;
+}
+
+/* Trust badge icon picker: the selected Font Awesome glyph is always visible
+   next to the human label, so the admin never edits a raw class string. */
+#campaignForm .js-icon-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  font-size: 1.15rem;
+  color: #696cff;
+}
+
+#campaignForm .js-icon-preview-label {
+  font-size: 0.75rem;
+  line-height: 1.2;
+}

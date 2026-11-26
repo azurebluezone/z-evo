@@ -6,7 +6,6 @@
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3 gap-2">
         <div>
             <h5 class="mb-0 text-uppercase fw-bold">Campaign Manager</h5>
-            <p class="text-body-secondary small mb-0">Product landing pages built from one product, one template and a schedule.</p>
         </div>
         <div class="d-flex gap-2 align-items-center flex-wrap">
             <a href="{{ route('campaign.create') }}" class="btn btn-primary btn-square waves-effect">
@@ -36,7 +35,6 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>
                                 <a href="{{ route('campaign.edit', $value->id) }}" class="fw-semibold text-body text-decoration-none">{{ $value->name }}</a>
-                                <div class="text-body-secondary small text-truncate" style="max-width: 320px;" title="{{ $value->slug }}">{{ $value->slug }}</div>
                             </td>
                             <td>
                                 @if($value->product)
@@ -50,7 +48,7 @@
                             </td>
                             <td>
                                 @if($value->template)
-                                    <span class="badge bg-label-info rounded-0">{{ $value->template->name }}</span>
+                                    <span class="badge bg-label-info rounded-0">{{ \App\Support\LandingTemplateVars::displayName($value->template) }}</span>
                                 @else
                                     <span class="text-body-secondary">No template</span>
                                 @endif

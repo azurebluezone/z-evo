@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
-use App\Services\ProductStockSync;
+use App\Models\VariantStock;
 use Illuminate\Http\Request;
 
 use App\Models\Campaign;
@@ -10,6 +10,13 @@ use App\Models\Product;
 use App\Services\CampaignPricing;
 use App\Services\FacebookTrackingService;
 use App\Services\TikTokTrackingService;
+use App\Models\ShippingCharge;
+use App\Models\PaymentGateway;
+use App\Models\GeneralSetting;
+use App\Services\GuestCheckoutAccountService;
+use App\Services\OrderPlacementService;
+use App\Services\SmsGatewayService;
+use Illuminate\Support\Facades\Log;
 use Toastr;
 use Cart;
 use DB;
@@ -75,7 +82,9 @@ class ShoppingController extends Controller
         }
 
         // No selection: fallback to DEFAULT variant if exists
-        $product = DB::table('products')->where('id', (int) $productId)->first(['id', 'product_code']);
+        // Raw query: the SoftDeletes scope does not apply, so a trashed
+        // product must be rejected explicitly instead of being sellable.
+        $product = DB::table('products')->where('id', (int) $productId)->whereNull('deleted_at')->first(['id', 'product_code']);
         if (!$product) {
             return [null, []];
         }
@@ -104,15 +113,14 @@ class ShoppingController extends Controller
          * customer was told "Out of stock for this variant" - a deadlock, because
          * the only code that creates the missing row lives on the ADMIN side
          * while approving an order, and an order cannot be placed in the first
-         * place. Observed live: product P0001 with products.stock = 50 and two
-         * variants, zero variant_stocks rows, add-to-cart 422.
+         * place. Observed live: product P0001 with a legacy product stock of 50
+         * and two variants, zero variant_stocks rows, add-to-cart 422.
          *
-         * Seeding it here, from the same legacy column and by the same rule the
-         * admin lazy-init uses, breaks the deadlock without inventing stock: a
-         * product whose legacy stock is 0 still reads as 0.
+         * Seeding it here breaks the deadlock without inventing stock: a
+         * variant whose projection row is missing starts at zero.
          */
         if (! $stock) {
-            app(ProductStockSync::class)->ensureVariantStockRow((int) $variantId);
+            VariantStock::ensureRow((int) $variantId);
             $stock = DB::table('variant_stocks')->where('variant_id', (int) $variantId)->first();
         }
 
@@ -182,7 +190,9 @@ class ShoppingController extends Controller
         if ($qty < 1) {
             $qty = 1;
         }
-        $productInfo = DB::table('products')->where('id', $id)->first();
+        // Raw query: exclude soft-deleted products by hand, otherwise a
+        // bookmarked add-to-cart URL still sells a product the admin removed.
+        $productInfo = DB::table('products')->where('id', $id)->whereNull('deleted_at')->first();
         $productImage = DB::table('productimages')->where('product_id', $id)->first();
         if (!$productInfo) {
             return response()->json(['success' => false, 'message' => 'Product not found.'], 404);
@@ -441,21 +451,49 @@ class ShoppingController extends Controller
         return view('frontend.pages.cart', compact('data'));
     }
 
+    /**
+     * Landing page order form.
+     *
+     * The landing form carries the SAME fields the storefront checkout saves
+     * (name, phone, address, delivery area, payment method), so the order is
+     * written by OrderPlacementService - the same order, shipping, payment and
+     * order_details rows a normal product order writes. The visitor types the
+     * details once, on the landing page, and the order is placed there.
+     */
     public function landingOrder(Request $request)
     {
+        $bkashEnabled = PaymentGateway::where(['status' => 1, 'type' => 'bkash'])->exists();
+        $paymentMethods = $bkashEnabled ? ['Cash On Delivery', 'bkash'] : ['Cash On Delivery'];
+
+        // The same field names and rules the storefront checkout uses, so the
+        // saved order holds the values a normal product order holds.
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => ['required', 'regex:/^01[3-9]\d{8}$/'],
+            'address' => 'required|string|max:500',
+            'area' => 'required|integer',
+            'payment_method' => 'required|in:' . implode(',', $paymentMethods),
+            'quantity' => 'nullable|integer|min:1|max:100',
+        ]);
+
         $productId = (int) $request->input('product_id', 0);
-        $qty = (int) $request->input('quantity', $request->input('qty', 1));
+        $qty = (int) $request->input('quantity', 1);
         if ($qty < 1) {
             $qty = 1;
         }
 
         if ($productId < 1) {
-            return redirect()->back()->with('error', 'Product not selected.');
+            return redirect()->back()->with('error', 'Product not selected.')->withInput();
         }
 
         $product = Product::with('image')->where('id', $productId)->first();
         if (!$product) {
-            return redirect()->back()->with('error', 'Product not found.');
+            return redirect()->back()->with('error', 'Product not found.')->withInput();
+        }
+
+        $shippingArea = ShippingCharge::where('status', 1)->find((int) $request->input('area'));
+        if (!$shippingArea) {
+            return redirect()->back()->with('error', 'Select a delivery area.')->withInput();
         }
 
         $campaign = null;
@@ -464,19 +502,19 @@ class ShoppingController extends Controller
             $campaign = Campaign::where('id', $campaignId)->where('status', 1)->first();
 
             if (!$campaign) {
-                return redirect()->back()->with('error', 'This offer is no longer available.');
+                return redirect()->back()->with('error', 'This offer is no longer available.')->withInput();
             }
 
             if ($campaign->product_id !== null && (int) $campaign->product_id !== $productId) {
-                return redirect()->back()->with('error', 'This offer does not match the selected product.');
+                return redirect()->back()->with('error', 'This offer does not match the selected product.')->withInput();
             }
 
             $now = now();
             if ($campaign->start_date && $campaign->start_date->copy()->startOfDay()->gt($now)) {
-                return redirect()->back()->with('error', 'This offer has not started yet.');
+                return redirect()->back()->with('error', 'This offer has not started yet.')->withInput();
             }
             if ($campaign->end_date && $campaign->end_date->copy()->endOfDay()->lt($now)) {
-                return redirect()->back()->with('error', 'This offer has ended.');
+                return redirect()->back()->with('error', 'This offer has ended.')->withInput();
             }
         }
 
@@ -488,104 +526,135 @@ class ShoppingController extends Controller
         $variantId = $resolvedVariant ? (int) $resolvedVariant->id : null;
 
         if (!empty($variantQuery) && !$resolvedVariant) {
-            return redirect()->back()->with('error', 'Variant not available.');
+            return redirect()->back()->with('error', 'Variant not available.')->withInput();
         }
 
         if ($variantId) {
             $check = $this->enforceVariantStockOrFail($variantId, $qty);
             if (!$check['ok']) {
-                return redirect()->back()->with('error', $check['message']);
+                return redirect()->back()->with('error', $check['message'])->withInput();
             }
         }
 
         $pricing = app(CampaignPricing::class)->resolve($product, $resolvedVariant, $campaign);
         $campaignApplies = $campaign !== null && $pricing['source'] === 'campaign';
-        $campaignKey = $campaignApplies ? (int) $campaign->id : 0;
-        $cartPrice = (float) $pricing['price'];
+        $orderPrice = (float) $pricing['price'];
 
-        $cartItem = Cart::instance('shopping')->content()->filter(function ($cartItem) use ($productId, $variantId, $campaignKey) {
-            $sameVariant = (int) ($cartItem->options->variant_id ?? 0) === (int) ($variantId ?? 0);
-            $sameCampaign = (int) ($cartItem->options->campaign_id ?? 0) === $campaignKey;
-
-            return (int) $cartItem->id === (int) $productId && $sameVariant && $sameCampaign;
-        })->first();
-
-        if ($cartItem) {
-            $nextQty = (int) $cartItem->qty + $qty;
-            if ($variantId) {
-                $check = $this->enforceVariantStockOrFail($variantId, $nextQty);
-                if (!$check['ok']) {
-                    return redirect()->back()->with('error', $check['message']);
+        $variantName = null;
+        $variantTitle = null;
+        if ($resolvedVariant) {
+            $variantTitle = $resolvedVariant->title ?? null;
+            try {
+                $decoded = json_decode((string) ($resolvedVariant->attributes_json ?? ''), true);
+                if (is_array($decoded) && isset($decoded['attrs']) && is_array($decoded['attrs'])) {
+                    $parts = array_values(array_filter(array_map(function ($v) {
+                        return is_scalar($v) ? (string) $v : '';
+                    }, $decoded['attrs']), function ($v) {
+                        return $v !== '';
+                    }));
+                    $variantName = implode(' / ', $parts);
                 }
+            } catch (\Throwable $e) {
             }
-            Cart::instance('shopping')->update($cartItem->rowId, [
-                'qty' => $nextQty,
-                'price' => $cartPrice,
-            ]);
-        } else {
-            $cartImage = optional($product->image)->image ?? '';
-            $variantTitle = null;
-            $variantName = null;
-            if ($resolvedVariant) {
-                $variantTitle = $resolvedVariant->title ?? null;
-                if (!empty($resolvedVariant->image)) {
-                    $cartImage = (string) $resolvedVariant->image;
-                }
-                try {
-                    $decoded = json_decode((string) ($resolvedVariant->attributes_json ?? ''), true);
-                    if (is_array($decoded) && isset($decoded['attrs']) && is_array($decoded['attrs'])) {
-                        $parts = array_values(array_filter(array_map(function ($v) {
-                            $v = is_scalar($v) ? (string) $v : '';
-                            $v = trim($v);
-                            return $v === '' ? null : $v;
-                        }, $decoded['attrs'])));
-                        if (!empty($parts)) {
-                            $variantName = implode(' / ', $parts);
-                        }
-                    }
-                } catch (\Throwable $e) {
-                }
-            }
-
-            Cart::instance('shopping')->add([
-                'id' => $product->id,
-                'name' => $product->name,
-                'qty' => $qty,
-                'price' => $cartPrice,
-                'options' => [
-                    'slug' => $product->slug,
-                    'image' => $cartImage,
-                    'old_price' => $product->old_price,
-                    'purchase_price' => $product->purchase_price,
-                    'campaign_id' => $campaignApplies ? (int) $campaign->id : null,
-                    'campaign_slug' => $campaignApplies ? $campaign->slug : null,
-                    'campaign_price' => $campaignApplies ? $pricing['price'] : null,
-                    'regular_price' => $pricing['regular'],
-                    'price_source' => $pricing['source'],
-                    'variant_id' => $variantId,
-                    'variant_title' => $variantTitle,
-                    'variant_values' => $selectedValueIds,
-                    'variant_name' => $variantName,
-                    'product_size' => $variantId ? ('variant_id:' . (int) $variantId) : ($request->input('product_size', '')),
-                    'product_color' => $variantName ?: ($request->input('product_color', '')),
-                    'pro_unit' => $request->input('pro_unit', ''),
-                ]
-            ]);
         }
 
+        // The guest account is resolved exactly like the storefront checkout
+        // does, so the landing order belongs to the same customer record.
+        try {
+            $account = app(GuestCheckoutAccountService::class)->resolveForOrder(
+                (string) $request->name,
+                (string) $request->phone,
+                (string) $request->address,
+                (int) $shippingArea->id
+            );
+            $customerId = $account['customer_id'];
+        } catch (\Throwable $e) {
+            Log::error('Landing order account resolution failed', [
+                'phone' => $request->phone,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'We could not start your account. Please try again.')
+                ->withInput();
+        }
+
+        $lines = [[
+            'product_id' => (int) $product->id,
+            'name' => (string) $product->name,
+            'qty' => $qty,
+            'price' => $orderPrice,
+            'regular_price' => $pricing['regular'],
+            'purchase_price' => $product->purchase_price,
+            'product_color' => $variantName ?: $variantTitle,
+            'product_size' => $variantId ? ('variant_id:' . (int) $variantId) : null,
+            'campaign_id' => $campaignApplies ? (int) $campaign->id : null,
+            'variant_id' => $variantId,
+        ]];
+
+        // The funnel step the old cart-based flow recorded, so the landing
+        // conversion keeps the same add-to-cart attribution.
         $this->dispatchAddToCartTracking([
-            'product_id' => $product->id,
-            'name' => $product->name,
-            'price' => $cartPrice,
+            'product_id' => (int) $product->id,
+            'name' => (string) $product->name,
+            'price' => $orderPrice,
             'regular_price' => $pricing['regular'],
             'price_source' => $pricing['source'],
             'campaign_id' => $campaignApplies ? (int) $campaign->id : null,
             'quantity' => $qty,
         ]);
 
-        return redirect()->route('customer.checkout');
-    }
+        $order = app(OrderPlacementService::class)->place(
+            $lines,
+            [
+                'customer_id' => $customerId,
+                'name' => (string) $request->name,
+                'phone' => (string) $request->phone,
+                'address' => (string) $request->address,
+                'area' => $shippingArea->name,
+                'payment_method' => (string) $request->payment_method,
+            ],
+            [
+                'shipping_fee' => (float) $shippingArea->amount,
+                'discount' => 0,
+                'fraud_source' => 'landing',
+            ]
+        );
 
+        app(OrderPlacementService::class)->trackPurchase($order, $lines, [
+            'visitor_id' => $request->cookie('visitor_id'),
+            'session_id' => $request->cookie('session_id'),
+            'url' => $request->fullUrl(),
+            'page_path' => '/landing-order',
+            'user_data' => [
+                'email' => $request->email ?? null,
+                'phone' => $request->phone ?? null,
+                'first_name' => $request->name ?? null,
+            ],
+        ]);
+
+        // OrderPlaced (fired inside place()) sends the customer receipt and the
+        // admin copy from the templates, so no hardcoded notification here.
+
+        Toastr::success('Thanks, Your order place successfully', 'Success!');
+
+        $siteSetting = GeneralSetting::where('status', 1)->first();
+        try {
+            app(SmsGatewayService::class)->send(
+                (string) $request->phone,
+                "Dear $request->name!\r\nYour order has been successfully placed. check your customer panel on our website to know more about your order. Thank you for using " . ($siteSetting->name ?? config('app.name')),
+                'order'
+            );
+        } catch (\Throwable $e) {
+            // no-op: a failed SMS must never fail the order
+        }
+
+        if ($request->payment_method === 'bkash') {
+            return redirect('/bkash/checkout-url/create?order_id=' . $order->id);
+        }
+
+        return redirect()->route('customer.order_success', ['id' => $order->id]);
+    }
     public function cart_store_by_now(Request $request)
     {
         $product = Product::where(['id' => $request->id])->first();

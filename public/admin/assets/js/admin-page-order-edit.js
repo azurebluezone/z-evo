@@ -1,6 +1,10 @@
 /* Order cart ajax behaviour (POS / order edit).
    Moved from backEnd/order/edit.blade.php. All cart endpoints ride in on
    one JSON data attribute [data-cart-urls]; CSRF handled by jQuery ajaxSetup.
+
+   The endpoint is `CFG.cart_content`, NOT the string "CFG.cart_content" - see
+   the note in admin-page-order-create.js: the quoted form made every cart
+   call answer with the orders page instead of the cart fragment.
 */
     var cfgEl = document.querySelector('[data-cart-urls]');
     var CFG = cfgEl ? (function () {
@@ -10,7 +14,7 @@
  function cart_content() {
   $.ajax({
    type: "GET",
-   url: "CFG.cart_content",
+   url: CFG.cart_content,
    dataType: "html",
    success: function (cartinfo) {
     $("#cartTable").html(cartinfo);
@@ -20,7 +24,7 @@
  function cart_details() {
   $.ajax({
    type: "GET",
-   url: "CFG.cart_details",
+   url: CFG.cart_details,
    dataType: "html",
    success: function (cartinfo) {
     $("#cart_details").html(cartinfo);
@@ -37,7 +41,7 @@
     cache: false,
     data: { id: id, qty: qty },
     type: "GET",
-    url: "CFG.cart_increment",
+    url: CFG.cart_increment,
     dataType: "json",
     success: function (cartinfo) {
      cart_content(); cart_details();
@@ -55,7 +59,7 @@
     cache: false,
     type: "GET",
     data: { id: id, qty: qty },
-    url: "CFG.cart_decrement",
+    url: CFG.cart_decrement,
     dataType: "json",
     success: function (cartinfo) {
      cart_content(); cart_details();
@@ -72,7 +76,7 @@
     cache: false,
     type: "GET",
     data: { id: id },
-    url: "CFG.cart_remove",
+    url: CFG.cart_remove,
     dataType: "json",
     success: function (cartinfo) {
      cart_content(); cart_details();
@@ -86,7 +90,7 @@
   $.ajax({
    type: "GET",
    data: { id: id },
-   url: "CFG.cart_shipping",
+   url: CFG.cart_shipping,
    dataType: "json",
    success: function (cartinfo) {
     cart_content(); cart_details();
@@ -101,7 +105,7 @@
     cache: false,
     type: "GET",
     data: { id: id },
-    url: "CFG.cart_add",
+    url: CFG.cart_add,
     dataType: "json",
     success: function (response) {
      if(response.status === 'success') {
@@ -123,7 +127,7 @@
    cache: false,
    type: 'GET',
    data: { discount: discount },
-   url: "CFG.cart_extra_discount",
+   url: CFG.cart_extra_discount,
    dataType: 'json',
    success: function () {
     cart_content(); cart_details();
@@ -137,7 +141,7 @@
    cache: false,
    type: 'GET',
    data: { coupon_code: coupon_code },
-   url: "CFG.cart_apply_coupon",
+   url: CFG.cart_apply_coupon,
    dataType: 'json',
    success: function (res) {
     $('#pos_coupon_msg').text(res.message || '');
@@ -150,7 +154,7 @@
   $.ajax({
    cache: false,
    type: 'GET',
-   url: "CFG.cart_remove_coupon",
+   url: CFG.cart_remove_coupon,
    dataType: 'json',
    success: function (res) {
     $('#pos_coupon_msg').text(res.message || '');

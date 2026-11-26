@@ -9,19 +9,6 @@
     </div>
 </div>
 
-@php
-  $kpiTotal = isset($variants) ? (int) $variants->total() : 0;
-  $kpiLow = 0;
-  $kpiOut = 0;
-  if (isset($variants)) {
-    foreach ($variants as $vv) {
-      $av = (int) ($vv->available ?? 0);
-      if ($av <= 0) { $kpiOut++; }
-      if ($av > 0 && $av <= 2) { $kpiLow++; }
-    }
-  }
-@endphp
-
 <div class="row mb-4">
     <div class="col-12">
         <div class="card rounded-0">
@@ -101,11 +88,11 @@
 </div>
 
 <div class="card rounded-0">
-    <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
-        <h5 class="mb-0 text-uppercase fw-bold">Variants</h5>
-        <div class="d-flex gap-2 align-items-center">
-            <form method="GET" action="{{ route('admin.inventory.index') }}" class="d-flex gap-2 align-items-center">
-                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" class="form-control rounded-0" style="min-width: 320px;" placeholder="Search product / sku / variant / id" />
+    <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 class="mb-0 text-uppercase fw-bold">Variants</h5>
+            <form method="GET" action="{{ route('admin.inventory.index') }}" class="inventory-toolbar">
+                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" class="form-control rounded-0 inventory-search" placeholder="Search product / sku / variant / id" />
                 <a href="{{ route('admin.inventory.adjustment') }}" class="btn btn-primary btn-square waves-effect">
                     <i class="ri ri-settings-4-line me-1"></i> Adjustment
                 </a>

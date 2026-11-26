@@ -18,8 +18,10 @@
         <thead class="table-light">
           <tr>
             <th style="width:60px" class="text-center">#</th>
-            <th style="width:22%">Name</th>
+            <th style="width:20%">Name</th>
+            <th style="width:18%">Event key</th>
             <th>Title</th>
+            <th style="width:120px">Channels</th>
             <th style="width:90px" class="text-center">Active</th>
             <th style="width:56px" class="text-end"></th>
           </tr>
@@ -30,9 +32,24 @@
               <td class="text-center">{{ ($templates->firstItem() ?? 0) + $loop->index }}</td>
               <td>
                 <div class="fw-medium" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $tpl->name }}</div>
+                @if($tpl->description)
+                  <small class="text-muted d-block" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $tpl->description }}</small>
+                @endif
+              </td>
+              <td>
+                @if($tpl->event_key)
+                  <code class="text-primary">{{ $tpl->event_key }}</code>
+                @else
+                  <span class="text-muted">manual</span>
+                @endif
               </td>
               <td>
                 <div style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;">{{ $tpl->title }}</div>
+              </td>
+              <td>
+                @foreach($tpl->channelList() as $channel)
+                  <span class="badge bg-label-{{ $channel === 'mail' ? 'info' : 'primary' }} me-1">{{ $channel }}</span>
+                @endforeach
               </td>
               <td class="text-center">
                 <form method="post" action="{{ route('admin.notification-templates.toggle', $tpl->id) }}" class="d-inline">
@@ -62,7 +79,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="5" class="text-center text-muted py-4">No templates found</td>
+              <td colspan="7" class="text-center text-muted py-4">No templates found</td>
             </tr>
           @endforelse
         </tbody>

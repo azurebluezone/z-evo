@@ -62,7 +62,9 @@
     $hasDiscount = $oldPrice > 0 && $oldPrice > $newPrice;
     $discountPercent = $hasDiscount ? (int) round((($oldPrice - $newPrice) / $oldPrice) * 100) : 0;
 
-    $inStock = (int) ($product->stock ?? 0) > 0;
+    // Stock is the variant projection; the model keeps a card in step with
+    // the detail page and the checkout, especially when one size is sold out.
+    $inStock = method_exists($product, 'isInStock') ? $product->isInStock() : false;
 
     // The wishlist is a session array of product ids, so the painted state is
     // correct on first paint and never waits for the refreshWishlist() call.

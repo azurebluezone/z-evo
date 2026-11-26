@@ -29,6 +29,7 @@ class LandingTemplateVars
     protected ?Campaign $campaign = null;
     protected ?GeneralSetting $settings = null;
     protected string $templateKey = 'ht2';
+    protected bool $orderRendered = false;
 
     public function __construct(array $config = [])
     {
@@ -99,6 +100,61 @@ class LandingTemplateVars
         }
 
         return self::defaultEnabledVariables(self::templateKeyFor($template));
+    }
+
+    /**
+     * Human name for a template, never the legacy DB label.
+     *
+     * The registry name is the SSOT ("Premium Collection"). Older rows still
+     * carry a code prefix and a boilerplate description ("HT2 - Premium
+     * product"), so strip the prefix and drop the description on fallback.
+     */
+    public static function displayName($template, string $fallback = 'Landing design'): string
+    {
+        $registry = self::registry();
+        $key = self::templateKeyFor($template, '');
+        $name = $registry['templates'][$key]['name'] ?? null;
+
+        if (is_string($name) && trim($name) !== '') {
+            return trim($name);
+        }
+
+        $raw = '';
+        if (is_object($template)) {
+            $raw = (string) ($template->name ?? '');
+        } elseif (is_array($template)) {
+            $raw = (string) ($template['name'] ?? '');
+        }
+
+        $raw = trim($raw);
+        if ($raw === '') {
+            return $fallback;
+        }
+
+        $parts = preg_split('~\s+[-–—]\s+~u', $raw, 2);
+
+        return trim((string) ($parts[0] ?? $raw)) ?: $fallback;
+    }
+
+    /**
+     * Normalize a YouTube watch/shorts/youtu.be/embed URL to a privacy-friendly
+     * embed URL. Non-YouTube URLs pass through unchanged.
+     */
+    public static function youtubeEmbedUrl($url): string
+    {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return '';
+        }
+
+        $pattern = '~(?:youtube(?:-nocookie)?\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/)|youtu\.be/)([A-Za-z0-9_-]{6,})~i';
+
+        if (preg_match($pattern, $url, $matches)) {
+            return 'https://www.youtube-nocookie.com/embed/' . $matches[1];
+        }
+
+        return $url;
     }
 
     /**
@@ -283,6 +339,43 @@ class LandingTemplateVars
         return asset(preg_replace('~^public/~', '', $path));
     }
 
+    /**
+     * The real application logo, not a typed-out brand name.
+     *
+     * Order of preference:
+     *   1. general_settings.white_logo (the logo the admin uploaded)
+     *   2. general_settings.dark_logo
+     *   3. public/branding/logo.png (the tracked brand logo in the repository)
+     *
+     * A configured path whose file is gone is skipped instead of being
+     * rendered as a broken <img>.
+     */
+    public function brandLogo(): string
+    {
+        $candidates = [
+            $this->settings->white_logo ?? null,
+            $this->settings->dark_logo ?? null,
+        ];
+
+        foreach ($candidates as $raw) {
+            $path = MediaPath::normalize($raw, 'settings');
+
+            if ($path === '') {
+                continue;
+            }
+
+            if (preg_match('~^(https?:)?//~i', $path) === 1) {
+                return $path;
+            }
+
+            if (is_file(public_path($path))) {
+                return asset($path);
+            }
+        }
+
+        return asset('branding/logo.png');
+    }
+
     public function productName(): string
     {
         return $this->text('page_title', $this->text('hero_title', 'Product'));
@@ -305,6 +398,23 @@ class LandingTemplateVars
     public function orderAnchor(): string
     {
         return (string) ($this->config['templates'][$this->templateKey]['order_anchor'] ?? 'order-section');
+    }
+
+    /**
+     * The order form is rendered by the shared layout, unless the design
+     * places it inside its own content - the HTML twins do: some put the form
+     * before the FAQ, some right after the product showcase. The design marks
+     * the form as rendered and the layout then skips its own include, so a
+     * page never shows two order forms.
+     */
+    public function markOrderRendered(): void
+    {
+        $this->orderRendered = true;
+    }
+
+    public function orderRendered(): bool
+    {
+        return $this->orderRendered;
     }
 
     protected function resolveTemplateKey($template, $landingPage): string
@@ -388,6 +498,7 @@ class LandingTemplateVars
             'meta_description' => $campaign->meta_description ?? ($productArray['meta_description'] ?? ($product->meta_description ?? $landingPage->subtitle ?? '')),
             'lang' => $extra['lang'] ?? 'bn',
             'brand_name' => $settings->name ?? config('app.name', 'ZEvo'),
+            'brand_logo' => $this->brandLogo(),
             'favicon' => $this->imageUrl($settings->favicon ?? null),
             // announcement
             'announce_text' => $extra['announce_text'] ?? ($campaign->short_description ?? ''),
@@ -409,7 +520,7 @@ class LandingTemplateVars
             'discount_label' => $extra['discount_label'] ?? $discount,
             'hero_cta' => $cta,
             // video
-            'video_url' => $extra['video_url'] ?? ($productArray['pro_video'] ?? ($product->pro_video ?? '')),
+            'video_url' => self::youtubeEmbedUrl($extra['video_url'] ?? ($productArray['pro_video'] ?? ($product->pro_video ?? ''))),
             'video_poster' => $this->imageUrl($productImage),
             'video_caption' => $extra['video_caption'] ?? '',
             // gallery
@@ -524,10 +635,10 @@ class LandingTemplateVars
     protected function defaultGallery(): array
     {
         return [
-            'frontend/landing/pictures/wallet-black.jpg',
-            'frontend/landing/pictures/wallet-brown.jpg',
-            'frontend/landing/pictures/wallet-navy.jpg',
-            'frontend/landing/pictures/wallet-duo-tone.jpg',
+            'frontend/landing/pictures/generated/ht2-gallery-01.jpg',
+            'frontend/landing/pictures/generated/ht2-gallery-02.jpg',
+            'frontend/landing/pictures/generated/ht2-gallery-03.jpg',
+            'frontend/landing/pictures/generated/ht2-gallery-04.jpg',
         ];
     }
 

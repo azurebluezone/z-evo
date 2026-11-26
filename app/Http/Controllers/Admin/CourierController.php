@@ -65,6 +65,27 @@ class CourierController extends Controller
     {
         $type = $this->guardType($type);
 
+        $courier = Courierapi::query()->firstOrNew(['type' => $type]);
+
+        /*
+         * A blank secret field means "keep the saved value".
+         *
+         * The form no longer prints stored secrets back into the HTML (it shows
+         * a mask), so a normal save submits empty strings for them. Required
+         * only when nothing is stored yet, otherwise the validator would refuse
+         * every edit that does not retype the password.
+         */
+        $keepIfBlank = [
+            'api_key'       => $courier->api_key,
+            'secret_key'    => $courier->secret_key,
+            'client_secret' => $courier->client_secret,
+            'password'      => $courier->password,
+        ];
+
+        $secretRule = static fn (?string $current): string => filled($current)
+            ? 'nullable|string|max:255'
+            : 'required|string|max:255';
+
         $rules = [
             'title'  => 'nullable|string|max:155',
             'url'    => 'required|url|max:255',
@@ -72,20 +93,25 @@ class CourierController extends Controller
         ];
 
         if ($type === 'steadfast') {
-            $rules['api_key']    = 'required|string|max:255';
-            $rules['secret_key'] = 'required|string|max:255';
+            $rules['api_key']    = $secretRule($courier->api_key);
+            $rules['secret_key'] = $secretRule($courier->secret_key);
         } else {
             $rules['client_id']     = 'required|string|max:255';
-            $rules['client_secret'] = 'required|string|max:255';
+            $rules['client_secret'] = $secretRule($courier->client_secret);
             $rules['username']      = 'required|email|max:255';
-            $rules['password']      = 'required|string|max:255';
+            $rules['password']      = $secretRule($courier->password);
         }
 
         $validated = $request->validate($rules);
 
-        $courier = Courierapi::query()->firstOrNew(['type' => $type]);
         $courier->fill($validated);
         $courier->type = $type;
+
+        foreach ($keepIfBlank as $field => $current) {
+            if (blank($request->input($field)) && filled($current)) {
+                $courier->{$field} = $current;
+            }
+        }
 
         // A webhook token is only ever generated, never typed: the endpoint
         // refuses every request whose bearer token does not match, so a blank
@@ -99,6 +125,18 @@ class CourierController extends Controller
         $courier->status = $request->boolean('status') && $courier->isConfigured() ? 1 : 0;
 
         $courier->save();
+
+        // The audit trail: credentials and the switch state are worth a line.
+        app(\App\Services\AuditLogger::class)->courier(
+            'courier.credentials.saved',
+            $type,
+            [
+                'status'    => (int) $courier->status,
+                'url'       => (string) $courier->url,
+                'configured' => (bool) $courier->isConfigured(),
+            ],
+            'Courier settings saved for ' . ucfirst($type)
+        );
 
         $result = $tester->test($courier);
 
@@ -129,6 +167,13 @@ class CourierController extends Controller
 
         $courier->status = $courier->status ? 0 : 1;
         $courier->save();
+
+        app(\App\Services\AuditLogger::class)->courier(
+            'courier.toggled',
+            $type,
+            ['status' => (int) $courier->status],
+            ucfirst($type) . ' is now ' . ($courier->status ? 'enabled' : 'disabled')
+        );
 
         return redirect()->route('admin.courier.index')->with(
             'success',
@@ -171,6 +216,14 @@ class CourierController extends Controller
 
         Log::info('Courier webhook token rotated', ['type' => $type]);
 
+        // The audit trail: the old token stops working the moment this lands.
+        app(\App\Services\AuditLogger::class)->courier(
+            'courier.webhook_token.rotated',
+            $type,
+            ['rotated_at' => now()->toDateTimeString()],
+            'Webhook token rotated for ' . ucfirst($type)
+        );
+
         return redirect()
             ->to(route('admin.courier.settings') . '#courier-' . $type)
             ->with(
@@ -178,6 +231,30 @@ class CourierController extends Controller
                 'A new webhook token was generated for ' . ucfirst($type)
                     . '. Copy it to the courier portal now - the old token stops working immediately.'
             );
+    }
+
+    /**
+     * Return the stored webhook token on demand.
+     *
+     * The settings page used to carry the token in a hidden input so the Copy
+     * button could read it - which put the secret in View Source and DevTools.
+     * The page now prints only the mask and asks for the value at copy time,
+     * through this authenticated admin endpoint.
+     */
+    public function webhookToken(string $type)
+    {
+        $type = $this->guardType($type);
+
+        $courier = Courierapi::query()->where('type', $type)->first();
+
+        if (! $courier || blank($courier->webhook_token)) {
+            return response()->json(
+                ['message' => 'No webhook token has been generated yet.'],
+                404
+            );
+        }
+
+        return response()->json(['token' => $courier->webhook_token]);
     }
 
     /**

@@ -15,6 +15,22 @@
     })();
 
     // Handle dynamically adding/removing more gallery inputs
+    //
+    // Every new row gets its own key so new_image[<key>] and new_title[<key>]
+    // stay paired even when an earlier row's file input is empty and the
+    // WAF-safety hook removes its name. The first visible row is key 0.
+    var nextGalleryKey = 1;
+    function applyGalleryKey(scope, key) {
+      var file = scope.querySelector('input[type="file"]');
+      var title = scope.querySelector('input[type="text"]');
+      if (file) {
+        file.setAttribute('name', 'new_image[' + key + ']');
+      }
+      if (title) {
+        title.setAttribute('name', 'new_title[' + key + ']');
+      }
+    }
+
     document.addEventListener('click', function(e) {
       if (e.target && e.target.closest('.btn-increment')) {
         e.preventDefault();
@@ -23,6 +39,7 @@
         newEl.innerHTML = cloneHtml;
         var firstChild = newEl.firstElementChild;
         if(firstChild) {
+          applyGalleryKey(firstChild, nextGalleryKey++);
           e.target.closest('.increment').insertAdjacentElement('afterend', firstChild);
         }
       } else if (e.target && e.target.closest('.btn-danger') && !e.target.closest('.remove-image')) {

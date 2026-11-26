@@ -1055,4 +1055,44 @@
         padding-bottom: 60px;
       }
     }
-  
+
+/* ---------------------------------------------------------------------------
+   Landing order form - the order section of this design's own HTML twin
+   (~/Videos/lp/th7.html). The shared .zlt-* form is restyled here, so every
+   design keeps its own palette while the form and its fields stay one.
+   --------------------------------------------------------------------------- */    body[data-landing-template="th7"] {
+      --zlt-red: #c2410c;
+      --zlt-red-dark: #9a3412;
+      --zlt-radius: 20px;
+    }
+
+    body[data-landing-template="th7"] .zlt-order {
+      background: transparent;
+      border-top-color: #e7e5e4;
+    }
+
+    body[data-landing-template="th7"] .zlt-order-card {
+      border-radius: 20px;
+      border-color: #e7e5e4;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    body[data-landing-template="th7"] .zlt-step-number {
+      background: #c2410c;
+    }
+
+    body[data-landing-template="th7"] .zlt-option {
+      border-radius: 14px;
+    }
+
+    body[data-landing-template="th7"] .zlt-option.is-active {
+      border-color: #c2410c;
+      background: #fff7ed;
+      box-shadow: none;
+    }
+
+    body[data-landing-template="th7"] .zlt-submit {
+      background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+      border-radius: 50px;
+      box-shadow: 0 8px 25px rgba(194, 65, 12, 0.35);
+    }

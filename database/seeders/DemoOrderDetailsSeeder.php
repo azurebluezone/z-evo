@@ -39,7 +39,6 @@ class DemoOrderDetailsSeeder extends Seeder
                 'purchase_price' => 100,
                 'old_price' => null,
                 'new_price' => 120,
-                'stock' => 100,
                 'meta_description' => 'Demo product',
                 'description' => 'Demo product created by seeder',
                 'topsale' => 0,
@@ -65,6 +64,10 @@ class DemoOrderDetailsSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // Stock lives in the variant projection; the product-level column no
+        // longer exists.
+        \App\Support\SeedStock::ensureForProduct((int) $productId, 100);
 
         // orders.order_status holds the status id, not its slug: every admin
         // tab and KPI counts by id. Seeding the slug is what made the demo

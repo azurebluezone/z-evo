@@ -57,6 +57,17 @@
                 @include('frontend.fm.sections.ai.ai-lens-toggle', ['mode' => 'voice', 'label' => 'Voice Search'])
             </li>
             @auth('customer')
+                <li>
+                    {{-- Same destination as the header bell, because the bar
+                         only has room for the 44px icon on phones; the drawer
+                         spells it out. --}}
+                    <a href="{{ route('customer.notifications.index') }}" data-fm-notification-bell>
+                        <i class="bi bi-bell me-2"></i>Notifications
+                        @if((int) ($fmUnreadNotifications ?? 0) > 0)
+                            <span class="badge bg-danger rounded-pill ms-1">{{ $fmUnreadNotifications }}</span>
+                        @endif
+                    </a>
+                </li>
                 <li><a href="{{ route('customer.account') }}"><i class="bi bi-speedometer2 me-2"></i>My account</a></li>
                 <li><a href="{{ route('customer.orders') }}"><i class="bi bi-box-seam me-2"></i>My orders</a></li>
                 <li>

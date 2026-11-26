@@ -13,6 +13,7 @@ use App\Models\Productimage;
 use App\Models\PromoBanner;
 use App\Models\Service;
 use App\Models\Subcategory;
+use App\Support\SeedStock;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -225,7 +226,6 @@ class FreshCartTestDataSeeder extends Seeder
                         'purchase_price' => (int) round($new * 0.78),
                         'old_price'    => $old,
                         'new_price'    => $new,
-                        'stock'        => random_int(15, 120),
                         'pro_unit'     => $unit,
                         'description'  => $this->descriptionFor($name, $unit),
                         'meta_description' => $name . ' - fresh ' . strtolower($unit) . ' pack, delivered across Bangladesh by FreshCart BD.',
@@ -236,6 +236,10 @@ class FreshCartTestDataSeeder extends Seeder
                         'status'       => 1,
                     ]
                 );
+
+                // Stock lives in the variant projection; the product-level
+                // column no longer exists.
+                SeedStock::ensureForProduct((int) $product->id, random_int(15, 120));
 
                 // One primary image per product; the card renders $product->image.
                 Productimage::updateOrCreate(

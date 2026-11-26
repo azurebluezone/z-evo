@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "version": "1.1.0",
+  "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/9-12-month-full-romper-fr8005-5339/04-zevo-brand-card.jpg",
+  "output_bytes": 297008,
+  "output_sha256": "19b0658e13876a57d1860ad3fe8651bbd6b0b02e154024df21bafc2131b7e83b",
+  "sidecar": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/9-12-month-full-romper-fr8005-5339/04-zevo-brand-card.json",
+  "canvas": [
+    1200,
+    1200
+  ],
+  "crop_box": [
+    0,
+    0,
+    1200,
+    1200
+  ],
+  "source_size": [
+    1200,
+    1200
+  ],
+  "source_sha256": "a7c82a22445d600426d9293f966ac8b9e0bca7ea92cfe3de0fc082da33c07286",
+  "title": "Z EVO",
+  "subtitle": "9-12 month Full Romper FR8005",
+  "attribution": "Z EVO - 9-12 Month",
+  "logo": {
+    "path": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+    "box": [
+      66,
+      66,
+      373,
+      168
+    ],
+    "mode": "image"
+  },
+  "fonts": {
+    "bengali_bold": "/usr/share/fonts/truetype/noto/NotoSansBengali-Bold.ttf",
+    "bengali_regular": "/usr/share/fonts/truetype/noto/NotoSansBengali-Regular.ttf",
+    "latin_bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "latin_regular": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "raqm": true
+  },
+  "provider": null,
+  "source_page": null,
+  "license": null,
+  "creator": null,
+  "created": "2026-11-16T06:32:14.489128+00:00"
+}

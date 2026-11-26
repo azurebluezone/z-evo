@@ -1,0 +1,17 @@
+{
+ "input": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/3-6-month-frock-f6802-5085/01-zevo-main.jpg",
+ "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/3-6-month-frock-f6802-5085/04-zevo-brand-card.jpg",
+ "title": "Z EVO",
+ "subtitle": "3-6 month Frock, F6802",
+ "attribution": "Z EVO - 3-6 Month",
+ "logo": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+ "crop": {
+  "aspect": "1:1",
+  "focus": "center"
+ },
+ "canvas": {
+  "width": 1200,
+  "height": 1200
+ },
+ "quality": 90
+}

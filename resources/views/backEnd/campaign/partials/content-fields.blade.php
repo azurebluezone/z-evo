@@ -7,6 +7,10 @@
     toggle list. Product, campaign and system values are resolved by the
     template and are never typed here.
 
+    Image columns post a file under extra_fields_files[...] and keep the stored
+    path in a hidden extra_fields[...] input; CampaignController merges the
+    uploaded path before CampaignContent::normalize() runs.
+
     The request is whitelisted again by App\Services\CampaignContent.
 --}}
 @php
@@ -47,9 +51,13 @@
     $textDefinitions = [];
     $rowDefinitions = [];
 
+    // Video URL and caption have a dedicated block in both campaign forms.
+    // Skip them here so the same input is never rendered twice.
+    $dedicatedFields = ['video_url', 'video_caption'];
+
     foreach ((array) ($registry['groups'] ?? []) as $group) {
         foreach ((array) ($group['variables'] ?? []) as $key => $definition) {
-            if (($definition['source'] ?? '') !== 'content') {
+            if (($definition['source'] ?? '') !== 'content' || in_array($key, $dedicatedFields, true)) {
                 continue;
             }
 
@@ -71,6 +79,7 @@
                         'label' => $columnDefinition['label'] ?? ($definition['label'] ?? $column),
                         'type' => $columnDefinition['type'] ?? 'text',
                         'class' => $columnDefinition['class'] ?? 'col-md-4',
+                        'options' => (array) ($columnDefinition['options'] ?? []),
                     ] + (isset($columnDefinition['step']) ? ['step' => $columnDefinition['step']] : []);
                 }
 
@@ -87,11 +96,7 @@
 
 <div class="col-12" id="landingContentPanel" data-template-fields='@json($templateFieldMap)'>
     <div class="border rounded p-3 mb-3">
-        <h6 class="text-uppercase fw-bold mb-3">Landing Content</h6>
-
-        <p class="text-muted small mb-0 d-none" id="landingContentEmpty">
-            This template does not use extra content fields.
-        </p>
+        <h6 class="text-uppercase fw-bold mb-3"><i class="ri ri-layout-masonry-line me-1"></i> Landing Content</h6>
 
         <div class="row g-3 mb-2">
             @foreach($textDefinitions as $field => $definition)
@@ -129,10 +134,10 @@
 
         @foreach($rowDefinitions as $field => $definition)
             <div class="landing-content-field border rounded p-3 mb-3" data-field="{{ $field }}">
-                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
                     <h6 class="mb-0">{{ $definition['label'] }}</h6>
                     <button type="button" class="btn btn-sm btn-outline-primary js-add-row" data-field="{{ $field }}">
-                        Add row
+                        <i class="ri ri-add-line me-1"></i> Add row
                     </button>
                 </div>
 
@@ -141,60 +146,170 @@
                     @if(is_array($rows))
                         @foreach($rows as $index => $row)
                             @continue(!is_array($row))
-                            <div class="row g-2 align-items-end border rounded p-2 mb-2 js-row">
+                            <div class="border rounded p-2 mb-2 js-row position-relative">
+                                <button type="button" class="btn btn-sm btn-outline-danger js-remove-row position-absolute top-0 end-0 m-1" title="Remove row" aria-label="Remove row">
+                                    <i class="ri ri-delete-bin-line"></i>
+                                </button>
+                                <div class="row g-2 align-items-start pe-5">
                                 @foreach($definition['columns'] as $column)
-                                    @php $cell = $row[$column['key']] ?? ''; @endphp
+                                    @php
+                                        $cell = $row[$column['key']] ?? '';
+                                        $cellValue = is_scalar($cell) ? trim((string) $cell) : '';
+                                        $preview = '';
+                                        if ($cellValue !== '') {
+                                            $preview = preg_match('~^https?://~i', $cellValue)
+                                                ? $cellValue
+                                                : asset(preg_replace('~^public/~', '', ltrim($cellValue, '/')));
+                                        }
+                                    @endphp
                                     <div class="{{ $column['class'] }}" data-column="{{ $column['key'] }}">
                                         <label class="form-label small mb-1">{{ $column['label'] }}</label>
                                         @if($column['type'] === 'textarea')
-                                            <textarea
-                                                rows="2"
-                                                class="form-control rounded-0"
+                                            <input
+                                                type="hidden"
+                                                id="extra_{{ $field }}_{{ $index }}_{{ $column['key'] }}"
                                                 name="extra_fields[{{ $field }}][{{ $index }}][{{ $column['key'] }}]"
-                                            >{{ is_scalar($cell) ? $cell : '' }}</textarea>
+                                                value="{{ $cellValue }}"
+                                            >
+                                            <div
+                                                id="quill_{{ $field }}_{{ $index }}_{{ $column['key'] }}"
+                                                class="js-quill-editor"
+                                                data-quill-theme="snow"
+                                                data-quill-toolbar-preset="mini"
+                                                data-quill-target="#extra_{{ $field }}_{{ $index }}_{{ $column['key'] }}"
+                                                data-quill-placeholder="{{ $column['label'] }}"
+                                                data-quill-initial-html="{{ e($cellValue) }}"
+                                                style="min-height: 88px;"></div>
+                                        @elseif($column['type'] === 'icon')
+                                            @php
+                                                $iconOptions = (array) ($column['options'] ?? []);
+                                                $iconValue = $cellValue;
+                                                $iconPreview = $iconValue !== '' ? $iconValue : (string) array_key_first($iconOptions);
+                                                $iconLabel = $iconOptions[$iconValue] ?? ($iconValue !== '' ? 'Custom: ' . $iconValue : (string) reset($iconOptions));
+                                            @endphp
+                                            <select
+                                                class="form-select form-select-sm rounded-0 js-icon-select"
+                                                name="extra_fields[{{ $field }}][{{ $index }}][{{ $column['key'] }}]"
+                                            >
+                                                @foreach($iconOptions as $iconClass => $iconOptionLabel)
+                                                    <option value="{{ $iconClass }}" @selected($iconValue === $iconClass)>{{ $iconOptionLabel }}</option>
+                                                @endforeach
+                                                @if($iconValue !== '' && !array_key_exists($iconValue, $iconOptions))
+                                                    <option value="{{ $iconValue }}" selected>Custom: {{ $iconValue }}</option>
+                                                @endif
+                                            </select>
+                                            <div class="d-flex align-items-center gap-2 mt-1">
+                                                <i class="{{ $iconPreview }} js-icon-preview" aria-hidden="true"></i>
+                                                <span class="small text-body-secondary js-icon-preview-label">{{ $iconLabel }}</span>
+                                            </div>
+                                        @elseif($column['type'] === 'image')
+                                            <input
+                                                type="hidden"
+                                                name="extra_fields[{{ $field }}][{{ $index }}][{{ $column['key'] }}]"
+                                                value="{{ $cellValue }}"
+                                            >
+                                            <input
+                                                type="file"
+                                                class="form-control form-control-sm rounded-0 js-repeater-image"
+                                                name="extra_fields_files[{{ $field }}][{{ $index }}][{{ $column['key'] }}]"
+                                                accept="image/png,image/jpeg,image/gif,image/webp"
+                                            >
+                                            <img
+                                                src="{{ $preview }}"
+                                                alt=""
+                                                class="js-repeater-image-preview mt-1 rounded border {{ $preview === '' ? 'd-none' : '' }}"
+                                                style="height: 38px; width: 38px; object-fit: cover;"
+                                            >
                                         @else
                                             <input
                                                 type="{{ $column['type'] }}"
                                                 @isset($column['step']) step="{{ $column['step'] }}" @endisset
-                                                class="form-control rounded-0"
+                                                class="form-control form-control-sm rounded-0"
                                                 name="extra_fields[{{ $field }}][{{ $index }}][{{ $column['key'] }}]"
-                                                value="{{ is_scalar($cell) ? $cell : '' }}"
+                                                value="{{ $cellValue }}"
                                             >
                                         @endif
                                     </div>
                                 @endforeach
-                                <div class="col-auto">
-                                    <button type="button" class="btn btn-sm btn-outline-danger js-remove-row">Remove</button>
-                                </div>
                             </div>
+                        </div>
                         @endforeach
                     @endif
                 </div>
 
                 <template class="js-row-template" data-template-field="{{ $field }}">
-                    <div class="row g-2 align-items-end border rounded p-2 mb-2 js-row">
+                    <div class="border rounded p-2 mb-2 js-row position-relative">
+                        <button type="button" class="btn btn-sm btn-outline-danger js-remove-row position-absolute top-0 end-0 m-1" title="Remove row" aria-label="Remove row">
+                            <i class="ri ri-delete-bin-line"></i>
+                        </button>
+                        <div class="row g-2 align-items-start pe-5">
                         @foreach($definition['columns'] as $column)
                             <div class="{{ $column['class'] }}" data-column="{{ $column['key'] }}">
                                 <label class="form-label small mb-1">{{ $column['label'] }}</label>
                                 @if($column['type'] === 'textarea')
-                                    <textarea
-                                        rows="2"
-                                        class="form-control rounded-0"
-                                        name="extra_fields[{{ $field }}][__INDEX__][{{ $column['key'] }}]"
-                                    ></textarea>
+                                    <input
+                                        type="hidden"
+                                        id="extra_{{ $field }}_{{ '__INDEX__' }}_{{ $column['key'] }}"
+                                        name="extra_fields[{{ $field }}][{{ '__INDEX__' }}][{{ $column['key'] }}]"
+                                        value=""
+                                    >
+                                    <div
+                                        id="quill_{{ $field }}_{{ '__INDEX__' }}_{{ $column['key'] }}"
+                                        class="js-quill-editor"
+                                        data-quill-theme="snow"
+                                        data-quill-toolbar-preset="mini"
+                                        data-quill-target="#extra_{{ $field }}_{{ '__INDEX__' }}_{{ $column['key'] }}"
+                                        data-quill-placeholder="{{ $column['label'] }}"
+                                        data-quill-initial-html=""
+                                        style="min-height: 88px;"></div>
+                                @elseif($column['type'] === 'icon')
+                                    @php
+                                        $iconOptions = (array) ($column['options'] ?? []);
+                                        $iconValue = '';
+                                        $iconPreview = (string) array_key_first($iconOptions);
+                                        $iconLabel = (string) reset($iconOptions);
+                                    @endphp
+                                    <select
+                                        class="form-select form-select-sm rounded-0 js-icon-select"
+                                        name="extra_fields[{{ $field }}][{{ '__INDEX__' }}][{{ $column['key'] }}]"
+                                    >
+                                        @foreach($iconOptions as $iconClass => $iconOptionLabel)
+                                            <option value="{{ $iconClass }}">{{ $iconOptionLabel }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                        <i class="{{ $iconPreview }} js-icon-preview" aria-hidden="true"></i>
+                                        <span class="small text-body-secondary js-icon-preview-label">{{ $iconLabel }}</span>
+                                    </div>
+                                @elseif($column['type'] === 'image')
+                                    <input
+                                        type="hidden"
+                                        name="extra_fields[{{ $field }}][{{ '__INDEX__' }}][{{ $column['key'] }}]"
+                                        value=""
+                                    >
+                                    <input
+                                        type="file"
+                                        class="form-control form-control-sm rounded-0 js-repeater-image"
+                                        name="extra_fields_files[{{ $field }}][{{ '__INDEX__' }}][{{ $column['key'] }}]"
+                                        accept="image/png,image/jpeg,image/gif,image/webp"
+                                    >
+                                    <img
+                                        src=""
+                                        alt=""
+                                        class="js-repeater-image-preview mt-1 rounded border d-none"
+                                        style="height: 38px; width: 38px; object-fit: cover;"
+                                    >
                                 @else
                                     <input
                                         type="{{ $column['type'] }}"
                                         @isset($column['step']) step="{{ $column['step'] }}" @endisset
-                                        class="form-control rounded-0"
-                                        name="extra_fields[{{ $field }}][__INDEX__][{{ $column['key'] }}]"
+                                        class="form-control form-control-sm rounded-0"
+                                        name="extra_fields[{{ $field }}][{{ '__INDEX__' }}][{{ $column['key'] }}]"
                                         value=""
                                     >
                                 @endif
                             </div>
                         @endforeach
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-sm btn-outline-danger js-remove-row">Remove</button>
                         </div>
                     </div>
                 </template>

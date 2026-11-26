@@ -1,5 +1,9 @@
 <?php
 
+// The Landing Page Designs screen lists these registry designs, not the six
+// legacy landing_pages rows. Read the registry instead of repeating the list.
+$landingDesignViews = array_keys((array) ((require __DIR__ . '/landing_templates.php')['templates'] ?? []));
+
 return [
 
     /*
@@ -239,6 +243,28 @@ return [
         'admin.courier.fraud-checker' => ['label' => 'Fraud Checks', 'icon' => 'ri-shield-check-line', 'table' => 'courier_fraud_checks', 'no_status' => true],
         'admin.analytics.live' => ['label' => 'Visitor Events', 'icon' => 'ri-radar-line', 'table' => 'event_logs', 'no_status' => true],
         'colors.index' => ['label' => 'Colors', 'icon' => 'ri-palette-line', 'table' => 'colors'],
+        /*
+         * The landing-page manager lists nine registry designs while the
+         * landing_pages table still holds six legacy rows. Counting the wrong
+         * table printed "6 Total Landing Pages" above nine cards. Scope the
+         * count to the registry view_names so total/active/inactive describe
+         * the designs actually on screen.
+         */
+        'landing-pages.index' => [
+            'label' => 'Design Templates',
+            'icon' => 'ri-pages-line',
+            'table' => 'templates',
+            'status_column' => 'is_active',
+            'where_in' => ['view_name', $landingDesignViews],
+        ],
+        'landing-pages.template-variables' => [
+            'label' => 'Design Templates',
+            'icon' => 'ri-pages-line',
+            'table' => 'templates',
+            'status_column' => 'is_active',
+            'where_in' => ['view_name', $landingDesignViews],
+            'has_list' => false,
+        ],
         'reviews.pending' => [
             'label' => 'Pending Reviews',
             'icon' => 'ri-star-line',

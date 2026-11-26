@@ -10,12 +10,14 @@ use Illuminate\Support\Facades\File;
  * Resolves the picture shown on an admin landing-design card.
  *
  * The chain is deliberately explicit, cheapest first:
- *   1. the campaign's own hero image (editor override);
- *   2. the campaign's uploaded image_one;
- *   3. the generated <view>-hero.jpg that ships with the design;
- *   4. the image stored on Website Setup -> Appearance (MediaPath owns that
+ *   1. the design preview from config('landing_templates.*.card_image'),
+ *      copied from work/zevo/lpage into public/frontend/landing/pictures/designs;
+ *   2. the campaign's own hero image (editor override);
+ *   3. the campaign's uploaded image_one;
+ *   4. the generated <view>-hero.jpg that ships with the design;
+ *   5. the image stored on Website Setup -> Appearance (MediaPath owns that
  *      lookup and its bundled default);
- *   5. public/branding/card-fallback.jpg, copied from work/zevo and tracked,
+ *   6. public/branding/card-fallback.jpg, copied from work/zevo and tracked,
  *      so a card can never render a broken image even on a fresh checkout.
  */
 class LandingCardImage
@@ -26,6 +28,16 @@ class LandingCardImage
     {
         $extra = $campaign && is_array($campaign->extra_fields) ? $campaign->extra_fields : [];
         $candidates = [];
+
+        // Each new design ships a real preview image with its registry entry.
+        // This is the card the editor expects to see; campaign overrides are
+        // only a fallback when the design has no preview of its own.
+        if ($template && $template->view_name) {
+            $candidates[] = (string) config(
+                'landing_templates.templates.' . $template->view_name . '.card_image',
+                ''
+            );
+        }
 
         if (!empty($extra['hero_image']) && is_scalar($extra['hero_image'])) {
             $candidates[] = (string) $extra['hero_image'];

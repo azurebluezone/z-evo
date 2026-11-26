@@ -44,6 +44,15 @@
         <i class="bi bi-search"></i>
     </button>
 
+    {{-- Notification bell. Always present for a signed-in customer: the modern
+         chrome used to drop it entirely, so the notifications page was
+         unreachable from the header. Placed first so it keeps its 44px box on
+         phones too, where wishlist and the account button move into the
+         drawer. --}}
+    @include('frontend.fm.partials.header.notification-bell', [
+        'fmUnreadNotifications' => $fmUnreadNotifications ?? 0,
+    ])
+
     {{-- Account. It belongs with the other personal controls rather than
          immediately left of the search field: same 44x44 box, same glyph size,
          same hover treatment. Hidden below 576px by fm-sections.css (the

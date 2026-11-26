@@ -6,9 +6,11 @@
      data-flash-info / data-flash-validation  (all JSON or "null")
    "null" or empty string means "nothing to tell".
 
-   Toastr::message() (the blade package in partials/scripts) may still emit
-   its own toast for session flashes - that double-draw predates this module
-   and is pending controller-side cleanup.
+   Toastr::message() (the blade package in partials/scripts) renders the
+   `toastr::messages` bag used by the Toastr facade. The data attributes above
+   carry the separate session('success'|'error'|...) flashes written by
+   controllers with ->with(). The two sources are disjoint, so a message is
+   never drawn twice.
 */
 (function () {
     'use strict';

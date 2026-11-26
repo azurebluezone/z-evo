@@ -1,0 +1,17 @@
+{
+ "input": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/6-9-month-full-romper-fr7402-5204/01-zevo-main.jpg",
+ "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/6-9-month-full-romper-fr7402-5204/04-zevo-brand-card.jpg",
+ "title": "Z EVO",
+ "subtitle": "6-9 month Full Romper FR7402",
+ "attribution": "Z EVO - 6-9 Month",
+ "logo": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+ "crop": {
+  "aspect": "1:1",
+  "focus": "center"
+ },
+ "canvas": {
+  "width": 1200,
+  "height": 1200
+ },
+ "quality": 90
+}

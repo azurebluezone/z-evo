@@ -217,6 +217,7 @@ header[data-purpose="primary-header"] .fm-header-logo img{height:40px!important;
    The search submit inside the field uses the same 20px token, so the bar has
    exactly one icon size from the hamburger to the basket. */
 header[data-purpose="primary-header"] .fm-header-wishlist,
+header[data-purpose="primary-header"] .fm-header-bell,
 header[data-purpose="primary-header"] .fm-header-user > button,
 header[data-purpose="primary-header"] .fm-header-cart{
   /* Deliberately no `display` here: wishlist/account are display:none below
@@ -232,6 +233,7 @@ header[data-purpose="primary-header"] .fm-header-cart{
 }
 
 header[data-purpose="primary-header"] .fm-header-wishlist,
+header[data-purpose="primary-header"] .fm-header-bell,
 header[data-purpose="primary-header"] .fm-header-user > button{
   width:44px;
   min-width:44px;
@@ -254,6 +256,7 @@ header[data-purpose="primary-header"] .fm-header-cart{
 }
 
 header[data-purpose="primary-header"] .fm-header-wishlist > .bi,
+header[data-purpose="primary-header"] .fm-header-bell > .bi,
 header[data-purpose="primary-header"] .fm-header-user > button > .bi,
 header[data-purpose="primary-header"] .fm-header-cart .bi-basket2-fill,
 header[data-purpose="primary-header"] button.fm-search-open .bi,

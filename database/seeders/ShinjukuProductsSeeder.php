@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Product;
+use App\Support\SeedStock;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -65,7 +66,6 @@ class ShinjukuProductsSeeder extends Seeder
                 'purchase_price'   => (int) round($price * 0.72),
                 'old_price'        => $price,
                 'new_price'        => $price,
-                'stock'            => 25,
                 'meta_description' => $name,
                 'description'      => strip_tags($row['description'] ?? $name),
                 'topsale'          => 0,
@@ -75,6 +75,8 @@ class ShinjukuProductsSeeder extends Seeder
             ]);
 
             $product = Product::updateOrCreate(['slug' => $slug], $productPayload);
+
+            SeedStock::ensureForProduct((int) $product->id, 25);
 
             // Replace images for idempotency.
             DB::table('productimages')->where('product_id', $product->id)->delete();

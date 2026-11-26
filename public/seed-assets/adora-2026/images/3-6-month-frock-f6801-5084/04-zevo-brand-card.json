@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "version": "1.1.0",
+  "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/3-6-month-frock-f6801-5084/04-zevo-brand-card.jpg",
+  "output_bytes": 320168,
+  "output_sha256": "2f7dceac2b0a6a473064abe31c3fece2fbd5cdf740f69d28b21821f98ebc0fa0",
+  "sidecar": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/3-6-month-frock-f6801-5084/04-zevo-brand-card.json",
+  "canvas": [
+    1200,
+    1200
+  ],
+  "crop_box": [
+    0,
+    0,
+    1200,
+    1200
+  ],
+  "source_size": [
+    1200,
+    1200
+  ],
+  "source_sha256": "b8dedcb3dbecf5703022b7e21d445517a5216f148fa5c269506186ae956d16c2",
+  "title": "Z EVO",
+  "subtitle": "3-6 month Frock, F6801",
+  "attribution": "Z EVO - 3-6 Month",
+  "logo": {
+    "path": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+    "box": [
+      66,
+      66,
+      373,
+      168
+    ],
+    "mode": "image"
+  },
+  "fonts": {
+    "bengali_bold": "/usr/share/fonts/truetype/noto/NotoSansBengali-Bold.ttf",
+    "bengali_regular": "/usr/share/fonts/truetype/noto/NotoSansBengali-Regular.ttf",
+    "latin_bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "latin_regular": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "raqm": true
+  },
+  "provider": null,
+  "source_page": null,
+  "license": null,
+  "creator": null,
+  "created": "2026-11-16T06:32:00.659479+00:00"
+}

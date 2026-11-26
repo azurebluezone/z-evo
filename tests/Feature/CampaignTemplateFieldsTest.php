@@ -262,7 +262,6 @@ class CampaignTemplateFieldsTest extends TestCase
             'purchase_price' => 800,
             'old_price' => 1500,
             'new_price' => 1200,
-            'stock' => 20,
             'meta_description' => null,
             'description' => 'QA template product description',
             'topsale' => null,

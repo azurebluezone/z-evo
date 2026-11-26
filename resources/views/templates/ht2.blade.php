@@ -13,6 +13,8 @@
     $trustRows = array_slice($tpl->rows('trust_items'), 0, 4);
     $galleryImages = $tpl->raw('gallery_image');
     $galleryImages = is_array($galleryImages) ? array_slice(array_values($galleryImages), 0, 4) : [];
+    $videoUrl = $tpl->text('video_url');
+    $videoCaption = $tpl->text('video_caption');
     $variantRows = $tpl->rows('variants');
     $comparisonRows = $tpl->rows('comparison');
     $reviewRows = $tpl->rows('reviews');
@@ -243,6 +245,32 @@
         </section>
     @endif
 
+    @if($tpl->isEnabled('video_url') && $videoUrl !== '')
+        <section class="py-16 bg-slate-50 border-y border-slate-200" id="video">
+            <div class="zombie-container max-w-4xl">
+                <div class="text-center max-w-2xl mx-auto mb-8">
+                    <div class="inline-flex items-center gap-1.5 text-xs text-brand-red font-bold uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-circle-play"></i> ভিডিও
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">ভিডিওতে দেখে নিন</h2>
+                    @if($tpl->isEnabled('video_caption') && $videoCaption !== '')
+                        <p class="text-base text-slate-600 leading-relaxed">{{ $videoCaption }}</p>
+                    @endif
+                </div>
+                <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-xl border border-slate-200">
+                    <iframe
+                        class="absolute inset-0 w-full h-full"
+                        src="{{ $videoUrl }}"
+                        title="{{ $productName }} — ভিডিও"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen
+                        referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                </div>
+            </div>
+        </section>
+    @endif
+
     @if(($tpl->isEnabled('compare_feature') || $tpl->isEnabled('compare_ours') || $tpl->isEnabled('compare_theirs')) && $comparisonRows !== [])
         <section class="py-14 bg-slate-50 border-y border-slate-200" id="comparison">
             <div class="zombie-container">
@@ -356,6 +384,11 @@
             </div>
         </section>
     @endif
+
+{{-- The order form belongs to this design's own page flow: the HTML twin
+     puts it here, so the shared layout skips its own include and the page
+     still shows exactly one order form. --}}
+@include('frontend.landing.partials.order-section', ['tpl' => $tpl])
 
     @if(($tpl->isEnabled('faq_question') || $tpl->isEnabled('faq_answer')) && $faqRows !== [])
         <section class="py-14 bg-white border-t border-slate-200" id="faq">

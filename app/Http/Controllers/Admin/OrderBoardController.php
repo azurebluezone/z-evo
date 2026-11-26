@@ -166,10 +166,20 @@ class OrderBoardController extends Controller
 
         // The real status change - the same routine, and the same stock
         // arithmetic, that the list view's dropdown runs.
-        (new OrderController)->changeOrderStatus(
+        $failures = (new OrderController)->changeOrderStatus(
             [(int) $data['order_id']],
             (int) $data['status_id']
         );
+
+        if ($failures !== []) {
+            // Report the column the order is really in, so the card snaps back
+            // instead of sitting in a column the database rejected.
+            return response()->json([
+                'status'  => 'failed',
+                'message' => $failures[0]['message'],
+                'column'  => (int) $order->order_status,
+            ]);
+        }
 
         return response()->json([
             'status'  => 'success',

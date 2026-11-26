@@ -12,7 +12,7 @@
             <a href="javascript:void(0)" class="btn btn-outline-secondary btn-square waves-effect">
               <i class="ri ri-arrow-left-line me-1"></i> Manage
             </a>
-            <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="adminForm">
+            <x-admin.button variant="primary" shape="square" ripple="true" type="submit" form="orderForm">
               <i class="ri ri-save-line me-1"></i> Submit
             </x-admin.button>
           </div>
@@ -27,7 +27,7 @@
    <div class="page-title-box d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2">
     <h4 class="page-title mb-0">Create</h4>
     <div class="page-title-right">
-     <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline" id="adminForm">
+     <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline" id="cartClearForm">
       @csrf
       <x-admin.button variant="danger" class="rounded-pill delete-confirm" type="submit" title="Delete"><i class="fas fa-trash-alt"></i> Cart Clear</x-admin.button>
 
@@ -41,8 +41,26 @@
   <div class="col-lg-12">
    <div class="card">
     <div class="card-body">
-     <form action="{{route('admin.order.store')}}" method="POST" class="row pos_form" data-parsley-validate="" enctype="multipart/form-data">
+     <form action="{{route('admin.order.store')}}" method="POST" class="row pos_form" data-parsley-validate="" enctype="multipart/form-data" id="orderForm">
       @csrf
+
+      {{--
+        The admin's own note. It sits above the stepper on purpose: the note is
+        internal context for the whole order, so it stays visible on all three
+        steps instead of hiding behind one pane. orders.admin_note already
+        existed; there was simply no field for it.
+      --}}
+      <div class="col-12">
+      <div class="card mb-4">
+       <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="ri ri-sticky-note-line me-2"></i>Admin Note</h5>
+        <span class="badge bg-label-secondary">Internal</span>
+       </div>
+       <div class="card-body">
+        <textarea class="form-control" name="admin_note" id="adminNote" rows="2" placeholder="Internal note about this order">{{ old('admin_note') }}</textarea>
+       </div>
+      </div>
+      </div>
 
        <!--
          Three steps, one form. The <form> element above and every input inside
@@ -159,7 +177,7 @@
         <!-- col-end -->
         <div class="col-sm-12">
          <div class="form-group mb-3">
-          <input type="address" placeholder="Address" id="address" class="form-control @error('address') is-invalid @enderror" name="address" value="" />
+          <input type="text" placeholder="Address" id="address" class="form-control @error('address') is-invalid @enderror" name="address" value="" />
           @error('email')
           <span class="invalid-feedback" role="alert">
            <strong>{{ $message }}</strong>

@@ -123,6 +123,17 @@ class LandingCampaignSeeder extends Seeder
         ];
 
         $videoUrl = 'https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ';
+
+        // HT2 sells a panjabi/saree collection whose gallery is four square
+        // crops; the wallet images belong to the older demo and must never
+        // appear on the HT2 page.
+        $ht2Gallery = [
+            'frontend/landing/pictures/generated/ht2-gallery-01.jpg',
+            'frontend/landing/pictures/generated/ht2-gallery-02.jpg',
+            'frontend/landing/pictures/generated/ht2-gallery-03.jpg',
+            'frontend/landing/pictures/generated/ht2-gallery-04.jpg',
+        ];
+
         $galleryTail = [
             'frontend/landing/pictures/generated/wallet-front.jpg',
             'frontend/landing/pictures/generated/wallet-detail.jpg',
@@ -156,7 +167,9 @@ class LandingCampaignSeeder extends Seeder
             $offerPrice = max(1, (int) round($price * 0.9));
             $productName = (string) $product->name;
             $heroImage = 'frontend/landing/pictures/generated/' . $key . '-hero.jpg';
-            $gallery = array_merge([$heroImage], $galleryTail);
+            $gallery = $key === 'ht2'
+                ? $ht2Gallery
+                : array_merge([$heroImage], $galleryTail);
 
             $extra = [
                 'announce_text' => $design['announce_text'],

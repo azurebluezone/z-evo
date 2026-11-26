@@ -98,7 +98,7 @@
                     </div>
                     <div class="d-flex justify-content-between mb-1">
                         <span class="text-muted">Stock</span>
-                        <span class="fw-medium">{{ number_format((float) $review->product->stock) }}</span>
+                        <span class="fw-medium">{{ number_format((float) $review->product->stockOnHand()) }}</span>
                     </div>
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">Status</span>

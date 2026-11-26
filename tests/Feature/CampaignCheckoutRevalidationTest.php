@@ -26,6 +26,8 @@ use Tests\TestCase;
  */
 class CampaignCheckoutRevalidationTest extends TestCase
 {
+    use SeedsCampaignCartLines;
+    use GrantsVariantStock;
     private array $createdProductIds = [];
     private array $createdCampaignIds = [];
     private array $createdCustomerIds = [];
@@ -210,11 +212,10 @@ class CampaignCheckoutRevalidationTest extends TestCase
         $product = $this->createProduct(1200);
         $campaign = $this->createCampaign((int) $product->id, 900);
 
-        $this->post('/landing-order', [
-            'product_id' => $product->id,
-            'campaign_id' => $campaign->id,
-            'quantity' => 1,
-        ])->assertRedirect(route('customer.checkout'));
+        // The landing page order form places the order directly now, so a
+        // campaign line that has to sit IN the cart is seeded here with the
+        // same options the landing order used to write.
+        $this->seedCampaignCartLine($product, $campaign, 1, 900.0, 1200.0);
 
         $item = Cart::instance('shopping')->content()->first();
         $this->assertSame(900.0, (float) $item->price, 'The campaign price did not reach the cart.');
@@ -271,7 +272,6 @@ class CampaignCheckoutRevalidationTest extends TestCase
             'purchase_price' => 800,
             'old_price' => 1500,
             'new_price' => $newPrice,
-            'stock' => 20,
             'meta_description' => null,
             'description' => 'QA revalidation product description',
             'topsale' => null,
@@ -284,7 +284,13 @@ class CampaignCheckoutRevalidationTest extends TestCase
 
         $this->createdProductIds[] = $id;
 
-        return DB::table('products')->where('id', $id)->first();
+        $product = DB::table('products')->where('id', $id)->first();
+
+        // Stock is variant-owned now; a product fixture without a balance
+        // cannot be ordered.
+        $this->grantDefaultStock($product);
+
+        return $product;
     }
 
     private function createCampaign(int $productId, float $price): object

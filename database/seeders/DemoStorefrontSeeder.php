@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Productimage;
+use App\Support\SeedStock;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -81,7 +82,6 @@ class DemoStorefrontSeeder extends Seeder
                     'purchase_price' => (int) ($newPrice - 100),
                     'old_price' => (int) $oldPrice,
                     'new_price' => (int) $newPrice,
-                    'stock' => 50,
                     'description' => 'Demo product description',
                     'meta_description' => 'Demo product meta description',
                     'topsale' => 1,
@@ -94,6 +94,8 @@ class DemoStorefrontSeeder extends Seeder
                 ['product_id' => $product->id],
                 ['image' => 'assets/images/default.png']
             );
+
+            SeedStock::ensureForProduct((int) $product->id, 50);
         }
     }
 }

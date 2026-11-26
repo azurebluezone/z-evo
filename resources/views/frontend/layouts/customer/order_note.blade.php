@@ -1,26 +1,25 @@
-@extends('frontend.layouts.master')
-@section('title','Order Note')
-@section('content')
-<section class="customer-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-3">
-                <div class="customer-sidebar">
-                    @include('frontend.layouts.customer.sidebar')
-                </div>
-            </div>
-            <div class="col-sm-9">
-                <div class="customer-content">
-                    <h5 class="account-title">Order Note [Invoice #{{$order->invoice_id}}]</h5>
-                     <a href="{{route('customer.orders')}}"><strong><i class="fa-solid fa-arrow-left"></i> Back To Order</strong></a>
-                    <div class="card mt-2">
-                        <div class="card-body">
-                            {!! $order->admin_note !!}
-                        </div>
-                    </div>
-                </div>
+@extends('frontend.layouts.customer.dashboard-layout')
+
+@section('title', 'Order Note')
+@section('dashboard-title', 'Order Note')
+
+@section('dashboard-content')
+    <div class="classic-account-page">
+        <div class="classic-account-head">
+            <h6 class="classic-account-head__title">
+                Invoice #{{ $order->invoice_id }}
+                <span class="classic-account-badge">Note</span>
+            </h6>
+
+            <a href="{{ route('customer.orders') }}" class="classic-notice__action">
+                <i class="fa-solid fa-arrow-left"></i> Back to orders
+            </a>
+        </div>
+
+        <div class="card custom--card">
+            <div class="card-body">
+                {!! $order->admin_note !!}
             </div>
         </div>
     </div>
-</section>
 @endsection

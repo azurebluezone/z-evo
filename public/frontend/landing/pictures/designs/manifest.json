@@ -1,0 +1,78 @@
+{
+    "source_dir": "work/zevo/lpage",
+    "public_dir": "public/frontend/landing/pictures/designs",
+    "templates": {
+        "ht2": {
+            "file": "frontend/landing/pictures/designs/ht2.png",
+            "source": "work/zevo/lpage/01_premium_collection.png",
+            "sha256": "31adf7f7e2c671caf9fba4402abc4078a4e4ce5a9f6deca1a3f4bf34908ebdd2",
+            "width": 225,
+            "height": 231,
+            "bytes": 66247
+        },
+        "t1": {
+            "file": "frontend/landing/pictures/designs/t1.png",
+            "source": "work/zevo/lpage/02_funnel_offer.png",
+            "sha256": "45c0e07a12010ed9b85a76ee982230d9611253c9b4bdc1aa634e6b8afa6f1ac1",
+            "width": 223,
+            "height": 231,
+            "bytes": 67259
+        },
+        "th3": {
+            "file": "frontend/landing/pictures/designs/th3.png",
+            "source": "work/zevo/lpage/03_premium_wall_art.png",
+            "sha256": "68d8dca13f81eb0aad78d9729fc701b1091a2a54d485fd20422f3df716a8b2d4",
+            "width": 232,
+            "height": 231,
+            "bytes": 70778
+        },
+        "th4": {
+            "file": "frontend/landing/pictures/designs/th4.png",
+            "source": "work/zevo/lpage/04_artisan_honey.png",
+            "sha256": "5d09dee11669fec7aeb53b868ad34744beeb84650f3a9c6d18ad7170c950ba74",
+            "width": 225,
+            "height": 234,
+            "bytes": 65236
+        },
+        "th5": {
+            "file": "frontend/landing/pictures/designs/th5.png",
+            "source": "work/zevo/lpage/05_natural_honey.png",
+            "sha256": "6815528d88e5d5026ca6a95e69920426540938e4c821a3ff4286ea3f8014d0b6",
+            "width": 223,
+            "height": 234,
+            "bytes": 69335
+        },
+        "th6": {
+            "file": "frontend/landing/pictures/designs/th6.png",
+            "source": "work/zevo/lpage/06_rose_editorial_abaya.png",
+            "sha256": "60a9feb3eba6e180d997e92b48e9cf357a325280a7e0d890b7a1df90a48cc4c2",
+            "width": 232,
+            "height": 234,
+            "bytes": 85031
+        },
+        "th7": {
+            "file": "frontend/landing/pictures/designs/th7.png",
+            "source": "work/zevo/lpage/07_fashion_editorial_abaya.png",
+            "sha256": "1dffdb6ce575d68eb32436a6d555cfd91f5fadfb5bb73ed29b93473e60170391",
+            "width": 225,
+            "height": 236,
+            "bytes": 70678
+        },
+        "th8": {
+            "file": "frontend/landing/pictures/designs/th8.png",
+            "source": "work/zevo/lpage/08_dark_premium_panjabi.png",
+            "sha256": "29063d189621ab91fd5e7048fe9592d04201bd7f3f31aab1a06d01aa6c7c0403",
+            "width": 223,
+            "height": 236,
+            "bytes": 66490
+        },
+        "th9": {
+            "file": "frontend/landing/pictures/designs/th9.png",
+            "source": "work/zevo/lpage/09_soft_commerce_hoodie.png",
+            "sha256": "2c7953eb079045d044f6bb60217065d8292e4588fb4580d4628391b8015d80f0",
+            "width": 232,
+            "height": 236,
+            "bytes": 63472
+        }
+    }
+}

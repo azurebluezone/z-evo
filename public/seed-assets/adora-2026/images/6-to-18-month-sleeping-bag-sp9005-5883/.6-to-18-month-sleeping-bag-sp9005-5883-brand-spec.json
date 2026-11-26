@@ -1,0 +1,17 @@
+{
+ "input": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/6-to-18-month-sleeping-bag-sp9005-5883/01-zevo-main.jpg",
+ "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/6-to-18-month-sleeping-bag-sp9005-5883/04-zevo-brand-card.jpg",
+ "title": "Z EVO",
+ "subtitle": "6 To 18 month Sleeping Bag, SP9005",
+ "attribution": "Z EVO - Baby Elements",
+ "logo": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+ "crop": {
+  "aspect": "1:1",
+  "focus": "center"
+ },
+ "canvas": {
+  "width": 1200,
+  "height": 1200
+ },
+ "quality": 90
+}

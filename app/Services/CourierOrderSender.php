@@ -73,6 +73,32 @@ class CourierOrderSender
     }
 
     /**
+     * Can this provider be booked from the PER-ORDER screen?
+     *
+     * Both can now. SteadFast goes through this sender; Pathao goes through
+     * PathaoOrderSender, which handles the OAuth token, the merchant login and
+     * the pickup-store lookup. OrderCourierController chooses the right sender
+     * for the provider, so the chooser can offer both instead of telling the
+     * admin "bulk only" after a click.
+     *
+     * The method stays as the single place the chooser asks, so a future
+     * courier cannot be advertised here before it is actually wired.
+     *
+     * @return array{supported:bool, reason:?string}
+     */
+    public function perOrderSupport(string $provider): array
+    {
+        if (! in_array($provider, ['steadfast', 'pathao'], true)) {
+            return [
+                'supported' => false,
+                'reason'    => 'This courier is not supported by the per-order screen.',
+            ];
+        }
+
+        return ['supported' => true, 'reason' => null];
+    }
+
+    /**
      * Build the exact payload that would be sent, without sending it.
      *
      * Used by the preview screen so an admin can see the recipient, address and
@@ -90,9 +116,12 @@ class CourierOrderSender
          * OrderController::order_pathao_auto (bulk). Accepting 'pathao' here used
          * to build a SteadFast payload and POST it to the Pathao URL with empty
          * SteadFast headers - a guaranteed wrong-protocol failure once keys exist.
-         * Refuse it honestly instead.
+         * Refuse it honestly instead - and the chooser says so BEFORE the
+         * click, so nobody is told "not supported" after they chose a courier.
          */
-        if ($provider === 'pathao') {
+        $support = $this->perOrderSupport($provider);
+
+        if (! $support['supported']) {
             return $this->fail(
                 'Per-order Pathao sending is not supported by this screen. '
                 . 'Use the bulk "Send to Pathao" action, which handles Pathao auth and stores.'
@@ -186,11 +215,58 @@ class CourierOrderSender
             ]);
 
             $body = json_decode((string) $response->getBody(), true);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            /*
+             * THE COURIER ANSWERED - IT DID NOT FAIL TO ANSWER.
+             *
+             * Guzzle throws on a 4xx/5xx by default, so a refusal such as
+             *   401 {"status":401,"message":"Account is not active!"}
+             * used to land in the generic catch below and was reported to the
+             * admin as "Could not reach SteadFast. Nothing was created - please
+             * try again." That sends the admin to check their network, while
+             * the actual problem is their own courier account - a completely
+             * different action, and the real reason was only in the log.
+             *
+             * So the refusal is separated from the outage: the courier's own
+             * status and message go to the admin, and only a genuine
+             * connection failure keeps the vague "could not reach" wording.
+             */
+            $response = $e->getResponse();
+            $status  = $response ? $response->getStatusCode() : 0;
+            $raw     = $response ? (string) $response->getBody() : '';
+            $reason  = $this->reasonFromBody($raw, $status);
+
+            Log::error('Courier refused the order', [
+                'provider' => $provider,
+                'order_id' => $order->id,
+                'status'   => $status,
+                'error'    => $e->getMessage(),
+            ]);
+
+            $this->audit('courier.order.refused', $order, $provider, [
+                'http_status' => $status,
+                'reason'      => $reason,
+            ]);
+
+            return [
+                'ok' => false,
+                'message' => $config->label() . ' refused the order (HTTP ' . $status . '): ' . $reason
+                    . ' Nothing was created.',
+                'consignment_id' => null,
+                'tracking_code' => null,
+                'status' => null,
+                'payload' => null,
+            ];
         } catch (\Throwable $e) {
             Log::error('Courier send failed', [
                 'provider' => $provider,
                 'order_id' => $order->id,
                 'error'    => $e->getMessage(),
+            ]);
+
+            $this->audit('courier.order.unreachable', $order, $provider, [
+                'message' => 'Could not reach ' . $config->label() . '.',
+                'error'   => $e->getMessage(),
             ]);
 
             return [
@@ -239,6 +315,11 @@ class CourierOrderSender
 
         $status = trim((string) ($consignment['status'] ?? 'created'));
 
+        // The courier's own delivery fee, when it returned one. Kept in a real
+        // column so the profit report does not have to parse raw_payload that
+        // the next status sync rewrites.
+        $deliveryFee = $consignment['delivery_fee'] ?? ($body['delivery_fee'] ?? null);
+
         // Keep the consignment so the webhook can find this parcel again and so
         // support has the courier's own words on record.
         CourierShipment::updateOrCreate(
@@ -251,10 +332,18 @@ class CourierOrderSender
                 'consignment_id'    => $consignmentId,
                 'tracking_code'     => $trackingCode !== '' ? $trackingCode : null,
                 'current_status'    => $status,
+                'shipping_cost'     => is_numeric($deliveryFee) ? (float) $deliveryFee : null,
                 'raw_payload'       => $body,
                 'last_synced_at'     => now(),
             ]
         );
+
+        $this->audit('courier.order.sent', $order, $provider, [
+            'consignment_id' => $consignmentId,
+            'tracking_code'  => $trackingCode !== '' ? $trackingCode : null,
+            'status'         => $status,
+            'cod_amount'     => $payload['cod_amount'] ?? null,
+        ]);
 
         return [
             'ok' => true,
@@ -431,5 +520,58 @@ class CourierOrderSender
     private function fail(string $message): array
     {
         return ['ok' => false, 'message' => $message, 'payload' => null, 'endpoint' => null];
+    }
+
+    /**
+     * Put the attempt in the audit trail.
+     *
+     * A consignment is billable and irreversible, so "who sent what to the
+     * courier, and what did the courier answer" is exactly the kind of thing
+     * an audit log exists for.
+     */
+    private function audit(string $action, Order $order, string $provider, array $after): void
+    {
+        try {
+            app(AuditLogger::class)->record($action, [
+                'subject_type' => 'order',
+                'subject_id'   => $order->id,
+                'description'  => ucfirst($provider) . ' send attempt for invoice ' . $order->invoice_id,
+                'after'        => $after,
+            ]);
+        } catch (\Throwable $e) {
+            // The trail must never cost the admin the shipment.
+            report($e);
+        }
+    }
+
+    /**
+     * The courier's own words about why it refused.
+     *
+     * The body is JSON when the courier behaves ("message": "Account is not
+     * active!") and plain text when it does not, so both are read. The result
+     * always says something the admin can act on, so the HTTP status is part
+     * of the sentence rather than left implicit.
+     */
+    private function reasonFromBody(string $raw, int $status): string
+    {
+        $raw = trim($raw);
+
+        if ($raw !== '') {
+            $decoded = json_decode($raw, true);
+
+            if (is_array($decoded)) {
+                foreach (['message', 'error', 'reason'] as $key) {
+                    if (! empty($decoded[$key]) && is_string($decoded[$key])) {
+                        return trim($decoded[$key]);
+                    }
+                }
+            }
+
+            $flat = preg_replace('/\s+/u', ' ', $raw) ?? $raw;
+
+            return mb_substr($flat, 0, 200);
+        }
+
+        return $status > 0 ? 'no reason was given' : 'the connection failed';
     }
 }

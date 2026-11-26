@@ -13,8 +13,15 @@
         $discountPercent = $displayOldPrice && (float) $product->old_price > 0
             ? (int) round((((float) $product->old_price - (float) $product->new_price) * 100) / (float) $product->old_price)
             : null;
+        // Batched by FrontendController::frontendHome()/homeSectionProducts();
+        // never a per-card query. Out-of-stock cards must not offer
+        // Add to Cart, and a variant product must go through its detail
+        // page so the shopper picks a size.
+        $cardInStock = method_exists($product, 'isInStock') ? $product->isInStock() : false;
+        $cardHasVariants = method_exists($product, 'hasVariants') ? $product->hasVariants() : false;
+        $cardUrl = route('product', $product->slug);
     @endphp
-    <div class="product-card">
+    <div class="product-card" data-product-id="{{ $product->id }}" data-in-stock="{{ $cardInStock ? 1 : 0 }}">
         <div class="product-thumb">
             <ul class="product-card-buttons">
                 <li class="product-wishlist-btn">
@@ -24,6 +31,10 @@
             @if(!empty($discountPercent))
                 <span class="badge bg-danger" style="position:absolute;top:10px;left:10px;z-index:2;">-{{ $discountPercent }}%</span>
             @endif
+            @if(!$cardInStock)
+                <span class="product-stock-badge">Out of Stock</span>
+            @endif
+
             <a href="{{ route('product', $product->slug) }}">
                 <img
                     src="{{ asset('uploads/default/placeholder.png') }}"
@@ -63,10 +74,20 @@
 
             </div>
 
+            @if(!$cardInStock)
+                <button type="button" class="add-to-cart-btn" disabled>
+                    <i class="las la-shopping-bag"></i> Out of Stock
+                </button>
+            @elseif($cardHasVariants)
+                <a href="{{ $cardUrl }}" class="add-to-cart-btn">
+                    <i class="las la-sliders-h"></i> Choose Options
+                </a>
+            @else
             <input type="hidden" name="quantity" value="1">
             <button type="button" class="addToCart add-to-cart-btn" data-id="{{ $product->id }}" data-product_type="{{ $product->product_type ?? 1 }}">
                 <i class="las la-shopping-bag"></i> Add to Cart
             </button>
+            @endif
         </div>
     </div>
 @endforeach

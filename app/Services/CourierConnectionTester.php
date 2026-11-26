@@ -144,21 +144,47 @@ class CourierConnectionTester
         $client = new PathaoClient($courier);
         $token  = $client->refreshToken();
 
-        $steps = [[
-            'label'  => 'Access token issued (POST ' . $client->url('api/v1/issue-token') . ')',
-            'ok'     => $token !== null,
-            'detail' => $token !== null
-                ? 'A bearer token was returned and stored.'
-                : (string) ($client->lastError ?? 'No token returned.'),
-        ]];
+        /*
+         * Reachability and authentication are SEPARATE claims.
+         *
+         * They used to be one step, and any failure was reported as "Pathao
+         * refused the credentials". The real failure in this project was a
+         * 5 second timeout against an endpoint that answers in ~20 seconds -
+         * Pathao never saw the request, let alone judged the keys. Splitting
+         * them means the admin is told which of the two to fix.
+         */
+        $answered = $token !== null || $client->lastStatus !== null;
+
+        $steps = [
+            [
+                'label'  => 'Service reachable (POST ' . $client->url('api/v1/issue-token') . ')',
+                'ok'     => $answered,
+                'detail' => $answered
+                    ? 'Pathao answered' . ($client->lastStatus !== null ? ' HTTP ' . $client->lastStatus : '') . '.'
+                    : (string) ($client->lastError ?? 'No answer from Pathao.'),
+            ],
+            [
+                'label'  => 'Access token issued',
+                'ok'     => $token !== null,
+                'detail' => $token !== null
+                    ? 'A bearer token was returned and stored.'
+                    : (string) ($client->lastError ?? 'No token returned.'),
+            ],
+        ];
+
+        $message = match (true) {
+            $token !== null          => 'Pathao accepted the credentials.',
+            $client->lastStatus === null => 'Pathao could not be reached — this is a network or timeout problem, not the credentials.',
+            in_array($client->lastStatus, [401, 403], true)
+                => 'Pathao refused the credentials (HTTP ' . $client->lastStatus . ').',
+            default                  => 'Pathao answered HTTP ' . $client->lastStatus . ', so the request itself needs checking.',
+        };
 
         return [
             'ok' => $token !== null,
             'provider' => 'pathao',
             'steps' => $steps,
-            'message' => $token !== null
-                ? 'Pathao accepted the credentials.'
-                : 'Pathao refused the credentials.',
+            'message' => $message,
         ];
     }
 

@@ -109,6 +109,7 @@
                 'fmWishlistCount' => $fmWishlistCount ?? 0,
                 'fmCartCount'     => $fmCartCount ?? 0,
                 'fmCartTotal'     => $fmCartTotal ?? 0,
+                'fmUnreadNotifications' => $fmUnreadNotifications ?? 0,
             ])
         </div>
 

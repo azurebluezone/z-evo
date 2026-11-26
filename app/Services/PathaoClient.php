@@ -8,71 +8,83 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * A thin, honest client for Pathao's courier API.
+ * The one client for Pathao's courier (merchant) API.
  *
  * ---------------------------------------------------------------------------
  * WHY THIS EXISTS
  * ---------------------------------------------------------------------------
- * Two endpoints in OrderController asked Pathao for a city's zones and a zone's
- * areas and looked like this:
+ * Four places used to build a Pathao URL, fetch a Pathao token and POST a
+ * Pathao order, each with its own idea of the base path, the timeout and what
+ * counts as success:
  *
- *     if ($pathao_info) {
- *         $response = Http::get($this->pathaoUrl(...));
- *         return response()->json($response->json());
- *     } else {
- *         return response()->json([]);          // <-- the problem
- *     }
+ *   PathaoClient::url()                    skipped /aladdin on any "sandbox" host
+ *   OrderController::pathaoUrl()           did the same thing, separately
+ *   OrderController::order_pathao_auto()   Http::post() with NO timeout at all
+ *   CourierCheckCommand::checkPathao()     {base}/issue-token (no /aladdin, no api/v1)
  *
- * Everything about that is quiet:
+ * All four were wrong in the same direction, and that is what produced:
  *
- *   - `$pathao_info` is looked up with ->where('status', 1). Pathao ships
- *     disabled, so the lookups took the else branch and answered 200 [] - the
- *     correct shape for "this city has no zones" and the wrong answer for "we
- *     never asked". In the browser the two are indistinguishable, which is
- *     exactly how "the zone dropdown is empty and nothing is requested" reads
- *     as a broken API rather than a switched-off courier.
+ *   Could not reach Pathao: cURL error 28: Operation timed out after 5001 ms
+ *   ... for https://courier-api-sandbox.pathao.com/api/v1/issue-token
  *
- *   - No Authorization header was sent at all. Pathao requires
- *     `Authorization: Bearer <token>` on these routes, so a configured account
- *     would still have been refused - and again reported as an empty list.
+ * ---------------------------------------------------------------------------
+ * WHERE /aladdin COMES FROM (verified live, not assumed)
+ * ---------------------------------------------------------------------------
+ * The official merchant API documentation lists:
  *
- *   - No timeout. A slow Pathao would have held the PHP worker until the
- *     default socket timeout.
+ *   base_url  https://courier-api-sandbox.pathao.com
+ *   endpoint  /aladdin/api/v1/issue-token
  *
- *   - The token was fetched once when settings were saved and never refreshed.
- *     Stored tokens expire, so lookups that worked on day one start answering
- *     401 later, silently, with no way to tell from the UI.
+ * Measured against the sandbox with the documentation's own test credentials:
  *
- * This class fixes those four things in one place and returns a shape the
- * caller can act on instead of an empty array that means nothing.
+ *   POST /aladdin/api/v1/issue-token   -> 200, access_token, expires_in 7776000
+ *   POST /api/v1/issue-token           -> 404 "404 page not found"
+ *
+ * and BOTH took ~20 seconds to answer. So the missing /aladdin was a real 404,
+ * and the 5 second timeout hid it: the request was abandoned before Pathao had
+ * even finished saying "not found". That transport timeout then surfaced on
+ * screen as "Pathao refused the credentials", which sent the admin chasing keys
+ * that were in fact correct.
+ *
+ * buildUrl() is now the ONLY place the base path is decided. Every caller -
+ * the admin test, the order screen, the senders and the CLI - goes through it,
+ * so they cannot drift apart again.
  *
  * ---------------------------------------------------------------------------
  * TOKEN LIFETIME IS THE API'S OWN NUMBER, NOT A GUESS
  * ---------------------------------------------------------------------------
- * Rather than assume Pathao tokens last an hour, refreshToken() reads the
- * `expires_in` the API returns and marks the token fresh for slightly less than
- * that. If the number is missing it falls back to 3600 (Pathao's documented
- * default). A 401 still triggers one forced refresh and retry, so a server that
- * expires a token early degrades to one extra round trip instead of a failure.
- *
- * ---------------------------------------------------------------------------
- * UNVERIFIED AGAINST A LIVE PATHAO ACCOUNT
- * ---------------------------------------------------------------------------
- * No Pathao credentials are configured on this install, so the successful
- * payload shape is NOT_TESTED. What IS tested is the refusal path: an account
- * that is disabled is refused locally without any request leaving the server,
- * and a request that does go out surfaces Pathao's own error text.
+ * The sandbox returns expires_in = 7776000 (90 days). Rather than assume an
+ * hour, refreshToken() reads the number the API returns and marks the token
+ * fresh for slightly less than that, falling back to Pathao's documented hour
+ * when it is missing.
  */
 class PathaoClient
 {
-    /** Hard bound on any single call, matching the reference-data guard. */
-    private const TIMEOUT_SECONDS = 5;
+    /**
+     * Hard bounds on any single call.
+     *
+     * Connect is fast (0.13s measured); it is the RESPONSE that is slow
+     * (~20s on every sandbox endpoint). A total bound tight enough to protect
+     * an admin request therefore has to sit above 20s, otherwise every healthy
+     * call is reported as a timeout.
+     */
+    private const CONNECT_TIMEOUT_SECONDS = 10;
+
+    private const TIMEOUT_SECONDS = 30;
 
     /** Cache key holding "the stored token is still good". */
     private const FRESH_KEY = 'admin.courier.pathao.token.fresh';
 
     /** Why the last token fetch failed, for the caller to report. */
     public ?string $lastError = null;
+
+    /**
+     * HTTP status of the last failed token fetch.
+     *
+     * null means Pathao never answered (network/timeout), which is a completely
+     * different problem from a 401 and must not be described as "bad keys".
+     */
+    public ?int $lastStatus = null;
 
     public function __construct(private Courierapi $config)
     {
@@ -111,20 +123,36 @@ class PathaoClient
         return new self($config);
     }
 
-    /**
-     * Build a Pathao URL.
-     *
-     * Pathao puts its API under /aladdin in production, but its sandbox host
-     * serves it at the root. A base that already carries /aladdin is left alone
-     * so an admin who pasted the full URL is not double-prefixed.
-     */
     public function url(string $path): string
     {
-        $base = rtrim((string) $this->config->url, '/');
-        $path = ltrim($path, '/');
+        return self::buildUrl((string) $this->config->url, $path);
+    }
 
-        if (str_contains($base, 'sandbox') || str_contains($base, '/aladdin') || str_starts_with($path, 'aladdin/')) {
+    /**
+     * Build a Pathao URL from whatever base the admin saved.
+     *
+     * Pathao serves the merchant API under /aladdin on BOTH the production host
+     * (api-hermes.pathao.com) and the sandbox host — see the class header for
+     * the live measurement. A base that already carries the API root is reduced
+     * back to the host first, so pasting the full documented URL does not
+     * produce /aladdin/aladdin or /api/v1/aladdin.
+     */
+    public static function buildUrl(string $base, string $path): string
+    {
+        $base = rtrim(trim($base), '/');
+        $path = ltrim(trim($path), '/');
+
+        // A caller that already passes the full documented path wins.
+        if (str_starts_with($path, 'aladdin/')) {
             return $base . '/' . $path;
+        }
+
+        foreach (['/aladdin/api/v1', '/aladdin', '/api/v1'] as $suffix) {
+            if (str_ends_with($base, $suffix)) {
+                $base = substr($base, 0, -strlen($suffix));
+
+                break;
+            }
         }
 
         return $base . '/aladdin/' . $path;
@@ -145,15 +173,17 @@ class PathaoClient
     /**
      * Exchange the stored credentials for a fresh token.
      *
-     * Returns null and sets $lastError on failure; never throws, because a
-     * courier being down must not take an admin page with it.
+     * Returns null and sets $lastError/$lastStatus on failure; never throws,
+     * because a courier being down must not take an admin page with it.
      */
     public function refreshToken(): ?string
     {
-        $this->lastError = null;
+        $this->lastError  = null;
+        $this->lastStatus = null;
 
         try {
             $response = Http::asJson()
+                ->connectTimeout(self::CONNECT_TIMEOUT_SECONDS)
                 ->timeout(self::TIMEOUT_SECONDS)
                 ->post($this->url('api/v1/issue-token'), [
                     'client_id'     => $this->config->client_id,
@@ -170,15 +200,17 @@ class PathaoClient
         }
 
         if (! $response->successful()) {
+            $this->lastStatus = $response->status();
+
             // Pathao's body carries the useful part when there is one, but the
             // token endpoint answers an empty 500 for bad client credentials -
             // so do not end the sentence with a dangling colon.
             $detail = trim(substr((string) $response->body(), 0, 300));
 
-            $this->lastError = 'Pathao refused the credentials (HTTP ' . $response->status() . ')'
+            $this->lastError = 'Pathao refused the request (HTTP ' . $response->status() . ')'
                 . ($detail !== '' ? ': ' . $detail : '.');
 
-            Log::warning('Pathao refused credentials', ['status' => $response->status()]);
+            Log::warning('Pathao refused the token request', ['status' => $response->status()]);
 
             return null;
         }
@@ -197,8 +229,7 @@ class PathaoClient
         $this->config->save();
 
         // Trust the API's own lifetime, less a safety margin, instead of
-        // assuming a fixed one. A missing value falls back to Pathao's
-        // documented hour.
+        // assuming a fixed one. The sandbox returns 90 days.
         $expiresIn = (int) ($data['expires_in'] ?? 3600);
         Cache::put(self::FRESH_KEY, true, now()->addSeconds(max(60, $expiresIn - 120)));
 
@@ -211,6 +242,109 @@ class PathaoClient
      * @return array{ok: bool, status: int, body: mixed, message: ?string}
      */
     public function get(string $path): array
+    {
+        return $this->authorised('GET', $path);
+    }
+
+    /**
+     * POST a Pathao resource.
+     *
+     * @return array{ok: bool, status: int, body: mixed, message: ?string}
+     */
+    public function post(string $path, array $payload): array
+    {
+        return $this->authorised('POST', $path, $payload);
+    }
+
+    /**
+     * The merchant's stores, as Pathao returns them.
+     *
+     * @return array{ok: bool, stores: array<int, array<string, mixed>>, message: ?string}
+     */
+    public function stores(): array
+    {
+        $result = $this->get('api/v1/stores');
+
+        if (! $result['ok']) {
+            return [
+                'ok'      => false,
+                'stores'  => [],
+                'message' => $result['message'] ?? 'Pathao stores could not be fetched.',
+            ];
+        }
+
+        $stores = data_get($result['body'], 'data.data');
+
+        if (! is_array($stores)) {
+            return [
+                'ok'      => false,
+                'stores'  => [],
+                'message' => 'Pathao answered the store list in an unexpected shape.',
+            ];
+        }
+
+        return ['ok' => true, 'stores' => $stores, 'message' => null];
+    }
+
+    /**
+     * The store a parcel should be booked from.
+     *
+     * Pathao's store list is not ordered for us: a merchant may hold several
+     * stores, and the sandbox account is SHARED between every tester (33
+     * stores observed). Taking `$stores[0]` - which the bulk sender used to do -
+     * books the parcel from whichever store Pathao happens to list first.
+     *
+     * Order of preference:
+     *   1. the merchant's own default store,
+     *   2. the first active store that is NOT the default return store (parcels
+     *      booked from a return store are collected from the returns desk),
+     *   3. the first active store.
+     *
+     * @param  array<int, array<string, mixed>>  $stores
+     * @return array<string, mixed>|null
+     */
+    public static function preferredStore(array $stores): ?array
+    {
+        $active = array_values(array_filter(
+            $stores,
+            fn ($store) => is_array($store) && (int) ($store['is_active'] ?? 1) === 1
+        ));
+
+        if ($active === []) {
+            return null;
+        }
+
+        foreach ($active as $store) {
+            if (! empty($store['is_default_store'])) {
+                return $store;
+            }
+        }
+
+        foreach ($active as $store) {
+            if (empty($store['is_default_return_store'])) {
+                return $store;
+            }
+        }
+
+        return $active[0];
+    }
+
+    /**
+     * Book one parcel. See PathaoOrderSender for the payload.
+     *
+     * @return array{ok: bool, status: int, body: mixed, message: ?string}
+     */
+    public function createOrder(array $payload): array
+    {
+        return $this->post('api/v1/orders', $payload);
+    }
+
+    /**
+     * Make an authenticated request, refreshing once if the token expired.
+     *
+     * @return array{ok: bool, status: int, body: mixed, message: ?string}
+     */
+    private function authorised(string $method, string $path, ?array $payload = null): array
     {
         $token = $this->token($this->shouldForceRefresh());
 
@@ -225,14 +359,14 @@ class PathaoClient
          */
         if ($token === null) {
             return [
-                'ok' => false,
-                'status' => 0,
-                'body' => null,
+                'ok'      => false,
+                'status'  => 0,
+                'body'    => null,
                 'message' => $this->lastError ?? 'No Pathao access token could be obtained.',
             ];
         }
 
-        $result = $this->attempt($path, $token);
+        $result = $this->attempt($method, $path, $token, $payload);
 
         // A token can expire between refreshes (clock skew, a server that
         // revokes early). One forced retry turns that into a slower success
@@ -241,7 +375,7 @@ class PathaoClient
             $fresh = $this->refreshToken();
 
             if ($fresh !== null) {
-                $result = $this->attempt($path, $fresh);
+                $result = $this->attempt($method, $path, $fresh, $payload);
             }
         }
 
@@ -250,7 +384,7 @@ class PathaoClient
 
     /**
      * Only force a refresh when we have no token at all; otherwise let token()
-     * use the cache and let get() handle a 401 on its own.
+     * use the cache and let authorised() handle a 401 on its own.
      */
     private function shouldForceRefresh(): bool
     {
@@ -262,22 +396,26 @@ class PathaoClient
      *
      * @return array{ok: bool, status: int, body: mixed, message: ?string}
      */
-    private function attempt(string $path, ?string $token): array
+    private function attempt(string $method, string $path, ?string $token, ?array $payload = null): array
     {
         try {
-            $response = Http::withHeaders([
+            $pending = Http::withHeaders([
                 'Authorization' => 'Bearer ' . (string) $token,
                 'Accept'        => 'application/json',
             ])
-                ->timeout(self::TIMEOUT_SECONDS)
-                ->get($this->url($path));
+                ->connectTimeout(self::CONNECT_TIMEOUT_SECONDS)
+                ->timeout(self::TIMEOUT_SECONDS);
+
+            $response = $method === 'POST'
+                ? $pending->asJson()->post($this->url($path), $payload ?? [])
+                : $pending->get($this->url($path));
         } catch (\Throwable $e) {
             Log::warning('Pathao request failed', ['path' => $path, 'error' => $e->getMessage()]);
 
             return [
-                'ok' => false,
-                'status' => 0,
-                'body' => null,
+                'ok'      => false,
+                'status'  => 0,
+                'body'    => null,
                 'message' => 'Could not reach Pathao: ' . $e->getMessage(),
             ];
         }
@@ -286,17 +424,17 @@ class PathaoClient
 
         if ($response->successful()) {
             return [
-                'ok' => true,
-                'status' => $response->status(),
-                'body' => $body,
+                'ok'      => true,
+                'status'  => $response->status(),
+                'body'    => $body,
                 'message' => null,
             ];
         }
 
         return [
-            'ok' => false,
-            'status' => $response->status(),
-            'body' => $body ?? substr((string) $response->body(), 0, 300),
+            'ok'      => false,
+            'status'  => $response->status(),
+            'body'    => $body ?? substr((string) $response->body(), 0, 300),
             'message' => 'Pathao answered HTTP ' . $response->status() . '.',
         ];
     }

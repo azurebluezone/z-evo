@@ -156,6 +156,31 @@
         object-fit: cover;
     }
 
+    /* Out-of-stock card: the badge sits over the image and the action is a
+       disabled button, so a shopper never starts a cart POST that the server
+       will reject. */
+    .zombie-out-of-stock {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 2;
+        background: rgba(51, 51, 51, .92);
+        color: #fff;
+        font-family: 'Poppins', 'Anek Bangla', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .02em;
+        padding: 4px 9px;
+        text-transform: uppercase;
+    }
+
+    .zombie-btn-group .zombie-btn-cart[disabled],
+    .zombie-btn-group .zombie-btn-buy[disabled] {
+        opacity: .55;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
     .zombie-product-img-placeholder {
         display: flex;
         align-items: center;
@@ -462,49 +487,7 @@
                 <div class="row">
                     @foreach ($hotdeal_top as $key => $value)
                     <div class="col-6 col-md-4 col-lg-3">
-                        <div class="zombie-product-card">
-                            <a href="{{ route('product', $value->slug) }}" class="zombie-product-link">
-                                <div class="zombie-product-img-container">
-                                    @if($value->image && $value->image->image)
-                                    @php $hotdealImgPath = preg_replace('#^public/#', '', $value->image->image); @endphp
-                                    <img src="{{ asset($hotdealImgPath) }}" alt="{{ $value->name }}" class="zombie-product-img" loading="lazy">
-                                    @else
-                                    <div class="zombie-product-img-placeholder">
-                                        {{ Str::limit($value->name, 30) }}
-                                    </div>
-                                    @endif
-                                </div>
-                                <div class="zombie-box-text">
-                                    <p class="zombie-product-title">{{ Str::limit($value->name, 80) }}</p>
-                                    <div class="zombie-product-price">
-                                        @if ($value->old_price)
-                                        <span class="zombie-original-price">৳ {{ $value->old_price }}</span>
-                                        @endif
-                                        <span class="zombie-discounted-price">৳ {{ $value->new_price }}</span>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="zombie-btn-group">
-                                @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
-                                <a href="{{ route('product', $value->slug) }}" class="zombie-btn-buy">BUY NOW</a>
-                                <a href="{{ route('product', $value->slug) }}" class="zombie-btn-cart">ADD TO CART</a>
-                                @else
-                                <form action="{{ route('cart.store.buy') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $value->id }}" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-buy" style="width: 100%;">BUY NOW</button>
-                                </form>
-
-                                <form action="{{ route('cart.store') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $value->id }}" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-cart" style="width: 100%;" onclick="add_to_cart(this,event)">ADD TO CART</button>
-                                </form>
-                                @endif
-                            </div>
-                        </div>
+                        @include('frontend.sections.partials._zombie-product-card', ['product' => $value])
                     </div>
                     @endforeach
                 </div>
@@ -529,49 +512,7 @@
                     <div class="row">
                         @foreach ($homecat->products as $key => $value)
                         <div class="col-6 col-md-4 col-lg-3">
-                            <div class="zombie-product-card">
-                                <a href="{{ route('product', $value->slug) }}" class="zombie-product-link">
-                                    <div class="zombie-product-img-container">
-                                        @if($value->image && $value->image->image)
-                                        @php $catProdImgPath = preg_replace('#^public/#', '', $value->image->image); @endphp
-                                        <img src="{{ asset($catProdImgPath) }}" alt="{{ $value->name }}" class="zombie-product-img" loading="lazy">
-                                        @else
-                                        <div class="zombie-product-img-placeholder">
-                                            {{ Str::limit($value->name, 30) }}
-                                        </div>
-                                        @endif
-                                    </div>
-                                    <div class="zombie-box-text">
-                                        <p class="zombie-product-title">{{ Str::limit($value->name, 80) }}</p>
-                                        <div class="zombie-product-price">
-                                            @if ($value->old_price)
-                                            <span class="zombie-original-price">৳ {{ $value->old_price }}</span>
-                                            @endif
-                                            <span class="zombie-discounted-price">৳ {{ $value->new_price }}</span>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="zombie-btn-group">
-                                    @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
-                                    <a href="{{ route('product', $value->slug) }}" class="zombie-btn-buy">BUY NOW</a>
-                                    <a href="{{ route('product', $value->slug) }}" class="zombie-btn-cart">ADD TO CART</a>
-                                    @else
-                                    <form action="{{ route('cart.store.buy') }}" method="POST" style="flex: 1;">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $value->id }}" />
-                                        <input type="hidden" name="qty" value="1" />
-                                        <button type="submit" class="zombie-btn-buy" style="width: 100%;">BUY NOW</button>
-                                    </form>
-
-                                    <form action="{{ route('cart.store') }}" method="POST" style="flex: 1;">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $value->id }}" />
-                                        <input type="hidden" name="qty" value="1" />
-                                        <button type="submit" class="zombie-btn-cart" style="width: 100%;" onclick="add_to_cart(this,event)">ADD TO CART</button>
-                                    </form>
-                                    @endif
-                                </div>
-                            </div>
+                            @include('frontend.sections.partials._zombie-product-card', ['product' => $value])
                         </div>
                         @endforeach
                         </div>
@@ -617,175 +558,9 @@
                     @if(isset($zombie_products) && $zombie_products->count() > 0)
                         @foreach($zombie_products as $product)
                     <div class="col-6 col-md-4 col-lg-3">
-                        <div class="zombie-product-card">
-                            <a href="{{ route('product', $product->slug) }}" class="zombie-product-link">
-                                <div class="zombie-product-img-container">
-                                    @if($product->image && $product->image->image)
-                                    @php $featImgPath = preg_replace('#^public/#', '', $product->image->image); @endphp
-                                    <img src="{{ asset($featImgPath) }}" alt="{{ $product->name }}" class="zombie-product-img" loading="lazy">
-                                    @else
-                                    <img src="{{ asset('uploads/default/placeholder.png') }}" alt="{{ $product->name }}" class="zombie-product-img" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('uploads/default/no-image.png') }}';">
-                                    @endif
-                                </div>
-                                <div class="zombie-box-text">
-                                    <p class="zombie-product-title">{{ Str::limit($product->name, 80) }}</p>
-                                    <div class="zombie-product-price">
-                                        @if ($product->old_price)
-                                        <span class="zombie-original-price">৳ {{ $product->old_price }}</span>
-                                        @endif
-                                        <span class="zombie-discounted-price">৳ {{ $product->new_price }}</span>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="zombie-btn-group">
-                                @if (!$product->prosizes->isEmpty() || !$product->procolors->isEmpty())
-                                <a href="{{ route('product', $product->slug) }}" class="zombie-btn-buy">BUY NOW</a>
-                                <a href="{{ route('product', $product->slug) }}" class="zombie-btn-cart">ADD TO CART</a>
-                                @else
-                                <form action="{{ route('cart.store.buy') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $product->id }}" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-buy" style="width: 100%;">BUY NOW</button>
-                                </form>
-
-                                <form action="{{ route('cart.store') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $product->id }}" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-cart" style="width: 100%;" onclick="add_to_cart(this,event)">ADD TO CART</button>
-                                </form>
-                                @endif
-                            </div>
-                        </div>
+                        @include('frontend.sections.partials._zombie-product-card', ['product' => $product])
                     </div>
                         @endforeach
-                    @else
-                    <!-- Sample products for demonstration -->
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="zombie-product-card">
-                            <a href="#" class="zombie-product-link">
-                                <div class="zombie-product-img-container">
-                                    <img src="{{ asset('uploads/default/placeholder.png') }}" alt="Sample Product" class="zombie-product-img" onerror="this.onerror=null;this.src='{{ asset('uploads/default/no-image.png') }}';">
-                                </div>
-                                <div class="zombie-box-text">
-                                    <p class="zombie-product-title">Premium Floor Touch Zilbab</p>
-                                    <div class="zombie-product-price">
-                                        <span class="zombie-original-price">৳ 2500</span>
-                                        <span class="zombie-discounted-price">৳ 1190</span>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="zombie-btn-group">
-                                <form action="{{ route('cart.store.buy') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="1" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-buy" style="width: 100%;">BUY NOW</button>
-                                </form>
-
-                                <form action="{{ route('cart.store') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="1" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-cart" style="width: 100%;" onclick="add_to_cart(this,event)">ADD TO CART</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="zombie-product-card">
-                            <a href="#" class="zombie-product-link">
-                                <div class="zombie-product-img-container">
-                                    <img src="{{ asset('uploads/default/placeholder.png') }}" alt="Sample Product 2" class="zombie-product-img" onerror="this.onerror=null;this.src='{{ asset('uploads/default/no-image.png') }}';">
-                                </div>
-                                <div class="zombie-box-text">
-                                    <p class="zombie-product-title">Premium Islamic Abaya</p>
-                                    <div class="zombie-product-price">
-                                        <span class="zombie-original-price">৳ 3200</span>
-                                        <span class="zombie-discounted-price">৳ 1890</span>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="zombie-btn-group">
-                                <form action="{{ route('cart.store.buy') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="2" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-buy" style="width: 100%;">BUY NOW</button>
-                                </form>
-
-                                <form action="{{ route('cart.store') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="2" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-cart" style="width: 100%;" onclick="add_to_cart(this,event)">ADD TO CART</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="zombie-product-card">
-                            <a href="#" class="zombie-product-link">
-                                <div class="zombie-product-img-container">
-                                    <img src="{{ asset('uploads/product/placeholder.jpg') }}" alt="Sample Product 3" class="zombie-product-img">
-                                </div>
-                                <div class="zombie-box-text">
-                                    <p class="zombie-product-title">Elegant Hijab Set</p>
-                                    <div class="zombie-product-price">
-                                        <span class="zombie-original-price">৳ 1500</span>
-                                        <span class="zombie-discounted-price">৳ 890</span>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="zombie-btn-group">
-                                <form action="{{ route('cart.store.buy') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="3" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-buy" style="width: 100%;">BUY NOW</button>
-                                </form>
-
-                                <form action="{{ route('cart.store') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="3" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-cart" style="width: 100%;" onclick="add_to_cart(this,event)">ADD TO CART</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="zombie-product-card">
-                            <a href="#" class="zombie-product-link">
-                                <div class="zombie-product-img-container">
-                                    <img src="{{ asset('uploads/product/placeholder.jpg') }}" alt="Sample Product 4" class="zombie-product-img">
-                                </div>
-                                <div class="zombie-box-text">
-                                    <p class="zombie-product-title">Premium Modest Dress</p>
-                                    <div class="zombie-product-price">
-                                        <span class="zombie-original-price">৳ 2800</span>
-                                        <span class="zombie-discounted-price">৳ 1490</span>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="zombie-btn-group">
-                                <form action="{{ route('cart.store.buy') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="4" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-buy" style="width: 100%;">BUY NOW</button>
-                                </form>
-
-                                <form action="{{ route('cart.store') }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <input type="hidden" name="id" value="4" />
-                                    <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="zombie-btn-cart" style="width: 100%;" onclick="add_to_cart(this,event)">ADD TO CART</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                     @endif
                 </div>
             </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Services\SmsGatewayService;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ForgotPasswordOtpMail;
 use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
 use Intervention\Image\Facades\Image;
@@ -25,13 +26,11 @@ use App\Support\EventId;
 use App\Services\CampaignCartRevalidator;
 use App\Services\CourierFraudService;
 use App\Services\GuestCheckoutAccountService;
+use App\Services\OrderPlacementService;
 use App\Services\FacebookTrackingService;
 use App\Services\Ga4TrackingService;
 use App\Services\TikTokTrackingService;
 use App\Models\CourierShipment;
-use App\Models\User;
-use App\Notifications\GenericDbNotification;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
 use Session;
 use Hash;
@@ -119,16 +118,9 @@ class CustomerController extends Controller
         $store->status      = 'active';
         $store->save();
 
-        // Notify admin about new customer registration
-        try {
-            Notification::send(User::all(), new GenericDbNotification(
-                title: 'New Customer Registered',
-                body: "New customer registered: {$store->name} ({$store->phone})",
-                meta: ['type' => 'customer_register', 'customer_id' => $store->id]
-            ));
-        } catch (\Throwable $e) {
-            // no-op
-        }
+        // The listener sends the customer welcome and the admin copy from the
+        // event-keyed templates; a notification failure never blocks signup.
+        event(new \App\Events\CustomerRegistered($store));
 
         Toastr::success('Success', 'Account Create Successfully');
         return redirect()->route('customer.login');
@@ -186,57 +178,98 @@ class CustomerController extends Controller
 
     public function forgot_verify(Request $request)
     {
-        $customer_info = Customer::where('phone', $request->phone)->first();
-        if (!$customer_info) {
-            Toastr::error('Your phone number not found');
-            return back();
+        $request->validate([
+            'email' => ['required', 'email', 'max:120'],
+        ]);
+
+        $customer_info = Customer::where('email', $request->email)->first();
+        if (! $customer_info) {
+            Toastr::error('Your email address not found');
+            return back()->withInput();
         }
+
         $customer_info->forgot = rand(1111, 9999);
         $customer_info->save();
-        $site_setting = GeneralSetting::where('status', 1)->first();
-        // Sent through SmsGatewayService, which READS the gateway's answer.
-        // The previous inline curl discarded $response, so every failure was
-        // reported to the customer as a success.
-        $sms = app(SmsGatewayService::class)->send(
-            (string) $customer_info->phone,
-            "Dear $customer_info->name!\r\nYour forgot password verify OTP is $customer_info->forgot \r\nThank you for using $site_setting->name",
-            'forget_pass'
-        );
 
-        session::put('verify_phone', $request->phone);
-        Toastr::success('Your account register successfully');
+        $site_setting = GeneralSetting::where('status', 1)->first();
+        $site_name = $site_setting->name ?? config('app.name');
+
+        // Email OTP: the delivery answer is read, just like the old SMS path.
+        // A stored code nobody received must never lead to the reset screen.
+        $mail = $this->sendForgotOtpMail($customer_info, $site_name);
+
+        if (! $mail['sent']) {
+            $customer_info->forgot = null;
+            $customer_info->save();
+
+            Log::warning('Forgot-password OTP email failed', $mail + ['customer_id' => $customer_info->id]);
+            Toastr::error('Code could not be sent: ' . $mail['reason']);
+
+            return back()->withInput();
+        }
+
+        Session::put('verify_email', $customer_info->email);
+        Toastr::success('A verification code has been sent to your email address');
         return redirect()->route('customer.forgot.reset');
+    }
+
+    /**
+     * Mail the forgot-password OTP and report the real delivery outcome.
+     *
+     * @return array{sent: bool, reason: ?string}
+     */
+    private function sendForgotOtpMail(Customer $customer_info, string $site_name): array
+    {
+        if (! $customer_info->email) {
+            return ['sent' => false, 'reason' => 'this account has no email address'];
+        }
+
+        try {
+            Mail::to($customer_info->email)->send(new ForgotPasswordOtpMail(
+                (string) $customer_info->name,
+                (string) $customer_info->forgot,
+                $site_name
+            ));
+        } catch (\Throwable $e) {
+            return ['sent' => false, 'reason' => $e->getMessage()];
+        }
+
+        return ['sent' => true, 'reason' => null];
     }
 
     public function forgot_resend(Request $request)
     {
-        $customer_info = Customer::where('phone', session::get('verify_phone'))->first();
+        $email = Session::get('verify_email');
+        $customer_info = $email ? Customer::where('email', $email)->first() : null;
+
+        if (! $customer_info) {
+            // A missing customer used to hit ->forgot on null and 500.
+            Toastr::error('Your session expired, please start again');
+            return redirect()->route('customer.forgot.password');
+        }
+
         $customer_info->forgot = rand(1111, 9999);
         $customer_info->save();
-        $site_setting = GeneralSetting::where('status', 1)->first();
-        // Sent through SmsGatewayService, which READS the gateway's answer.
-        // The previous inline curl discarded $response, so every failure was
-        // reported to the customer as a success.
-        $sms = app(SmsGatewayService::class)->send(
-            (string) $customer_info->phone,
-            "Dear $customer_info->name!\r\nYour forgot password verify OTP is $customer_info->forgot \r\nThank you for using $site_setting->name",
-            null
-        );
 
-        if ($sms['sent']) {
-            Toastr::success('Resend code send successfully');
+        $site_setting = GeneralSetting::where('status', 1)->first();
+        $site_name = $site_setting->name ?? config('app.name');
+
+        $mail = $this->sendForgotOtpMail($customer_info, $site_name);
+
+        if ($mail['sent']) {
+            Toastr::success('A new code has been sent to your email address');
         } else {
-            // Never claim success when the gateway refused or was unreachable:
-            // that silence is what made a missing SMS impossible to diagnose.
-            Toastr::error('Code could not be sent: ' . $sms['reason']);
-            Log::warning('OTP resend failed', $sms);
+            // Never claim success when delivery failed: that silence is what
+            // made a missing code impossible to diagnose.
+            Toastr::error('Code could not be sent: ' . $mail['reason']);
+            Log::warning('OTP resend email failed', $mail);
         }
 
         return redirect()->back();
     }
     public function forgot_reset()
     {
-        if (!Session::get('verify_phone')) {
+        if (!Session::get('verify_email')) {
             Toastr::error('Something wrong please try again');
             return redirect()->route('customer.forgot.password');
         };
@@ -244,15 +277,28 @@ class CustomerController extends Controller
     }
     public function forgot_store(Request $request)
     {
+        $request->validate([
+            'otp' => ['required', 'digits:4'],
+            'password' => ['required', 'string', 'min:6'],
+        ]);
 
-        $customer_info = Customer::where('phone', session::get('verify_phone'))->first();
+        $email = Session::get('verify_email');
+        $customer_info = $email ? Customer::where('email', $email)->first() : null;
 
-        if ($customer_info->forgot != $request->otp) {
+        if (! $customer_info || $customer_info->forgot === null) {
+            // No session or no live OTP: the old code crashed on null here.
+            Toastr::error('Something wrong please try again');
+            return redirect()->route('customer.forgot.password');
+        }
+
+        if ((string) $customer_info->forgot !== (string) $request->otp) {
             Toastr::error('Success', 'Your OTP not match');
             return redirect()->back();
         }
 
-        $customer_info->forgot = 1;
+        // Retire the code BEFORE saving the password. The old code stored the
+        // literal 1 (`forgot = 1`), so "1" stayed a valid OTP forever.
+        $customer_info->forgot = null;
         $customer_info->password = bcrypt($request->password);
         $customer_info->save();
 
@@ -261,11 +307,15 @@ class CustomerController extends Controller
         // password_update() clears it.
         app(GuestCheckoutAccountService::class)->clearTemporaryPassword();
 
-        if (Auth::guard('customer')->attempt(['phone' => $customer_info->phone, 'password' => $request->password])) {
-            Session::forget('verify_phone');
+        Session::forget('verify_email');
+
+        if (Auth::guard('customer')->attempt(['email' => $customer_info->email, 'password' => $request->password])) {
             Toastr::success('You are login successfully', 'success!');
             return redirect()->intended('customer/account');
         }
+
+        Toastr::error('Password updated, but automatic sign-in failed. Please log in.');
+        return redirect()->route('customer.login');
     }
     public function account()
     {
@@ -450,31 +500,48 @@ class CustomerController extends Controller
             return redirect()->back();
         }
 
-        // order data save
-        $order                   = new Order();
-        $order->invoice_id       = rand(11111, 99999);
-        $order->amount           = ($subtotal + $shippingfee) - $discount;
-        $order->discount         = $discount ? $discount : 0;
-        $order->shipping_charge  = $shippingfee;
-        $order->customer_id      =  $customer_id;
-        $order->order_status     = 1;
-        // NOTE: the line that used to be here was
-        //     $order->note = $request->note;
-        // There is no `note` column on `orders` - the admin-facing column is
-        // `admin_note`, written by Admin\OrderController - so the INSERT threw
-        // "Unknown column 'note' in 'field list'" and EVERY order, guest or
-        // signed in, returned HTTP 500. No checkout form ever sent a `note`
-        // field either, so the value was always null. Dropped rather than
-        // remapped: `admin_note` is admin-owned and must not be writable from
-        // the storefront.
-        $order->save();
+        // Order rows: OrderPlacementService writes the order, the shipping
+        // row, the payment row and the detail rows. The landing page order
+        // form calls the same service, so both paths store the same data in
+        // the same tables.
+        $lines = [];
+        foreach ($cartItems as $cart) {
+            $lines[] = [
+                'product_id' => $cart->id,
+                'name' => $cart->name,
+                'qty' => (int) $cart->qty,
+                'price' => (float) $cart->price,
+                'regular_price' => $cart->options->regular_price ?? $cart->price,
+                'purchase_price' => $cart->options->purchase_price,
+                'product_color' => $cart->options->product_color,
+                'product_size' => $cart->options->product_size,
+                'campaign_id' => data_get($cart->options, 'campaign_id'),
+                'variant_id' => data_get($cart->options, 'variant_id'),
+            ];
+        }
+
+        $order = app(OrderPlacementService::class)->place(
+            $lines,
+            [
+                'customer_id' => $customer_id,
+                'name' => (string) $request->name,
+                'phone' => (string) $request->phone,
+                'address' => (string) $request->address,
+                'area' => $shipping_area->name,
+                'payment_method' => (string) $request->payment_method,
+            ],
+            [
+                'shipping_fee' => $shippingfee,
+                'discount' => $discount,
+                'fraud_source' => 'checkout',
+            ]
+        );
 
         // Coupon usage log: the checkout session carries coupon_id (set by
         // Frontend\CouponController::apply). Record the use against this
         // order so the admin coupon details page can count it.
-        // Coupon usage log: record the use against this order so the admin
-        // coupon details page can count it. Only records when the coupon
-        // survived the revalidation above (running + limit available).
+        // Only records when the coupon survived the revalidation above
+        // (running + limit available).
         if ($coupon && $discount > 0) {
             \App\Models\CouponUsage::record($coupon, $order->id, $discount, 'checkout');
         }
@@ -482,266 +549,24 @@ class CustomerController extends Controller
         Session::forget('coupon_code');
         Session::forget('discount');
 
-        try {
-            app(CourierFraudService::class)->checkAndAttachToOrder($order, (string) $request->phone, null, 'checkout', 720);
-        } catch (\Throwable $e) {
-            // B12: the fraud check is a non-blocking convenience, so a failure
-            // must not stop the order. But it used to be a bare `// no-op`,
-            // which hid real breakage. Log it so a broken fraud service is
-            // visible instead of silently reporting nothing.
-            Log::warning('Checkout fraud check failed', [
-                'order_id' => $order->id,
-                'phone'    => $request->phone,
-                'error'    => $e->getMessage(),
-            ]);
-        }
-
-        // shipping data save
-        $shipping              =   new Shipping();
-        $shipping->order_id    =   $order->id;
-        $shipping->customer_id =   $customer_id;
-        $shipping->name        =   $request->name;
-        $shipping->phone       =   $request->phone;
-        $shipping->address     =   $request->address;
-        $shipping->area        =   $shipping_area->name;
-        $shipping->save();
-
-        // payment data save
-        $payment                 = new Payment();
-        $payment->order_id       = $order->id;
-        $payment->customer_id    = $customer_id;
-        $payment->payment_method = $request->payment_method;
-        $payment->amount         = $order->amount;
-        $payment->payment_status = 'pending';
-        $payment->save();
-
-        // order details data save + reserve inventory (180 min) until admin approve
-        DB::transaction(function () use ($cartItems, $order) {
-            foreach ($cartItems as $cart) {
-                $order_details                  =   new OrderDetails();
-                $order_details->order_id        =   $order->id;
-                $order_details->product_id      =   $cart->id;
-                $order_details->product_name    =   $cart->name;
-                $order_details->purchase_price  =   $cart->options->purchase_price;
-                $order_details->product_color   =   $cart->options->product_color;
-                // CartItemOptions has __get() but no __isset(), so empty() on a
-                // magic option is always true. data_get() goes through the
-                // Collection's ArrayAccess and sees the real value.
-                $variantOptionId = data_get($cart->options, 'variant_id');
-                $sizeValue = $cart->options->product_size;
-                if (empty($sizeValue) && !empty($variantOptionId)) {
-                    $sizeValue = 'variant_id:' . (int) $variantOptionId;
-                }
-                $order_details->product_size    =   $sizeValue;
-                $order_details->sale_price      =   $cart->price;
-                $order_details->regular_price   =   $cart->options->regular_price ?? $cart->price;
-
-                $campaignOptionId = data_get($cart->options, 'campaign_id');
-                $campaignId = !empty($campaignOptionId) ? (int) $campaignOptionId : null;
-                if ($campaignId && !DB::table('campaigns')->where('id', $campaignId)->exists()) {
-                    // The campaign row may have been deleted after the cart was
-                    // filled. The sale price is already snapshotted, so keep the
-                    // money and drop only the dangling attribution.
-                    $campaignId = null;
-                }
-                $order_details->campaign_id = $campaignId;
-
-                $order_details->qty             =   $cart->qty;
-
-                // Patch-3: persist authoritative variant_id
-                $variantId = null;
-                if (!empty($variantOptionId)) {
-                    $candidateId = (int) $variantOptionId;
-                    $exists = DB::table('product_variants')
-                        ->where('id', $candidateId)
-                        ->where('product_id', (int) $cart->id)
-                        ->exists();
-                    if ($exists) {
-                        $variantId = $candidateId;
-                    }
-                }
-                if (!$variantId && !empty($sizeValue) && preg_match('/\bvariant_id\s*:\s*(\d+)\b/i', (string) $sizeValue, $m)) {
-                    $candidateId = (int) $m[1];
-                    $exists = DB::table('product_variants')
-                        ->where('id', $candidateId)
-                        ->where('product_id', (int) $cart->id)
-                        ->exists();
-                    if ($exists) {
-                        $variantId = $candidateId;
-                    }
-                }
-                $order_details->variant_id = $variantId ? (int) $variantId : null;
-
-                $order_details->save();
-
-                $qty = (int) ($cart->qty ?? 0);
-                if ($qty <= 0) {
-                    continue;
-                }
-
-                $product = Product::select('id', 'stock', 'product_code')->find((int) $cart->id);
-                if (!$product) {
-                    continue;
-                }
-
-                $variantId = null;
-                if (!empty($variantOptionId)) {
-                    $candidateId = (int) $variantOptionId;
-                    $exists = DB::table('product_variants')
-                        ->where('id', $candidateId)
-                        ->where('product_id', $product->id)
-                        ->exists();
-                    if ($exists) {
-                        $variantId = $candidateId;
-                    }
-                }
-
-                if (!$variantId && !empty($sizeValue) && preg_match('/\bvariant_id\s*:\s*(\d+)\b/i', (string) $sizeValue, $m)) {
-                    $candidateId = (int) $m[1];
-                    $exists = DB::table('product_variants')
-                        ->where('id', $candidateId)
-                        ->where('product_id', $product->id)
-                        ->exists();
-                    if ($exists) {
-                        $variantId = $candidateId;
-                    }
-                }
-
-                if (!$variantId) {
-                    $defaultSku = ($product->product_code ? $product->product_code : ('P' . $product->id)) . '-DEFAULT';
-                    $variantId = DB::table('product_variants')
-                        ->where('sku', $defaultSku)
-                        ->value('id');
-                    if (!$variantId) {
-                        $variantId = DB::table('product_variants')->insertGetId([
-                            'product_id' => $product->id,
-                            'sku' => $defaultSku,
-                            'title' => 'Default',
-                            'price_override' => null,
-                            'weight_gram' => null,
-                            'status' => 1,
-                            'attributes_json' => null,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                }
-
-                DB::table('inventory_reservations')->updateOrInsert(
-                    [
-                        'order_id' => (int) $order->id,
-                        'variant_id' => (int) $variantId,
-                    ],
-                    [
-                        'qty' => (int) $qty,
-                        'expires_at' => now()->addMinutes(180),
-                        'updated_at' => now(),
-                        'created_at' => now(),
-                    ]
-                );
-            }
-        });
-
-        $userData = [
-            'email' => $request->email ?? null,
-            'phone' => $request->phone ?? null,
-            'first_name' => $request->name ?? null,
-            'external_id' => $order->customer_id ?: $order->id,
-        ];
-
-        $productIds = [];
-        $numItems = 0;
-        foreach ($cartItems as $cart) {
-            $productIds[] = $cart->id;
-            $numItems += $cart->qty;
-        }
-
-        $orderData = [
-            'order_id' => $order->id,
-            'amount' => $order->amount,
-            'product_ids' => $productIds,
-            'num_items' => $numItems
-        ];
-
-        // ONE id for this purchase, derived from the order itself. The
-        // confirmation page prints the same value into the pixel, and the CAPI
-        // call below carries it too - that shared id is what makes Meta (and our
-        // own event_logs) count the sale once instead of twice or three times.
-        $purchaseEventId = EventId::purchase($order);
-
-        // Only the first view of the confirmation page should fire the browser
-        // pixel. Without this marker a refresh (or a stranger opening the URL)
-        // re-fires a Purchase; the deterministic id makes Meta drop it, but the
-        // page should not be the thing deciding that.
-        Session::put('recent_order_' . $order->id, true);
-
-        // Facebook Server-Side Tracking - Purchase Event
-        if (app(FacebookTrackingService::class)->isEnabled()) {
-            app(FacebookTrackingService::class)->sendPurchaseEvent($orderData, $userData, $purchaseEventId);
-        }
-
-        try {
-            $tiktok = app(TikTokTrackingService::class);
-            if ($tiktok->isEnabled()) {
-                $tiktok->sendPurchaseEvent($orderData, $userData, $purchaseEventId);
-            }
-        } catch (\Throwable $e) {
-            // no-op
-        }
-
-        // GA4 Measurement Protocol - the fallback for a visitor whose browser
-        // tag was blocked. Off unless TRACKING_GA4_SERVER_SIDE is on and both
-        // credentials exist; GA4 deduplicates it against the browser purchase
-        // by transaction_id (the invoice number). Analytics consent is checked
-        // inside the service, before any request is made.
-        try {
-            $ga4 = app(Ga4TrackingService::class);
-            if ($ga4->isEnabled()) {
-                $ga4->sendPurchase($order);
-            }
-        } catch (\Throwable $e) {
-            // no-op: a lost analytics event must never fail a paid order
-        }
-
-        // First-party record, independent of whether the ad platform call
-        // succeeded: the shop's own analytics must never depend on Meta being up.
-        try {
-            $visitorId = $request->cookie('visitor_id');
-            if (is_string($visitorId) && $visitorId !== '') {
-                app(EventRecorder::class)->recordBatch(
-                    $visitorId,
-                    [[
-                        'name' => 'Purchase',
-                        'event_id' => $purchaseEventId,
-                        'url' => $request->fullUrl(),
-                        'page_path' => '/checkout',
-                        'session_id' => $request->cookie('session_id'),
-                        'ts' => now()->toIso8601String(),
-                        'event_data' => $orderData,
-                    ]],
-                    EventRecorder::METHOD_SERVER
-                );
-            }
-        } catch (\Throwable $e) {
-            Log::warning('Purchase event record failed', [
-                'order_id' => $order->id,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
+        // Server-side purchase events (Meta, TikTok, GA4 and the shop's own
+        // event log) all carry the same deterministic purchase id, so the
+        // conversion is counted once and not twice.
+        app(OrderPlacementService::class)->trackPurchase($order, $lines, [
+            'visitor_id' => $request->cookie('visitor_id'),
+            'session_id' => $request->cookie('session_id'),
+            'url' => $request->fullUrl(),
+            'page_path' => '/checkout',
+            'user_data' => [
+                'email' => $request->email ?? null,
+                'phone' => $request->phone ?? null,
+                'first_name' => $request->name ?? null,
+            ],
+        ]);
         Cart::instance('shopping')->destroy();
 
-        // Notify admin about new order
-        try {
-            $customerName = $request->name ?? 'Guest';
-            Notification::send(User::all(), new GenericDbNotification(
-                title: 'New Order Placed',
-                body: "New order #{$order->invoice_id} placed by {$customerName} (Tk {$order->amount})",
-                meta: ['type' => 'new_order', 'order_id' => $order->id, 'invoice_id' => $order->invoice_id]
-            ));
-        } catch (\Throwable $e) {
-            // no-op
-        }
+        // OrderPlaced (fired inside place()) sends the customer receipt and the
+        // admin copy from the templates, so no hardcoded notification here.
 
         Toastr::success('Thanks, Your order place successfully', 'Success!');
         $site_setting = GeneralSetting::where('status', 1)->first();
@@ -763,7 +588,7 @@ class CustomerController extends Controller
 
     public function orders()
     {
-        $orders = Order::where('customer_id', Auth::guard('customer')->user()->id)->with('status')->latest()->get();
+        $orders = Order::where('customer_id', Auth::guard('customer')->user()->id)->with('status')->withCount('orderdetails')->latest()->get();
         return view('frontend.layouts.customer.orders', compact('orders'));
     }
     public function order_success($id)

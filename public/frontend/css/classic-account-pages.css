@@ -1,0 +1,321 @@
+/*
+    Classic user-dashboard pages, converted from the ViserMart demo
+    (work/Classic u db/: notifications.html, profile-setting.html,
+    change-password.html).
+
+    Only the pieces the demo renders with global classes and that this
+    application still needs are added here; cards, form controls and the
+    profile block reuse main.css (.custom--card, .form--control) and
+    user-dashboard.css (.user-profile, .user-profile__info, .file-input-btn).
+
+    Everything is scoped to .classic-account-page so the storefront is
+    untouched.
+*/
+
+.classic-account-page {
+    --ca-border: #e6e6e6;
+    --ca-ink: rgba(0, 0, 0, 0.85);
+    --ca-soft-ink: rgba(0, 0, 0, 0.6);
+    --ca-muted-ink: rgba(0, 0, 0, 0.45);
+    --ca-accent: #003c9e;
+}
+
+/* --------------------------------------------------------------- heading */
+.classic-account-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.classic-account-head__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+}
+
+.classic-account-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--ca-accent);
+    background: rgba(0, 60, 158, 0.08);
+}
+
+.classic-account-head__title .classic-account-badge {
+    margin-left: 0;
+}
+
+.classic-account-badge--muted {
+    color: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.06);
+}
+
+/* --------------------------------------------------------- notifications */
+.classic-notice-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.classic-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ca-border);
+}
+
+.classic-notice:last-child {
+    border-bottom: 0;
+}
+
+.classic-notice--unread {
+    background: rgba(0, 60, 158, 0.04);
+}
+
+.classic-notice__dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: var(--ca-accent);
+}
+
+.classic-notice__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.classic-notice__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ca-ink);
+    overflow-wrap: anywhere;
+}
+
+.classic-notice__text {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--ca-soft-ink);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.classic-notice__time {
+    margin: 6px 0 0;
+    font-size: 0.75rem;
+    color: var(--ca-muted-ink);
+}
+
+.classic-notice__action {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1px solid var(--ca-border);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ca-ink);
+    cursor: pointer;
+}
+
+.classic-notice__action:hover {
+    border-color: var(--ca-accent);
+    color: var(--ca-accent);
+}
+
+.classic-empty {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--ca-soft-ink);
+}
+
+.classic-empty i {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 34px;
+    color: var(--ca-muted-ink);
+}
+
+.classic-empty p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.classic-pagination {
+    margin-top: 18px;
+}
+
+/* --------------------------------------------------------------- profile */
+.classic-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    border: 1px solid var(--ca-border);
+    border-radius: 50%;
+    background: #f5f5f5;
+}
+
+.classic-avatar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.classic-avatar__edit {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--ca-accent);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.classic-avatar__edit:hover {
+    background: #002a70;
+}
+
+.classic-avatar--sm {
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--ca-border);
+}
+
+@media (max-width: 575px) {
+    .classic-avatar-wrap {
+        width: 96px;
+        height: 96px;
+    }
+
+    .classic-avatar__edit {
+        width: 28px;
+        height: 28px;
+        font-size: 13px;
+    }
+
+    .classic-notice {
+        padding: 14px 15px;
+    }
+}
+
+/* ----------------------------------------------------------------- forms */
+.classic-form-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--ca-border);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.02);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--ca-soft-ink);
+}
+
+.classic-form-note i {
+    margin-top: 2px;
+    font-size: 18px;
+    color: var(--ca-accent);
+}
+
+.classic-form .form-group {
+    margin-bottom: 18px;
+}
+
+.classic-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ca-ink);
+}
+
+.classic-form .form--control {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 1px solid var(--ca-border);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.9rem;
+    color: var(--ca-ink);
+}
+
+.classic-form .form--control:focus {
+    border-color: var(--ca-accent);
+    outline: 0;
+}
+
+.classic-form .invalid-feedback {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.78rem;
+    color: #d93025;
+}
+
+/* ------------------------------------------------------------------ mobile
+   The vendor stylesheet hides .dashboard-menu under 992px, which left the
+   dashboard with no navigation at all on a phone. Keep it as a scrollable
+   strip instead of dropping it. */
+@media (max-width: 991px) {
+    .classic-dashboard .dashboard-menu {
+        display: block;
+        position: static;
+        max-width: 100%;
+        width: 100%;
+        padding: 8px;
+    }
+
+    .classic-dashboard .dashboard-menu ul {
+        display: flex;
+        gap: 6px;
+        margin: 0;
+        padding: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        list-style: none;
+    }
+
+    .classic-dashboard .dashboard-menu ul li {
+        flex: 0 0 auto;
+        padding: 0;
+    }
+
+    .classic-dashboard .dashboard-menu ul li a {
+        padding: 8px 14px;
+        border: 1px solid var(--ca-border);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .classic-dashboard .dashboard-menu ul li a.active {
+        border-color: var(--ca-accent);
+        background: rgba(0, 60, 158, 0.06);
+    }
+
+    .classic-dashboard .dashboard-wrapper {
+        gap: 16px;
+    }
+}

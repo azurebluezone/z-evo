@@ -31,7 +31,7 @@ class AdminCourierPagesTest extends TestCase
         $response = $this->actingAs($this->admin())->get(route('admin.courier.index'));
 
         $response->assertOk();
-        $response->assertSee('Steadfast', false);
+        $response->assertSee('SteadFast Courier', false);
         $response->assertSee('API settings', false);
 
         // The keys belong to the one settings screen now. Their field names
@@ -52,12 +52,102 @@ class AdminCourierPagesTest extends TestCase
         $response = $this->actingAs($this->admin())->get(route('admin.courier.settings'));
 
         $response->assertOk();
-        $response->assertSee('Steadfast', false);
+        $response->assertSee('SteadFast', false);
         $response->assertSee('Pathao', false);
         $response->assertSee('name="api_key"', false);
         $response->assertSee('name="client_secret"', false);
 
-        $this->assertScriptInsideDocument((string) $response->getContent(), '.js-courier-test');
+        // The marker must be the external script now: the dot in the selector
+        // lives inside that file, not in the document.
+        $this->assertScriptInsideDocument((string) $response->getContent(), 'admin-page-courier-settings.js');
+    }
+
+    /**
+     * The settings form must look like the rest of the admin (appearance page):
+     * a plain Bootstrap grid, and NO hint paragraphs under the fields. The
+     * previous version carried a sentence about the base URL, a note about
+     * enabling, a webhook explanation and a rotation warning, which is what the
+     * screen was asked to lose.
+     */
+    public function test_courier_settings_form_uses_the_appearance_layout_without_hint_text(): void
+    {
+        $response = $this->actingAs($this->admin())->get(route('admin.courier.settings'));
+
+        $response->assertOk();
+        $html = (string) $response->getContent();
+
+        $this->assertStringContainsString('col-12 col-lg-6 mb-3', $html, 'Fields must use the appearance page grid.');
+        $this->assertStringContainsString('class="form-label"', $html);
+        $this->assertStringContainsString('class="form-control"', $html);
+
+        // Nothing renders as a hint under an input any more.
+        $this->assertStringNotContainsString('form-text', $html, 'Hint text under the inputs must be gone.');
+
+        foreach ([
+            'Paste the API key and secret key',
+            'Paste the client credentials and merchant login',
+            'The api/v1 root, e.g.',
+            'Production: https://api-hermes.pathao.com',
+            'Only a configured courier can be enabled',
+            'Must be publicly reachable',
+            'Rotating a token invalidates',
+        ] as $removed) {
+            $response->assertDontSee($removed, false);
+        }
+    }
+
+    /**
+     * Saving already runs the live test, so the page must print ONE line: the
+     * result. Printing "Settings saved" beside a refused test said two things
+     * at once, and the step list repeated the same failure in more detail than
+     * the admin can act on.
+     */
+    public function test_connection_test_renders_one_line_and_no_step_list(): void
+    {
+        $message = 'Pathao could not be reached — this is a network or timeout problem, not the credentials.';
+
+        $response = $this->actingAs($this->admin())
+            ->withSession([
+                'success' => 'Settings saved for Pathao.',
+                'connection_test' => [
+                    'ok' => false,
+                    'provider' => 'pathao',
+                    'message' => $message,
+                    'steps' => [
+                        ['label' => 'Service reachable (POST /aladdin/api/v1/issue-token)', 'ok' => false, 'detail' => 'cURL error 28: timed out'],
+                        ['label' => 'Access token issued', 'ok' => false, 'detail' => 'No token returned.'],
+                    ],
+                ],
+            ])
+            ->get(route('admin.courier.settings'));
+
+        $response->assertOk();
+        $response->assertSee($message, false);
+
+        $html = (string) $response->getContent();
+
+        // One output: the step labels, their details and the save banner are not
+        // repeated underneath it.
+        $response->assertDontSee('Service reachable (POST', false);
+        $response->assertDontSee('Access token issued', false);
+        $response->assertDontSee('cURL error 28', false);
+
+        // Check the save banner by its own markup: the debug toolbar echoes
+        // session values into the document, so a plain "Settings saved" string
+        // check would answer for the toolbar rather than for the page.
+        $this->assertStringNotContainsString('<div class="alert alert-success py-2">', $html);
+        $this->assertMatchesRegularExpression(
+            '/alert alert-danger[^>]*>.*?network or timeout problem/s',
+            $html,
+            'The single result line must be the test message.'
+        );
+
+        // The button's own code must build a single line, not a <ul> of steps.
+        $js = (string) file_get_contents(public_path('admin/assets/js/admin-page-courier-settings.js'));
+
+        $this->assertStringContainsString('showLine', $js);
+        $this->assertStringNotContainsString("createElement('ul')", $js);
+        $this->assertStringNotContainsString('result.steps', $js);
     }
 
     public function test_courier_fraud_checker_page_renders(): void
@@ -65,6 +155,22 @@ class AdminCourierPagesTest extends TestCase
         $response = $this->actingAs($this->admin())->get(route('admin.courier.fraud-checker'));
 
         $response->assertOk();
+
+        $html = (string) $response->getContent();
+
+        // One phone field drives both actions: "Check now" points at the check
+        // route with formaction, "Override" posts the form itself.
+        $this->assertStringContainsString(
+            'formaction="' . route('admin.courier.fraud-checker.check') . '"',
+            $html
+        );
+        $this->assertStringContainsString(
+            'action="' . route('admin.courier.fraud-checker.override') . '"',
+            $html
+        );
+
+        // The sync card no longer explains itself in a paragraph.
+        $response->assertDontSee('This does not send anything to a courier.', false);
     }
 
     public function test_courier_shipments_list_renders_with_dynamic_table(): void

@@ -14,6 +14,7 @@ use App\Models\Productimage;
 use App\Models\PromoBanner;
 use App\Models\Service;
 use App\Models\Subcategory;
+use App\Support\SeedStock;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -104,24 +105,47 @@ class StorefrontDemoSeeder extends Seeder
     /** Web-root relative path to a fallback that certainly exists. */
     private const SAFE_FALLBACK = 'uploads/category/default.png';
 
+    /** When false, no brands/categories/subcategories are written. */
+    private bool $writeCatalog = true;
+
+    /** When false, no products or gallery images are written. */
+    private bool $writeProducts = true;
+
+    /**
+     * Decoration-only mode for the canonical Adora base.
+     *
+     * DevCatalogSeeder owns products, categories and brands. This seeder then
+     * only supplies what the homepage layout needs (banners, services,
+     * homepage switches, theme) and never writes a second catalog.
+     */
+    public function decorationOnly(): static
+    {
+        $this->writeCatalog = false;
+        $this->writeProducts = false;
+
+        return $this;
+    }
+
     public function run(): void
     {
         $this->command?->info('Seeding storefront demo data...');
 
         $bannerCategory = $this->seedBannerCategory();
-        $brands         = $this->seedBrands();
-        $categories     = $this->seedCategories();
-        $subcategories  = $this->seedSubcategories($categories);
-        $products       = $this->seedProducts($categories, $subcategories, $brands);
+        $brands         = $this->writeCatalog ? $this->seedBrands() : [];
+        $categories     = $this->writeCatalog ? $this->seedCategories() : [];
+        $subcategories  = $this->writeCatalog ? $this->seedSubcategories($categories) : [];
+        $products       = $this->writeProducts ? $this->seedProducts($categories, $subcategories, $brands) : [];
 
         $this->seedBanners($bannerCategory);
         $this->seedPromoBanners();
         $this->seedFlashSale($products);
-        $this->seedCollections($categories);
+        if ($this->writeCatalog) {
+            $this->seedCollections($categories);
+            $this->applyDesignPhotos();
+            $this->refreshPlaceholderImages();
+        }
         $this->seedServices();
         $this->configureHomepage();
-        $this->applyDesignPhotos();
-        $this->refreshPlaceholderImages();
         $this->refreshBranding();
 
         $this->command?->info(sprintf(
@@ -394,7 +418,6 @@ class StorefrontDemoSeeder extends Seeder
                 'purchase_price'=> (int) round($new * 0.72),
                 'old_price'     => $old,
                 'new_price'     => $new,
-                'stock'         => 25 + ($index * 3),
                 'pro_unit'      => $unit,
                 'meta_description' => $name . ' - buy online at GS Corporation.',
                 'description'   => $name . ' sourced fresh and delivered to your door across Bangladesh.',
@@ -410,6 +433,10 @@ class StorefrontDemoSeeder extends Seeder
             ]);
 
             $product = Product::updateOrCreate(['slug' => $slug], $payload);
+
+            // Stock lives in the variant projection; the product-level column
+            // no longer exists.
+            SeedStock::ensureForProduct((int) $product->id, 25 + ($index * 3));
 
             // The card reads Product->image, a hasOne relation, so exactly ONE
             // row may exist per product - a second row is silently ignored

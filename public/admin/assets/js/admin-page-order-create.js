@@ -3,6 +3,13 @@
    one JSON data attribute [data-cart-urls]; CSRF handled by jQuery ajaxSetup.
    The old inline validation/session toasts are served by admin-app-alerts.js
    (body data-flash-* attributes) instead of being per-page duplicates.
+
+   The endpoint is `CFG.cart_add`, NOT the string "CFG.cart_add". Every call
+   used to be written with the quotes, so the browser asked for
+   /admin/order/CFG.cart_add - a path the admin order route swallows, which
+   answers 200 with the orders page HTML. jQuery could not read JSON from it,
+   the error toast said "Failed to add product to cart", the POS cart stayed
+   empty and NO order could be created from this screen at all.
 */
     var cfgEl = document.querySelector('[data-cart-urls]');
     var CFG = cfgEl ? (function () {
@@ -13,7 +20,7 @@
  function cart_content() {
   $.ajax({
    type: "GET",
-   url: "CFG.cart_content",
+   url: CFG.cart_content,
    dataType: "html",
    success: function (cartinfo) {
     $("#cartTable").html(cartinfo);
@@ -23,7 +30,7 @@
  function cart_details() {
   $.ajax({
    type: "GET",
-   url: "CFG.cart_details",
+   url: CFG.cart_details,
    dataType: "html",
    success: function (cartinfo) {
     $("#cart_details").html(cartinfo);
@@ -38,7 +45,7 @@
     cache: false,
     type: "GET",
     data: { id: id },
-    url: "CFG.cart_add",
+    url: CFG.cart_add,
     dataType: "json",
     success: function (response) {
      if(response.status === 'success') {
@@ -71,7 +78,7 @@
     cache: false,
     data: { id: id, qty: qty },
     type: "GET",
-    url: "CFG.cart_increment",
+    url: CFG.cart_increment,
     dataType: "json",
     success: function (cartinfo) {
      cart_content(); cart_details();
@@ -88,7 +95,7 @@
     cache: false,
     type: "GET",
     data: { id: id, qty: qty },
-    url: "CFG.cart_decrement",
+    url: CFG.cart_decrement,
     dataType: "json",
     success: function (cartinfo) {
      cart_content(); cart_details();
@@ -104,7 +111,7 @@
     cache: false,
     type: "GET",
     data: { id: id },
-    url: "CFG.cart_remove",
+    url: CFG.cart_remove,
     dataType: "json",
     success: function (cartinfo) {
      cart_content(); cart_details();
@@ -119,7 +126,7 @@
    cache: false,
    type: "GET",
    data: { id: id, discount: discount },
-   url: "CFG.product_discount",
+   url: CFG.product_discount,
    dataType: "json",
    success: function (cartinfo) {
     cart_content(); cart_details();
@@ -133,7 +140,7 @@
     cache: false,
     type: 'GET',
     data: { discount: discount },
-    url: "CFG.cart_extra_discount",
+    url: CFG.cart_extra_discount,
     dataType: 'json',
     success: function () {
      cart_content(); cart_details();
@@ -147,7 +154,7 @@
     cache: false,
     type: 'GET',
     data: { coupon_code: coupon_code },
-    url: "CFG.cart_apply_coupon",
+    url: CFG.cart_apply_coupon,
     dataType: 'json',
     success: function (res) {
      $('#pos_coupon_msg').text(res.message || '');
@@ -160,7 +167,7 @@
    $.ajax({
     cache: false,
     type: 'GET',
-    url: "CFG.cart_remove_coupon",
+    url: CFG.cart_remove_coupon,
     dataType: 'json',
     success: function (res) {
      $('#pos_coupon_msg').text(res.message || '');
@@ -173,7 +180,7 @@
   $.ajax({
    cache: false,
    type: "GET",
-   url: "CFG.cart_clear",
+   url: CFG.cart_clear,
    dataType: "json",
    success: function (response) {
     if(response.status === 'success') {
@@ -196,7 +203,7 @@
   $.ajax({
    type: "GET",
    data: { id: id },
-   url: "CFG.cart_shipping",
+   url: CFG.cart_shipping,
    dataType: "json",
    success: function (cartinfo) {
     cart_content(); cart_details();

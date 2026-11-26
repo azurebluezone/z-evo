@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "version": "1.1.0",
+  "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/4-to-5-years-tshirt-ts11002-6059/04-zevo-brand-card.jpg",
+  "output_bytes": 315389,
+  "output_sha256": "6043a8ba32070f167979872d39a03cdc3383477d54bc1b535335ee7ae28b0fb3",
+  "sidecar": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/4-to-5-years-tshirt-ts11002-6059/04-zevo-brand-card.json",
+  "canvas": [
+    1200,
+    1200
+  ],
+  "crop_box": [
+    0,
+    0,
+    1200,
+    1200
+  ],
+  "source_size": [
+    1200,
+    1200
+  ],
+  "source_sha256": "511f0020c0eb661058cd7134e97736cfcd614341d925be3c6d3f2d7ac3424036",
+  "title": "Z EVO",
+  "subtitle": "4 To 5 Years Tshirt, TS11002",
+  "attribution": "Z EVO - 4 Years - Adults",
+  "logo": {
+    "path": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+    "box": [
+      66,
+      66,
+      373,
+      168
+    ],
+    "mode": "image"
+  },
+  "fonts": {
+    "bengali_bold": "/usr/share/fonts/truetype/noto/NotoSansBengali-Bold.ttf",
+    "bengali_regular": "/usr/share/fonts/truetype/noto/NotoSansBengali-Regular.ttf",
+    "latin_bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "latin_regular": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "raqm": true
+  },
+  "provider": null,
+  "source_page": null,
+  "license": null,
+  "creator": null,
+  "created": "2026-11-16T06:32:08.154274+00:00"
+}

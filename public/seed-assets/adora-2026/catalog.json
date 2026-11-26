@@ -1,0 +1,2549 @@
+{
+ "version": 2,
+ "bundle": "adora-2026",
+ "source": "/media/sahon/301E3D251E3CE60E/Adora 2026",
+ "generated_at": "2026-11-16T03:39:54+00:00",
+ "selection": {
+  "rule": "round-robin over the 12 source age categories, lowest product id first",
+  "limit": 30,
+  "max_images_per_product": 3,
+  "image_max_size": 1400,
+  "image_quality": 85
+ },
+ "products": [
+  {
+   "source_id": 4915,
+   "name": "Premature Full Romper PFR4401",
+   "slug": "premature-full-romper-pfr4401-4915",
+   "category": "Premature",
+   "product_code": "P4915",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "Premature Full Romper PFR4401 ✅ Size: Long: 14-15\", Body: 16-17\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "Premature Full Romper PFR4401 - Preemie",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "Preemie",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "Premature Full Romper PFR4401 - 0-1M",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "0-1M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "Premature Full Romper PFR4401 - 1-3M",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "1-3M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4930,
+   "name": "Newborn Frock, NBF5601",
+   "slug": "newborn-frock-nbf5601-4930",
+   "category": "Newborn",
+   "product_code": "P4930",
+   "purchase_price": 160,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "Newborn Frock, NBF5601 ✅ Suitable for Newborn baby ✅ Size: Long: 9-10\", Body: 17-18\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "Newborn Frock, NBF5601 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 350,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#cd8f8b"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "Newborn Frock, NBF5601 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 370,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "Newborn Frock, NBF5601 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 390,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4991,
+   "name": "0-3 month Half Romper, HR6201",
+   "slug": "0-3-month-half-romper-hr6201-4996",
+   "category": "0-3 Month",
+   "product_code": "P4991",
+   "purchase_price": 160,
+   "old_price": 350,
+   "new_price": 300,
+   "description": "0-3 month Half Romper, HR6201 ✅ Suitable for 0-3 months baby ✅ Size: Long: 14-15\", Body: 18-19\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "0-3 month Half Romper, HR6201 - 0-1M",
+     "image": "variant-size-1.jpg",
+     "price": 300,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "0-1M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "0-3 month Half Romper, HR6201 - 1-2M",
+     "image": "variant-size-2.jpg",
+     "price": 340,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "1-2M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "0-3 month Half Romper, HR6201 - 2-3M",
+     "image": "variant-size-3.jpg",
+     "price": 380,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "2-3M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4914,
+   "name": "3-6 month Full Romper FR6825",
+   "slug": "3-6-month-full-romper-fr6825-5193",
+   "category": "3-6 Month",
+   "product_code": "P0001",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "3-6 month Full Romper FR6825 ✅ Suitable for 3-6 months baby ✅ Size: Long: 22-23\", Body: 20-21\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "3-6 month Full Romper FR6825 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#d886a4"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "3-6 month Full Romper FR6825 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 370,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "3-6 month Full Romper FR6825 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5203,
+   "name": "6-9 month Full Romper FR7401",
+   "slug": "6-9-month-full-romper-fr7401-5203",
+   "category": "6-9 Month",
+   "product_code": "P5203",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "6-9 month Full Romper FR7401 ✅ Suitable for 6-9 months baby ✅ Size: Long: 24-25\", Body: 20-21\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "6-9 month Full Romper FR7401 - 6M",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "6M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "6-9 month Full Romper FR7401 - 7-8M",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "7-8M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "6-9 month Full Romper FR7401 - 9M",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "9M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5336,
+   "name": "9-12 month Full Romper FR8002",
+   "slug": "9-12-month-full-romper-fr8002-5336",
+   "category": "9-12 Month",
+   "product_code": "P5336",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "9-12 month Full Romper FR8002 ✅ Suitable for 9-12 months baby ✅ Size: Long: 26-27\", Body: 21-22\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "9-12 month Full Romper FR8002 - 9M",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "9M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "9-12 month Full Romper FR8002 - 10-11M",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "10-11M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "9-12 month Full Romper FR8002 - 12M",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "12M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5505,
+   "name": "12-18 month Half Romper, HR8602",
+   "slug": "12-18-month-half-romper-hr8602-5505",
+   "category": "12-18 Month",
+   "product_code": "P5505",
+   "purchase_price": 160,
+   "old_price": 350,
+   "new_price": 300,
+   "description": "12-18 month Half Romper, HR8602 ✅ Suitable for 12-18 months Baby ✅ Size: Long: 19-20\", Body: 21-22\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "12-18 month Half Romper, HR8602 - 12M",
+     "image": "variant-size-1.jpg",
+     "price": 300,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "12M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "12-18 month Half Romper, HR8602 - 15M",
+     "image": "variant-size-2.jpg",
+     "price": 340,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "15M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "12-18 month Half Romper, HR8602 - 18M",
+     "image": "variant-size-3.jpg",
+     "price": 380,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "18M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 6268,
+   "name": "18-24 Month Full Romper, FR9201",
+   "slug": "18-24-month-full-romper-fr9201-6268",
+   "category": "18-24 Month",
+   "product_code": "P6268",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "18-24 Month Full Romper, FR9201 Suitable for 18-24 Month baby Size: Long: 30-31\", Body: 23 to 24\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "18-24 Month Full Romper, FR9201 - 18M",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "18M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "18-24 Month Full Romper, FR9201 - 21M",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "21M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "18-24 Month Full Romper, FR9201 - 24M",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "24M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 6127,
+   "name": "24 To 36 Month Full Romper, FR9801",
+   "slug": "24-to-36-month-full-romper-fr9801-6127",
+   "category": "24-36 Month",
+   "product_code": "P6127",
+   "purchase_price": 170,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "24 To 36 Month Full Romper, FR9801 Suitable for 2 To 3 Years baby Size: Long: 32 to 33\", Body: 24 to 25\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "24 To 36 Month Full Romper, FR9801 - 2Y",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 170,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "2Y",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "24 To 36 Month Full Romper, FR9801 - 2.5Y",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 170,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "2.5Y",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "24 To 36 Month Full Romper, FR9801 - 3Y",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 170,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "3Y",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 6059,
+   "name": "3 To 4 Years Tshirt, TS10401",
+   "slug": "3-to-4-years-tshirt-ts10401-6059",
+   "category": "3-4 Years",
+   "product_code": "P6059",
+   "purchase_price": 115,
+   "old_price": 300,
+   "new_price": 250,
+   "description": "3 To 4 Years Tshirt, TS10401 Suitable for 3 To 4 Years baby Size: Long: 16 to 17\", Body: 23 to 24\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "3 To 4 Years Tshirt, TS10401 - 3Y",
+     "image": "variant-size-1.jpg",
+     "price": 250,
+     "purchase_price": 115,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "3Y",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "3 To 4 Years Tshirt, TS10401 - 3.5Y",
+     "image": "variant-size-2.jpg",
+     "price": 290,
+     "purchase_price": 115,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "3.5Y",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "3 To 4 Years Tshirt, TS10401 - 4Y",
+     "image": "variant-size-3.jpg",
+     "price": 330,
+     "purchase_price": 115,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "4Y",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 6030,
+   "name": "4 To 5 Years Tshirt, TS11001",
+   "slug": "4-to-5-years-tshirt-ts11001-6059",
+   "category": "4 Years - Adults",
+   "product_code": "P6030",
+   "purchase_price": 90,
+   "old_price": 250,
+   "new_price": 200,
+   "description": "4 To 5 Years Tshirt, TS11001 Suitable for 4 To 5 Years baby Size: Long: 17 to 18\", Body: 25 to 26\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "4 To 5 Years Tshirt, TS11001 - 4-5Y",
+     "image": "variant-size-1.jpg",
+     "price": 200,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "4-5Y",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "4 To 5 Years Tshirt, TS11001 - 6-7Y",
+     "image": "variant-size-2.jpg",
+     "price": 240,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "6-7Y",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "4 To 5 Years Tshirt, TS11001 - 8-10Y",
+     "image": "variant-size-3.jpg",
+     "price": 280,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "8-10Y",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5882,
+   "name": "6 To 18 month Sleeping Bag, SP9004",
+   "slug": "6-to-18-month-sleeping-bag-sp9004-5882",
+   "category": "Baby Elements",
+   "product_code": "P5882",
+   "purchase_price": 300,
+   "old_price": 750,
+   "new_price": 650,
+   "description": "6 To 18 month Sleeping Bag, SP9004 Suitable for 6 To 18 month baby Size: Long: 34\", Body: 24\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "6 To 18 month Sleeping Bag, SP9004 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 650,
+     "purchase_price": 300,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#a08067"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "6 To 18 month Sleeping Bag, SP9004 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 670,
+     "purchase_price": 300,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "6 To 18 month Sleeping Bag, SP9004 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 690,
+     "purchase_price": 300,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4916,
+   "name": "Premature Full Romper PFR4402",
+   "slug": "premature-full-romper-pfr4402-4916",
+   "category": "Premature",
+   "product_code": "P4916",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "Premature Full Romper PFR4402 ✅ Size: Long: 14-15\", Body: 16-17\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "Premature Full Romper PFR4402 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#7b7e84"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "Premature Full Romper PFR4402 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 370,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "Premature Full Romper PFR4402 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4931,
+   "name": "Newborn Frock, NBF5602",
+   "slug": "newborn-frock-nbf5602-4931",
+   "category": "Newborn",
+   "product_code": "P4931",
+   "purchase_price": 160,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "Newborn Frock, NBF5602 ✅ Suitable for Newborn baby ✅ Size: Long: 9-10\", Body: 17-18\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "Newborn Frock, NBF5602 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 350,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#d0aa24"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "Newborn Frock, NBF5602 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 370,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "Newborn Frock, NBF5602 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 390,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4992,
+   "name": "0-3 month Half Romper, HR6202",
+   "slug": "0-3-month-half-romper-hr6202-4996",
+   "category": "0-3 Month",
+   "product_code": "P4992",
+   "purchase_price": 160,
+   "old_price": 350,
+   "new_price": 300,
+   "description": "0-3 month Half Romper, HR6202 ✅ Suitable for 0-3 months baby ✅ Size: Long: 14-15\", Body: 18-19\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "0-3 month Half Romper, HR6202 - 0-1M",
+     "image": "variant-size-1.jpg",
+     "price": 300,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "0-1M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "0-3 month Half Romper, HR6202 - 1-2M",
+     "image": "variant-size-2.jpg",
+     "price": 340,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "1-2M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "0-3 month Half Romper, HR6202 - 2-3M",
+     "image": "variant-size-3.jpg",
+     "price": 380,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "2-3M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5084,
+   "name": "3-6 month Frock, F6801",
+   "slug": "3-6-month-frock-f6801-5084",
+   "category": "3-6 Month",
+   "product_code": "P5084",
+   "purchase_price": 160,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "3-6 month Frock, F6801 ✅ Suitable for 3-6 months baby ✅ Size: Long: 14-15\", Body- 19\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "3-6 month Frock, F6801 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 350,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#4e8f8e"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "3-6 month Frock, F6801 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 370,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "3-6 month Frock, F6801 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 390,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5204,
+   "name": "6-9 month Full Romper FR7402",
+   "slug": "6-9-month-full-romper-fr7402-5204",
+   "category": "6-9 Month",
+   "product_code": "P5204",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "6-9 month Full Romper FR7402 ✅ Suitable for 6-9 months baby ✅ Size: Long: 24-25\", Body: 20-21\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "6-9 month Full Romper FR7402 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#bc9c7e"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "6-9 month Full Romper FR7402 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 370,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "6-9 month Full Romper FR7402 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5337,
+   "name": "9-12 month Full Romper FR8003",
+   "slug": "9-12-month-full-romper-fr8003-5337",
+   "category": "9-12 Month",
+   "product_code": "P5337",
+   "purchase_price": 160,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "9-12 month Full Romper FR8003 ✅ Suitable for 9-12 months baby ✅ Size: Long: 26-27\", Body: 21-22\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "9-12 month Full Romper FR8003 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 350,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#caa98a"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "9-12 month Full Romper FR8003 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 370,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "9-12 month Full Romper FR8003 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 390,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5508,
+   "name": "12-18 month Half Romper, HR8605",
+   "slug": "12-18-month-half-romper-hr8605-5508",
+   "category": "12-18 Month",
+   "product_code": "P5508",
+   "purchase_price": 160,
+   "old_price": 350,
+   "new_price": 300,
+   "description": "12-18 month Half Romper, HR8605 ✅ Suitable for 12-18 months Baby ✅ Size: Long: 19-20\", Body: 21-22\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "12-18 month Half Romper, HR8605 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 300,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#335766"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "12-18 month Half Romper, HR8605 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 320,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "12-18 month Half Romper, HR8605 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 340,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 6269,
+   "name": "18-24 Month Full Romper, FR9202",
+   "slug": "18-24-month-full-romper-fr9202-6269",
+   "category": "18-24 Month",
+   "product_code": "P6269",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "18-24 Month Full Romper, FR9202 Suitable for 18-24 Month baby Size: Long: 30-31\", Body: 23 to 24\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "18-24 Month Full Romper, FR9202 - 18M",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "18M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "18-24 Month Full Romper, FR9202 - 21M",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "21M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "18-24 Month Full Romper, FR9202 - 24M",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "24M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 6128,
+   "name": "24 To 36 Month Full Romper, FR9802",
+   "slug": "24-to-36-month-full-romper-fr9802-6143",
+   "category": "24-36 Month",
+   "product_code": "P6128",
+   "purchase_price": 170,
+   "old_price": 650,
+   "new_price": 450,
+   "description": "24 To 36 Month Full Romper, FR9802 Suitable for 2 To 3 Years baby Size: Long: 32 to 33\", Body: 24 to 25\" Fabric or Material: Denim Fabric Soft and comfortable Organic Denim fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "24 To 36 Month Full Romper, FR9802 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 450,
+     "purchase_price": 170,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#556b80"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "24 To 36 Month Full Romper, FR9802 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 470,
+     "purchase_price": 170,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "24 To 36 Month Full Romper, FR9802 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 490,
+     "purchase_price": 170,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 6060,
+   "name": "3 To 4 Years T-shirt, TS10402",
+   "slug": "3-to-4-years-t-shirt-ts10402-6060",
+   "category": "3-4 Years",
+   "product_code": "P6060",
+   "purchase_price": 90,
+   "old_price": 300,
+   "new_price": 250,
+   "description": "3 To 4 Years T-shirt, TS10402 Suitable for 3 To 4 Years baby Size: Long: 16 to 17\", Body: 23 to 24\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "3 To 4 Years T-shirt, TS10402 - 3Y",
+     "image": "variant-size-1.jpg",
+     "price": 250,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "3Y",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "3 To 4 Years T-shirt, TS10402 - 3.5Y",
+     "image": "variant-size-2.jpg",
+     "price": 290,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "3.5Y",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "3 To 4 Years T-shirt, TS10402 - 4Y",
+     "image": "variant-size-3.jpg",
+     "price": 330,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "4Y",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 6031,
+   "name": "4 To 5 Years Tshirt, TS11002",
+   "slug": "4-to-5-years-tshirt-ts11002-6059",
+   "category": "4 Years - Adults",
+   "product_code": "P6031",
+   "purchase_price": 90,
+   "old_price": 250,
+   "new_price": 200,
+   "description": "4 To 5 Years Tshirt, TS11002 Suitable for 4 To 5 Years baby Size: Long: 17 to 18\", Body: 25 to 26\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "4 To 5 Years Tshirt, TS11002 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 200,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#a9927d"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "4 To 5 Years Tshirt, TS11002 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 220,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "4 To 5 Years Tshirt, TS11002 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 240,
+     "purchase_price": 90,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5883,
+   "name": "6 To 18 month Sleeping Bag, SP9005",
+   "slug": "6-to-18-month-sleeping-bag-sp9005-5883",
+   "category": "Baby Elements",
+   "product_code": "P5883",
+   "purchase_price": 300,
+   "old_price": 750,
+   "new_price": 650,
+   "description": "6 To 18 month Sleeping Bag, SP9005 Suitable for 6 To 18 month baby Size: Long: 34\", Body: 24\" Fabric or Material: Knit Cotton Fabric Soft and comfortable Organic knit cotton fabric Original Export items All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "6 To 18 month Sleeping Bag, SP9005 - Small",
+     "image": "variant-size-1.jpg",
+     "price": 650,
+     "purchase_price": 300,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "Small",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "6 To 18 month Sleeping Bag, SP9005 - Medium",
+     "image": "variant-size-2.jpg",
+     "price": 690,
+     "purchase_price": 300,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "Medium",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "6 To 18 month Sleeping Bag, SP9005 - Large",
+     "image": "variant-size-3.jpg",
+     "price": 730,
+     "purchase_price": 300,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "Large",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4917,
+   "name": "Premature Full Romper PFR4403",
+   "slug": "premature-full-romper-pfr4403-4917",
+   "category": "Premature",
+   "product_code": "P4917",
+   "purchase_price": 180,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "Premature Full Romper PFR4403 ✅ Size: Long: 14-15\", Body: 16-17\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "Premature Full Romper PFR4403 - Preemie",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "Preemie",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "Premature Full Romper PFR4403 - 0-1M",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "0-1M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "Premature Full Romper PFR4403 - 1-3M",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 180,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "1-3M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4932,
+   "name": "Newborn Frock, NBF5603",
+   "slug": "newborn-frock-nbf5603-4932",
+   "category": "Newborn",
+   "product_code": "P4932",
+   "purchase_price": 160,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "Newborn Frock, NBF5603 ✅ Suitable for Newborn baby ✅ Size: Long: 9-10\", Body: 17-18\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "Newborn Frock, NBF5603 - Newborn",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "Newborn",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "Newborn Frock, NBF5603 - 0-1M",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "0-1M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "Newborn Frock, NBF5603 - 1-3M",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "1-3M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 4993,
+   "name": "0-3 month Half Romper, HR6203",
+   "slug": "0-3-month-half-romper-hr6203-4996",
+   "category": "0-3 Month",
+   "product_code": "P4993",
+   "purchase_price": 160,
+   "old_price": 350,
+   "new_price": 300,
+   "description": "0-3 month Half Romper, HR6203 ✅ Suitable for 0-3 months baby ✅ Size: Long: 14-15\", Body: 18-19\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "0-3 month Half Romper, HR6203 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 300,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#989379"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "0-3 month Half Romper, HR6203 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 320,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "0-3 month Half Romper, HR6203 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 340,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5085,
+   "name": "3-6 month Frock, F6802",
+   "slug": "3-6-month-frock-f6802-5085",
+   "category": "3-6 Month",
+   "product_code": "P5085",
+   "purchase_price": 160,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "3-6 month Frock, F6802 ✅ Suitable for 3-6 months baby ✅ Size: Long: 14-15\", Body- 19\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "color",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "3-6 month Frock, F6802 - Original",
+     "image": "variant-color-original.jpg",
+     "price": 350,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Original",
+      "code": "#d7b32a"
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "3-6 month Frock, F6802 - Sky Blue",
+     "image": "variant-color-sky-blue.jpg",
+     "price": 370,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Sky Blue",
+      "code": "#4a90d9"
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "3-6 month Frock, F6802 - Blush Pink",
+     "image": "variant-color-blush-pink.jpg",
+     "price": 390,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "color",
+      "group_name": "Color",
+      "value": "Blush Pink",
+      "code": "#e08aa0"
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5205,
+   "name": "6-9 month Full Romper FR7403",
+   "slug": "6-9-month-full-romper-fr7403-5205",
+   "category": "6-9 Month",
+   "product_code": "P5205",
+   "purchase_price": 230,
+   "old_price": 650,
+   "new_price": 450,
+   "description": "6-9 month Full Romper FR7403 ✅ Suitable for 6-9 months baby ✅ Size: Long: 24-25\", Body: 20-21\" ✅ Fabric/ Material: Flees Fabric ✅ Soft and comfortable ✅ Organic Flees fabric ✅ Original Export items ✅ All are real photos",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "6-9 month Full Romper FR7403 - 6M",
+     "image": "variant-size-1.jpg",
+     "price": 450,
+     "purchase_price": 230,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "6M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "6-9 month Full Romper FR7403 - 7-8M",
+     "image": "variant-size-2.jpg",
+     "price": 490,
+     "purchase_price": 230,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "7-8M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "6-9 month Full Romper FR7403 - 9M",
+     "image": "variant-size-3.jpg",
+     "price": 530,
+     "purchase_price": 230,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "9M",
+      "code": ""
+     }
+    }
+   ]
+  },
+  {
+   "source_id": 5339,
+   "name": "9-12 month Full Romper FR8005",
+   "slug": "9-12-month-full-romper-fr8005-5339",
+   "category": "9-12 Month",
+   "product_code": "P5339",
+   "purchase_price": 160,
+   "old_price": 450,
+   "new_price": 350,
+   "description": "9-12 month Full Romper FR8005 ✅ Suitable for 9-12 months baby ✅ Size: Long: 26-27\", Body: 21-22\" ✅ Fabric/ Material: Knit Cotton Fabric ✅ Soft and comfortable ✅ Organic knit cotton fabric ✅ Original Export items",
+   "images": [
+    {
+     "file": "01-zevo-main.jpg",
+     "role": "main",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "02-zevo-detail.jpg",
+     "role": "detail",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "03-zevo-styled.jpg",
+     "role": "styled",
+     "width": 1200,
+     "height": 1200
+    },
+    {
+     "file": "04-zevo-brand-card.jpg",
+     "role": "brand-card",
+     "width": 1200,
+     "height": 1200
+    }
+   ],
+   "variant_mode": "size",
+   "source_image": "01-zevo-main.jpg",
+   "variants": [
+    {
+     "sku_suffix": "DEFAULT",
+     "title": "9-12 month Full Romper FR8005 - 9M",
+     "image": "variant-size-1.jpg",
+     "price": 350,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "9M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V2",
+     "title": "9-12 month Full Romper FR8005 - 10-11M",
+     "image": "variant-size-2.jpg",
+     "price": 390,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "10-11M",
+      "code": ""
+     }
+    },
+    {
+     "sku_suffix": "V3",
+     "title": "9-12 month Full Romper FR8005 - 12M",
+     "image": "variant-size-3.jpg",
+     "price": 430,
+     "purchase_price": 160,
+     "attributes": {
+      "group_slug": "size",
+      "group_name": "Size",
+      "value": "12M",
+      "code": ""
+     }
+    }
+   ]
+  }
+ ],
+ "categories": [
+  {
+   "name": "Premature",
+   "slug": "premature",
+   "file": "premature.jpg",
+   "source": "1783531102-img-20260708-wa0016.webp"
+  },
+  {
+   "name": "Newborn",
+   "slug": "newborn",
+   "file": "newborn.jpg",
+   "source": "1783531253-img-20260708-wa0019.webp"
+  },
+  {
+   "name": "0-3 Month",
+   "slug": "0-3-month",
+   "file": "0-3-month.jpg",
+   "source": "1783531270-img-20260708-wa0018.webp"
+  },
+  {
+   "name": "3-6 Month",
+   "slug": "3-6-month",
+   "file": "3-6-month.jpg",
+   "source": "1783531225-img-20260708-wa0020.webp"
+  },
+  {
+   "name": "6-9 Month",
+   "slug": "6-9-month",
+   "file": "6-9-month.jpg",
+   "source": "1783531137-img-20260708-wa0017.webp"
+  },
+  {
+   "name": "9-12 Month",
+   "slug": "9-12-month",
+   "file": "9-12-month.jpg",
+   "source": "1783499245-img-20260708-wa0005.webp"
+  },
+  {
+   "name": "12-18 Month",
+   "slug": "12-18-month",
+   "file": "12-18-month.jpg",
+   "source": "1783499227-img-20260708-wa0001.webp"
+  },
+  {
+   "name": "18-24 Month",
+   "slug": "18-24-month",
+   "file": "18-24-month.jpg",
+   "source": "1783497539-img-20260708-wa0000.webp"
+  },
+  {
+   "name": "24-36 Month",
+   "slug": "24-36-month",
+   "file": "24-36-month.jpg",
+   "source": "1783499205-img-20260708-wa0004.webp"
+  },
+  {
+   "name": "3-4 Years",
+   "slug": "3-4-years",
+   "file": "3-4-years.jpg",
+   "source": "1783499168-img-20260708-wa0002.webp"
+  },
+  {
+   "name": "4 Years - Adults",
+   "slug": "4-years-adults",
+   "file": "4-years-adults.jpg",
+   "source": "1783499077-1783498915768.webp"
+  },
+  {
+   "name": "Baby Elements",
+   "slug": "baby-elements",
+   "file": "baby-elements.jpg",
+   "source": "1783115976-whatsapp-image-2026-07-04-at-3.59.21-am.webp"
+  }
+ ],
+ "brand": {
+  "version": 2,
+  "name": "Z EVO",
+  "tagline": "Everyday Essentials for Little Ones",
+  "primary_color": "#003c9e",
+  "secondary_color": "#00a3e0",
+  "logo": "logo.png",
+  "logo_white": "logo-white.png",
+  "favicon": "favicon.png",
+  "banner": "banner.jpg",
+  "hero_title": "Z EVO - Everyday Essentials for Little Ones",
+  "footer_about": "Z EVO brings export-quality baby and kids clothing to Bangladesh: soft cotton, honest prices and sizes from premature to adults.",
+  "videos": [
+   {
+    "file": "videos/zevo-banner-01.mp4",
+    "title": "Z EVO - New Arrivals",
+    "bytes": 1999108
+   },
+   {
+    "file": "videos/zevo-banner-02.mp4",
+    "title": "Z EVO - Everyday Comfort",
+    "bytes": 2002107
+   },
+   {
+    "file": "videos/zevo-banner-03.mp4",
+    "title": "Z EVO - Little Moments",
+    "bytes": 2007905
+   },
+   {
+    "file": "videos/zevo-banner-04.mp4",
+    "title": "Z EVO - Soft Cotton",
+    "bytes": 1986955
+   },
+   {
+    "file": "videos/zevo-banner-05.mp4",
+    "title": "Z EVO - Play All Day",
+    "bytes": 1984017
+   },
+   {
+    "file": "videos/zevo-banner-06.mp4",
+    "title": "Z EVO - Export Quality",
+    "bytes": 2006652
+   },
+   {
+    "file": "videos/zevo-banner-07.mp4",
+    "title": "Z EVO - Sleep Tight",
+    "bytes": 2006278
+   },
+   {
+    "file": "videos/zevo-banner-08.mp4",
+    "title": "Z EVO - Brand Story",
+    "bytes": 3693807
+   },
+   {
+    "file": "videos/zevo-banner-09.mp4",
+    "title": "Z EVO - Shop the Look",
+    "bytes": 1791266
+   }
+  ]
+ }
+}

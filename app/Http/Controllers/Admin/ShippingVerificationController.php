@@ -111,6 +111,14 @@ class ShippingVerificationController extends Controller
             $order->admin_note = $prefix . $payload;
             $order->save();
 
+            // The audit trail: the note column only keeps the latest text, so
+            // the replaced note is kept in the trail.
+            app(\App\Services\AuditLogger::class)->orderNote(
+                $order,
+                $existing,
+                (string) $order->admin_note
+            );
+
             Toastr::success('Verification note saved', 'Success');
             return redirect()->route('admin.shipping.verification', [
                 'invoice_id' => $order->invoice_id,

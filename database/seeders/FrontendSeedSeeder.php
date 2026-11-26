@@ -216,7 +216,6 @@ class FrontendSeedSeeder extends Seeder
             'purchase_price' => $price,
             'old_price' => $oldPrice,
             'new_price' => $price,
-            'stock' => $stock,
             'pro_unit' => $this->unit((string) ($row['weight'] ?? '')),
             'meta_description' => Str::limit((string) ($row['short'] ?? $name), 250),
             'description' => (string) ($row['desc'] ?? $row['short'] ?? $name),
@@ -236,6 +235,12 @@ class FrontendSeedSeeder extends Seeder
 
         $this->seedImages($productId, $row);
         $this->seedVariants($productId, $row, $name);
+
+        // Rows without variants still need a stocked default variant, because
+        // the product-level stock column was dropped.
+        if (empty($row['vars'])) {
+            \App\Support\SeedStock::ensureForProduct((int) $productId, $stock);
+        }
 
         return true;
     }

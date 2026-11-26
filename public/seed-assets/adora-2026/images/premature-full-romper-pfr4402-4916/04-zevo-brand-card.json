@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "version": "1.1.0",
+  "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/premature-full-romper-pfr4402-4916/04-zevo-brand-card.jpg",
+  "output_bytes": 274675,
+  "output_sha256": "aa04ce1ff90c39025768a22d34d0c319a3f82605a3e28b817f17cb89c59d1f0d",
+  "sidecar": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/premature-full-romper-pfr4402-4916/04-zevo-brand-card.json",
+  "canvas": [
+    1200,
+    1200
+  ],
+  "crop_box": [
+    0,
+    0,
+    1200,
+    1200
+  ],
+  "source_size": [
+    1200,
+    1200
+  ],
+  "source_sha256": "1a7552501f4e60ccb8b66d9575a95f4777daed891d6cc11a5bc9042de4af4689",
+  "title": "Z EVO",
+  "subtitle": "Premature Full Romper PFR4402",
+  "attribution": "Z EVO - Premature",
+  "logo": {
+    "path": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+    "box": [
+      66,
+      66,
+      373,
+      168
+    ],
+    "mode": "image"
+  },
+  "fonts": {
+    "bengali_bold": "/usr/share/fonts/truetype/noto/NotoSansBengali-Bold.ttf",
+    "bengali_regular": "/usr/share/fonts/truetype/noto/NotoSansBengali-Regular.ttf",
+    "latin_bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "latin_regular": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "raqm": true
+  },
+  "provider": null,
+  "source_page": null,
+  "license": null,
+  "creator": null,
+  "created": "2026-11-16T06:31:57.497822+00:00"
+}

@@ -144,7 +144,7 @@
 
                         <div class="col-12 col-md-6">
                             <label for="area" class="form-label">Delivery area</label>
-                            <select id="cart_add" class="form-select @error('product_id') is-invalid @enderror" value="{{ old('product_id') }}">
+                            <select id="deliveryArea" name="area" class="form-select @error('area') is-invalid @enderror">
                                 @foreach($shippingcharge as $value)
                                     <option @if($data->shipping?$data->shipping->area:'' == $value->name) selected @endif value="{{$value->id}}">{{$value->name}}</option>
                                 @endforeach
@@ -169,6 +169,11 @@
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
+                        </div>
+
+                        <div class="col-12">
+                            <label for="adminNote" class="form-label">Admin Note</label>
+                            <textarea id="adminNote" name="admin_note" class="form-control" rows="3" placeholder="Internal note about this order">{{ $data->admin_note }}</textarea>
                         </div>
 
                         <div class="col-12 d-flex gap-2">
@@ -238,7 +243,7 @@
                             @endforeach
                         </ul>
                     @else
-                        <div class="text-muted">No courier events recorded for this order yet. Events appear here as the courier sends webhooks.</div>
+                        <div class="text-muted">No courier status recorded for this order yet. Updates appear here after the parcel is booked and the courier reports its status.</div>
                     @endif
                 </div>
             </div>

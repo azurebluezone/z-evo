@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "version": "1.1.0",
+  "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/12-18-month-half-romper-hr8605-5508/04-zevo-brand-card.jpg",
+  "output_bytes": 379412,
+  "output_sha256": "aacf1f418ec8290b74d18563bde252e98ef9165187423e70dde4db0efd103ec1",
+  "sidecar": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/12-18-month-half-romper-hr8605-5508/04-zevo-brand-card.json",
+  "canvas": [
+    1200,
+    1200
+  ],
+  "crop_box": [
+    0,
+    0,
+    1200,
+    1200
+  ],
+  "source_size": [
+    1200,
+    1200
+  ],
+  "source_sha256": "5ad35200b22525e9f3a457a495585a2a201856c86dd5abdd6da3aa461570da4f",
+  "title": "Z EVO",
+  "subtitle": "12-18 month Half Romper, HR8605",
+  "attribution": "Z EVO - 12-18 Month",
+  "logo": {
+    "path": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+    "box": [
+      66,
+      66,
+      373,
+      168
+    ],
+    "mode": "image"
+  },
+  "fonts": {
+    "bengali_bold": "/usr/share/fonts/truetype/noto/NotoSansBengali-Bold.ttf",
+    "bengali_regular": "/usr/share/fonts/truetype/noto/NotoSansBengali-Regular.ttf",
+    "latin_bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "latin_regular": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "raqm": true
+  },
+  "provider": null,
+  "source_page": null,
+  "license": null,
+  "creator": null,
+  "created": "2026-11-16T06:32:04.313236+00:00"
+}

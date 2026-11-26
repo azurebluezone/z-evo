@@ -1,0 +1,17 @@
+{
+ "input": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/12-18-month-half-romper-hr8602-5505/01-zevo-main.jpg",
+ "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/12-18-month-half-romper-hr8602-5505/04-zevo-brand-card.jpg",
+ "title": "Z EVO",
+ "subtitle": "12-18 month Half Romper, HR8602",
+ "attribution": "Z EVO - 12-18 Month",
+ "logo": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+ "crop": {
+  "aspect": "1:1",
+  "focus": "center"
+ },
+ "canvas": {
+  "width": 1200,
+  "height": 1200
+ },
+ "quality": 90
+}

@@ -74,32 +74,70 @@
         <div class="card-body">
           <div class="row g-3">
             @foreach($couriers as $courier)
+              @php
+                $canSendHere = $support[$courier->type]['supported'] ?? true;
+                $whyNot       = $support[$courier->type]['reason'] ?? null;
+              @endphp
               <div class="col-12 col-md-6">
-                <a href="{{ route('admin.order.courier.show', ['provider' => $courier->type, 'order' => $order->id]) }}"
-                   class="card rounded-0 h-100 text-body text-decoration-none
-                          {{ $courier->type === $provider ? 'border-primary' : '' }}"
-                   style="{{ $courier->type === $provider ? 'background-color: rgba(105,108,255,.06);' : '' }}">
-                  <div class="card-body d-flex align-items-center gap-3 py-3">
-                    <i class="ri ri-truck-line"></i>
-                    <div class="flex-grow-1 min-w-0">
-                      <h6 class="mb-1">{{ $courier->label() }}</h6>
-                      @if($courier->isReady())
-                        <span class="badge bg-label-success">Ready</span>
-                      @elseif($courier->status)
-                        <span class="badge bg-label-warning">On, credentials missing</span>
-                      @else
-                        @if(! $courier->isConfigured())
-                          <span class="badge bg-label-danger">No API Connect</span>
+                {{--
+                    A courier this screen cannot book is NOT a link.
+                    It used to be one, so the admin chose Pathao, landed on a
+                    screen and was told "per-order Pathao sending is not
+                    supported by this screen" - the answer arrived only after the
+                    click. The card now carries the answer, and the reason is
+                    spelled out next to it.
+                --}}
+                @if($canSendHere)
+                  <a href="{{ route('admin.order.courier.show', ['provider' => $courier->type, 'order' => $order->id]) }}"
+                     class="card rounded-0 h-100 text-body text-decoration-none
+                            {{ $courier->type === $provider ? 'border-primary' : '' }}"
+                     style="{{ $courier->type === $provider ? 'background-color: rgba(105,108,255,.06);' : '' }}">
+                    <div class="card-body d-flex align-items-center gap-3 py-3">
+                      <i class="ri ri-truck-line"></i>
+                      <div class="flex-grow-1 min-w-0">
+                        <h6 class="mb-1">{{ $courier->label() }}</h6>
+                        <span class="badge bg-label-primary">Send from here</span>
+                        @if($courier->isReady())
+                          <span class="badge bg-label-success">Ready</span>
+                        @elseif($courier->status)
+                          <span class="badge bg-label-warning">On, credentials missing</span>
                         @else
-                          <span class="badge bg-label-secondary">Switched off</span>
+                          @if(! $courier->isConfigured())
+                            <span class="badge bg-label-danger">Incomplete</span>
+                          @else
+                            <span class="badge bg-label-secondary">Switched off</span>
+                          @endif
                         @endif
+                      </div>
+                      @if($courier->type === $provider)
+                        <i class="ri ri-check-line"></i>
                       @endif
                     </div>
-                    @if($courier->type === $provider)
-                      <i class="ri ri-check-line"></i>
-                    @endif
+                  </a>
+                @else
+                  <div class="card rounded-0 h-100 bg-opacity-50"
+                       style="background-color: rgba(105,108,255,.04);">
+                    <div class="card-body d-flex align-items-center gap-3 py-3">
+                      <i class="ri ri-truck-line text-muted"></i>
+                      <div class="flex-grow-1 min-w-0">
+                        <h6 class="mb-1">{{ $courier->label() }}</h6>
+                        <span class="badge bg-label-warning">Bulk action only</span>
+                        @if($courier->isReady())
+                          <span class="badge bg-label-success">Ready</span>
+                        @elseif($courier->status)
+                          <span class="badge bg-label-warning">On, credentials missing</span>
+                        @else
+                          @if(! $courier->isConfigured())
+                            <span class="badge bg-label-danger">Incomplete</span>
+                          @else
+                            <span class="badge bg-label-secondary">Switched off</span>
+                          @endif
+                        @endif
+                        <div class="small text-muted mt-1">{{ $whyNot }}</div>
+                      </div>
+                    </div>
                   </div>
-                </a>
+                @endif
               </div>
             @endforeach
           </div>
@@ -110,7 +148,6 @@
       <div class="card rounded-0 mb-4">
         <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
           <h5 class="mb-0 text-uppercase fw-bold">2 · Check what will be sent</h5>
-          <small class="text-muted">Nothing is sent until step 3.</small>
         </div>
         <div class="card-body">
 
@@ -149,10 +186,6 @@
                       </td>
                     </tr>
                   @endisset
-                  <tr>
-                    <th scope="row" class="fw-medium">Endpoint</th>
-                    <td class="font-monospace small text-break">{{ $preview['endpoint'] }}</td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -164,10 +197,10 @@
               <i class="ri ri-information-fill"></i>
               <div>
                 <p class="mb-2">{{ $preview['message'] }}</p>
-                <a href="{{ route('admin.order.edit', ['invoice_id' => $order->invoice_id]) }}"
-                   class="btn btn-sm btn-outline-primary btn-square waves-effect">
-                  <i class="ri ri-edit-line me-1"></i> Open the order to fix it
-                </a>
+                <x-admin.button variant="outline-primary" size="sm" shape="square" ripple="true"
+                                href="{{ route('admin.order.edit', ['invoice_id' => $order->invoice_id]) }}">
+                  <i class="ri ri-edit-line me-1"></i>Open the order to fix it
+                </x-admin.button>
               </div>
             </div>
           @endif
@@ -206,17 +239,18 @@
                   id="fmCourierForm">
               @csrf
 
-              <div class="mb-3">
-                <label class="form-label" for="courierNote">Note for the rider (optional)</label>
-                <input type="text"
-                       id="courierNote"
-                       name="note"
-                       class="form-control"
-                       maxlength="255"
-                       value="{{ old('note') }}"
-                       placeholder="e.g. Call before delivery">
-                <div class="form-text">Sent to the courier as their <code>note</code> field.</div>
-              </div>
+              @if($provider !== 'pathao')
+                <div class="mb-3">
+                  <label class="form-label" for="courierNote">Note for the rider (optional)</label>
+                  <input type="text"
+                         id="courierNote"
+                         name="note"
+                         class="form-control"
+                         maxlength="255"
+                         value="{{ old('note') }}"
+                         placeholder="e.g. Call before delivery">
+                </div>
+              @endif
 
               {{-- First confirmation. A consignment is billable and cannot be
                    undone, so the admin states they have read the details. --}}
@@ -255,8 +289,6 @@
 
     {{-- ==================== RIGHT: order context ==================== --}}
     <div class="col-12 col-xl-4">
-      @php $cfg = $couriers->firstWhere('type', $provider); @endphp
-
       <div class="card rounded-0 mb-4">
         <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
           <h5 class="mb-0 text-uppercase fw-bold">Order</h5>
@@ -275,47 +307,6 @@
         </div>
       </div>
 
-      {{--
-          Webhook token.
-
-          An admin has to paste this into the courier's dashboard to register our
-          callback URL, and there is nowhere else to get it from - the column is
-          $hidden on the model precisely so it does not leak into debug output.
-
-          Shown only because this is the courier settings screen; it is never
-          sent to any JSON response.
-      --}}
-      @if($cfg && $cfg->webhook_token)
-        <div class="card rounded-0 mb-4">
-          <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
-            <h5 class="mb-0 text-uppercase fw-bold">Webhook token</h5>
-          </div>
-          <div class="card-body">
-            <p class="text-muted small mb-2">
-              Paste this into {{ $cfg->label() }}'s dashboard as the callback secret.
-            </p>
-
-            <div class="input-group mb-3">
-              <input type="text"
-                     id="fmWebhookToken"
-                     class="form-control font-monospace small"
-                     readonly
-                     value="{{ $cfg->webhook_token }}">
-              <button class="btn btn-outline-secondary btn-square waves-effect"
-                      type="button"
-                      data-copy-token="#fmWebhookToken"
-                      aria-label="Copy webhook token">
-                <i class="ri ri-file-copy-line"></i>
-              </button>
-            </div>
-
-            <p class="text-muted small mb-0">
-              Our callback URL:
-              <code class="text-break">{{ route('api.steadfast.webhook') }}</code>
-            </p>
-          </div>
-        </div>
-      @endif
     </div>
   </div>
 </div>

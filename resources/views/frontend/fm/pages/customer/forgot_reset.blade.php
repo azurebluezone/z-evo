@@ -8,9 +8,9 @@
     Sections       : fm-auth-body
 
     THE SESSION CONTRACT
-    forgot_reset() refuses to render unless Session::get('verify_phone') is set,
+    forgot_reset() refuses to render unless Session::get('verify_email') is set,
     and forgot_verify() is what sets it. So this page can only ever be reached
-    after a successful phone lookup - there is nothing here to load and nothing
+    after a successful email lookup - there is nothing here to load and nothing
     to guard.
 
     BUG FIXED: THE WRONG ERROR KEY
@@ -30,7 +30,7 @@
 
 @extends('frontend.fm.layouts.auth', [
     'fmAuthTitle'   => 'Choose a new password',
-    'fmAuthSub'     => 'Enter the code we sent to your phone, then set a new password.',
+    'fmAuthSub'     => 'Enter the code we emailed you, then set a new password.',
     'fmAuthEyebrow' => 'Password',
     'fmAuthAside'   => false,
 ])

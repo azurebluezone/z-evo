@@ -149,6 +149,10 @@
       document.querySelectorAll('.js-quill-editor').forEach(initOneEditor);
     }
 
+    // Campaign repeaters add rows after page load; expose the same initializer
+    // so dynamically inserted editors behave exactly like the static ones.
+    window.AdminQuill = { initAll: initAllEditors, initOne: initOneEditor };
+
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initAllEditors);
     } else {

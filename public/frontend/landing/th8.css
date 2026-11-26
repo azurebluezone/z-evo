@@ -58,4 +58,110 @@
     .zombie-accordion-content.active {
       max-height: 250px;
     }
-  
+
+/* ---------------------------------------------------------------------------
+   Landing order form - the order section of this design's own HTML twin
+   (~/Videos/lp/th8.html). The shared .zlt-* form is restyled here, so every
+   design keeps its own palette while the form and its fields stay one.
+   --------------------------------------------------------------------------- */    body[data-landing-template="th8"] {
+      --zlt-ink: #f3f4f6;
+      --zlt-muted: #9ca3af;
+      --zlt-line: rgba(230, 175, 46, 0.22);
+      --zlt-soft: #0a0f1d;
+      --zlt-red: #e6af2e;
+      --zlt-red-dark: #cfa029;
+      --zlt-green: #34d399;
+      --zlt-radius: 1.25rem;
+    }
+
+    body[data-landing-template="th8"] .zlt-order {
+      background: #060913;
+      border-top-color: rgba(230, 175, 46, 0.2);
+    }
+
+    body[data-landing-template="th8"] .zlt-order-card {
+      background: #161f36;
+      border-color: rgba(230, 175, 46, 0.3);
+      border-radius: 1.25rem;
+      box-shadow: 0 0 25px -3px rgba(230, 175, 46, 0.35);
+    }
+
+    body[data-landing-template="th8"] .zlt-order-head h2,
+    body[data-landing-template="th8"] .zlt-step-title,
+    body[data-landing-template="th8"] .zlt-option-title,
+    body[data-landing-template="th8"] .zlt-order-product strong,
+    body[data-landing-template="th8"] .zlt-field label {
+      color: #f9fafb;
+    }
+
+    body[data-landing-template="th8"] .zlt-order-points li {
+      color: #d1d5db;
+    }
+
+    body[data-landing-template="th8"] .zlt-eyebrow {
+      background: rgba(230, 175, 46, 0.12);
+      color: #fbf0b9;
+    }
+
+    body[data-landing-template="th8"] .zlt-step-number {
+      background: #e6af2e;
+      color: #1f1300;
+    }
+
+    body[data-landing-template="th8"] .zlt-option {
+      background: #0a0f1d;
+      border-color: rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+    }
+
+    body[data-landing-template="th8"] .zlt-option:hover {
+      border-color: #e6af2e;
+    }
+
+    body[data-landing-template="th8"] .zlt-option.is-active {
+      border-color: #e6af2e;
+      background: rgba(230, 175, 46, 0.12);
+      box-shadow: none;
+    }
+
+    body[data-landing-template="th8"] .zlt-option-price,
+    body[data-landing-template="th8"] .zlt-price {
+      color: #e6af2e;
+    }
+
+    body[data-landing-template="th8"] .zlt-input-wrap input,
+    body[data-landing-template="th8"] .zlt-input-wrap textarea,
+    body[data-landing-template="th8"] .zlt-field select {
+      background: #0a0f1d;
+      border-color: rgba(255, 255, 255, 0.18);
+      color: #f9fafb;
+    }
+
+    body[data-landing-template="th8"] .zlt-input-wrap input:focus,
+    body[data-landing-template="th8"] .zlt-input-wrap textarea:focus {
+      border-color: #e6af2e;
+      outline: 2px solid rgba(230, 175, 46, 0.3);
+    }
+
+    body[data-landing-template="th8"] .zlt-order-summary {
+      background: #0a0f1d;
+      border-color: rgba(230, 175, 46, 0.18);
+    }
+
+    body[data-landing-template="th8"] .zlt-order-summary .zlt-total {
+      color: #f9fafb;
+    }
+
+    body[data-landing-template="th8"] .zlt-order-summary .zlt-total span:last-child {
+      color: #e6af2e;
+    }
+
+    body[data-landing-template="th8"] .zlt-submit {
+      background: linear-gradient(135deg, #e6af2e 0%, #cfa029 100%);
+      color: #1f1300;
+      box-shadow: 0 8px 30px rgba(230, 175, 46, 0.3);
+    }
+
+    body[data-landing-template="th8"] .zlt-order-product {
+      border-bottom-color: rgba(230, 175, 46, 0.18);
+    }

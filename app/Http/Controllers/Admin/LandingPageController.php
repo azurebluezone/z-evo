@@ -289,6 +289,33 @@ class LandingPageController extends Controller
     }
 
     /**
+     * Status controls for the design list.
+     *
+     * The manage screen lists Template rows, and templates.is_active already
+     * exists in the schema, so the card toggle writes that column directly
+     * instead of introducing a second status field.
+     */
+    public function inactive(Request $request)
+    {
+        $template = Template::findOrFail($request->input('hidden_id', $request->input('id')));
+        $template->is_active = false;
+        $template->save();
+
+        Toastr::success('Success', 'Design set to inactive');
+        return redirect()->back();
+    }
+
+    public function active(Request $request)
+    {
+        $template = Template::findOrFail($request->input('hidden_id', $request->input('id')));
+        $template->is_active = true;
+        $template->save();
+
+        Toastr::success('Success', 'Design set to active');
+        return redirect()->back();
+    }
+
+    /**
      * Get template configuration for AJAX requests
      */
     public function templateConfig($id)

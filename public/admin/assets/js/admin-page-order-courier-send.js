@@ -64,4 +64,27 @@
                 box.classList.remove('is-invalid');
             });
         }
+
+        /*
+         * The courier call is slow (Pathao books against a remote API) and the
+         * result is a full page navigation. Lock the form and show a spinner,
+         * otherwise the admin clicks again and risks a second billable parcel.
+         */
+        form.addEventListener('submit', function () {
+            if (form.dataset.sending === '1') {
+                return;
+            }
+
+            form.dataset.sending = '1';
+
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.setAttribute('aria-busy', 'true');
+                sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending to the courier…';
+            }
+
+            form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (button) {
+                button.disabled = true;
+            });
+        });
     })();

@@ -81,7 +81,6 @@ class Phase4TikTokWiringAndVariantStockGuardTest extends TestCase
             'purchase_price' => 100,
             'old_price' => 150,
             'new_price' => 120,
-            'stock' => 50,
             'meta_description' => null,
             'description' => null,
             'topsale' => null,

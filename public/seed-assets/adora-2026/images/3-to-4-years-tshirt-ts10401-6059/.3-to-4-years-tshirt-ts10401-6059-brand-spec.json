@@ -1,0 +1,17 @@
+{
+ "input": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/3-to-4-years-tshirt-ts10401-6059/01-zevo-main.jpg",
+ "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/3-to-4-years-tshirt-ts10401-6059/04-zevo-brand-card.jpg",
+ "title": "Z EVO",
+ "subtitle": "3 To 4 Years Tshirt, TS10401",
+ "attribution": "Z EVO - 3-4 Years",
+ "logo": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+ "crop": {
+  "aspect": "1:1",
+  "focus": "center"
+ },
+ "canvas": {
+  "width": 1200,
+  "height": 1200
+ },
+ "quality": 90
+}

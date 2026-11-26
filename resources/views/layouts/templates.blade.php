@@ -59,7 +59,13 @@
 
     @yield('content')
 
-    @include('frontend.landing.partials.order-section', ['tpl' => $tpl])
+    {{-- The order form belongs to the design when the design places it
+         itself (the HTML twins put it before the FAQ on some designs);
+         otherwise the shared layout renders it after the content. Either
+         way a page shows exactly one order form. --}}
+    @unless($tpl->orderRendered())
+        @include('frontend.landing.partials.order-section', ['tpl' => $tpl])
+    @endunless
 
     @stack('scripts')
 

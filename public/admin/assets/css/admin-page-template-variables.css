@@ -1,0 +1,51 @@
+/*
+ * Template Variables: one switch column, label text only.
+ *
+ * Every group header and every variable row puts its switch at the same right
+ * edge, so the eye follows one vertical column instead of hunting for a switch
+ * after labels of different lengths. The variable key is no longer repeated as
+ * small code text; the source/repeater metadata stays in the label title.
+ */
+.template-variables-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.template-variable-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .55rem 0;
+    border-bottom: 1px solid rgba(67, 89, 113, .08);
+}
+
+.template-variable-row:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.template-variable-label {
+    min-width: 0;
+    margin-bottom: 0;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.template-variable-switch.form-check {
+    flex: 0 0 3rem;
+    width: 3rem;
+    min-height: 1.5rem;
+    margin: 0;
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.template-variable-switch .form-check-input {
+    float: none;
+    margin-left: 0;
+}

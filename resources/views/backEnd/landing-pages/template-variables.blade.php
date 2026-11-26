@@ -4,6 +4,10 @@
     Template Variables
 @endsection
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('admin/assets/css/admin-page-template-variables.css') }}" />
+@endsection
+
 @section('content')
 @php
     $sourceColors = [
@@ -37,15 +41,20 @@
 
             <div class="row g-3">
                 @foreach($groups as $groupKey => $group)
-                    <div class="col-lg-6">
-                        <div class="card h-100 rounded-0">
-                            <div class="card-header bg-light d-flex justify-content-between align-items-center gap-2">
-                                <label class="mb-0 fw-bold" for="group_{{ $groupKey }}">
-                                    <input type="checkbox" class="form-check-input me-1 js-group-toggle"
+                    <div class="col-12">
+                        <div class="card rounded-0 template-variables-card">
+                            <div class="card-header bg-light">
+                                <div class="d-flex align-items-center gap-2">
+                                    <label class="form-label d-block fw-semibold mb-2" style="margin-bottom:0 !important;" for="group_{{ $groupKey }}">
+                                        {{ $group['label'] ?? $groupKey }}
+                                    </label>
+                                    <span class="badge bg-dark">{{ count((array) ($group['variables'] ?? [])) }}</span>
+                                </div>
+                                <div class="form-check form-switch custom-switch-sharp template-variable-switch mb-0">
+                                    <input type="checkbox" class="form-check-input rounded-0 js-group-toggle"
                                            id="group_{{ $groupKey }}" data-group="{{ $groupKey }}">
-                                    {{ $group['label'] ?? $groupKey }}
-                                </label>
-                                <span class="badge bg-dark">{{ count((array) ($group['variables'] ?? [])) }}</span>
+                                    <label class="form-check-label visually-hidden" for="group_{{ $groupKey }}">Enable</label>
+                                </div>
                             </div>
                             <div class="card-body">
                                 @foreach((array) ($group['variables'] ?? []) as $key => $definition)
@@ -55,23 +64,22 @@
                                         $isRemoved = $source === 'removed';
                                         $repeater = $definition['repeater'] ?? null;
                                     @endphp
-                                    <div class="form-check mb-2">
-                                        <input type="checkbox"
-                                               class="form-check-input js-variable"
-                                               id="var_{{ $key }}"
-                                               name="enabled_variables[]"
-                                               value="{{ $key }}"
-                                               data-group="{{ $groupKey }}"
-                                               {{ $isEnabled ? 'checked' : '' }}
-                                               {{ $isRemoved ? 'disabled' : '' }}>
-                                        <label class="form-check-label" for="var_{{ $key }}">
+                                    <div class="template-variable-row">
+                                        <label class="template-variable-label" for="var_{{ $key }}"
+                                               title="source: {{ $source }}{{ $repeater ? ' · row: ' . $repeater : '' }}">
                                             <span class="fw-semibold">{{ $definition['label'] ?? $key }}</span>
-                                            <code class="ms-1">{{ $key }}</code>
-                                            <span class="badge bg-{{ $sourceColors[$source] ?? 'secondary' }} ms-1">{{ $source }}</span>
-                                            @if($repeater)
-                                                <span class="badge bg-light text-dark border ms-1">row: {{ $repeater }}</span>
-                                            @endif
                                         </label>
+                                        <div class="form-check form-switch custom-switch-sharp template-variable-switch mb-0">
+                                            <input type="checkbox"
+                                                   class="form-check-input rounded-0 js-variable"
+                                                   id="var_{{ $key }}"
+                                                   name="enabled_variables[]"
+                                                   value="{{ $key }}"
+                                                   data-group="{{ $groupKey }}"
+                                                   aria-label="{{ $definition['label'] ?? $key }}"
+                                                   {{ $isEnabled ? 'checked' : '' }}
+                                                   {{ $isRemoved ? 'disabled' : '' }}>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Frontend\FrontendController;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use App\Models\Product;
 use App\Models\CampaignReview;
 use App\Models\Campaign;
@@ -56,7 +57,14 @@ class CampaignController extends Controller
     public function create()
     {
         $products = Product::where(['status' => 1])
-            ->select('id', 'name', 'status', 'new_price', 'old_price', 'stock')
+            ->select('id', 'name', 'status', 'new_price', 'old_price')
+            ->selectSub(function ($query) {
+                $query->from('product_variants as v')
+                    ->join('variant_stocks as s', 's.variant_id', '=', 'v.id')
+                    ->whereColumn('v.product_id', 'products.id')
+                    ->where('v.status', 1)
+                    ->selectRaw('COALESCE(SUM(s.on_hand), 0)');
+            }, 'stock_on_hand')
             ->orderBy('name')
             ->get();
         $templates = Template::active()->get();
@@ -83,15 +91,17 @@ class CampaignController extends Controller
     ]);
     $this->validate($request, $this->contentRules());
 
-    $input = $request->except(['image', 'files']);
-    $input['extra_fields'] = (new CampaignContent())->normalize((array) $request->input('extra_fields', []));
+    $input = $request->except(['image', 'files', 'extra_fields_files']);
+    $input['extra_fields'] = (new CampaignContent())->normalize(
+        $this->withRepeaterUploads($request, (array) $request->input('extra_fields', []))
+    );
 
     // Optional campaign fields: store safe defaults so a status-on campaign
     // publishes even when the editor leaves the optional fields blank.
     $input['name'] = $request->filled('name') ? $request->input('name') : 'Campaign ' . now()->format('YmdHis');
-    $input['short_description'] = $request->input('short_description', '');
-    $input['description'] = $request->input('description', '');
-    $input['review'] = $request->input('review', '');
+    $input['short_description'] = (string) $request->input('short_description', '');
+    $input['description'] = (string) $request->input('description', '');
+    $input['review'] = (string) $request->input('review', '');
     $input['campaign_type'] = $request->input('campaign_type') ?: 'product';
 
     // The `date` column is NOT NULL and has no default; the form does not post
@@ -254,7 +264,14 @@ class CampaignController extends Controller
         $edit_data = Campaign::with(['images', 'product', 'template'])->findOrFail($id);
 
         $products = Product::where(['status' => 1])
-            ->select('id', 'name', 'status', 'new_price', 'old_price', 'stock')
+            ->select('id', 'name', 'status', 'new_price', 'old_price')
+            ->selectSub(function ($query) {
+                $query->from('product_variants as v')
+                    ->join('variant_stocks as s', 's.variant_id', '=', 'v.id')
+                    ->whereColumn('v.product_id', 'products.id')
+                    ->where('v.status', 1)
+                    ->selectRaw('COALESCE(SUM(s.on_hand), 0)');
+            }, 'stock_on_hand')
             ->orderBy('name')
             ->get();
 
@@ -297,13 +314,15 @@ class CampaignController extends Controller
         if (!$update_data) {
             return redirect()->back()->with('error', 'Campaign not found.');
         }
-        $input = $request->except('hidden_id','product_ids','files','image');
-        $input['extra_fields'] = (new CampaignContent())->normalize((array) $request->input('extra_fields', []));
+        $input = $request->except('hidden_id','product_ids','files','image','extra_fields_files');
+        $input['extra_fields'] = (new CampaignContent())->normalize(
+            $this->withRepeaterUploads($request, (array) $request->input('extra_fields', []))
+        );
 
         $input['name'] = $request->filled('name') ? $request->input('name') : ($update_data->name ?: 'Campaign ' . $update_data->id);
-        $input['short_description'] = $request->input('short_description', $update_data->short_description ?: '');
-        $input['description'] = $request->input('description', $update_data->description ?: '');
-        $input['review'] = $request->input('review', $update_data->review ?: '');
+        $input['short_description'] = (string) $request->input('short_description', $update_data->short_description ?: '');
+        $input['description'] = (string) $request->input('description', $update_data->description ?: '');
+        $input['review'] = (string) $request->input('review', $update_data->review ?: '');
         $input['campaign_type'] = $request->input('campaign_type') ?: ($update_data->campaign_type ?: 'product');
 
         $input['date'] = $request->input('date', $update_data->date ?: now()->toDateString());
@@ -539,6 +558,72 @@ class CampaignController extends Controller
     }
 
     /**
+     * Repeater image columns post files under extra_fields_files[field][row][column].
+     * CampaignContent::normalize() only reads scalar input, so the uploaded path
+     * is merged into the same row before the whitelist runs.
+     */
+    private function withRepeaterUploads(Request $request, array $extra): array
+    {
+        $files = $request->file('extra_fields_files', []);
+
+        if (!is_array($files) || $files === []) {
+            return $extra;
+        }
+
+        foreach ($files as $field => $rows) {
+            if (!isset(CampaignContent::ROW_FIELDS[$field]) || !is_array($rows)) {
+                continue;
+            }
+
+            foreach ($rows as $index => $columns) {
+                if (!is_array($columns)) {
+                    continue;
+                }
+
+                foreach ($columns as $column => $file) {
+                    if (!in_array($column, CampaignContent::ROW_FIELDS[$field], true)) {
+                        continue;
+                    }
+
+                    if (!$file instanceof UploadedFile || !$file->isValid()) {
+                        continue;
+                    }
+
+                    $extra[$field][$index][$column] = $this->storeRepeaterImage($file);
+                }
+            }
+        }
+
+        return $extra;
+    }
+
+    private function storeRepeaterImage(UploadedFile $file): string
+    {
+        // php artisan serve runs with the public/ directory as CWD, so a
+        // relative "public/uploads/..." path would land in public/public/.
+        // Use the absolute public path and store the same "uploads/..." shape
+        // the rest of the admin uses.
+        $directory = public_path('uploads/campaign');
+
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        // No GD/Imagick in this runtime: keep the validated original bytes
+        // instead of re-encoding. The `image` + `mimes` rules already proved
+        // the file is a real image, and the name is generated here.
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)) {
+            $extension = 'jpg';
+        }
+
+        $name = time() . '-' . Str::lower(Str::random(8)) . '.' . $extension;
+        $file->move($directory, $name);
+
+        return 'uploads/campaign/' . $name;
+    }
+
+    /**
      * Rules for the template-specific content panel. The same whitelist is
      * enforced again by CampaignContent::normalize() before the row is saved.
      */
@@ -548,6 +633,8 @@ class CampaignController extends Controller
 
         $rules = [
             'extra_fields' => 'nullable|array',
+            'extra_fields_files' => 'nullable|array',
+            'extra_fields_files.*.*.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096',
             'extra_fields.video_url' => 'nullable|url|max:500',
             'extra_fields.countdown_date' => 'nullable|date',
             'extra_fields.contact_phone' => 'nullable|string|max:50',

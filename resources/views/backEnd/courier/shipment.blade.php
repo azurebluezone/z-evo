@@ -4,12 +4,10 @@
 <div class="row">
     <div class="col-lg-8">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-            <div>
-                <h4 class="mb-0">Shipment #{{ $shipment->id }}</h4>
-            </div>
-            <a href="{{ route('admin.courier.shipments') }}" class="btn btn-secondary btn-sm">
-                <i class="ri ri-arrow-left-line me-1"></i> All shipments
-            </a>
+            <h4 class="mb-0">Shipment #{{ $shipment->id }}</h4>
+            <x-admin.button variant="outline-secondary" size="sm" href="{{ route('admin.courier.shipments') }}">
+                <i class="ri ri-arrow-left-line me-1"></i>All shipments
+            </x-admin.button>
         </div>
 
         <div class="card mb-3">
@@ -45,7 +43,7 @@
                         <div><code>{{ $shipment->merchant_order_id ?: '—' }}</code></div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label text-muted small mb-0">Last update from the webhook</label>
+                        <label class="form-label text-muted small mb-0">Last status update</label>
                         <div>
                             {{ $shipment->last_synced_at ? $shipment->last_synced_at->format('d M Y, H:i') : 'never' }}
                             @if($shipment->last_synced_at)
@@ -90,10 +88,10 @@
 
                     {{-- This route is the preview-then-confirm send screen, which
                          exists for this order and provider. --}}
-                    <a href="{{ route('admin.order.courier.show', [$shipment->order_id, $shipment->provider]) }}"
-                       class="btn btn-outline-primary btn-sm w-100">
-                        <i class="ri ri-send-plane-line me-1"></i> Open the send screen
-                    </a>
+                    <x-admin.button variant="outline-primary" size="sm" class="w-100"
+                                    href="{{ route('admin.order.courier.show', [$shipment->order_id, $shipment->provider]) }}">
+                        <i class="ri ri-send-plane-line me-1"></i>Open the send screen
+                    </x-admin.button>
                 @else
                     <p class="text-danger small mb-0">
                         The order this shipment points at (id {{ $shipment->order_id }}) no longer exists.

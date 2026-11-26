@@ -15,18 +15,32 @@
                 <thead class="table-light">
                     <tr>
                         <th style="width:5%">SL</th>
-                        <th style="width:55%">Area Name</th>
+                        <th style="width:45%">Area Name</th>
+                        <th style="width:10%">Amount</th>
                         <th style="width:10%">Status</th>
                         <th style="width:12%" class="text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($show_data as $value)
+                    @php($locked = $value->isReadOnly())
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td class="fw-medium">{{ $value->name }}</td>
+                        <td class="fw-medium">
+                            {{ $value->name }}
+                            @if($locked)
+                                <span class="badge bg-label-secondary ms-1" title="Fixed delivery rate — read only">
+                                    <i class="ri-lock-2-line"></i> Read only
+                                </span>
+                            @endif
+                        </td>
+                        <td>৳{{ number_format((float) $value->amount, 0) }}</td>
                         <td>
-                                    @if((int) $value->status === 1)
+                                @if($locked)
+                                    <span class="badge {{ (int) $value->status === 1 ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                        {{ (int) $value->status === 1 ? 'Active' : 'Inactive' }}
+                                    </span>
+                                @elseif((int) $value->status === 1)
                                         <form method="post" action="{{ route('shippingcharges.inactive') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" value="{{ $value->id }}" name="hidden_id">
@@ -54,6 +68,9 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-inline-flex justify-content-end align-items-center gap-1">
+                                        @if($locked)
+                                            <span class="text-muted small"><i class="ri-lock-2-line"></i> Fixed rate</span>
+                                        @else
                                         <a href="{{ route('shippingcharges.edit', $value->id) }}" class="btn btn-icon btn-text-secondary btn-sm btn-square waves-effect" title="Edit" data-bs-toggle="tooltip" data-bs-title="Edit">
                                             <i class="icon-base ri ri-edit-box-line icon-22px"></i>
                                         </a>
@@ -64,6 +81,7 @@
                                                 <i class="icon-base ri ri-delete-bin-7-line icon-22px"></i>
                                             </x-admin.button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

@@ -294,12 +294,35 @@ class Chapter2TrackingTest extends TestCase
     {
         $admin = User::query()->where('email', 'admin@gmail.com')->firstOrFail();
 
-        $this->actingAs($admin)
-            ->get('/admin/analytics')
-            ->assertOk()
-            ->assertSee("name: 'Events'", false)
-            ->assertSee("name: 'Visitors'", false)
-            ->assertSee("name: 'Server'", false);
+        $response = $this->actingAs($admin)->get('/admin/analytics');
+
+        $response->assertOk();
+
+        // The page ships server values as one JSON data attribute and loads the
+        // two scripts that turn it into the chart. The series names live in the
+        // behaviour file, not in the inline HTML.
+        $response->assertSee('data-analytics-config', false);
+        $response->assertSee(asset('admin/assets/js/admin-analytics-index.js'), false);
+        $response->assertSee(asset('admin/assets/js/admin-analytics-behaviour.js'), false);
+
+        $html = (string) $response->getContent();
+        $this->assertMatchesRegularExpression(
+            '/data-analytics-config="[^"]*trend/s',
+            $html,
+            'The analytics config attribute must carry the trend payload.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/data-analytics-config="[^"]*series/s',
+            $html,
+            'The trend payload must carry a series array.'
+        );
+
+        $behaviour = (string) file_get_contents(public_path('admin/assets/js/admin-analytics-behaviour.js'));
+
+        $this->assertStringContainsString("name: 'Events'", $behaviour);
+        $this->assertStringContainsString("name: 'Visitors'", $behaviour);
+        $this->assertStringContainsString("name: 'Server'", $behaviour);
+        $this->assertStringContainsString('data: series.map', $behaviour);
     }
 
     public function test_admin_can_save_the_tiktok_test_event_code(): void

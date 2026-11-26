@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
+use App\Models\Template;
 use App\Models\User;
 use App\Services\CourierFraudService;
 use App\Services\FacebookTrackingService;
@@ -27,6 +28,7 @@ use Tests\TestCase;
  */
 class CampaignEndToEndTest extends TestCase
 {
+    use SeedsCampaignCartLines;
     private array $createdProductIds = [];
     private array $createdVariantIds = [];
     private array $createdCustomerIds = [];
@@ -129,11 +131,10 @@ class CampaignEndToEndTest extends TestCase
         $landing->assertSee('name="campaign_id"', false);
         $landing->assertSee('value="' . $campaign->id . '"', false);
 
-        $this->post('/landing-order', [
-            'product_id' => $product->id,
-            'campaign_id' => $campaign->id,
-            'quantity' => 1,
-        ])->assertRedirect(route('customer.checkout'));
+        // The landing page order form places the order directly now, so the
+        // campaign line that has to sit IN the cart is seeded here with the
+        // same options the landing order used to write.
+        $this->seedCampaignCartLine($product, $campaign, 1, 900.0, 1200.0);
 
         $cartItem = Cart::instance('shopping')->content()->first();
         $this->assertNotNull($cartItem, 'The campaign product did not reach the cart.');
@@ -206,9 +207,12 @@ class CampaignEndToEndTest extends TestCase
             'name' => $name,
             'short_description' => 'QA campaign short description',
             'description' => 'QA campaign description',
+            'hero_subtitle' => 'QA campaign product description',
             'review' => 'QA review',
             'campaign_type' => 'product',
-            'template_id' => 3,
+            // Use a live design: legacy template rows (view_name template-1)
+            // no longer have a Blade view after the nine-design cleanup.
+            'template_id' => Template::query()->where('view_name', 'ht2')->value('id'),
             'product_id' => $product->id,
             'status' => 1,
             'start_date' => now()->subDay()->toDateString(),
@@ -241,7 +245,6 @@ class CampaignEndToEndTest extends TestCase
             'purchase_price' => 800,
             'old_price' => 1500,
             'new_price' => 1200,
-            'stock' => 20,
             'meta_description' => null,
             'description' => 'QA campaign product description',
             'topsale' => null,

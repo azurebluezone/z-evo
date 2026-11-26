@@ -1,0 +1,175 @@
+/*
+    Classic user-dashboard table design, converted from the ViserMart demo.
+    Source selectors: public/assets/templates/basic/css/main.css (.table) and
+    public/assets/templates/basic/css/user-dashboard.css (.table--responsive--md/-lg).
+
+    Scoped to .classic-table-wrap so the rest of the storefront is untouched.
+*/
+.classic-table-wrap {
+    --ct-border: #e6e6e6;
+    --ct-head-bg: rgba(0, 0, 0, 0.02);
+    --ct-head-ink: rgba(0, 0, 0, 0.6);
+    --ct-body-ink: rgba(0, 0, 0, 0.82);
+    --ct-soft-ink: rgba(0, 0, 0, 0.55);
+    --ct-accent: #003c9e;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.classic-table-wrap .table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--ct-border);
+    border-radius: 6px;
+    background: #fff;
+}
+
+.classic-table-wrap .table thead tr th {
+    padding: 12px 20px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--ct-head-ink);
+    background-color: var(--ct-head-bg);
+    border: 0;
+    border-bottom: 1px solid var(--ct-border);
+    white-space: nowrap;
+}
+
+.classic-table-wrap .table thead tr th:first-child { text-align: left; }
+.classic-table-wrap .table thead tr th:last-child { text-align: right; }
+
+.classic-table-wrap .table tbody tr { background: #fff; }
+.classic-table-wrap .table tbody tr + tr { border-top: 1px solid var(--ct-border); }
+
+.classic-table-wrap .table tbody tr td {
+    padding: 12px 20px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--ct-body-ink);
+    vertical-align: middle;
+    text-align: center;
+    border: 0;
+    border-bottom: 1px solid var(--ct-border);
+}
+
+.classic-table-wrap .table tbody tr:last-child td { border-bottom: 0; }
+.classic-table-wrap .table tbody tr td:first-child { text-align: left; }
+.classic-table-wrap .table tbody tr td:last-child { text-align: right; }
+
+.classic-table-wrap .classic-table-id,
+.classic-table-wrap .table tbody tr td a {
+    color: var(--ct-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.classic-table-wrap .classic-table-id:hover,
+.classic-table-wrap .table tbody tr td a:hover { text-decoration: underline; }
+
+.classic-table-wrap .classic-table-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    color: var(--ct-soft-ink);
+}
+
+.classic-table-wrap .classic-table-cellstack {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.classic-table-wrap .classic-table-cellstack .classic-table-sub { margin-top: 0; }
+
+.classic-table-wrap .classic-table-status {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ct-accent);
+    background: rgba(0, 60, 158, 0.08);
+}
+
+.classic-table-wrap .invoice_btn {
+    display: inline-grid;
+    place-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    border: 1px solid var(--ct-border);
+    color: var(--ct-body-ink);
+    text-decoration: none;
+}
+
+.classic-table-wrap .invoice_btn:hover {
+    border-color: var(--ct-accent);
+    color: var(--ct-accent);
+}
+
+.classic-table-wrap .classic-table-empty {
+    padding: 26px 16px;
+    text-align: center !important;
+    color: var(--ct-soft-ink) !important;
+}
+
+@media (max-width: 1599px) {
+    .classic-table-wrap .table thead tr th,
+    .classic-table-wrap .table tbody tr td { padding: 12px; }
+}
+
+@media (max-width: 767px) {
+    .classic-table-wrap .table--responsive--md thead { display: none; }
+    .classic-table-wrap .table--responsive--md tbody tr { display: block; }
+    .classic-table-wrap .table--responsive--md tbody tr td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 10px 15px;
+        text-align: right;
+        border: 0;
+        border-bottom: 1px solid var(--ct-border);
+    }
+    .classic-table-wrap .table--responsive--md tbody tr td:last-child { border-bottom: 0; }
+    .classic-table-wrap .table--responsive--md tbody tr td::before {
+        content: attr(data-label);
+        display: block;
+        width: 45%;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--ct-soft-ink);
+        text-align: left;
+    }
+}
+
+@media (max-width: 991px) {
+    .classic-table-wrap .table--responsive--lg thead { display: none; }
+    .classic-table-wrap .table--responsive--lg tbody tr { display: block; }
+    .classic-table-wrap .table--responsive--lg tbody tr td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 10px 15px;
+        text-align: right;
+        border: 0;
+        border-bottom: 1px solid var(--ct-border);
+    }
+    .classic-table-wrap .table--responsive--lg tbody tr td:last-child { border-bottom: 0; }
+    .classic-table-wrap .table--responsive--lg tbody tr td::before {
+        content: attr(data-label);
+        display: block;
+        width: 45%;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--ct-soft-ink);
+        text-align: left;
+    }
+}

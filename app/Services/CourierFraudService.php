@@ -654,6 +654,164 @@ class CourierFraudService
         }
     }
 
+    /**
+     * Whether each provider can actually check a number right now.
+     *
+     * The screen used to show only the saved result, so a failed courier
+     * lookup looked identical to "this customer has no history". These probes
+     * call the real endpoints and return the provider's own answer, so the
+     * admin sees "Pathao login failed (HTTP 400: ...)" instead of guessing.
+     * Cached for ten minutes: availability is account level, not phone level,
+     * and the page must not call two APIs on every load.
+     *
+     * @return array<string,array{label:string,available:?bool,reason:string,source:string,checked_at:string}>
+     */
+    public function providerStatus(?string $phone = null, bool $fresh = false): array
+    {
+        $phone = $phone !== null ? $this->normalizePhone($phone) : '';
+        $cacheKey = 'courier.fraud.provider_status.v1.' . ($phone !== '' ? $phone : 'none');
+
+        if ($fresh) {
+            Cache::forget($cacheKey);
+        }
+
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($phone) {
+            return [
+                'pathao'    => $this->probePathaoMerchant(),
+                'steadfast' => $this->probeSteadfastFraud($phone !== '' ? $phone : null),
+                'local'     => [
+                    'label'      => 'Local history',
+                    'available'  => true,
+                    'reason'     => 'Always available: counts this shop\'s own courier_shipments rows.',
+                    'source'     => 'internal',
+                    'checked_at' => now()->format('d-m-Y h:i a'),
+                ],
+            ];
+        });
+    }
+
+    /**
+     * Live merchant-portal login probe. The courier booking credentials and the
+     * merchant-portal credentials are different logins; a green courier card in
+     * Settings does not mean this check can run. The reason returned here is
+     * the provider's own status and message, never a local guess.
+     */
+    private function probePathaoMerchant(): array
+    {
+        $label = 'Pathao';
+
+        try {
+            $config = \App\Models\Courierapi::where('type', 'pathao')
+                ->where('status', 1)
+                ->first();
+
+            if (! $config || ! filled($config->username) || ! filled($config->password)) {
+                return $this->providerStatusRow($label, false, 'No Pathao merchant username/password is saved. The courier API client id/secret cannot sign in to the merchant portal.', 'not_configured');
+            }
+
+            $response = Http::acceptJson()
+                ->asJson()
+                ->connectTimeout(5)
+                ->timeout(12)
+                ->post(self::PATHAO_MERCHANT_BASE . '/api/v1/login', [
+                    'username' => (string) $config->username,
+                    'password' => (string) $config->password,
+                ]);
+
+            $status = $response->status();
+
+            if ($response->successful()) {
+                $token = $response->json('access_token') ?? $response->json('data.access_token');
+
+                if (is_string($token) && trim($token) !== '') {
+                    return $this->providerStatusRow($label, true, 'Merchant login accepted; phone history checks can run.', 'live');
+                }
+
+                return $this->providerStatusRow($label, false, 'Merchant login answered HTTP ' . $status . ' without an access token.', 'live');
+            }
+
+            $body = trim(preg_replace('/\s+/', ' ', (string) $response->body()) ?? '');
+
+            return $this->providerStatusRow(
+                $label,
+                false,
+                'Merchant login failed (HTTP ' . $status . '): ' . mb_substr($body !== '' ? $body : 'no body returned', 0, 220),
+                'live'
+            );
+        } catch (\Throwable $e) {
+            return $this->providerStatusRow($label, false, 'Merchant login could not be reached: ' . $e->getMessage(), 'error');
+        }
+    }
+
+    /**
+     * Live SteadFast fraud-score probe for one number. The endpoint needs a
+     * phone, so with no phone the row stays honest ("not tested yet") rather
+     * than pretending the provider is unavailable.
+     */
+    private function probeSteadfastFraud(?string $phone): array
+    {
+        $label = 'SteadFast';
+
+        if ($phone === null || $phone === '') {
+            return $this->providerStatusRow($label, null, 'Enter a phone and press "Check courier" to test this provider.', 'not_tested');
+        }
+
+        try {
+            $config = \App\Models\Courierapi::where('type', 'steadfast')
+                ->where('status', 1)
+                ->first();
+
+            if (! $config || ! $config->isConfigured()) {
+                return $this->providerStatusRow($label, false, 'SteadFast credentials are not configured.', 'not_configured');
+            }
+
+            $base = rtrim((string) $config->url, '/');
+            $base = preg_replace('#/(create_order|get_balance|fraud_check/score/.*)$#', '', $base) ?? $base;
+            $url = $base . '/fraud_check/score/' . rawurlencode($phone);
+
+            $response = Http::withHeaders([
+                'Api-Key'    => (string) $config->api_key,
+                'Secret-Key' => (string) $config->secret_key,
+                'Accept'     => 'application/json',
+            ])->connectTimeout(5)->timeout(12)->get($url);
+
+            $status = $response->status();
+
+            if ($response->successful()) {
+                $parsed = $this->parseCourierFraudScore((array) $response->json());
+
+                if ($parsed === null) {
+                    return $this->providerStatusRow($label, false, 'The API answered HTTP ' . $status . ' but not in a recognisable score shape.', 'live');
+                }
+
+                return $this->providerStatusRow($label, true, 'Fraud score available for this number.', 'live');
+            }
+
+            $body = trim(preg_replace('/\s+/', ' ', (string) $response->body()) ?? '');
+
+            return $this->providerStatusRow(
+                $label,
+                false,
+                'Fraud check failed (HTTP ' . $status . '): ' . mb_substr($body !== '' ? $body : 'no body returned', 0, 220),
+                'live'
+            );
+        } catch (\Throwable $e) {
+            return $this->providerStatusRow($label, false, 'Fraud check could not be reached: ' . $e->getMessage(), 'error');
+        }
+    }
+
+    /** One shape for every provider row, so the view stays simple. */
+    private function providerStatusRow(string $label, ?bool $available, string $reason, string $source): array
+    {
+        return [
+            'label'      => $label,
+            'available'  => $available,
+            'reason'     => $reason,
+            'source'     => $source,
+            'checked_at' => now()->format('d-m-Y h:i a'),
+        ];
+    }
+
     private function normalizePhone(string $phone): string
     {
         $phone = trim($phone);

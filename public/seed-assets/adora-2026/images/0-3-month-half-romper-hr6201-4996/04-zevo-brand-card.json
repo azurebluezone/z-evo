@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "version": "1.1.0",
+  "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/0-3-month-half-romper-hr6201-4996/04-zevo-brand-card.jpg",
+  "output_bytes": 248153,
+  "output_sha256": "831f3da7a83740007f67c525510d6e63b28e1d7b5337e83b21c2d702fcc1ce06",
+  "sidecar": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/0-3-month-half-romper-hr6201-4996/04-zevo-brand-card.json",
+  "canvas": [
+    1200,
+    1200
+  ],
+  "crop_box": [
+    0,
+    0,
+    1200,
+    1200
+  ],
+  "source_size": [
+    1200,
+    1200
+  ],
+  "source_sha256": "301f8b6d252e8ef8136bb065811119819586bd4c2710d8f8869a92ba113d19a3",
+  "title": "Z EVO",
+  "subtitle": "0-3 month Half Romper, HR6201",
+  "attribution": "Z EVO - 0-3 Month",
+  "logo": {
+    "path": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+    "box": [
+      66,
+      66,
+      373,
+      168
+    ],
+    "mode": "image"
+  },
+  "fonts": {
+    "bengali_bold": "/usr/share/fonts/truetype/noto/NotoSansBengali-Bold.ttf",
+    "bengali_regular": "/usr/share/fonts/truetype/noto/NotoSansBengali-Regular.ttf",
+    "latin_bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "latin_regular": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "raqm": true
+  },
+  "provider": null,
+  "source_page": null,
+  "license": null,
+  "creator": null,
+  "created": "2026-11-16T06:31:49.551610+00:00"
+}

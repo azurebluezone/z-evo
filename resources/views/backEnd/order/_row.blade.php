@@ -143,13 +143,20 @@
               <form action="{{route('admin.order.status')}}" method="POST" class="d-inline row-status-form">
                   @csrf
                   <input type="hidden" name="order_ids[]" value="{{$value->id}}">
-                  <select name="order_status" onchange="this.form.submit()" class="row-status-select" style="background-color:{{$statusBg}};color:{{$statusColor}};border:1px solid {{$statusColor}}44;border-radius:30px;padding:3px 10px 3px 10px;font-size:0.775rem;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;min-width:90px;text-align:center;">
+                  <select name="order_status" class="row-status-select" aria-label="Change status for this order" style="background-color:{{$statusBg}};color:{{$statusColor}};border:1px solid {{$statusColor}}44;border-radius:30px;padding:3px 10px 3px 10px;font-size:0.775rem;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;min-width:90px;text-align:center;">
                     @if(isset($orderstatus))
                       @foreach($orderstatus as $st)
                         <option class="text-dark bg-white" value="{{$st->id}}" @if(isset($value->status) && $value->status->id == $st->id) selected @endif>{{$st->name}}</option>
                       @endforeach
                     @endif
                   </select>
+                  {{-- Saving state for the in-row dropdown. The JS disables
+                       the select and shows this while the POST is in flight,
+                       so a slow status save never looks like a dead click. --}}
+                  <span class="row-status-spinner d-none text-primary ms-1" role="status" aria-live="polite">
+                    <span class="spinner-border spinner-border-sm align-middle" aria-hidden="true"></span>
+                    <span class="visually-hidden">Saving status…</span>
+                  </span>
               </form>
             </td>
             <td>
@@ -161,19 +168,17 @@
                     <i class="icon-base ri ri-edit-line icon-22px"></i>
                   </a>
 
-                  {{-- Send to courier. Only offered when the order has not been
-                       booked yet, so the admin cannot create a second billable
-                       consignment from this screen.
-
-                       courierShipments is a hasMany, so first() is the newest
-                       row; any row carrying a consignment_id means the parcel
-                       already exists upstream. --}}
-                  @php $bookedShipment = $value->courierShipments?->firstWhere('consignment_id', '!=', null); @endphp
-                  @if(empty($bookedShipment) || empty($bookedShipment->consignment_id))
-                    <a href="{{route('admin.order.courier.show',['provider'=>'steadfast','order'=>$value->id])}}" class="btn btn-sm btn-icon btn-text-primary waves-effect" title="Send to courier">
-                      <i class="icon-base ri ri-truck-line icon-22px"></i>
-                    </a>
-                  @endif
+                  {{-- Send to courier. The chooser lists EVERY courier and
+                       marks one that already has a consignment for this order,
+                       so the admin can pick the other courier without the icon
+                       disappearing from the list. Nothing is sent until the
+                       preview screen is confirmed. --}}
+                  <a href="{{ route('admin.order.courier.choose', ['order' => $value->id]) }}"
+                     class="btn btn-sm btn-icon btn-text-primary waves-effect"
+                     title="Send to courier"
+                     aria-label="Send order #{{ $value->invoice_id }} to courier">
+                    <i class="icon-base ri ri-truck-line icon-22px" aria-hidden="true"></i>
+                  </a>
 
                   <form method="post" action="{{route('admin.order.destroy')}}" class="d-inline" id="deleteForm-{{$value->id}}">
                       @csrf

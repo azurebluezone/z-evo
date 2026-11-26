@@ -830,4 +830,52 @@
         font-size: 18px;
       }
     }
-  
+
+/* ---------------------------------------------------------------------------
+   Landing order form - the order section of this design's own HTML twin
+   (~/Videos/lp/th4.html). The shared .zlt-* form is restyled here, so every
+   design keeps its own palette while the form and its fields stay one.
+   --------------------------------------------------------------------------- */    body[data-landing-template="th4"] {
+      --zlt-red: #e11d48;
+      --zlt-red-dark: #be123c;
+      --zlt-green: #15803d;
+      --zlt-radius: 20px;
+    }
+
+    body[data-landing-template="th4"] .zlt-order {
+      background: transparent;
+      border-top-color: #e5e7eb;
+    }
+
+    body[data-landing-template="th4"] .zlt-order-card {
+      border-radius: 20px;
+      border-color: #e5e7eb;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    }
+
+    body[data-landing-template="th4"] .zlt-step-number {
+      background: #15803d;
+    }
+
+    body[data-landing-template="th4"] .zlt-option {
+      border-radius: 14px;
+    }
+
+    body[data-landing-template="th4"] .zlt-option.is-active {
+      border-color: #15803d;
+      background: #f0fdf4;
+      box-shadow: none;
+    }
+
+    body[data-landing-template="th4"] .zlt-option-price {
+      color: #15803d;
+    }
+
+    body[data-landing-template="th4"] .zlt-submit {
+      background: #e11d48;
+      box-shadow: 0 14px 28px -16px rgba(225, 29, 72, 0.7);
+    }
+
+    body[data-landing-template="th4"] .zlt-submit:hover {
+      background: #be123c;
+    }

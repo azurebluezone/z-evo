@@ -10,218 +10,253 @@
      * courierapi/manage and courier/{type}/edit), each with its own form and its
      * own test button. They drifted. This page is now the only place a courier
      * key is written; every other entry point redirects here.
+     *
+     * FORM STYLE: the same markup as backEnd/website-setup/appearance.blade.php
+     * (row + col-lg-6 mb-3 + label.form-label + input.form-control). No hint
+     * paragraphs under the fields - the label says what the field is, and the
+     * placeholder shows the expected shape.
      */
-    $providerMeta = [
-        'steadfast' => [
-            'icon'  => 'ri-truck-line',
-            'hint'  => 'Paste the API key and secret key from the SteadFast merchant panel.',
-        ],
-        'pathao' => [
-            'icon'  => 'ri-road-map-line',
-            'hint'  => 'Paste the client credentials and merchant login from the Pathao merchant panel.',
-        ],
+    $providerIcons = [
+        'steadfast' => 'ri-truck-line',
+        'pathao'    => 'ri-road-map-line',
     ];
 @endphp
 
-<div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
-    <div>
-        <h4 class="mb-0">Courier API Settings</h4>
+<div class="row">
+    <div class="col-12">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h4 class="mb-0">Courier API Settings</h4>
+            <x-admin.button variant="outline-secondary" size="sm" href="{{ route('admin.courier.index') }}">
+                <i class="ri ri-arrow-left-line me-1"></i>Couriers
+            </x-admin.button>
+        </div>
+
+        {{-- One result line. Saving already runs the live test, so the message
+             here IS the save confirmation too - printing "Settings saved" next
+             to a refused test would say two different things at once. --}}
+        @if(session('connection_test'))
+            @php
+                $ct = session('connection_test');
+            @endphp
+            <div class="alert {{ ($ct['ok'] ?? false) ? 'alert-success' : 'alert-danger' }} d-flex align-items-center gap-2 py-2">
+                <i class="ri {{ ($ct['ok'] ?? false) ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill' }}"></i>
+                <span>{{ $ct['message'] ?? '' }}</span>
+            </div>
+        @elseif(session('success'))
+            <div class="alert alert-success py-2">{{ session('success') }}</div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger py-2">{{ session('error') }}</div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger py-2">
+                @foreach($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
+
+        @forelse($couriers as $courier)
+            @php
+                $icon      = $providerIcons[$courier->type] ?? 'ri-truck-line';
+                $elementId = 'courier-' . $courier->type;
+                $testTarget = 'test-result-' . $courier->type;
+                $p = $courier->type;
+
+                /*
+                 * A stored secret is never written back into the HTML. The
+                 * field shows a fixed mask instead, and an empty submit means
+                 * "keep the saved value" (CourierController::update() restores
+                 * it). Masking only the type=password dot rendering is not
+                 * enough: the value used to sit in the value attribute, where
+                 * View Source, DevTools and any HTML dump could read it.
+                 */
+                $mask = '••••••••••••';
+            @endphp
+
+            <div class="card mb-4" id="{{ $elementId }}">
+                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2 py-3">
+                    <h5 class="mb-0">
+                        <i class="ri {{ $icon }} me-2"></i>{{ $courier->label() }}
+                    </h5>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="badge {{ $courier->isConfigured() ? 'bg-label-success' : 'bg-label-warning' }}">
+                            {{ $courier->isConfigured() ? 'Configured' : 'Incomplete' }}
+                        </span>
+                        <span class="badge {{ $courier->status ? 'bg-label-success' : 'bg-label-secondary' }}">
+                            {{ $courier->status ? 'Enabled' : 'Disabled' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="POST" action="{{ route('admin.courier.update', $courier->type) }}">
+                        @csrf
+
+                        <div class="row">
+                            @if($courier->type === 'steadfast')
+                                <div class="col-12 col-lg-6 mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <label class="form-label" for="{{ $p }}-api-key">API key</label>
+                                        <span class="badge {{ filled($courier->api_key) ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ filled($courier->api_key) ? 'Saved' : 'Not set' }}
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control" id="{{ $p }}-api-key" name="api_key"
+                                           value="{{ old('api_key') }}"
+                                           placeholder="{{ filled($courier->api_key) ? $mask : '' }}"
+                                           autocomplete="new-password" @if(! filled($courier->api_key)) required @endif>
+                                    @error('api_key')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-12 col-lg-6 mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <label class="form-label" for="{{ $p }}-secret-key">Secret key</label>
+                                        <span class="badge {{ filled($courier->secret_key) ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ filled($courier->secret_key) ? 'Saved' : 'Not set' }}
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control" id="{{ $p }}-secret-key" name="secret_key"
+                                           value="{{ old('secret_key') }}"
+                                           placeholder="{{ filled($courier->secret_key) ? $mask : '' }}"
+                                           autocomplete="new-password" @if(! filled($courier->secret_key)) required @endif>
+                                    @error('secret_key')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
+                            @else
+                                <div class="col-12 col-lg-6 mb-3">
+                                    <label class="form-label" for="{{ $p }}-client-id">Client ID</label>
+                                    <input type="text" class="form-control" id="{{ $p }}-client-id" name="client_id"
+                                           value="{{ old('client_id', $courier->client_id) }}" required>
+                                    @error('client_id')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-12 col-lg-6 mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <label class="form-label" for="{{ $p }}-client-secret">Client secret</label>
+                                        <span class="badge {{ filled($courier->client_secret) ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ filled($courier->client_secret) ? 'Saved' : 'Not set' }}
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control" id="{{ $p }}-client-secret" name="client_secret"
+                                           value="{{ old('client_secret') }}"
+                                           placeholder="{{ filled($courier->client_secret) ? $mask : '' }}"
+                                           autocomplete="new-password" @if(! filled($courier->client_secret)) required @endif>
+                                    @error('client_secret')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-12 col-lg-6 mb-3">
+                                    <label class="form-label" for="{{ $p }}-username">Merchant username</label>
+                                    <input type="email" class="form-control" id="{{ $p }}-username" name="username"
+                                           value="{{ old('username', $courier->username) }}"
+                                           autocomplete="username" required>
+                                    @error('username')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-12 col-lg-6 mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <label class="form-label" for="{{ $p }}-password">Merchant password</label>
+                                        <span class="badge {{ filled($courier->password) ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ filled($courier->password) ? 'Saved' : 'Not set' }}
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control" id="{{ $p }}-password" name="password"
+                                           value="{{ old('password') }}"
+                                           placeholder="{{ filled($courier->password) ? $mask : '' }}"
+                                           autocomplete="new-password" @if(! filled($courier->password)) required @endif>
+                                    @error('password')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
+                            @endif
+
+                            <div class="col-12 mb-3">
+                                <label class="form-label" for="{{ $p }}-url">Base URL</label>
+                                <input type="url" class="form-control" id="{{ $p }}-url" name="url"
+                                       value="{{ old('url', $courier->url) }}"
+                                       placeholder="{{ $courier->type === 'pathao' ? 'https://courier-api-sandbox.pathao.com' : 'https://portal.packzy.com/api/v1' }}"
+                                       required>
+                                @error('url')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div class="col-12 col-lg-6 mb-3">
+                                <label class="form-label d-block" for="{{ $p }}-status">Status</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           id="{{ $p }}-status" name="status" value="1"
+                                           @checked(old('status', $courier->status))>
+                                    <label class="form-check-label" for="{{ $p }}-status">Enabled</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <x-admin.button variant="primary" shape="square" ripple="true" type="submit">
+                                <i class="ri ri-save-line me-1"></i>Save
+                            </x-admin.button>
+                            <x-admin.button variant="outline-secondary" shape="square" ripple="true" type="button"
+                                            class="js-courier-test"
+                                            data-url="{{ route('admin.courier.test', $courier->type) }}"
+                                            data-target="{{ $testTarget }}">
+                                <i class="ri ri-test-tube-line me-1"></i>Test
+                            </x-admin.button>
+                        </div>
+                    </form>
+
+                    <div class="mt-2 small" id="{{ $testTarget }}" aria-live="polite"></div>
+
+                    <div class="border-top pt-3 mt-4">
+                        <h6 class="mb-3">
+                            <i class="ri ri-webhook-line me-1"></i>Delivery webhook
+                        </h6>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-lg-6 mb-3">
+                                <label class="form-label" for="hook-url-{{ $courier->type }}">Webhook endpoint</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" readonly
+                                           value="{{ url('/api/' . $courier->type . '-webhook') }}"
+                                           id="hook-url-{{ $courier->type }}">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                            data-copy="hook-url-{{ $courier->type }}">Copy</button>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 mb-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <label class="form-label" for="hook-token-{{ $courier->type }}">Webhook token</label>
+                                    <span class="badge {{ filled($courier->webhook_token) ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                        {{ filled($courier->webhook_token) ? 'Saved' : 'Not set' }}
+                                    </span>
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" readonly
+                                           value="{{ filled($courier->webhook_token) ? $mask : '' }}"
+                                           placeholder="{{ filled($courier->webhook_token) ? '' : '— none generated yet —' }}"
+                                           id="hook-token-{{ $courier->type }}">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                            data-copy-url="{{ route('admin.courier.webhook-token', $courier->type) }}">Copy token</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ route('admin.courier.rotate-token', $courier->type) }}"
+                              onsubmit="return confirm('Rotate the token? The old token stops working immediately and the courier portal must be updated.');">
+                            @csrf
+                            <x-admin.button variant="outline-warning" size="sm" type="submit">
+                                <i class="ri ri-refresh-line me-1"></i>{{ $courier->webhook_token ? 'Rotate token' : 'Generate token' }}
+                            </x-admin.button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        @empty
+            <div class="card">
+                <div class="card-body text-center text-muted py-5">
+                    No courier accounts exist yet.
+                </div>
+            </div>
+        @endforelse
+
     </div>
-    <x-admin.button variant="outline-secondary" size="sm" href="{{ route('admin.courier.index') }}">
-        <i class="ri ri-arrow-left-line me-1"></i>Couriers overview
-    </x-admin.button>
 </div>
-
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
-@if(session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
-@endif
-
-@if($errors->any())
-    <div class="alert alert-danger">
-        <strong>The settings were not saved.</strong>
-        <ul class="mb-0 mt-1 ps-3">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-{{-- A test run as part of saving shows its steps here, so the admin does not
-     have to press Test again to find out what happened. --}}
-@if(session('connection_test'))
-    @php
-        $ct = session('connection_test');
-    @endphp
-    <div class="alert {{ ($ct['ok'] ?? false) ? 'alert-success' : 'alert-warning' }}">
-        <strong>{{ $ct['message'] ?? '' }}</strong>
-        <ul class="mb-0 mt-2 ps-3">
-            @foreach(($ct['steps'] ?? []) as $step)
-                <li>
-                    {{ !empty($step['ok']) ? '✓' : '✗' }} {{ $step['label'] }}
-                    @if(!empty($step['detail']))
-                        <span class="text-muted">— {{ $step['detail'] }}</span>
-                    @endif
-                </li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-@forelse($couriers as $courier)
-    @php
-        $meta = $providerMeta[$courier->type] ?? ['icon' => 'ri-truck-line', 'hint' => ''];
-        $elementId = 'courier-' . $courier->type;
-        $testTarget = 'test-result-' . $courier->type;
-    @endphp
-
-    <div class="card mb-4" id="{{ $elementId }}">
-        <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
-            <div>
-                <h5 class="mb-0">
-                    <i class="ri {{ $meta['icon'] }} me-2"></i>{{ $courier->label() }}
-                </h5>
-                <p class="text-muted small mb-0">{{ $meta['hint'] }}</p>
-            </div>
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                @if($courier->isConfigured())
-                    <span class="badge bg-label-info">Credentials complete</span>
-                @else
-                    <span class="badge bg-label-warning">Credentials incomplete</span>
-                @endif
-                <span class="badge {{ $courier->status ? 'bg-label-success' : 'bg-label-secondary' }}">
-                    {{ $courier->status ? 'Enabled' : 'Disabled' }}
-                </span>
-            </div>
-        </div>
-
-        <div class="card-body">
-            <form method="POST" action="{{ route('admin.courier.update', $courier->type) }}">
-                @csrf
-
-                <div class="row g-3">
-                    @if($courier->type === 'steadfast')
-                        <div class="col-12 col-lg-6">
-                            <x-admin.input name="api_key" label="API key" :value="$courier->api_key"
-                                           placeholder="Your SteadFast API key" required />
-                        </div>
-                        <div class="col-12 col-lg-6">
-                            <x-admin.input name="secret_key" label="Secret key" type="password"
-                                           :value="$courier->secret_key" placeholder="Your SteadFast secret key"
-                                           autocomplete="new-password" required />
-                        </div>
-                    @else
-                        <div class="col-12 col-lg-6">
-                            <x-admin.input name="client_id" label="Client ID" :value="$courier->client_id"
-                                           placeholder="Client ID from Pathao" required />
-                        </div>
-                        <div class="col-12 col-lg-6">
-                            <x-admin.input name="client_secret" label="Client secret" type="password"
-                                           :value="$courier->client_secret" placeholder="Client secret from Pathao"
-                                           autocomplete="new-password" required />
-                        </div>
-                        <div class="col-12 col-lg-6">
-                            <x-admin.input name="username" label="Merchant username" type="email"
-                                           :value="$courier->username" placeholder="merchant@example.com"
-                                           autocomplete="username" required />
-                        </div>
-                        <div class="col-12 col-lg-6">
-                            <x-admin.input name="password" label="Merchant password" type="password"
-                                           :value="$courier->password" placeholder="Pathao merchant password"
-                                           autocomplete="new-password" required />
-                        </div>
-                    @endif
-
-                    <div class="col-12 col-lg-8">
-                        <x-admin.input name="url" label="Base URL" type="url" :value="$courier->url"
-                                       placeholder="https://"
-                                       :help="$courier->type === 'steadfast'
-                                            ? 'The api/v1 root, e.g. https://portal.packzy.com/api/v1. A create_order endpoint is also accepted.'
-                                            : 'Production: https://api-hermes.pathao.com · Sandbox: https://courier-api-sandbox.pathao.com'"
-                                       required />
-                    </div>
-
-                    <div class="col-12 col-lg-4">
-                        <label class="form-label d-block">Availability</label>
-                        <x-admin.switch name="status" label="Enabled for checkout" :checked="(bool) $courier->status"
-                                        help="Only a configured courier can be enabled." />
-                    </div>
-                </div>
-
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <x-admin.button variant="primary" type="submit">
-                        <i class="ri ri-save-line me-1"></i>Save settings
-                    </x-admin.button>
-                    <x-admin.button variant="outline-secondary" type="button"
-                                    class="js-courier-test"
-                                    data-url="{{ route('admin.courier.test', $courier->type) }}"
-                                    data-target="{{ $testTarget }}">
-                        <i class="ri ri-test-tube-line me-1"></i>Test connection
-                    </x-admin.button>
-                </div>
-            </form>
-
-            <div class="mt-3" id="{{ $testTarget }}" aria-live="polite"></div>
-
-            <div class="border-top pt-3 mt-4">
-                <h6 class="mb-1">
-                    <i class="ri ri-webhook-line me-1"></i>Delivery webhook
-                </h6>
-                <p class="text-muted small mb-3">
-                    Paste the endpoint and bearer token into {{ $courier->label() }}'s portal.
-                    Requests without the token are refused with HTTP 401.
-                </p>
-
-                <div class="row g-3">
-                    <div class="col-12 col-lg-6">
-                        <label class="form-label" for="hook-url-{{ $courier->type }}">Webhook endpoint</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" readonly
-                                   value="{{ url('/api/' . $courier->type . '-webhook') }}"
-                                   id="hook-url-{{ $courier->type }}">
-                            <button class="btn btn-outline-secondary" type="button"
-                                    data-copy="hook-url-{{ $courier->type }}">Copy</button>
-                        </div>
-                        <div class="form-text">Must be publicly reachable while this courier is enabled.</div>
-                    </div>
-
-                    <div class="col-12 col-lg-6">
-                        <label class="form-label" for="hook-token-{{ $courier->type }}">Bearer token</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" readonly
-                                   value="{{ $courier->webhook_token ?: '— none generated yet —' }}"
-                                   id="hook-token-{{ $courier->type }}">
-                            <button class="btn btn-outline-secondary" type="button"
-                                    data-copy="hook-token-{{ $courier->type }}">Copy</button>
-                        </div>
-                        <div class="form-text">
-                            Rotating a token invalidates the old one immediately; update the courier portal in the same step.
-                        </div>
-                    </div>
-                </div>
-
-                <form method="POST" action="{{ route('admin.courier.rotate-token', $courier->type) }}"
-                      class="mt-3"
-                      onsubmit="return confirm('Rotate the token? The old token stops working immediately and the courier portal must be updated.');">
-                    @csrf
-                    <x-admin.button variant="outline-warning" size="sm" type="submit">
-                        <i class="ri ri-refresh-line me-1"></i>{{ $courier->webhook_token ? 'Rotate token' : 'Generate token' }}
-                    </x-admin.button>
-                </form>
-            </div>
-        </div>
-    </div>
-@empty
-    <div class="card">
-        <div class="card-body text-center text-muted py-5">
-            No courier accounts exist yet. Run the courier migration, then reload this page.
-        </div>
-    </div>
-@endforelse
-
 @endsection
 
 @section('script')

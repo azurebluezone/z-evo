@@ -1,0 +1,17 @@
+{
+ "input": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/0-3-month-half-romper-hr6201-4996/01-zevo-main.jpg",
+ "output": "/home/sahon/Desktop/new evo/public/seed-assets/adora-2026/images/0-3-month-half-romper-hr6201-4996/04-zevo-brand-card.jpg",
+ "title": "Z EVO",
+ "subtitle": "0-3 month Half Romper, HR6201",
+ "attribution": "Z EVO - 0-3 Month",
+ "logo": "/home/sahon/Desktop/new evo/work/zevo/logo.png",
+ "crop": {
+  "aspect": "1:1",
+  "focus": "center"
+ },
+ "canvas": {
+  "width": 1200,
+  "height": 1200
+ },
+ "quality": 90
+}

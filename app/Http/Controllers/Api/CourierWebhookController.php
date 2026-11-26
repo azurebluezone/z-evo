@@ -268,8 +268,36 @@ class CourierWebhookController extends Controller
                 return response()->json(['ok' => true, 'mapped' => true, 'regressed' => true]);
             }
 
-            $order->order_status = $status->id;
-            $order->save();
+            // The same lifecycle the admin panel uses, so a webhook delivery
+            // also books the SALE in the ledger and stamps delivered_at. This
+            // used to write order_status directly, which left the inventory
+            // untouched and made the delivered revenue impossible to reconcile.
+            try {
+                app(\App\Services\OrderLifecycle::class)->transition(
+                    $order,
+                    (string) $status->slug,
+                    Carbon::now(),
+                    null,
+                    'Courier ' . $provider . ' reported: ' . $raw
+                );
+            } catch (\Throwable $e) {
+                // A stock inconsistency must not answer the courier with a 500:
+                // it would retry the callback forever. The order keeps its
+                // current status and the failure lands in the log.
+                Log::error('Courier webhook could not apply order status', [
+                    'order_id' => $order->id,
+                    'slug' => $status->slug,
+                    'courier_status' => $raw,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return response()->json([
+                    'ok' => true,
+                    'mapped' => true,
+                    'applied' => false,
+                    'reason' => 'local_status_change_failed',
+                ]);
+            }
         }
 
         return response()->json([

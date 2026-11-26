@@ -28,6 +28,33 @@
         });
     }
 
+    function syncIconPreview(select) {
+        if (!select) {
+            return;
+        }
+
+        var column = select.closest('[data-column]') || select.parentElement;
+        if (!column) {
+            return;
+        }
+
+        var preview = column.querySelector('.js-icon-preview');
+        var label = column.querySelector('.js-icon-preview-label');
+        var option = select.options[select.selectedIndex];
+
+        if (preview) {
+            preview.className = (select.value || 'fa-solid fa-circle-check') + ' js-icon-preview';
+        }
+
+        if (label) {
+            label.textContent = option ? option.text : '';
+        }
+    }
+
+    function initIconPreviews() {
+        panel.querySelectorAll('.js-icon-select').forEach(syncIconPreview);
+    }
+
     function syncTemplateFields() {
         if (!templateSelect) {
             return;
@@ -45,8 +72,6 @@
             allowedColumns = entry.columns && typeof entry.columns === 'object' ? entry.columns : null;
         }
 
-        var visibleGroups = 0;
-
         panel.querySelectorAll('[data-field]').forEach(function (node) {
             if (node.tagName === 'TEMPLATE') {
                 return;
@@ -57,10 +82,6 @@
 
             node.classList.toggle('d-none', !visible);
             setInputsDisabled(node, !visible);
-
-            if (visible && node.classList.contains('landing-content-field')) {
-                visibleGroups += 1;
-            }
 
             if (!visible || !allowedColumns || !Array.isArray(allowedColumns[field])) {
                 return;
@@ -76,17 +97,13 @@
                 setInputsDisabled(columnNode, !showColumn);
             });
         });
-
-        var emptyState = document.getElementById('landingContentEmpty');
-        if (emptyState) {
-            emptyState.classList.toggle('d-none', visibleGroups > 0);
-        }
     }
-
     if (templateSelect) {
         templateSelect.addEventListener('change', syncTemplateFields);
         syncTemplateFields();
     }
+
+    initIconPreviews();
 
     var nextIndex = 1000;
 
@@ -105,6 +122,11 @@
             rows.insertAdjacentHTML('beforeend', template.innerHTML.replace(/__INDEX__/g, String(nextIndex)));
             nextIndex += 1;
             syncTemplateFields();
+            initIconPreviews();
+
+            if (window.AdminQuill && typeof window.AdminQuill.initAll === 'function') {
+                window.AdminQuill.initAll();
+            }
             return;
         }
 
@@ -116,5 +138,37 @@
                 row.remove();
             }
         }
+    });
+
+    // Repeater image columns upload a file and keep the stored path in a
+    // hidden field; show the chosen file immediately instead of waiting for
+    // a save/reload cycle.
+    panel.addEventListener('change', function (event) {
+        var input = event.target;
+
+        if (input && input.classList && input.classList.contains('js-icon-select')) {
+            syncIconPreview(input);
+            return;
+        }
+
+        if (!input || !input.classList || !input.classList.contains('js-repeater-image')) {
+            return;
+        }
+
+        var file = input.files && input.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        var column = input.closest('[data-column]');
+        var preview = column ? column.querySelector('.js-repeater-image-preview') : null;
+
+        if (!preview) {
+            return;
+        }
+
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('d-none');
     });
 })();

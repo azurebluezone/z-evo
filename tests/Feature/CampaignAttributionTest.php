@@ -46,7 +46,7 @@ class CampaignAttributionTest extends TestCase
 
     public function test_campaign_page_renders_attribution_context_and_funnel_hooks(): void
     {
-        [$product, $campaign] = $this->createCampaignPage('sample-template');
+        [$product, $campaign] = $this->createCampaignPage('ht2');
 
         $response = $this->get('/campaign/' . $campaign->slug);
 
@@ -70,7 +70,7 @@ class CampaignAttributionTest extends TestCase
 
     public function test_collector_persists_campaign_id_and_details_for_the_funnel(): void
     {
-        [$product, $campaign] = $this->createCampaignPage('sample-template');
+        [$product, $campaign] = $this->createCampaignPage('ht2');
 
         $visitorId = (string) Str::uuid();
         $this->visitorIds[] = $visitorId;
@@ -89,7 +89,7 @@ class CampaignAttributionTest extends TestCase
             'campaign_id' => (int) $campaign->id,
             'campaign_slug' => $campaign->slug,
             'campaign_name' => $campaign->name,
-            'campaign_template' => 'sample-template',
+            'campaign_template' => 'ht2',
             'product_id' => (int) $product->id,
             'product_name' => $product->name,
             'value' => 900,
@@ -160,7 +160,6 @@ class CampaignAttributionTest extends TestCase
             'purchase_price' => 800,
             'old_price' => 1500,
             'new_price' => 1200,
-            'stock' => 20,
             'meta_description' => null,
             'description' => 'QA attribution product description',
             'topsale' => null,

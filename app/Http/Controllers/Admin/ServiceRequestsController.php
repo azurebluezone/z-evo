@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\NotificationTemplate;
 use App\Models\ServiceRequest;
+use App\Services\NotificationDispatcher;
+use App\Support\NotificationVariables;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Toastr;
 
 class ServiceRequestsController extends Controller
@@ -55,7 +59,13 @@ class ServiceRequestsController extends Controller
             'status' => ['required', 'in:pending,approved'],
         ]);
 
+        $previousStatus = (string) $requestItem->status;
+
         $requestItem->update($validated);
+
+        if ((string) $requestItem->status !== $previousStatus) {
+            $this->notifyStatusChange($requestItem);
+        }
 
         Toastr::success('Service request updated', 'Success!');
         return redirect()->route('admin.user-submissions.service-requests.index');
@@ -69,10 +79,57 @@ class ServiceRequestsController extends Controller
             'status' => ['required', 'in:pending,approved'],
         ]);
 
+        $previousStatus = (string) $requestItem->status;
+
         $requestItem->update($validated);
+
+        if ((string) $requestItem->status !== $previousStatus) {
+            $this->notifyStatusChange($requestItem);
+        }
 
         Toastr::success('Status updated', 'Success!');
         return redirect()->back();
+    }
+
+    /**
+     * Send the approved/pending customer template when the status changed.
+     * Only accounts matched by phone can receive it; the bulk Notify screen
+     * remains the fallback for everyone else.
+     */
+    private function notifyStatusChange(ServiceRequest $requestItem): void
+    {
+        $eventKey = match ((string) $requestItem->status) {
+            'approved' => 'support.request.approved',
+            'pending' => 'support.request.pending',
+            default => null,
+        };
+
+        if ($eventKey === null) {
+            return;
+        }
+
+        $customer = Customer::query()->where('phone', $requestItem->phone)->first();
+
+        if (! $customer) {
+            return;
+        }
+
+        try {
+            $variables = array_merge(NotificationVariables::base(), [
+                'customer_name' => (string) ($customer->name ?: trim($requestItem->first_name . ' ' . $requestItem->last_name)),
+                'customer_phone' => (string) $requestItem->phone,
+                'service_type' => (string) $requestItem->service_type,
+                'support_note' => '',
+            ]);
+
+            app(NotificationDispatcher::class)->send($eventKey, $variables, [$customer]);
+        } catch (\Throwable $e) {
+            Log::warning('Service request status notification failed', [
+                'service_request_id' => $requestItem->id,
+                'status' => $requestItem->status,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function destroy($id)

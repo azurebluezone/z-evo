@@ -1,0 +1,60 @@
+{
+  "version": 2,
+  "name": "Z EVO",
+  "tagline": "Everyday Essentials for Little Ones",
+  "primary_color": "#003c9e",
+  "secondary_color": "#00a3e0",
+  "logo": "logo.png",
+  "logo_white": "logo-white.png",
+  "favicon": "favicon.png",
+  "banner": "banner.jpg",
+  "hero_title": "Z EVO - Everyday Essentials for Little Ones",
+  "footer_about": "Z EVO brings export-quality baby and kids clothing to Bangladesh: soft cotton, honest prices and sizes from premature to adults.",
+  "videos": [
+    {
+      "file": "videos/zevo-banner-01.mp4",
+      "title": "Z EVO - New Arrivals",
+      "bytes": 1999108
+    },
+    {
+      "file": "videos/zevo-banner-02.mp4",
+      "title": "Z EVO - Everyday Comfort",
+      "bytes": 2002107
+    },
+    {
+      "file": "videos/zevo-banner-03.mp4",
+      "title": "Z EVO - Little Moments",
+      "bytes": 2007905
+    },
+    {
+      "file": "videos/zevo-banner-04.mp4",
+      "title": "Z EVO - Soft Cotton",
+      "bytes": 1986955
+    },
+    {
+      "file": "videos/zevo-banner-05.mp4",
+      "title": "Z EVO - Play All Day",
+      "bytes": 1984017
+    },
+    {
+      "file": "videos/zevo-banner-06.mp4",
+      "title": "Z EVO - Export Quality",
+      "bytes": 2006652
+    },
+    {
+      "file": "videos/zevo-banner-07.mp4",
+      "title": "Z EVO - Sleep Tight",
+      "bytes": 2006278
+    },
+    {
+      "file": "videos/zevo-banner-08.mp4",
+      "title": "Z EVO - Brand Story",
+      "bytes": 3693807
+    },
+    {
+      "file": "videos/zevo-banner-09.mp4",
+      "title": "Z EVO - Shop the Look",
+      "bytes": 1791266
+    }
+  ]
+}

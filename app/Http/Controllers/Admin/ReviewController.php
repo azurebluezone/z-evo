@@ -111,7 +111,7 @@ class ReviewController extends Controller
     public function show($id)
     {
         $review = Review::with([
-            'product:id,name,product_code,new_price,stock,status',
+            'product:id,name,product_code,new_price,status',
             'customer:id,name,email,phone,status',
         ])->findOrFail($id);
 

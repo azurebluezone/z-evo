@@ -206,6 +206,11 @@
     </section>
 @endif
 
+{{-- The order form belongs to this design's own page flow: the HTML twin
+     puts it here, so the shared layout skips its own include and the page
+     still shows exactly one order form. --}}
+@include('frontend.landing.partials.order-section', ['tpl' => $tpl])
+
 @if($tpl->isEnabled('faq_question') && $faqRows !== [])
     <section class="zombie-section bg-white">
         <div class="container">

@@ -6,12 +6,7 @@
   data-skin="default"
   data-bs-theme="light"
   data-assets-path="{{ asset('admin/assets') }}/"
-  data-template="vertical-menu-template"
-  data-flash-success="{{ json_encode(Session::get('success')) }}"
-  data-flash-error="{{ json_encode(Session::get('error')) }}"
-  data-flash-warning="{{ json_encode(Session::get('warning')) }}"
-  data-flash-info="{{ json_encode(session('info')) }}"
-  data-flash-validation="{{ json_encode($errors->first()) }}">
+  data-template="vertical-menu-template">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -46,7 +41,19 @@
     <script src="{{ asset('admin/assets/js/config.js') }}"></script>
 </head>
 
-<body>
+{{--
+    Flash values live on <body> because admin-app-alerts.js reads them from
+    document.body. They used to sit on <html>, so every ->with('success')
+    message (including the inventory adjustment toast) was silently dropped.
+    Toastr::message() still renders the package's own toastr::messages bag;
+    these attributes are the second, non-overlapping source.
+--}}
+<body
+    data-flash-success="{{ json_encode(Session::get('success')) }}"
+    data-flash-error="{{ json_encode(Session::get('error')) }}"
+    data-flash-warning="{{ json_encode(Session::get('warning')) }}"
+    data-flash-info="{{ json_encode(session('info')) }}"
+    data-flash-validation="{{ json_encode($errors->first()) }}">
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">

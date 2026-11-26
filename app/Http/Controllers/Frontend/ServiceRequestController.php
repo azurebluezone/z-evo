@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ServiceRequest;
 use App\Models\User;
-use App\Notifications\GenericDbNotification;
+use App\Services\NotificationDispatcher;
+use App\Support\NotificationVariables;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Log;
 use Toastr;
 
 class ServiceRequestController extends Controller
@@ -36,15 +38,30 @@ class ServiceRequestController extends Controller
 
         ServiceRequest::create($validated + ['status' => 'pending']);
 
-        // Notify admin about new service request
+        // Event-keyed templates: every admin gets the internal copy; the
+        // customer copy only sends when the submitted phone belongs to an
+        // account. A notification failure must never lose the request.
         try {
-            Notification::send(User::all(), new GenericDbNotification(
-                title: 'New Service Request',
-                body: "Service request from {$validated['first_name']} {$validated['last_name']} ({$validated['phone']}): {$validated['service_type']}",
-                meta: ['type' => 'service_request', 'phone' => $validated['phone']]
-            ));
+            $name = trim($validated['first_name'] . ' ' . $validated['last_name']);
+
+            $variables = array_merge(NotificationVariables::base(), [
+                'customer_name' => $name,
+                'customer_phone' => $validated['phone'],
+                'service_type' => $validated['service_type'],
+            ]);
+
+            $dispatcher = app(NotificationDispatcher::class);
+            $dispatcher->send('admin.service.request.received', $variables, User::query()->get());
+
+            $customer = Customer::query()->where('phone', $validated['phone'])->first();
+            if ($customer) {
+                $dispatcher->send('support.request.received', $variables, [$customer]);
+            }
         } catch (\Throwable $e) {
-            // no-op
+            Log::warning('Service request notification failed', [
+                'phone' => $validated['phone'],
+                'error' => $e->getMessage(),
+            ]);
         }
 
         Toastr::success('Your service request has been submitted', 'Success!');

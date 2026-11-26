@@ -40,13 +40,21 @@
         ? \App\Support\MediaPath::url($fmAcctImage, 'settings')
         : '';
 
+    // A value that resolves to the bundled placeholder is "no photo on file".
+    // The seeded 'public/uploads/default/user.png' is exactly that: MediaPath
+    // cannot find the file and answers with assets/images/default.png, which is
+    // a 600x600 illustration, not an avatar. The initial chip reads better and
+    // costs no request.
+    $fmAcctHasImage = $fmAcctImgUrl !== ''
+        && $fmAcctImgUrl !== \App\Support\MediaPath::fallbackUrl();
+
     // One active-state decision for the whole rail. request()->is() matches the
     // same URI patterns the classic sidebar used, so a page does not lose its
     // highlight just because it was rewritten.
     $fmAcctPath = '/' . ltrim(request()->path(), '/');
 
     $fmAcctLinks = [
-        ['route' => 'customer.account',              'path' => 'customer/account',       'icon' => 'bi-person',            'label' => 'My Account'],
+        ['route' => 'customer.account',              'path' => 'customer/account',       'also' => 'customer/dashboard', 'icon' => 'bi-person',            'label' => 'My Account'],
         ['route' => 'customer.orders',               'path' => 'customer/orders',        'icon' => 'bi-bag-check',         'label' => 'My Orders'],
         ['route' => 'customer.notifications.index',  'path' => 'customer/notifications', 'icon' => 'bi-bell',              'label' => 'Notifications'],
         ['route' => 'customer.profile_edit',         'path' => 'customer/profile-edit',  'icon' => 'bi-pencil-square',     'label' => 'Profile Edit'],
@@ -58,7 +66,7 @@
 <!-- FM:SECTION account-identity -->
 <aside class="fm-acct-nav" aria-label="Account">
     <div class="fm-acct-nav__id">
-        @if($fmAcctImgUrl !== '')
+        @if($fmAcctHasImage)
             <img class="fm-acct-nav__avatar" src="{{ $fmAcctImgUrl }}" alt="" width="56" height="56">
         @else
             <span class="fm-acct-nav__avatar fm-acct-nav__avatar--initial" aria-hidden="true">{{ $fmAcctInitial }}</span>
@@ -76,7 +84,11 @@
         <ul>
             @foreach($fmAcctLinks as $fmAcctLink)
                 @php
-                    $fmAcctActive = $fmAcctPath === '/' . $fmAcctLink['path'];
+                    // The dashboard alias highlights the same entry as the
+                    // account page, otherwise /customer/dashboard showed no
+                    // active item at all.
+                    $fmAcctActive = $fmAcctPath === '/' . $fmAcctLink['path']
+                        || (isset($fmAcctLink['also']) && $fmAcctPath === '/' . $fmAcctLink['also']);
                     $fmAcctHref  = route($fmAcctLink['route']);
                 @endphp
                 <li>
