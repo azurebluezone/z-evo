@@ -207,12 +207,27 @@ else
     bad "HEAD does not contain the ^12.74 constraint"
 fi
 
-DIRTY="$(git status --porcelain -- composer.json composer.lock app config tests database docs STATUS.md tools/verify/laravel12_upgrade.sh)"
+DIRTY="$(git status --porcelain -- README.md composer.json composer.lock app config tests database docs STATUS.md tools/verify/laravel12_upgrade.sh)"
 if [ -z "$DIRTY" ]; then
     ok "every upgrade path is committed"
 else
     printf '%s\n' "$DIRTY" >>"$LOG"
     bad "uncommitted upgrade paths remain: $(printf '%s' "$DIRTY" | wc -l | tr -d ' ')"
+fi
+
+echo "=== 10. README claims ===" | tee -a "$LOG"
+if grep -qF 'Laravel 12.74' README.md && ! grep -qF 'Laravel 10' README.md; then
+    ok "README names Laravel 12.74 and carries no Laravel 10 claim"
+else
+    bad "README still claims an older framework version"
+fi
+
+echo "=== 11. Remote sync ===" | tee -a "$LOG"
+BRANCH_LINE="$(git status -sb | head -1)"
+if printf '%s' "$BRANCH_LINE" | grep -q 'origin/main' && ! printf '%s' "$BRANCH_LINE" | grep -qE '\[(ahead|behind)'; then
+    ok "branch is in sync with origin/main"
+else
+    bad "branch is not in sync with origin/main: ${BRANCH_LINE:-<no branch line>}"
 fi
 
 echo "=== Result ===" | tee -a "$LOG"

@@ -1,6 +1,6 @@
 # Z Evo-Commerce
 
-Z Evo-Commerce is a Laravel 10 storefront, admin back office and JSON API in one
+Z Evo-Commerce is a Laravel 12 storefront, admin back office and JSON API in one
 codebase. It covers a three-level catalogue with per-variant stock, a full order
 lifecycle with courier hand-off, online payments, campaign landing pages and
 first-party visitor analytics.
@@ -9,7 +9,7 @@ first-party visitor analytics.
 
 | Snapshot | Measured value |
 | --- | --- |
-| Framework | Laravel 10.50.5 |
+| Framework | Laravel 12.74.0 |
 | PHP at build time | 8.4.27 (Composer dependency floor: 8.4.1) |
 | Route definitions | 558 (539 in `routes/web.php`, 19 in `routes/api.php`) |
 | Controllers | 88 classes under `app/Http/Controllers` |
@@ -61,7 +61,7 @@ the code disagree, so this table cannot drift silently.
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Laravel 10.50.5 |
+| Framework | Laravel 12.74.0 |
 | Runtime | PHP 8.4.1 or newer (enforced by `vendor/composer/platform_check.php`) |
 | Database | MySQL 5.7+ / MariaDB 10.5+ |
 | Views | Blade; the `fm` storefront theme ships as 126 separate views |
@@ -296,15 +296,13 @@ hard to remove from public history.
 - Keep `APP_DEBUG=false` and `APP_ENV=production` on live servers
 - Courier webhook tokens are stored masked and printed only on demand
 
-### Known framework risk (recorded 2026-11-26)
+### Framework security posture (updated 2026-11-26)
 
-`composer audit` reports five advisories against `laravel/framework`: one high
-(CRLF injection in the default email rule), one medium (temporary signed URL
-path confusion), two low and one unrated duplicate. Every advisory lists its fix
-in 12.71+ or 13.40+, so the pinned `10.x-dev` branch cannot receive them, and
-Laravel 10 is past security support.
+The framework moved from the `10.x-dev` branch to the tagged 12.74.0 release,
+so the five advisories recorded against the old branch are closed and
+`composer audit` now reports no advisories. The same release replaced Sanctum 3
+with 4, Spatie permission 5 with 6 and collision 7 with 8; `STATUS.md` §0 keeps
+the full record and `tools/verify/laravel12_upgrade.sh` is the repeatable gate.
 
-The remediation is a planned major upgrade to Laravel 12, checking the Spatie
-and payment packages against it, and pinning a tagged framework release instead
-of the dev branch. Until that upgrade lands: keep `APP_DEBUG=false`, serve the
-app only over TLS, and never pass untrusted input into mail headers.
+Baseline hardening that still applies: keep `APP_DEBUG=false`, serve the app
+only over TLS, and never pass untrusted input into mail headers.
