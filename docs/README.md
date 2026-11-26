@@ -34,6 +34,7 @@ they are not re-added.
 | `PLAN-reports-analytics-2026-11-16.md` | Reports and analytics upgrade plan | human reference |
 | `SECURITY-php2shell-2026-10-24.md` | CVE exposure assessment and shipped hardening | human reference |
 | `SEED-ASSETS-ADORA-2026.md` | Portable Adora 2026 demo asset bundle | human reference |
+| `UPGRADE-laravel12-2026-11-26.md` | Measured Laravel 10 to 12 blocker assessment and ordered plan (delete once the upgrade lands) | `tools/verify/laravel12_blockers.sh` |
 | `visitor-analytics-redesign-plan.md` | Visitor and analytics admin redesign | human reference |
 | `admin-form-inputs.md` | Where the admin forms differ from each other | human reference |
 | `specs/2026-10-28-job-a-admin-pages-sidebar-courier.md` | Pages sidebar and courier job spec | human reference |
