@@ -22,6 +22,9 @@ note() { printf 'PASS: %s\n' "$*"; }
 bad()  { printf 'FAIL: %s\n' "$*"; fail=1; }
 
 echo "=== 1. Syntax of the committed slice ==="
+# 013e2f6 is the commit this contract started from; everything from there to
+# HEAD is the slice the release is judged on.
+BASE="${SHIP_BASE:-013e2f6}"
 while IFS= read -r f; do
     [ -n "$f" ] || continue
     [ -f "$f" ] || continue
@@ -37,7 +40,7 @@ while IFS= read -r f; do
             ;;
     esac
     printf 'PASS: %s\n' "$f"
-done < <(git show --name-only --format='' HEAD)
+done < <(git diff --name-only "$BASE"..HEAD)
 
 echo "=== 2. Full PHPUnit suite ==="
 if php artisan test > "$ARTIFACTS/ship-suite.log" 2>&1; then
