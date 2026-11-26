@@ -107,7 +107,7 @@
                     <tr>
                         <th style="width:6%">SL</th>
                         <th style="width:44%">Product Name</th>
-                        <th style="width:18%" class="text-end">Price</th>
+                        <th style="width:18%" class="text-end" title="Weighted average of the variant prices">Avg. Price</th>
                         <th style="width:16%" class="text-end">Stock</th>
                         <th style="width:16%" class="text-end">Total</th>
                     </tr>
@@ -117,9 +117,9 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $product->name }}</td>
-                            <td class="text-end">{{ number_format((float) $product->new_price, 2) }}</td>
-                            <td class="text-end">{{ number_format((float) $product->stock) }}</td>
-                            <td class="text-end fw-medium">{{ number_format((float) $product->stock * (float) $product->new_price, 2) }}</td>
+                            <td class="text-end">{{ number_format((float) ($product->unit_price ?? $product->new_price), 2) }}</td>
+                            <td class="text-end">{{ number_format((float) $product->stock_on_hand) }}</td>
+                            <td class="text-end fw-medium">{{ number_format((float) ($product->stock_value ?? ((float) $product->stock_on_hand * (float) $product->new_price)), 2) }}</td>
                         </tr>
                     @empty
                         <tr>

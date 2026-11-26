@@ -167,11 +167,17 @@
                                     @if(isset($product) && method_exists($product, 'isInStock') && !$product->isInStock())
                                         <div class="alert alert-warning mb-0">Out of stock</div>
                                     @else
+                                        @php
+                                            // The server knows how many units can ship; the
+                                            // stepper must not invent a bigger number. A
+                                            // variant pick narrows this again in product_details.js.
+                                            $maxStock = max(1, (int) $product->displayStockQuantity());
+                                        @endphp
                                         <div class="product-add-to-cart">
-                                            <div class="product-quantity-input d-flex quantity" data-update="no">
+                                            <div class="product-quantity-input d-flex quantity" data-update="no" data-max-stock="{{ $maxStock }}">
                                                 <button class="qtyButton minus" disabled><i class="la la-minus"></i></button>
-                                                <input type="number" min="1" name="quantity" step="1" value="1" autocomplete="off">
-                                                <button type="button" class="qtyButton plus"><i class="la la-plus"></i></button>
+                                                <input type="number" min="1" max="{{ $maxStock }}" name="quantity" step="1" value="1" autocomplete="off">
+                                                <button type="button" class="qtyButton plus" @if($maxStock <= 1) disabled @endif><i class="la la-plus"></i></button>
                                             </div>
                                             <button class="btn btn--base btn--sm addToCart flex-shrink-0" data-id="{{ $product->id ?? '' }}" data-product_type="{{ $product->product_type ?? 1 }}" type="button">Add To Cart</button>
                                         </div>
@@ -379,11 +385,10 @@
         $('.product-details').productDetails({
             productId: productId,
             totalAttributes: {{ isset($variantAttributes) && is_array($variantAttributes) ? count($variantAttributes) : 0 }},
-            stockQuantity: {{ isset($product) && method_exists($product, 'displayStockQuantity') ? (int) $product->displayStockQuantity() : (int) ($product->stock ?? 0) }},
+            stockQuantity: {{ isset($product) && method_exists($product, 'displayStockQuantity') ? (int) $product->displayStockQuantity() : 0 }},
             showStockQuantity: false,
             trackInventory: true,
-            variantImageLoadUrl: "{{ url('products/:productId/variant-images') }}",
-            checkStockUrl: "{{ url('products/check-stock') }}?product_id=" + productId,
+            variantDetailUrl: "{{ url('products/:productId/variant-detail') }}",
         });
     })(jQuery);
 </script>

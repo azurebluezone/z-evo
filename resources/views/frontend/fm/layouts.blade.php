@@ -191,7 +191,7 @@
     }
   </style>
 <!-- END: Custom Styles -->
-<style id="fm-audit-fix">
+<style id="fm-audit-fix-css">
 /* ===== FreshMart responsive audit fix (auto-injected) ===== */
 *,*::before,*::after{box-sizing:border-box}
 html,body{overflow-x:hidden;max-width:100%;width:100%}
@@ -336,6 +336,20 @@ table{max-width:100%;overflow-x:auto;display:block}
     $fmWishlist = session()->get('wishlist', []);
     $fmWishlistCount = is_array($fmWishlist) ? count(array_unique(array_map('intval', $fmWishlist))) : 0;
 
+    // Unread customer notifications for the header bell. Resolved once here,
+    // exactly like the cart and wishlist counts, and handed down to the
+    // partials. Guarded because the header renders on guest pages too, where
+    // there is no customer to count for - and because a missing notifications
+    // table must not take the whole storefront down.
+    $fmUnreadNotifications = 0;
+    if (auth('customer')->check()) {
+        try {
+            $fmUnreadNotifications = (int) auth('customer')->user()->unreadNotifications()->count();
+        } catch (\Throwable $e) {
+            $fmUnreadNotifications = 0;
+        }
+    }
+
     $fmShopName = $generalsetting->name ?? config('app.name');
     $fmPhone = $generalsetting->support_phone ?: ($contact->phone ?? '');
     $fmWhatsapp = preg_replace('/\D/', '', (string) ($generalsetting->whatsapp_number ?: ($contact->hotline ?? '')));
@@ -359,6 +373,7 @@ table{max-width:100%;overflow-x:auto;display:block}
     'fmWishlistCount' => $fmWishlistCount,
     'fmCartCount'     => $fmCartCount,
     'fmCartTotal'     => $fmCartTotal,
+    'fmUnreadNotifications' => $fmUnreadNotifications,
 ])
 <!-- /FM:SECTION primary-header -->
 
@@ -370,7 +385,9 @@ table{max-width:100%;overflow-x:auto;display:block}
      categories first, because that is what a phone visitor is reaching for,
      then the same destinations as the desktop strip. --}}
 <!-- FM:SECTION mobile-nav-drawer ======================================== -->
-@include('frontend.fm.partials.header.mobile-nav-drawer')
+@include('frontend.fm.partials.header.mobile-nav-drawer', [
+    'fmUnreadNotifications' => $fmUnreadNotifications,
+])
 <!-- /FM:SECTION mobile-nav-drawer -->
 
 {{-- The phone search drawer: the whole desktop search component behind the
@@ -381,7 +398,13 @@ table{max-width:100%;overflow-x:auto;display:block}
 <!-- /FM:SECTION search-drawer -->
 
 <!-- FM:SECTION page-content ============================================ -->
-<main>
+{{-- The injected audit-fix stylesheet above (now id="fm-audit-fix-css") sets
+     img{height:auto!important}. Its id used to sit on the <style> element, so
+     no component could scope an override through it - the id sat in <head> and
+     never matched an ancestor. Page content carries the id now, which makes
+     "#fm-audit-fix .component" a selector that actually matches and lets a
+     fixed-size avatar beat that global rule without guessing at specificity. --}}
+<main id="fm-audit-fix">
 @php
     /*
      * Controllers across the storefront still report through the legacy

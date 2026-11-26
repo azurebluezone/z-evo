@@ -1038,21 +1038,28 @@
 
         const quantityButtonClickHandler = function() {
             const parent = $(this).parent();
-            let qty = parent.find("input").val() * 1;
+            const input = parent.find("input");
+            let qty = input.val() * 1;
+
+            // A product/variant page publishes how many units can ship. Cart
+            // rows have no ceiling, so this only narrows the product stepper.
+            const ceiling = parseInt(input.attr('max') || parent.attr('data-max-stock') || '0', 10);
+            const hasCeiling = Number.isFinite(ceiling) && ceiling > 0;
+
             qty = $(this).hasClass('plus') ? ++qty : --qty;
             qty = qty < 1 ? 1 : qty;
+            if (hasCeiling && qty > ceiling) {
+                qty = ceiling;
+            }
 
-            parent.find("input").val(qty);
+            input.val(qty);
 
             if ($(this).parent().data('update') != 'no') {
                 updateCart(qty, $(this).parents('.cartItem'));
             }
 
-            if (qty > 1) {
-                parent.find(".minus").removeAttr('disabled');
-            } else {
-                parent.find(".minus").attr('disabled', true);
-            }
+            parent.find(".minus").prop('disabled', qty <= 1);
+            parent.find(".plus").prop('disabled', hasCeiling && qty >= ceiling);
         }
 
         const applyCouponClickHandler = () => {
@@ -1239,17 +1246,23 @@
 
         const quantityChangeHandler = function() {
             const parent = $(this).parent();
-            let quantity = $(this).val();
+            let quantity = parseInt($(this).val(), 10);
 
-            if (quantity == '' || quantity <= 0) {
+            const ceiling = parseInt($(this).attr('max') || parent.attr('data-max-stock') || '0', 10);
+            const hasCeiling = Number.isFinite(ceiling) && ceiling > 0;
+
+            if (!Number.isFinite(quantity) || quantity <= 0) {
                 quantity = 1;
                 $(this).val(quantity);
-                parent.find('.minus').attr('disabled', true);
-            } else if (quantity == 1) {
-                parent.find('.minus').attr('disabled', true);
-            } else {
-                parent.find('.minus').removeAttr('disabled');
+            } else if (hasCeiling && quantity > ceiling) {
+                // Typing 50 for a 3-unit variant must not reach the cart and
+                // fail there; clamp it where the user can see it.
+                quantity = ceiling;
+                $(this).val(quantity);
             }
+
+            parent.find('.minus').prop('disabled', quantity <= 1);
+            parent.find('.plus').prop('disabled', hasCeiling && quantity >= ceiling);
 
             if ($(this).parent().data('update') != 'no') {
                 updateCart(quantity, $(this).parents('.cartItem'));

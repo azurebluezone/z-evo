@@ -20,6 +20,7 @@
                         <th style="width:20%">SKU</th>
                         <th style="width:25%">Title</th>
                         <th style="width:20%">Product</th>
+                        <th style="width:10%">Stock</th>
                         <th style="width:15%">Status</th>
                         <th style="width:15%" class="text-end">Action</th>
                     </tr>
@@ -31,6 +32,15 @@
                         <td class="fw-medium">{{ $v->sku ?? 'N/A' }}</td>
                         <td>{{ $v->title ?? 'N/A' }}</td>
                         <td>{{ $v->product_name ?? 'N/A' }}</td>
+                        <td>
+                            @if($v->stock_available === null)
+                                <span class="badge bg-label-danger rounded-0" title="No variant_stocks row">No row</span>
+                            @elseif((int) $v->stock_available <= 0)
+                                <span class="badge bg-label-danger rounded-0" title="On hand: {{ (int) $v->stock_on_hand }}">0</span>
+                            @else
+                                <span class="badge bg-label-success rounded-0" title="On hand: {{ (int) $v->stock_on_hand }}">{{ (int) $v->stock_available }}</span>
+                            @endif
+                        </td>
                         <td>
                             @if((int)$v->status === 1)
                                 <span class="badge bg-success rounded-0">Active</span>

@@ -89,6 +89,17 @@
                     </div>
 
                     <div class="col-md-6">
+                        <div class="form-floating form-floating-outline">
+                            <input type="number" name="initial_stock" id="initial_stock" class="form-control rounded-0 @error('initial_stock') is-invalid @enderror" value="{{ old('initial_stock', 0) }}" min="0" placeholder="Opening stock" />
+                            <label for="initial_stock">Opening stock</label>
+                        </div>
+                        <p class="text-muted small mt-1">Units on the shelf right now. Recorded as an OPENING_BALANCE movement.</p>
+                        @error('initial_stock')
+                            <span class="invalid-feedback d-block fw-semibold">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
 
                             {{--
                                 Added: the fields that make the storefront's variant swap

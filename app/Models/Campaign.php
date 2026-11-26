@@ -95,7 +95,6 @@ class Campaign extends Model
             'new_price',
             'status',
             'purchase_price',
-            'stock',
             'pro_unit',
             'pro_video'
         );

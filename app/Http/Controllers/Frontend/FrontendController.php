@@ -173,7 +173,7 @@ class FrontendController extends Controller
                 'old_price' => $productModel->old_price,
                 'new_price' => $productModel->new_price,
                 'purchase_price' => $productModel->purchase_price,
-                'stock' => $productModel->stock,
+                'stock' => $productModel->displayStockQuantity(),
                 'pro_unit' => $productModel->pro_unit,
                 'pro_video' => $productModel->pro_video,
                 'meta_description' => $productModel->meta_description,
@@ -502,6 +502,15 @@ class FrontendController extends Controller
             }
         }
 
+        // The price string is rendered here, with the struck old price, so the
+        // storefront does not have to rebuild currency markup on the client.
+        $formattedPrice = '৳ ' . $price;
+        if ($hasSaving) {
+            $formattedPrice .= ' <del>৳ ' . $oldPrice . '</del>';
+        }
+
+        $gallery = $this->variantGalleryPayload($product, $matched->image ? (string) $matched->image : null);
+
         return response()->json([
             'found' => true,
             'variant' => [
@@ -513,12 +522,47 @@ class FrontendController extends Controller
                     : \App\Support\MediaPath::product($product),
                 'price' => $price,
                 'old_price' => $hasSaving ? $oldPrice : null,
-                'formatted_price' => 'Tk ' . $price,
+                'formatted_price' => $formattedPrice,
                 'stock_quantity' => $availableToPromise,
                 'in_stock' => $availableToPromise > 0,
                 'attributes' => $attrs,
             ],
+            // The gallery travels with the price and the stock, so one swatch
+            // click is ONE request. Two calls meant the photo could land after
+            // the price and briefly show a photo of one variant with the price
+            // of another.
+            'images' => $gallery['images'],
+            'media_ids' => $gallery['media_ids'],
         ]);
+    }
+
+    /**
+     * Build the gallery markup for one product/variant pair.
+     *
+     * variantDetail() and variantImages() must emit identical markup: the
+     * storefront's xzoom initialiser binds to these ids and classes. One
+     * builder keeps the two endpoints from drifting apart.
+     *
+     * @return array{images:string,media_ids:array<int,string>}
+     */
+    private function variantGalleryPayload(Product $product, ?string $variantImage): array
+    {
+        $mainImageRaw = $variantImage ?: (string) ($product->thumbnail_image ?? optional($product->image)->image ?? '');
+
+        // MediaPath is the project's single rule for turning a stored image
+        // value into a browser URL (bare filename, public path or remote CDN)
+        // and for answering a missing file with the configured placeholder.
+        $mainImageUrl = \App\Support\MediaPath::url($mainImageRaw !== '' ? $mainImageRaw : null, 'product');
+        $mainImageOnError = "this.onerror=null;this.src='" . asset('uploads/default/no-image.png') . "';";
+
+        $imagesHtml = '<div class="xzoom-container product-gallery">'
+            . '<img class="xzoom5" id="xzoom-magnific" src="' . e($mainImageUrl) . '" xoriginal="' . e($mainImageUrl) . '" onerror="' . e($mainImageOnError) . '" width="600" height="600" style="width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;" />'
+            . '</div>';
+
+        return [
+            'images' => $imagesHtml,
+            'media_ids' => [$variantImage ? md5($variantImage) : 'default'],
+        ];
     }
 
     public function variantImages($productId, Request $request)
@@ -540,24 +584,7 @@ class FrontendController extends Controller
         }
 
         if (count($attributeValues) < 1) {
-            $mainImageRaw = (string) ($product->thumbnail_image ?? optional($product->image)->image ?? '');
-            $mainImagePath = preg_replace('~^public/~', '', $mainImageRaw);
-            $mainImagePath = ltrim((string) $mainImagePath, '/');
-            if (!empty($mainImagePath) && !str_contains($mainImagePath, '/') && !str_contains($mainImagePath, '\\')) {
-                $mainImagePath = 'uploads/product/' . $mainImagePath;
-            }
-            $mainImageUrl = !empty($mainImagePath) ? asset($mainImagePath) : asset('uploads/default/placeholder.png');
-            $mainImageOnError = "this.onerror=null;this.src='" . asset('uploads/default/no-image.png') . "';";
-
-            $imagesHtml = '<div class="xzoom-container product-gallery">'
-                . '<img class="xzoom5" id="xzoom-magnific" src="' . e($mainImageUrl) . '" xoriginal="' . e($mainImageUrl) . '" onerror="' . e($mainImageOnError) . '" width="600" height="600" style="width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;" />'
-                . '</div>';
-
-            return response()->json([
-                'error' => false,
-                'media_ids' => ['default'],
-                'images' => $imagesHtml,
-            ]);
+            return response()->json(['error' => false] + $this->variantGalleryPayload($product, null));
         }
 
         $idsSorted = $attributeValues;
@@ -593,24 +620,7 @@ class FrontendController extends Controller
             }
         }
 
-        $mainImageRaw = $matchedImage ?: (string) ($product->thumbnail_image ?? optional($product->image)->image ?? '');
-        $mainImagePath = preg_replace('~^public/~', '', $mainImageRaw);
-        $mainImagePath = ltrim((string) $mainImagePath, '/');
-        if (!empty($mainImagePath) && !str_contains($mainImagePath, '/') && !str_contains($mainImagePath, '\\')) {
-            $mainImagePath = 'uploads/product/' . $mainImagePath;
-        }
-        $mainImageUrl = !empty($mainImagePath) ? asset($mainImagePath) : asset('uploads/default/placeholder.png');
-        $mainImageOnError = "this.onerror=null;this.src='" . asset('uploads/default/no-image.png') . "';";
-
-        $imagesHtml = '<div class="xzoom-container product-gallery">'
-            . '<img class="xzoom5" id="xzoom-magnific" src="' . e($mainImageUrl) . '" xoriginal="' . e($mainImageUrl) . '" onerror="' . e($mainImageOnError) . '" width="600" height="600" style="width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;" />'
-            . '</div>';
-
-        return response()->json([
-            'error' => false,
-            'media_ids' => [$matchedImage ? md5($matchedImage) : 'default'],
-            'images' => $imagesHtml,
-        ]);
+        return response()->json(['error' => false] + $this->variantGalleryPayload($product, $matchedImage));
     }
 
     /**
@@ -739,6 +749,11 @@ class FrontendController extends Controller
         $hasPrev = $page > 1;
         $hasNext = ($offset + $perPage) < $total;
 
+        // The AJAX page renders the same card partials as the first page, so
+        // it must carry the same batched stock attributes or pagination would
+        // silently fall back to per-card queries.
+        $this->attachHomeStockAvailability($products);
+
         $view = $section === 'recommended'
             ? 'frontend.sections.partials._recommended-product-cards'
             : 'frontend.sections.partials._home-product-cards';
@@ -802,6 +817,66 @@ class FrontendController extends Controller
         return view('frontend.pages.page', compact('page'));
     }
 
+    /**
+     * Attach variant_count / available_to_promise to a set of Product models
+     * in two queries, so home-page cards do not each hit the database.
+     */
+    private function attachHomeStockAvailability($products): void
+    {
+        $ids = $products->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($ids === []) {
+            return;
+        }
+
+        $rows = DB::table('product_variants as v')
+            ->leftJoin('variant_stocks as s', 's.variant_id', '=', 'v.id')
+            ->whereIn('v.product_id', $ids)
+            ->where('v.status', 1)
+            ->groupBy('v.product_id')
+            ->select('v.product_id')
+            ->selectRaw('COUNT(*) as variant_count')
+            ->selectRaw('COUNT(s.variant_id) as stock_rows')
+            ->selectRaw('COALESCE(SUM(GREATEST(COALESCE(s.available, 0) - COALESCE(s.reserved, 0), 0)), 0) as qty')
+            ->get()
+            ->keyBy('product_id');
+
+        $reserved = collect();
+        if (DB::getSchemaBuilder()->hasTable('inventory_reservations')) {
+            $reserved = DB::table('inventory_reservations as r')
+                ->join('product_variants as v', 'v.id', '=', 'r.variant_id')
+                ->whereIn('v.product_id', $ids)
+                ->where('v.status', 1)
+                ->where('r.expires_at', '>', now())
+                ->groupBy('v.product_id')
+                ->select('v.product_id')
+                ->selectRaw('SUM(r.qty) as qty')
+                ->pluck('qty', 'v.product_id');
+        }
+
+        foreach ($products as $product) {
+            $id = (int) $product->id;
+            $row = $rows->get($id);
+            $hasVariants = $row && (int) $row->variant_count > 0;
+
+            $product->setAttribute('has_variants', (bool) $hasVariants);
+
+            if (!$hasVariants || (int) $row->stock_rows === 0) {
+                // No variant projection: there is no stock to promise.
+                $product->setAttribute('available_to_promise', 0);
+                continue;
+            }
+
+            $available = (int) $row->qty - (int) ($reserved[$id] ?? 0);
+            $product->setAttribute('available_to_promise', max(0, $available));
+        }
+    }
+
     public function index()
     {
         // return "Welcome to Kenakatar.com";
@@ -855,6 +930,18 @@ class FrontendController extends Controller
             ->get();
 
         $brands = Brand::where('status', 1)->get();
+
+        // One stock query for every card on the home page. Without the batch,
+        // each card's isInStock() would run its own variant + reservation
+        // queries - up to a few hundred round trips on this grid.
+        $homeProductPool = collect($hotdeal_top)
+            ->concat($zombie_products)
+            ->concat($homeproducts->flatMap(fn ($category) => $category->products ?? collect()))
+            ->filter(fn ($product) => !empty($product->id))
+            ->unique('id')
+            ->values();
+
+        $this->attachHomeStockAvailability($homeProductPool);
 
         $generalsetting = \App\Models\GeneralSetting::first();
 
@@ -1235,6 +1322,25 @@ class FrontendController extends Controller
         // Both views read the same variables ($sections, the product rails,
         // $banners, the collections and the brands) - frontend.home guards
         // every section with isset()/?? true, so both render from this data.
+        //
+        // One availability batch for every rail. Each card asks isInStock()
+        // twice (badge + action); without the batch that is two variant
+        // aggregate queries and one reservation query per card, on the
+        // busiest page of the shop.
+        $homeRailProducts = collect()
+            ->concat($featured_products)
+            ->concat($best_selling_products)
+            ->concat($discount_products)
+            ->concat($recommended_products)
+            ->concat($flash_sale_products)
+            ->concat($collections->flatMap(fn ($collection) => $collection['products'] ?? collect()))
+            ->concat($homeCategoryCollections->flatMap(fn ($collection) => $collection['products'] ?? collect()))
+            ->filter(fn ($product) => is_object($product) && (int) ($product->id ?? 0) > 0)
+            ->unique('id')
+            ->values();
+
+        $this->attachHomeStockAvailability($homeRailProducts);
+
         return view('frontend.home', compact(
             'collections',
             'homeCategoryCollections',
@@ -1552,6 +1658,21 @@ class FrontendController extends Controller
                 if ($slugKey === '' || $slugKey === 'undefined' || $slugKey === 'null') {
                     continue;
                 }
+
+                /*
+                 * VariantAttributes::buildFromRequest() stores companion
+                 * metadata next to the real selection: a colour variant gets
+                 * BOTH `color` (the value id) and `color_code` (the hex).
+                 * Only `color` has an id entry. `color_code` is not an
+                 * attribute, and creating a group for it left the storefront
+                 * with an unpickable second group: the page never reached a
+                 * complete selection, so clicking a colour fired no request
+                 * and the detail never changed. Skip the companion key.
+                 */
+                if (str_ends_with($slugKey, '_code')
+                    && array_key_exists(substr($slugKey, 0, -5), $ids)) {
+                    continue;
+                }
                 if (!isset($variantAttributes[$slugKey])) {
                     // attributes_json keys are raw slugs ("weight-unit"), but the
                     // label must be the human name from the attributes table
@@ -1629,6 +1750,17 @@ class FrontendController extends Controller
             }
             $variantAttributes[$k]['values'] = array_values($uniq);
         }
+
+        /*
+         * A group with no resolvable value can never be picked, and the page
+         * script requires one selection per group before it fetches a variant.
+         * Leaving an empty group in place therefore deadlocks the whole
+         * picker, so drop it here rather than trusting every caller to.
+         */
+        $variantAttributes = array_values(array_filter(
+            $variantAttributes,
+            static fn (array $attr): bool => !empty($attr['values'])
+        ));
 
         // Product::reviews() selects only ids (it feeds the counts), so the
         // review stream runs its own query: published rows only, newest first.

@@ -41,7 +41,7 @@
                             <td>{{$value->name}}</td>
                             <td><input value="{{$value->old_price}}" name="old_price[]"></td>
                             <td><input value="{{$value->new_price}}" name="new_price[]"></td>
-                            <td><input value="{{$value->stock}}" name="stock[]"></td>
+                            <td><input value="{{$value->stock_on_hand}}" name="stock[]"></td>
                         </tr>
                         @endforeach
                      </tbody>

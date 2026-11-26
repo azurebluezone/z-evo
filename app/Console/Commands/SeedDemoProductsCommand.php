@@ -246,7 +246,6 @@ class SeedDemoProductsCommand extends Command
                     'purchase_price' => (int) round($item['new'] * 0.72),
                     'old_price' => $item['old'],
                     'new_price' => $item['new'],
-                    'stock' => $item['stock'],
                     'pro_unit' => $item['unit'],
                     'description' => $description,
                     'meta_description' => self::DEMO_TAG . ' | ' . $item['badge'] . ' ' . $item['name'],

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\VariantStock;
 use App\Services\VariantAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ class VariantController extends Controller
     {
         $variants = DB::table('product_variants as v')
             ->leftJoin('products as p', 'p.id', '=', 'v.product_id')
+            ->leftJoin('variant_stocks as s', 's.variant_id', '=', 'v.id')
             ->select(
                 'v.id',
                 'v.product_id',
@@ -22,7 +24,9 @@ class VariantController extends Controller
                 'v.weight_gram',
                 'v.status',
                 'v.created_at',
-                'p.name as product_name'
+                'p.name as product_name',
+                's.available as stock_available',
+                's.on_hand as stock_on_hand'
             )
             ->orderBy('v.id', 'desc')
             ->paginate(50);
@@ -34,6 +38,7 @@ class VariantController extends Controller
     {
         $products = DB::table('products')
             ->select('id', 'name', 'product_code')
+            ->whereNull('deleted_at')
             ->orderBy('id', 'desc')
             ->limit(500)
             ->get();
@@ -53,6 +58,7 @@ class VariantController extends Controller
             'price_override' => 'nullable|integer|min:0',
             'weight_gram' => 'nullable|integer|min:0',
             'status' => 'nullable|in:0,1',
+            'initial_stock' => 'nullable|integer|min:0',
 
             /*
              * These three, plus the attribute selection, are what make the
@@ -84,7 +90,7 @@ class VariantController extends Controller
 
         $attributes = app(VariantAttributes::class);
 
-        DB::table('product_variants')->insert([
+        $variantId = DB::table('product_variants')->insertGetId([
             'image' => $this->storeVariantImage($request),
             'product_id' => (int) $request->product_id,
             'sku' => $request->sku,
@@ -102,6 +108,16 @@ class VariantController extends Controller
             'updated_at' => now(),
         ]);
 
+        // A variant without a stock row is invisible to the storefront: the
+        // availability query left-joins variant_stocks and counts a missing
+        // row as zero. The opening balance is the admin's first stock entry,
+        // recorded as an OPENING_BALANCE movement so the ledger stays the SSOT.
+        VariantStock::ensureRow(
+            (int) $variantId,
+            (int) ($request->input('initial_stock') ?? 0),
+            auth()->id()
+        );
+
         return redirect()->route('admin.variants.index')->with('success', 'Variant created successfully');
     }
 
@@ -114,6 +130,7 @@ class VariantController extends Controller
 
         $products = DB::table('products')
             ->select('id', 'name', 'product_code')
+            ->whereNull('deleted_at')
             ->orderBy('id', 'desc')
             ->limit(500)
             ->get();

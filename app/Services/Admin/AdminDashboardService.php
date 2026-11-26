@@ -273,10 +273,16 @@ class AdminDashboardService
         return (int) Cache::remember('admin_dashboard.low_stock_alert', 120, function () {
             $threshold = 5;
 
-            return Product::query()
-                ->where('stock', '<', $threshold)
-                ->where('stock', '>', 0)
-                ->count();
+            return (int) DB::table('variant_stocks as s')
+                ->join('product_variants as v', 'v.id', '=', 's.variant_id')
+                ->join('products as p', 'p.id', '=', 'v.product_id')
+                ->whereNull('p.deleted_at')
+                ->where('p.status', 1)
+                ->where('v.status', 1)
+                ->where('s.on_hand', '<', $threshold)
+                ->where('s.on_hand', '>', 0)
+                ->distinct()
+                ->count('p.id');
         });
     }
 

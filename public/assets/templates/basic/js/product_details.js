@@ -1,12 +1,16 @@
 (function ($) {
     'use strict';
 
-    $.fn.productDetails = function ({ productId, totalAttributes, stockQuantity, showStockQuantity, trackInventory, variantImageLoadUrl, checkStockUrl }) {
+    $.fn.productDetails = function ({ productId, totalAttributes, stockQuantity, showStockQuantity, trackInventory, variantDetailUrl }) {
 
         const addToCartButton = $(this).find($(".addToCart"));
         
         let pendingStockRequest = null;
         let pendingPreloaderTimer = null;
+
+        // The route carries :productId, so resolve it once instead of on every
+        // swatch click.
+        const detailUrl = String(variantDetailUrl || '').replace(':productId', productId);
 
         var initialized = false;
 
@@ -38,8 +42,22 @@
             let content;
             let badge;
 
-            if (stockQuantity > 1) {
-                content = showStockQuantity ? `In Stock: ${stockQuantity}` : 'Available in Stock';
+            // 1 unit left is still sellable. The old `> 1` test called it
+            // "Out of Stock", so the last unit on the shelf could never be
+            // bought from this page.
+            const available = String(stockQuantity).toUpperCase() === 'INFINITY'
+                ? Infinity
+                : Number(stockQuantity);
+            const sellable = Number.isFinite(available) ? available : 0;
+
+            if (sellable > 0) {
+                if (showStockQuantity && Number.isFinite(sellable) && sellable <= 5) {
+                    content = `Only ${sellable} left`;
+                } else if (showStockQuantity && Number.isFinite(sellable)) {
+                    content = `In Stock: ${sellable}`;
+                } else {
+                    content = 'Available in Stock';
+                }
                 badge = 'badge badge--success';
             } else {
                 content = `Out of Stock`;
@@ -50,41 +68,45 @@
             stockBadge.show();
         }
 
-        function checkStockAvailability(attributeArray) {
-            return $.get(checkStockUrl, {
-                variant: attributeArray.sort()
+        // ONE request for the whole buy box: photo, price and stock. Before
+        // this the page asked variant-images for the photo and check-stock for
+        // the price/stock, so on a slow connection the two answers arrived out
+        // of order and the card showed one variant's photo with another
+        // variant's price.
+        function fetchVariantDetail(attributeArray) {
+            return $.get(detailUrl, {
+                attribute_values: JSON.stringify(attributeArray)
             });
         }
 
-        function loadVariantImages(attributeArray, productId) {
-            const url = variantImageLoadUrl.replace(':productId', productId);
-            const previousMediaIds = [];
+        // The stepper must never offer more units than the selected variant
+        // can ship. The ceiling comes from the server's available-to-promise
+        // and is mirrored on the input's max attribute so the shared
+        // plus/minus handler in the layout obeys the same limit.
+        function setQuantityCeiling(max) {
+            const input = $('.product-quantity-input input[name="quantity"]');
+            if (!input.length) return;
 
-            $(document).find(`.media-item-nav`).each((index, element)=>{
-                previousMediaIds.push($(element).data('media_id'));
-            });
+            const ceiling = Math.max(0, parseInt(max, 10) || 0);
+            const wrapper = input.closest('.product-quantity-input');
 
-            $.get(url, { attribute_values: JSON.stringify(attributeArray) }).done((response) => {
-                if (!response.error) {
-                    if(JSON.stringify(response.media_ids) != JSON.stringify(previousMediaIds)){
-                        $('#variantImages').html(response.images);
-                        initializeXZOOM();
-                        initImgSlider();
-                        let activeElements = $('.attributeBtn.active');
-                        let filteredElements = activeElements.filter(function () {
-                            return $(this).data('media_id') > 0;
-                        });
-    
-                        $(document).find(`.media-item-nav[data-media_id=${filteredElements.data('media_id') }]`).click();
-                    }
-                }
-            });
+            input.attr('max', ceiling > 0 ? ceiling : 1);
+            wrapper.attr('data-max-stock', ceiling);
+
+            let current = parseInt(input.val(), 10);
+            if (!Number.isFinite(current) || current < 1) current = 1;
+            if (ceiling > 0 && current > ceiling) {
+                current = ceiling;
+                input.val(current);
+            }
+
+            wrapper.find('.qtyButton.plus').prop('disabled', ceiling <= 0 || current >= ceiling);
+            wrapper.find('.qtyButton.minus').prop('disabled', current <= 1);
         }
 
         function attributeClickHandler(e) {
             const button = $(e.currentTarget);
-            const attributes = [];
-            
+
             const mediaId = button.data('media_id');
             
             if(mediaId) {
@@ -129,37 +151,32 @@
                     return;
                 }
 
-                loadVariantImages(safeAttributeArray, productId);
-
-                activeAttributes.each(function (_, attr) {
-                    const meta = $(attr).data('attribute') || {};
-                    if (meta.id === null || meta.id === undefined || meta.id === '') {
-                        return;
-                    }
-                    attributes.push(meta.id.toString());
-                });
-
-                pendingStockRequest = checkStockAvailability(attributes)
+                pendingStockRequest = fetchVariantDetail(safeAttributeArray)
                 .done((response) => {
-
-                    if(response.message) {
-                        notify(response.status, response.message);
-                    }
-                    
-                    if(response.status == 'error') {
+                    if (!response || response.found === false) {
+                        // An unavailable combination is not an error to shout
+                        // about: show it as sold out and stop the click.
                         addToCartButton.attr('disabled', true);
                         setStockBadge(true, 0);
-                        setSku(response.sku??'Not Available');
-                    }else{
-                        setProductPrice(response.formatted_price);
-                        if(!response.track_inventory){
-                            setStockBadge(response.track_inventory);
-                            addToCartButton.attr('disabled', false);
-                        }else{
-                            setStockBadge(response.track_inventory, response.stock_quantity, response.show_stock);
-                            addToCartButton.attr('disabled', response.price == null);
-                        }
+                        setSku('Not available');
+                        setQuantityCeiling(0);
+                        return;
                     }
+
+                    const variant = response.variant || {};
+
+                    if (response.images) {
+                        $('#variantImages').html(response.images);
+                        initializeXZOOM();
+                        initImgSlider();
+                    }
+
+                    setProductPrice(variant.formatted_price || variant.price);
+                    setSku(variant.sku || 'Not available');
+                    setStockBadge(true, variant.stock_quantity, showStockQuantity);
+                    setQuantityCeiling(variant.stock_quantity);
+
+                    addToCartButton.attr('disabled', !variant.in_stock || variant.price == null);
                 })
                 .fail((_, status) => {
                     if (status === 'abort') {

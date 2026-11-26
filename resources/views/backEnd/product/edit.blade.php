@@ -193,8 +193,7 @@
                         <div class="card rounded-0 border position-relative" style="width: 150px;">
                             <img src="{{ asset($imgPath) }}" alt="Product Image" class="card-img-top rounded-0" style="height: 120px; object-fit: cover;" onerror="this.src='{{ \App\Support\MediaPath::fallbackUrl() }}'">
                             <div class="card-body p-2">
-                              <input type="text" name="title[]" class="form-control form-control-sm rounded-0 mb-2" value="{{ $image->title ?? '' }}" placeholder="Image Title">
-                              <input type="hidden" name="image[]" value="{{ $image->id ?? '' }}">
+                              <input type="text" name="existing_title[{{ $image->id }}]" class="form-control form-control-sm rounded-0 mb-2" value="{{ $image->title ?? '' }}" placeholder="Image Title">
                               <x-admin.button variant="danger" size="sm" shape="square" ripple="true" class="w-100 remove-image delete-confirm" type="submit" form="fmRemoveProductImage{{ $image->id }}" data-confirm-title="Remove this photo?" data-confirm-text="The gallery row and its file are deleted immediately." data-confirm-ok="Yes, remove"><i class="ri ri-delete-bin-line me-1"></i> Remove</x-admin.button>
                             </div>
                         </div>
@@ -205,15 +204,15 @@
 
                   <div class="clone hide" style="display: none;">
                       <div class="control-group input-group mt-2">
-                          <input type="file" name="image[]" class="form-control rounded-0" />
-                          <input type="text" name="title[]" class="form-control rounded-0" placeholder="Image Title" />
+                          <input type="file" data-gallery-file class="form-control rounded-0" />
+                          <input type="text" data-gallery-title class="form-control rounded-0" placeholder="Image Title" />
                           <x-admin.button variant="danger" shape="square" ripple="true" type="button"><i class="ri ri-delete-bin-line"></i></x-admin.button>
                       </div>
                   </div>
 
                   <div class="input-group control-group increment">
-                      <input type="file" name="image[]" class="form-control rounded-0 @error('image') is-invalid @enderror" />
-                      <input type="text" name="title[]" class="form-control rounded-0" placeholder="Image Title" />
+                      <input type="file" name="new_image[0]" class="form-control rounded-0 @error('image') is-invalid @enderror" />
+                      <input type="text" name="new_title[0]" class="form-control rounded-0" placeholder="Image Title" />
                       <x-admin.button variant="primary" shape="square" ripple="true" class="btn-increment" type="button" title="Add image"><i class="ri ri-add-line me-1"></i> Add</x-admin.button>
                   </div>
                   @error('image')
@@ -321,7 +320,7 @@
 
                 <div class="col-12 col-md-3">
                   <div class="form-floating form-floating-outline">
-                    <input type="text" class="form-control rounded-0 bg-light @error('stock') is-invalid @enderror" name="stock" value="{{ $edit_data->stock ?? 0 }}" id="stock" readonly placeholder="0" />
+                    <input type="text" class="form-control rounded-0 bg-light @error('stock') is-invalid @enderror" name="stock" value="{{ $edit_data->stockOnHand() }}" id="stock" readonly placeholder="0" />
                     <label for="stock">Stock * (Ledger-based)</label>
                   </div>
                   @error('stock')

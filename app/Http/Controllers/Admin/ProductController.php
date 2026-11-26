@@ -16,12 +16,14 @@ use App\Models\Brand;
 use App\Models\Color;
 use App\Models\Size;
 use App\Models\Coupon;
-use App\Services\ProductStockSync;
+use App\Services\InventoryLedger;
 use Toastr;
 use File;
 use Illuminate\Support\Str;
 use Image;
 use DB;
+use App\Models\InventoryMovement;
+use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyUploadedFile;
 
 class ProductController extends Controller
 {
@@ -114,9 +116,18 @@ class ProductController extends Controller
         $filtered = (clone $query)->count();
 
         // By column index, matching the <thead> the grid partial prints.
-        $sortable = [1 => 'name', 4 => 'new_price', 5 => 'stock', 7 => 'status'];
+        // Stock is no longer a products column: column 5 sorts by the variant
+        // projection sum through a correlated subquery.
+        $sortable = [1 => 'name', 4 => 'new_price', 5 => 'stock_on_hand', 7 => 'status'];
         [$column, $dir] = $this->dtOrdering($request, $sortable, 'id');
-        $query->orderBy($column, $dir);
+
+        if ($column === 'stock_on_hand') {
+            $query->orderByRaw(
+                '(SELECT COALESCE(SUM(s.on_hand), 0) FROM product_variants v JOIN variant_stocks s ON s.variant_id = v.id WHERE v.product_id = products.id AND v.status = 1) ' . $dir
+            );
+        } else {
+            $query->orderBy($column, $dir);
+        }
 
         $rows = [];
         foreach ($query->skip($start)->take($length)->get() as $product) {
@@ -208,8 +219,42 @@ class ProductController extends Controller
         return view('backEnd.product.create', compact('categories', 'brands', 'colors', 'sizes', 'coupons', 'attributes', 'attributeValues'));
     }
 
+    /**
+     * Drop empty file inputs before validation.
+     *
+     * A browser cannot leave a `name="file[]"` input out of the request: PHP
+     * posts an UploadedFile with UPLOAD_ERR_NO_FILE for every empty row. The
+     * `image` rule then rejects that empty row, so a form with an optional
+     * second image (or a variant row without a photo) could never be saved.
+     * Keys are preserved so a variant image stays attached to its own row.
+     */
+    private function stripEmptyUploads(Request $request, array $keys): void
+    {
+        $files = $request->files->all();
+        $changed = false;
+
+        foreach ($keys as $key) {
+            if (! isset($files[$key]) || ! is_array($files[$key])) {
+                continue;
+            }
+
+            $files[$key] = array_filter(
+                $files[$key],
+                static fn ($file) => $file instanceof SymfonyUploadedFile && $file->isValid()
+            );
+            $changed = true;
+        }
+
+        if ($changed) {
+            $request->files->replace($files);
+        }
+    }
+
     public function store(Request $request)
     {
+        // Empty file inputs must not fail the image rules below.
+        $this->stripEmptyUploads($request, ['image', 'variant_image']);
+
         // Validate request fields
         $this->validate($request, [
             'name' => 'required',
@@ -236,7 +281,7 @@ class ProductController extends Controller
             'variant_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'new_price' => 'required',
             'purchase_price' => 'required',
-            'stock' => 'required',
+            'stock' => 'nullable|integer|min:0',
             'description' => 'required',
             'image' => 'required', // Add validation for image
             'image.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validation for each image file
@@ -283,6 +328,7 @@ class ProductController extends Controller
                 'variant_weight_gram',
                 'variant_initial_stock',
                 'variant_image',
+                'stock',
             ]);
 
             $input['slug'] = strtolower(preg_replace('/[\/\s]+/', '-', $request->name . '-' . $last_id));
@@ -322,6 +368,10 @@ class ProductController extends Controller
 
             if ($images) {
                 foreach ($images as $key => $image) {
+                    if (! $image instanceof SymfonyUploadedFile || ! $image->isValid()) {
+                        continue;
+                    }
+
                     $name = time() . '-' . $image->getClientOriginalName();
                     $name = strtolower(preg_replace('/\s+/', '-', $name));
                     $uploadPath = public_path('uploads/product');
@@ -353,7 +403,7 @@ class ProductController extends Controller
 
             // Inventory: create default variant + seed initial stock into ledger+cache
             // Note: If per-variant initial stock is provided, product-level stock should not be double-counted.
-            $qty = (int) ($save_data->stock ?? 0);
+            $qty = (int) $request->input('stock', 0);
             if ($qty < 0) {
                 $qty = 0;
             }
@@ -387,24 +437,21 @@ class ProductController extends Controller
 
             $variantInitialStocks = (array) $request->input('variant_initial_stock', []);
             $hasVariantInitialStock = false;
-            $variantInitialStockSum = 0;
             foreach ($variantInitialStocks as $v) {
                 $iv = ($v !== null && $v !== '') ? (int) $v : 0;
                 if ($iv > 0) {
                     $hasVariantInitialStock = true;
-                    $variantInitialStockSum += $iv;
                 }
             }
 
-            // Keep legacy + current order flow consistent:
-            // Orders currently deduct stock using the DEFAULT variant, so ensure it reflects total stock.
+            // Per-variant rows carry the stock. The DEFAULT variant is only the
+            // cart fallback for products without explicit variants, so it must
+            // stay at 0 here; writing the sum onto it counted every unit twice
+            // once products.stock was dropped and stockOnHand() summed variants.
             if ($hasVariantInitialStock) {
-                $save_data->stock = $variantInitialStockSum;
-                $save_data->save();
-
                 DB::table('variant_stocks')->where('variant_id', $variantId)->update([
-                    'on_hand' => $variantInitialStockSum,
-                    'available' => $variantInitialStockSum,
+                    'on_hand' => 0,
+                    'available' => 0,
                     'updated_at' => $now,
                 ]);
             }
@@ -412,7 +459,7 @@ class ProductController extends Controller
             // If the user is providing per-variant initial stock, skip writing product-level initial stock
             // to the default variant to avoid double-counting.
             if (!$hasVariantInitialStock && $qty > 0) {
-                DB::table('inventory_movements')->insert([
+                InventoryMovement::record([
                     'variant_id' => $variantId,
                     'type' => 'ADJUSTMENT',
                     'qty_delta' => $qty,
@@ -433,7 +480,6 @@ class ProductController extends Controller
             $variantDiscountPrices = (array) $request->input('variant_discount_price', []);
             $variantWeights = (array) $request->input('variant_weight_gram', []);
             $variantInitialStocks = (array) $request->input('variant_initial_stock', []);
-            $variantImages = (array) $request->file('variant_image', []);
 
             $rowsCount = max(
                 count($variantAttrsIds),
@@ -481,8 +527,8 @@ class ProductController extends Controller
                     $sku = $productCode . '-V' . ($i + 1);
 
                     $imagePath = null;
-                    if (isset($variantImages[$i]) && $variantImages[$i]) {
-                        $img = $variantImages[$i];
+                    if ($request->hasFile("variant_image.$i")) {
+                        $img = $request->file("variant_image.$i");
                         $name = time() . '-' . $img->getClientOriginalName();
                         $name = strtolower(preg_replace('/\s+/', '-', $name));
                         $uploadPath = public_path('uploads/variant');
@@ -566,7 +612,7 @@ class ProductController extends Controller
                     ]);
 
                     if ($initialStock > 0) {
-                        DB::table('inventory_movements')->insert([
+                        InventoryMovement::record([
                             'variant_id' => $newVariantId,
                             'type' => 'ADJUSTMENT',
                             'qty_delta' => $initialStock,
@@ -629,6 +675,11 @@ class ProductController extends Controller
 
     public function update(Request $request)
     {
+        // Existing gallery titles are keyed by image id; new uploads use
+        // keyed new_image/new_title pairs. Empty file inputs are dropped first
+        // so an optional gallery row never fails the image rule.
+        $this->stripEmptyUploads($request, ['image', 'new_image']);
+
         $this->validate($request, [
             'name' => 'required',
             'category_id' => 'required',
@@ -640,12 +691,21 @@ class ProductController extends Controller
             'coupon_ids.*' => 'integer|exists:coupons,id',
 
             'title.*' => 'nullable|string|max:255',
+            'existing_title' => 'nullable|array',
+            'existing_title.*' => 'nullable|string|max:255',
+            'new_title' => 'nullable|array',
+            'new_title.*' => 'nullable|string|max:255',
+            'new_image' => 'nullable|array',
+            'new_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             // Allow common downloadable docs up to 20MB (Laravel max is in KB).
             'document' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar|max:20480',
         ]);
 
         $update_data = Product::find($request->id);
-        $input = $request->except(['image', 'title', 'files', 'proSize', 'proColor', 'document', 'seo_meta', 'stock', 'coupon_ids']);
+        $input = $request->except([
+            'image', 'title', 'files', 'proSize', 'proColor', 'document', 'seo_meta', 'stock', 'coupon_ids',
+            'existing_title', 'new_image', 'new_title',
+        ]);
         $last_id = Product::orderBy('id', 'desc')->select('id')->first();
         $input['slug'] = strtolower(preg_replace('/[\/\s]+/', '-', $request->name . '-' . $last_id->id));
         $input['status'] = $request->status ? 1 : 0;
@@ -682,27 +742,61 @@ class ProductController extends Controller
         }
 
 
-        $images = $request->file('image');
-        $titles = $request->title;
-        if ($images) {
-            foreach ($images as $key => $image) {
-                $name =  time() . '-' . $image->getClientOriginalName();
-                $name = strtolower(preg_replace('/\s+/', '-', $name));
-
-                $uploadPath = public_path('uploads/product/');
-                if (!file_exists($uploadPath)) {
-                    mkdir($uploadPath, 0755, true);
-                }
-
-                $image->move($uploadPath, $name);
-                $imageUrl = 'uploads/product/' . $name;
-
-                $pimage = new Productimage();
-                $pimage->product_id = $update_data->id;
-                $pimage->image = $imageUrl;
-                $pimage->title = $titles[$key] ?? '';
-                $pimage->save();
+        /*
+         * Existing photos are edited in place and are never matched against
+         * the new file inputs: PHP indexes `image[]` files and `title[]` text
+         * inputs independently, so the old code gave a fresh upload the first
+         * existing image's title and silently threw away every edited title.
+         */
+        $existingTitles = (array) $request->input('existing_title', []);
+        foreach ($existingTitles as $imageId => $title) {
+            $imageId = (int) $imageId;
+            if ($imageId <= 0) {
+                continue;
             }
+
+            Productimage::query()
+                ->where('id', $imageId)
+                ->where('product_id', $update_data->id)
+                ->update(['title' => trim((string) $title)]);
+        }
+
+        // Keyed new rows: new_image[10] pairs with new_title[10], so an empty
+        // file row (dropped by the form hook) cannot shift another row's title.
+        $newImages = (array) $request->file('new_image', []);
+        $newTitles = (array) $request->input('new_title', []);
+
+        // Backwards compatibility for a caller that still posts image[] files.
+        if ($newImages === []) {
+            $newImages = (array) $request->file('image', []);
+            $newTitles = (array) $request->input('title', []);
+        }
+
+        foreach ($newImages as $key => $image) {
+            if (! $image instanceof SymfonyUploadedFile || ! $image->isValid()) {
+                continue;
+            }
+
+            $name = time() . '-' . $image->getClientOriginalName();
+            $name = strtolower(preg_replace('/\s+/', '-', $name));
+
+            $uploadPath = public_path('uploads/product/');
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            $image->move($uploadPath, $name);
+            $imageUrl = 'uploads/product/' . $name;
+
+            $providedTitle = trim((string) ($newTitles[$key] ?? ''));
+
+            $pimage = new Productimage();
+            $pimage->product_id = $update_data->id;
+            $pimage->image = $imageUrl;
+            $pimage->title = $providedTitle !== ''
+                ? $providedTitle
+                : pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+            $pimage->save();
         }
 
         Toastr::success('Success', 'Data update successfully');
@@ -711,7 +805,15 @@ class ProductController extends Controller
 
     public function price_edit()
     {
-        $products = DB::table('products')->select('id', 'name', 'status', 'old_price', 'new_price', 'stock')->where('status', 1)->get();
+        // Raw query bypasses the SoftDeletes global scope, so the trashed
+        // rows must be excluded by hand. Stock is the variant projection, not
+        // a products column (that column was dropped).
+        $products = DB::table('products as p')
+            ->select('p.id', 'p.name', 'p.status', 'p.old_price', 'p.new_price')
+            ->selectRaw('(SELECT COALESCE(SUM(s.on_hand), 0) FROM product_variants v JOIN variant_stocks s ON s.variant_id = v.id WHERE v.product_id = p.id AND v.status = 1) as stock_on_hand')
+            ->whereNull('p.deleted_at')
+            ->where('p.status', 1)
+            ->get();
         return view('backEnd.product.price_edit', compact('products'));
     }
 
@@ -722,40 +824,35 @@ class ProductController extends Controller
         $newPrices = $request->new_price;
         $stocks = $request->stock;
 
-        $sync = app(ProductStockSync::class);
-        $syncedVariants = 0;
+        $ledger = app(InventoryLedger::class);
+        $adjusted = 0;
 
         foreach ($ids as $key => $id) {
-            $product = Product::select('id', 'name', 'status', 'old_price', 'new_price', 'stock')->find($id);
+            $product = Product::select('id', 'name', 'status', 'old_price', 'new_price')->find($id);
 
             if ($product) {
                 $product->update([
                     'old_price' => $oldPrices[$key],
                     'new_price' => $newPrices[$key],
-                    'stock' => $stocks[$key],
                 ]);
 
                 /*
-                 * Push the new figure onto the variants.
-                 *
-                 * This only wrote products.stock, while the storefront reads
-                 * variant_stocks exclusively. So restocking a product from this
-                 * screen left the shop still saying "out of stock" - the admin
-                 * row said 50 and the cart could not add it, with nothing to
-                 * explain the disagreement. Every other write path already
-                 * mirrors both; this one had been missed.
-                 *
-                 * Variants stocked individually are left alone; see
-                 * ProductStockSync for why.
+                 * The grid shows one figure per product; the SSOT is per
+                 * variant. The ledger applies the difference to the default
+                 * variant and records an ADJUSTMENT movement, so a bulk edit
+                 * lands in the same projection the storefront reads.
                  */
-                $syncedVariants += $sync->syncForProduct($product->fresh(), false, auth()->id());
+                if (is_array($stocks) && array_key_exists($key, $stocks) && $stocks[$key] !== null && $stocks[$key] !== '') {
+                    $ledger->adjustProductTotalStock((int) $product->id, (int) $stocks[$key], auth()->id());
+                    $adjusted++;
+                }
             }
         }
 
         Toastr::success(
             'Success',
             'Price update successfully'
-            . ($syncedVariants > 0 ? ' (stock synced to ' . $syncedVariants . ' variant)' : '')
+            . ($adjusted > 0 ? ' (stock adjusted for ' . $adjusted . ' product)' : '')
         );
         return redirect()->back();
     }
@@ -780,8 +877,16 @@ class ProductController extends Controller
 
     public function destroy(Request $request)
     {
-        $delete_data = Product::find($request->hidden_id);
+        // findOrFail: a second submit (or a trashed row) used to hit a null
+        // and fatal, because the model was already gone.
+        $delete_data = Product::findOrFail($request->hidden_id);
+
+        // Soft delete: the row and its images/variants stay so order history,
+        // returns and stock rows keep resolving product_id. Eloquent hides it
+        // from the storefront and the admin list. Restore with
+        // Product::withTrashed()->find($id)->restore().
         $delete_data->delete();
+
         Toastr::success('Success', 'Data delete successfully');
         return redirect()->back();
     }
@@ -861,27 +966,30 @@ class ProductController extends Controller
 
         $stockChanged = array_key_exists('stock', $data) && $data['stock'] !== null;
 
-        if ($stockChanged) {
-            $product->stock = (int) $data['stock'];
-            $changed[] = 'stock';
-        }
-
-        if ($changed === []) {
+        if ($changed === [] && ! $stockChanged) {
             return response()->json([
                 'status'  => 'failed',
                 'message' => 'Nothing to change',
             ]);
         }
 
-        $product->save();
+        if ($changed !== []) {
+            $product->save();
+        }
 
         if ($stockChanged) {
             /*
-             * Same split as price_update: the grid wrote products.stock and
-             * nothing else, so a quick restock from the list did not reach the
-             * storefront, which reads variant_stocks. See ProductStockSync.
+             * The grid shows one figure per product; the SSOT is per variant.
+             * The ledger applies the difference to the default variant and
+             * records an ADJUSTMENT movement, so a quick restock reaches the
+             * storefront immediately.
              */
-            app(ProductStockSync::class)->syncForProduct($product->fresh(), false, auth()->id());
+            app(InventoryLedger::class)->adjustProductTotalStock(
+                (int) $product->id,
+                (int) $data['stock'],
+                auth()->id()
+            );
+            $changed[] = 'stock';
         }
 
         /*
@@ -899,7 +1007,7 @@ class ProductController extends Controller
             'message' => 'Updated',
             'id'      => $product->id,
             'price'   => (float) $product->new_price,
-            'stock'   => (int) $product->stock,
+            'stock'   => $product->stockOnHand(),
             'fields'  => $changed,
         ]);
     }

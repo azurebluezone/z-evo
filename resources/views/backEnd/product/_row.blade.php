@@ -59,19 +59,19 @@
                     <td class="d-none d-sm-table-cell">
                         {{-- Same pattern for stock; the colour badge re-appears
                              once the save returns the new number. --}}
-                        @if(($value->stock ?? 0) <= 5)
+                        @if($value->stockOnHand() <= 5)
                             <span class="js-inline-text badge bg-label-danger rounded-0" data-inline-stock
-                                  data-product-id="{{ $value->id }}">{{$value->stock ?? 0}}</span>
+                                  data-product-id="{{ $value->id }}">{{$value->stockOnHand()}}</span>
                         @else
                             <span class="js-inline-text badge bg-label-success rounded-0" data-inline-stock
-                                  data-product-id="{{ $value->id }}">{{$value->stock ?? 0}}</span>
+                                  data-product-id="{{ $value->id }}">{{$value->stockOnHand()}}</span>
                         @endif
                         <input type="number" step="1" min="0"
                                class="js-inline-input form-control form-control-sm d-none"
                                data-inline-stock-input
                                data-inline-url="{{ route('products.quick_update') }}"
                                data-product-id="{{ $value->id }}"
-                               value="{{ $value->stock ?? 0 }}"
+                               value="{{ $value->stockOnHand() }}"
                                aria-label="Edit stock">
                     </td>
                     <td>

@@ -64,11 +64,35 @@
     /* ------------------------------------------------------------------ *
      * Quantity stepper: one visible readonly field, both forms carry a
      * hidden mirror (data-fm-qty-source) that is kept in step.
+     *
+     * The ceiling is per selection, not per product. fm-qty-ceiling.js owns
+     * the rule, so the page-load limit, the clamp and the disabled buttons
+     * can never disagree: a 4-unit product drops to 1 the moment a 1-unit
+     * variant is picked, and returns to 4 when the pick is cleared.
      * ------------------------------------------------------------------ */
     function syncQty() {
         all('[data-fm-qty-source]').forEach(function (input) {
             input.value = qtyInput.value;
         });
+    }
+
+    var baseMaxQty = Math.max(1, parseInt(CFG.maxQty, 10) || 1);
+
+    var qtyCeiling = (window.FmQtyCeiling && qtyInput)
+        ? window.FmQtyCeiling.create({
+            input: qtyInput,
+            plus: document.querySelector('[data-fm-qty="1"]'),
+            minus: document.querySelector('[data-fm-qty="-1"]'),
+            sync: syncQty
+        })
+        : null;
+
+    function setQtyCeiling(qty) {
+        if (qtyCeiling) qtyCeiling.set(qty);
+    }
+
+    function currentCeiling() {
+        return qtyCeiling ? qtyCeiling.max() : (parseInt(CFG.maxQty, 10) || 1);
     }
 
     if (qtyInput) {
@@ -78,12 +102,17 @@
                 var value = parseInt(qtyInput.value, 10) || 1;
                 value += delta;
                 if (value < 1) value = 1;
-                if (value > CFG.maxQty) value = CFG.maxQty;
+                if (value > currentCeiling()) value = currentCeiling();
                 qtyInput.value = String(value);
                 syncQty();
+                if (qtyCeiling) qtyCeiling.refresh();
             });
         });
     }
+
+    // Publish the server's ceiling before the first click so the value, the
+    // buttons and the markup agree from the start.
+    setQtyCeiling(baseMaxQty);
 
     /* ------------------------------------------------------------------ *
      * Tabs: the nav buttons and the "N reviews" link both route
@@ -120,7 +149,15 @@
      * both forms as hidden variant[] inputs. An empty set still means
      * the backend falls back to the DEFAULT variant.
      * ------------------------------------------------------------------ */
-    var pillGroups = all('.fm-pill-group[data-attr-slug]');
+    /*
+     * Only groups that actually carry pills count towards a selection.
+     * An empty group (legacy data, or a companion key that slipped through)
+     * could never be picked, and requiring one pick per group would then
+     * deadlock the picker forever.
+     */
+    var pillGroups = all('.fm-pill-group[data-attr-slug]').filter(function (group) {
+        return group.querySelectorAll('.fm-attr-pill').length > 0;
+    });
 
     function selectedIds() {
         return pillGroups.map(function (group) {
@@ -182,6 +219,10 @@
         all('[data-fm-cta]').forEach(function (button) {
             button.disabled = out;
         });
+        // The stock answer and the quantity ceiling describe the same variant,
+        // so they must move together. Leaving the old ceiling here was how a
+        // 1-unit variant still accepted a 4-unit order at the stepper.
+        setQtyCeiling(qty);
     }
 
     function resetDisplay() {
@@ -194,6 +235,8 @@
         all('[data-fm-cta]').forEach(function (button) {
             button.disabled = CFG.baseStockOut;
         });
+        // Clearing the pick hands the product-level ceiling back.
+        setQtyCeiling(baseMaxQty);
     }
 
     var stockTimer = null;

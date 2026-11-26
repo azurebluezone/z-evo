@@ -308,5 +308,8 @@
 <script>
     window.FM_DETAIL_CONFIG = @json($fmDetailConfig, JSON_UNESCAPED_UNICODE);
 </script>
+{{-- The ceiling rule is its own file so it can be tested without a browser;
+     it must load BEFORE the page script that creates the controller. --}}
+<script src="{{ asset('frontend/js/fm-qty-ceiling.js') }}"></script>
 <script src="{{ asset('frontend/js/fm-product-detail.js') }}"></script>
 @endpush

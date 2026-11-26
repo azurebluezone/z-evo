@@ -210,7 +210,7 @@
                                                                 {{ $details->brand ? $details->brand->name : 'N/A' }}
                                                             </p>
                                                         </div>
-                                                        @if($details->stock > 1)
+                                                        @if($details->displayStockQuantity() > 1)
                                                           <div class="row">
                                                             <div class="qty-cart col-sm-12">
                                                                 <div class="quantity">
@@ -934,7 +934,7 @@
                 item_category: "{{ $details->category->name }}",
                 item_variant: "{{ $details->pro_unit }}",
                 currency: "BDT",
-                quantity: {{ $details->stock ?? 0 }}
+                quantity: {{ $details->displayStockQuantity() }}
             }],
             impression: [
                 @foreach ($products as $value)
@@ -946,7 +946,7 @@
                         item_category: "{{ $value->category ? $value->category->name : '' }}",
                         item_variant: "{{ $value->pro_unit }}",
                         currency: "BDT",
-                        quantity: {{ $value->stock ?? 0 }}
+                        quantity: {{ $value->displayStockQuantity() }}
                     },
                 @endforeach
             ]
