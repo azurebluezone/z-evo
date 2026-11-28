@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\ReportHealthController;
 use App\Http\Controllers\Admin\ReportDashboardController;
 use App\Http\Controllers\Admin\ReportSettingsController;
 use App\Http\Controllers\Admin\ReportExportController;
+use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\ExpenseCategoryController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CourierDashboardController;
 use App\Http\Controllers\Admin\OrderCourierController;
@@ -1569,6 +1571,27 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::post('reports/stock-alerts/dismiss', [ReportSettingsController::class, 'dismissStockAlert'])
         ->name('admin.reports.stock-alerts.dismiss')
         ->middleware('permission:report-stock-view');
+
+    // Expense entry, Phase 1 of docs/report-completion-plan.md. The screen is
+    // Admin-only (report-profit-view) because it feeds the net-profit number.
+    Route::middleware('permission:report-profit-view')->prefix('reports')->group(function () {
+        Route::get('expenses', [ExpenseController::class, 'index'])
+            ->name('admin.reports.expenses.index');
+        Route::post('expenses', [ExpenseController::class, 'store'])
+            ->name('admin.reports.expenses.store');
+        Route::post('expenses/destroy', [ExpenseController::class, 'destroy'])
+            ->name('admin.reports.expenses.destroy');
+
+        Route::post('expense-categories', [ExpenseCategoryController::class, 'store'])
+            ->name('admin.reports.expense-categories.store');
+        Route::post('expense-categories/update', [ExpenseCategoryController::class, 'update'])
+            ->name('admin.reports.expense-categories.update');
+        Route::post('expense-categories/toggle', [ExpenseCategoryController::class, 'toggle'])
+            ->name('admin.reports.expense-categories.toggle');
+        Route::post('expense-categories/destroy', [ExpenseCategoryController::class, 'destroy'])
+            ->name('admin.reports.expense-categories.destroy');
+    });
+
     // Both of these are AJAX endpoints: they read an `order_ids` array out of the
     // request body, and backEnd/order/index.blade.php posts to them with the CSRF
     // token. They were still declared GET, so every click on the Pathao button

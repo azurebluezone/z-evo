@@ -612,6 +612,13 @@
                         <div>Sales &amp; Profit</div>
                     </a>
                 </li>
+                @can('report-profit-view')
+                <li class="menu-item {{ request()->routeIs('admin.reports.expenses.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.expenses.index') }}" class="menu-link">
+                        <div>Expenses</div>
+                    </a>
+                </li>
+                @endcan
                 @can('report-payment-view')
                 <li class="menu-item {{ request()->routeIs('admin.reports.payments') ? 'active' : '' }}">
                     <a href="{{ route('admin.reports.payments') }}" class="menu-link">
