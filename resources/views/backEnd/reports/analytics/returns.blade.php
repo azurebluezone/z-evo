@@ -24,7 +24,7 @@
     </div>
 </div>
 
-@include('backEnd.reports.analytics._filters', ['action' => route('admin.reports.returns')])
+@include('backEnd.reports.analytics._filters', ['action' => route('admin.reports.returns'), 'viewKey' => 'returns'])
 
 @if ($metrics['order_count'] === 0)
     <div class="card">

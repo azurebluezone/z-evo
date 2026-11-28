@@ -26,7 +26,7 @@
     </div>
 </div>
 
-@include('backEnd.reports.analytics._filters', ['action' => route('admin.reports.payments')])
+@include('backEnd.reports.analytics._filters', ['action' => route('admin.reports.payments'), 'viewKey' => 'payments'])
 
 @if ($metrics['total_count'] === 0)
     <div class="card">

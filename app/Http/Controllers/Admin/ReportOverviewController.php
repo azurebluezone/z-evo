@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\Concerns\BuildsGeoBreakdown;
 use App\Http\Controllers\Controller;
+use App\Models\ReportView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -126,6 +127,7 @@ class ReportOverviewController extends Controller
             'paymentMix' => $this->paymentMix(),
             'geo' => $geo,
             'geoTotal' => round((float) $geo->sum('amount'), 2),
+            'savedViews' => ReportView::forPage('overview', auth()->id()),
             'filters' => [
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),

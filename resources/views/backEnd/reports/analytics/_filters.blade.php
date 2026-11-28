@@ -26,5 +26,10 @@
                 </div>
             </div>
         </form>
+
+        @include('backEnd.reports.partials._saved_views', [
+            'viewKey' => $viewKey ?? '',
+            'savedViews' => $savedViews ?? collect(),
+        ])
     </div>
 </div>

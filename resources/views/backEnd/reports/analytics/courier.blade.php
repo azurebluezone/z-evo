@@ -23,7 +23,7 @@
     </div>
 </div>
 
-@include('backEnd.reports.analytics._filters', ['action' => route('admin.reports.couriers')])
+@include('backEnd.reports.analytics._filters', ['action' => route('admin.reports.couriers'), 'viewKey' => 'couriers'])
 
 @if ($metrics['shipments'] === 0)
     <div class="card">

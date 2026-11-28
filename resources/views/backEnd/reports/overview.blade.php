@@ -54,6 +54,11 @@
                 Empty filter means the whole development baseline.
             </p>
         </form>
+
+        @include('backEnd.reports.partials._saved_views', [
+            'viewKey' => 'overview',
+            'savedViews' => $savedViews ?? collect(),
+        ])
     </div>
 </div>
 

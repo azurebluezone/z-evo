@@ -24,7 +24,7 @@
     </div>
 </div>
 
-@include('backEnd.reports.analytics._filters', ['action' => route('admin.reports.coupons')])
+@include('backEnd.reports.analytics._filters', ['action' => route('admin.reports.coupons'), 'viewKey' => 'coupons'])
 
 @if ($metrics['usage_count'] === 0)
     <div class="card">

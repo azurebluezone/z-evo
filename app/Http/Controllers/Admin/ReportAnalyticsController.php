@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\Concerns\BuildsGeoBreakdown;
 use App\Http\Controllers\Controller;
+use App\Models\ReportView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -138,6 +139,7 @@ class ReportAnalyticsController extends Controller
             'metrics' => $metrics,
             'rows' => $rows,
             'charts' => $charts,
+            'savedViews' => ReportView::forPage('payments', auth()->id()),
             'filters' => $this->filters($request),
             'settlementTargets' => DB::table('payments')
                 ->where('payment_status', 'paid')
@@ -331,6 +333,7 @@ class ReportAnalyticsController extends Controller
             'charts' => $charts,
             'geo' => $geo,
             'geoTotal' => round((float) $geo->sum('cost'), 2),
+            'savedViews' => ReportView::forPage('couriers', auth()->id()),
             'filters' => $this->filters($request),
             'settlementTargets' => DB::table('courier_shipments')
                 ->orderByDesc('id')
@@ -535,6 +538,7 @@ class ReportAnalyticsController extends Controller
             'charts' => $charts,
             'geo' => $geo,
             'geoTotal' => round((float) $geo->sum('refund_required'), 2),
+            'savedViews' => ReportView::forPage('returns', auth()->id()),
             'filters' => $this->filters($request),
         ]);
     }
@@ -653,6 +657,7 @@ class ReportAnalyticsController extends Controller
             'metrics' => $metrics,
             'rows' => $rows,
             'charts' => $charts,
+            'savedViews' => ReportView::forPage('coupons', auth()->id()),
             'filters' => $this->filters($request),
         ]);
     }

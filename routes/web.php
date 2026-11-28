@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ReportStockAlertController;
 use App\Http\Controllers\Admin\ReportHealthController;
 use App\Http\Controllers\Admin\ReportDashboardController;
 use App\Http\Controllers\Admin\ReportSettingsController;
+use App\Http\Controllers\Admin\ReportViewController;
 use App\Http\Controllers\Admin\ReportExportController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ExpenseCategoryController;
@@ -1581,6 +1582,15 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     Route::post('reports/settings/test-mail', [ReportSettingsController::class, 'sendTest'])
         ->name('admin.reports.settings.test')
         ->middleware('permission:report-settings-manage');
+
+    // Saved filter sets. Storing a view redirects to the report with the same
+    // query string, so reopening a view is the exact same report; deleting is
+    // owner-only (checked in the controller).
+    Route::post('reports/views', [ReportViewController::class, 'store'])
+        ->name('admin.reports.views.store');
+
+    Route::post('reports/views/{id}/delete', [ReportViewController::class, 'destroy'])
+        ->name('admin.reports.views.destroy');
 
     Route::post('reports/stock-alerts/dismiss', [ReportSettingsController::class, 'dismissStockAlert'])
         ->name('admin.reports.stock-alerts.dismiss')
