@@ -18,6 +18,8 @@ use Illuminate\Support\Str;
  * revenue by marketing spend without guessing.
  *
  * Rules:
+ *   - the row lives in `order_attributions`, exactly one per order: the unique
+ *     index on order_id is the schema-level version of this rule.
  *   - first touch wins. firstOrCreate means a second call for the same order
  *     returns the existing row instead of rewriting it, which is also why the
  *     unique index on order_id can never be violated from here.
