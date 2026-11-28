@@ -1522,6 +1522,13 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
         ->name('admin.reports.payments')
         ->middleware('permission:report-payment-view');
 
+    // One settlement entry for a payment. The row lands in
+    // payment_settlements and the payment's settled_amount/gateway_fee are
+    // recomputed from those rows, so the report never needs a manual edit.
+    Route::post('reports/payments/settlement', [ReportAnalyticsController::class, 'storePaymentSettlement'])
+        ->name('admin.reports.payments.settlement')
+        ->middleware('permission:report-payment-view');
+
     Route::get('reports/couriers', [ReportAnalyticsController::class, 'courierPerformance'])
         ->name('admin.reports.couriers')
         ->middleware('permission:report-courier-view');

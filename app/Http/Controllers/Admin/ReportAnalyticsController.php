@@ -84,7 +84,10 @@ class ReportAnalyticsController extends Controller
                 DB::raw("SUM(CASE WHEN payment_status = 'paid' THEN amount ELSE 0 END) as paid_amount"),
                 DB::raw("SUM(CASE WHEN payment_status = 'pending' THEN amount ELSE 0 END) as pending_amount"),
                 DB::raw("SUM(CASE WHEN payment_status = 'refunded' THEN amount ELSE 0 END) as refunded_amount"),
-                DB::raw("SUM(CASE WHEN payment_status = 'cancelled' THEN amount ELSE 0 END) as cancelled_amount")
+                DB::raw("SUM(CASE WHEN payment_status = 'cancelled' THEN amount ELSE 0 END) as cancelled_amount"),
+                DB::raw("SUM(CASE WHEN payment_status = 'paid' THEN gateway_fee ELSE 0 END) as fee"),
+                DB::raw("SUM(CASE WHEN payment_status = 'paid' THEN settled_amount ELSE 0 END) as settled"),
+                DB::raw("SUM(CASE WHEN payment_status = 'paid' THEN amount - gateway_fee - settled_amount ELSE 0 END) as gap")
             )
             ->groupBy('payment_method')
             ->orderByDesc('paid_amount')
@@ -98,8 +101,16 @@ class ReportAnalyticsController extends Controller
                 'pending_amount' => (float) $row->pending_amount,
                 'refunded_amount' => (float) $row->refunded_amount,
                 'cancelled_amount' => (float) $row->cancelled_amount,
+                'fee' => round((float) $row->fee, 2),
+                'settled' => round((float) $row->settled, 2),
+                'gap' => round((float) $row->gap, 2),
             ])
             ->all();
+
+        // Collected - gateway fee - settled, per method and for the range.
+        $metrics['fee'] = round((float) array_sum(array_column($rows, 'fee')), 2);
+        $metrics['settled'] = round((float) array_sum(array_column($rows, 'settled')), 2);
+        $metrics['settlement_gap'] = round((float) array_sum(array_column($rows, 'gap')), 2);
 
         $charts = [];
         $labels = [];
@@ -125,7 +136,72 @@ class ReportAnalyticsController extends Controller
             'rows' => $rows,
             'charts' => $charts,
             'filters' => $this->filters($request),
+            'settlementTargets' => DB::table('payments')
+                ->where('payment_status', 'paid')
+                ->orderByDesc('id')
+                ->limit(50)
+                ->get(['id', 'order_id', 'amount', 'payment_method', 'settlement_status']),
         ]);
+    }
+
+    /**
+     * Record one settlement for a payment.
+     *
+     * The entry is a row in payment_settlements; the parent payment's
+     * settled_amount and gateway_fee are then recomputed from the settlement
+     * rows, so the payment row is a projection and is never edited by hand.
+     * The report reads payments.gateway_fee / settled_amount, which keeps the
+     * metric dictionary's source columns authoritative.
+     */
+    public function storePaymentSettlement(Request $request)
+    {
+        $data = $request->validate([
+            'payment_id' => ['required', 'integer', 'exists:payments,id'],
+            'settled_amount' => ['required', 'numeric', 'min:0'],
+            'gateway_fee' => ['nullable', 'numeric', 'min:0'],
+            'settled_at' => ['nullable', 'date'],
+            'reference' => ['nullable', 'string', 'max:64'],
+            'note' => ['nullable', 'string', 'max:191'],
+        ]);
+
+        $paymentId = (int) $data['payment_id'];
+        $settledAmount = round((float) $data['settled_amount'], 2);
+        $gatewayFee = round((float) ($data['gateway_fee'] ?? 0), 2);
+        $settledAt = $data['settled_at'] ?? now()->toDateString();
+        $reference = $data['reference'] ?? null;
+
+        DB::transaction(function () use ($paymentId, $settledAmount, $gatewayFee, $settledAt, $reference, $data): void {
+            $payment = DB::table('payments')->where('id', $paymentId)->lockForUpdate()->first();
+            abort_if($payment === null, 404, 'The payment does not exist.');
+
+            DB::table('payment_settlements')->insert([
+                'payment_id' => $paymentId,
+                'settled_amount' => $settledAmount,
+                'gateway_fee' => $gatewayFee,
+                'status' => 'settled',
+                'settled_at' => $settledAt,
+                'reference' => $reference,
+                'note' => $data['note'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $totals = DB::table('payment_settlements')
+                ->where('payment_id', $paymentId)
+                ->selectRaw('SUM(settled_amount) as settled, SUM(gateway_fee) as fee, MAX(settled_at) as last_settled')
+                ->first();
+
+            DB::table('payments')->where('id', $paymentId)->update([
+                'settled_amount' => (float) $totals->settled,
+                'gateway_fee' => (float) $totals->fee,
+                'settlement_status' => 'settled',
+                'settled_at' => $totals->last_settled,
+                'settlement_reference' => $reference,
+                'updated_at' => now(),
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Payment settlement recorded.');
     }
 
     /* ------------------------------------------------------------------ */

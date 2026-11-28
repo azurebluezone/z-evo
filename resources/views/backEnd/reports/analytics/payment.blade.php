@@ -73,6 +73,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1 small">Settlement gap</p>
+                    <h4 class="mb-1" data-metric="settlement-gap">BDT {{ number_format($metrics['settlement_gap'], 2) }}</h4>
+                    <span class="badge bg-label-secondary">fee BDT {{ number_format($metrics['fee'], 2) }}, settled BDT {{ number_format($metrics['settled'], 2) }}</span>
+                    <p class="text-muted small mb-0 mt-1">collected - gateway fee - settled, paid payments in range</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4 mb-4">
@@ -128,6 +138,9 @@
                             <th class="text-end">Payments</th>
                             <th class="text-end">Paid count</th>
                             <th class="text-end">Paid amount</th>
+                            <th class="text-end">Fee</th>
+                            <th class="text-end">Settled</th>
+                            <th class="text-end">Gap</th>
                             <th class="text-end">Pending</th>
                             <th class="text-end">Refunded</th>
                             <th class="text-end">Cancelled</th>
@@ -141,6 +154,9 @@
                                 <td class="text-end">{{ number_format($row['total_count'], 0) }}</td>
                                 <td class="text-end">{{ number_format($row['paid_count'], 0) }}</td>
                                 <td class="text-end fw-semibold">BDT {{ number_format($row['paid_amount'], 0) }}</td>
+                                <td class="text-end">BDT {{ number_format($row['fee'], 2) }}</td>
+                                <td class="text-end">BDT {{ number_format($row['settled'], 2) }}</td>
+                                <td class="text-end" data-method-gap="{{ $row['method'] }}">BDT {{ number_format($row['gap'], 2) }}</td>
                                 <td class="text-end text-warning">BDT {{ number_format($row['pending_amount'], 0) }}</td>
                                 <td class="text-end text-info">BDT {{ number_format($row['refunded_amount'], 0) }}</td>
                                 <td class="text-end text-danger">BDT {{ number_format($row['cancelled_amount'], 0) }}</td>
@@ -154,6 +170,9 @@
                             <th class="text-end">{{ number_format($metrics['total_count'], 0) }}</th>
                             <th class="text-end">{{ number_format($metrics['paid_count'], 0) }}</th>
                             <th class="text-end">BDT {{ number_format($metrics['paid_amount'], 0) }}</th>
+                            <th class="text-end">BDT {{ number_format($metrics['fee'], 2) }}</th>
+                            <th class="text-end">BDT {{ number_format($metrics['settled'], 2) }}</th>
+                            <th class="text-end">BDT {{ number_format($metrics['settlement_gap'], 2) }}</th>
                             <th class="text-end">BDT {{ number_format($metrics['pending_amount'], 0) }}</th>
                             <th class="text-end">BDT {{ number_format($metrics['refunded_amount'], 0) }}</th>
                             <th class="text-end">BDT {{ number_format($metrics['cancelled_amount'], 0) }}</th>
@@ -162,6 +181,59 @@
                     </tfoot>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header border-bottom">
+            <h5 class="card-title mb-0">Record a payment settlement</h5>
+            <p class="text-muted small mb-0">Writes one <code>payment_settlements</code> row, then recomputes the payment's settled amount and gateway fee from all of its settlement rows.</p>
+        </div>
+        <div class="card-body">
+            @if ($errors->any())
+                <div class="alert alert-danger py-2">
+                    <ul class="mb-0 small">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <form method="POST" action="{{ route('admin.reports.payments.settlement') }}" class="row g-3">
+                @csrf
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="settlementPayment">Payment</label>
+                    <select class="form-select" id="settlementPayment" name="payment_id" required>
+                        <option value="">Choose a paid payment</option>
+                        @foreach ($settlementTargets as $target)
+                            <option value="{{ $target->id }}">#{{ $target->id }} order {{ $target->order_id }} {{ $target->payment_method }} BDT {{ number_format((float) $target->amount, 0) }} ({{ $target->settlement_status }})</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" for="settlementAmount">Settled amount</label>
+                    <input type="number" step="0.01" min="0" class="form-control" id="settlementAmount" name="settled_amount" required>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" for="settlementFee">Gateway fee</label>
+                    <input type="number" step="0.01" min="0" class="form-control" id="settlementFee" name="gateway_fee" value="0">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" for="settlementDate">Settled at</label>
+                    <input type="date" class="form-control" id="settlementDate" name="settled_at" value="{{ now()->toDateString() }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" for="settlementReference">Reference</label>
+                    <input type="text" maxlength="64" class="form-control" id="settlementReference" name="reference">
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="settlementNote">Note</label>
+                    <input type="text" maxlength="191" class="form-control" id="settlementNote" name="note">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Record settlement</button>
+                </div>
+            </form>
         </div>
     </div>
 

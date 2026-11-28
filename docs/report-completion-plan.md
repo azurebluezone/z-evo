@@ -46,7 +46,8 @@ reported on the day it happened.
      assertions) compares `metrics['cod_outstanding']` with a raw
      `SUM(cod_amount - remitted_amount)` and counts a `mystery_state`
      settlement row as unknown.
-3. Payment settlement.
+3. Payment settlement. ✅ done 2026-11-28, marker `PAYMENT_SETTLEMENT_OK`,
+   contract `gc-mwzxy9w7`.
    - Sources: `payments.gateway_fee`, `settled_amount`,
      `settlement_status`, `settled_at`, `settlement_reference`
      (`2026_11_27_000004`) and `payment_settlements`
@@ -55,6 +56,13 @@ reported on the day it happened.
      settled vs fee.
    - Done when collected - fees - settled is visible per gateway and per
      period.
+   - Evidence: `POST admin.reports.payments.settlement` writes one
+     `payment_settlements` row and recomputes `payments.settled_amount` and
+     `payments.gateway_fee` from its rows; the report shows a Settlement gap
+     card and per-method Fee/Settled/Gap columns;
+     `tests/Feature/AdminPaymentSettlementTest.php` (3 tests, 22 assertions)
+     compares the page gap with `SUM(amount - gateway_fee - settled_amount)`
+     and proves Support is denied.
 4. Courier settlement.
    - Sources: `cod_amount`, `return_charge`, `remitted_amount`,
      `settlement_status` (`2026_11_27_000005`) and `courier_settlements`

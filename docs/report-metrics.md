@@ -184,6 +184,7 @@ Never label a number simply "revenue". Use one of these three names.
 | Pending Payment | `SUM(payments.amount) WHERE payment_status = 'pending'` | payment | `payments` | `created_at` | `IMPLEMENTED` | Payment Methods, Dashboard |
 | Payment Success Rate | `paid payment count / all payment count * 100` | payment | `payments` | `created_at` | `IMPLEMENTED` | Payment Methods |
 | Average Paid Payment | `Collected Payment / paid payment count` | payment | `payments` | `created_at` | `IMPLEMENTED` | Payment Methods |
+| Payment Settlement Gap | `SUM(payments.amount - payments.gateway_fee - payments.settled_amount) WHERE payment_status = 'paid'` | payment | `payments`, `payment_settlements` | `payments.created_at`; settlement date is `settled_at` | `IMPLEMENTED` | Payment Methods card and per-method Fee/Settled/Gap columns; a settlement entry writes one `payment_settlements` row and recomputes the payment's `settled_amount`/`gateway_fee` from its rows; `AdminPaymentSettlementTest` proves the page gap equals an independent SQL sum |
 
 ### 3.4 Courier
 
