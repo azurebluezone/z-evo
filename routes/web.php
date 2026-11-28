@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ReportDashboardController;
 use App\Http\Controllers\Admin\ReportSettingsController;
 use App\Http\Controllers\Admin\ReportViewController;
 use App\Http\Controllers\Admin\ReportExportController;
+use App\Http\Controllers\Admin\CohortRetentionController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ExpenseCategoryController;
 use App\Http\Controllers\Admin\MarketingReportController;
@@ -1517,6 +1518,13 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
         ->whereIn('report', ['stock', 'order']);
     Route::get('reports/overview', [ReportOverviewController::class, 'index'])
         ->name('admin.reports.overview')
+        ->middleware('permission:report-sales-view');
+
+    // Phase 3 item 4: cohort retention by the month of the first delivered
+    // order. Same permission as the sales report: it is order history, not
+    // spend or profit.
+    Route::get('reports/cohorts', [CohortRetentionController::class, 'index'])
+        ->name('admin.reports.cohorts')
         ->middleware('permission:report-sales-view');
 
     // Four analytics reports. Each one is guarded by its own permission so a

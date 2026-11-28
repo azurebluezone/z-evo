@@ -254,6 +254,17 @@ Never label a number simply "revenue". Use one of these three names.
 
 **Marketing efficiency rule.** Spend and revenue are counted on two different clocks by nature: `marketing_spends.spent_at` is the day the money left, `orders.delivered_at` is the day the revenue became real, and the report states both. An order has exactly one primary attribution (`order_attributions.order_id` is unique, migration `2026_11_28_000002`), so the revenue join cannot multiply an order. Delivered revenue without an attribution row is never divided by spend: it is reported as Unattributed Delivered Revenue, because attributing it to a channel would invent a return. A channel with spend but no delivered order prints "-" for ROAS and CAC rather than 0 or infinity. Both the dashboard and the Marketing report read `MarketingMetricsService`, so they cannot show different numbers for the same range.
 
+### 3.9 Cohort retention
+
+| Metric | Formula | Grain | Source | Date basis | Status | Surfaces |
+|---|---|---|---|---|---|---|
+| Cohort Month | `DATE_FORMAT(MIN(orders.delivered_at), '%Y-%m')` per customer | customer | `orders` | `delivered_at` | `IMPLEMENTED` | Cohort report |
+| Cohort Size | `COUNT(customer_id)` whose first delivered month equals the cohort month | cohort | `orders` | `delivered_at` | `IMPLEMENTED` | Cohort report |
+| Repeat(k) | `COUNT(DISTINCT customer_id)` of the cohort with a delivered order at offset k whole months from the cohort month | cohort + offset | `orders` | `delivered_at` | `IMPLEMENTED` | Cohort report |
+| Retention(k) | `Repeat(k) / Cohort Size`; `Repeat(0)` is the acquisition month itself | cohort + offset | derived | `delivered_at` | `IMPLEMENTED` | Cohort report |
+
+**Cohort retention rule.** A customer's cohort is fixed by history — the month of their first delivered order — and never moves. Only delivered orders (`order_status IN ('delivered','4')`) count, on `orders.delivered_at`: a placed order that never shipped is not a customer relationship. Every cell is a distinct-customer count, so two delivered orders in one month count the customer once. The date filter selects which cohort months are listed; a listed cohort still shows its later activity even when that activity falls outside the filter, because retention is a property of the cohort, not of the window. The page shows M0 to M6 (`CohortRetentionService::MAX_OFFSET`), and the totals row sums per-cohort cells, which is valid because a customer belongs to exactly one cohort.
+
 ## 4. Surface map
 
 | Surface | Route | Metrics shown | Date basis |
@@ -339,3 +350,4 @@ Never label a number simply "revenue". Use one of these three names.
 | 2026-11-28 | Report Summary renamed to Report Health (`ReportHealthController`, `reports/health`, sidebar label); `/admin/reports/summary` keeps working as a 301 behind the same `report-sales-view` permission | report-management-final section 8 item 10: the page is a data-quality audit, and the name promised a business summary | `gc-mwzvfpfm` |
 | 2026-11-28 | Six metric-truth fixes: distinct-order Return Rate, Gross Profit = Net Sales - COGS, item Return Rate, `status_normalized` written on every shipment save and read by the Courier page, per-variant `low_stock_threshold`, and business expenses inside Estimated Net Profit. Section 5 #6-#9 corrected: the columns now exist, only the aggregates/UI are missing | the dictionary and the pages disagreed on six numbers; three "columns do not exist" sentences were stale after the Wave 1 migrations | `gc-mwzw7e3l` |
 | 2026-11-28 | Marketing efficiency locked in section 3.8: Marketing Spend, Attributed Delivered Revenue, ROAS, CPA, CAC and Unattributed Delivered Revenue, all from `MarketingMetricsService`; dashboard blocks and the Marketing report share it | Phase 3 item 3 needed one written definition of ROAS before two screens could show it | `gc-mx015bem` |
+| 2026-11-28 | Cohort retention locked in section 3.9: cohort = month of first delivered order, size, Repeat(k) and Retention(k) for M0-M6, from `CohortRetentionService`; the cohort report is the only surface | Phase 3 item 4 needed the cohort definition written before a second screen could invent a different retention number | `gc-mx01cvgj` |
