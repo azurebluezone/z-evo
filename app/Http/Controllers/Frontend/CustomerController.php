@@ -336,6 +336,13 @@ class CustomerController extends Controller
     public function checkout()
     {
         $shippingcharge = ShippingCharge::where('status', 1)->get();
+        // Geography is chosen once, at checkout: the districts reference row
+        // carries both the district and its division, so the order stores a
+        // real district_id instead of only the free-text shipping zone name.
+        $districts = District::query()
+            ->orderBy('district')
+            ->orderBy('area_name')
+            ->get(['id', 'district', 'area_name']);
         $select_charge = ShippingCharge::where('status', 1)->first();
         $bkash_gateway = PaymentGateway::where(['status' => 1, 'type' => 'bkash'])->first();
         $shurjopay_gateway = PaymentGateway::where(['status' => 1, 'type' => 'shurjopay'])->first();
@@ -387,7 +394,7 @@ class CustomerController extends Controller
         }
 
         //  return redirect()->back();
-        return view('frontend.layouts.customer.checkout', compact('shippingcharge', 'bkash_gateway', 'shurjopay_gateway'));
+        return view('frontend.layouts.customer.checkout', compact('shippingcharge', 'districts', 'bkash_gateway', 'shurjopay_gateway'));
     }
     public function order_save(Request $request)
     {
@@ -400,6 +407,10 @@ class CustomerController extends Controller
             'phone' => ['required', 'regex:/^01[3-9]\d{8}$/'],
             'address' => 'required',
             'area' => 'required',
+            // Phase 2 item 2: the district is the geography the report layer
+            // groups by. A free-text shipping zone alone cannot answer "where",
+            // so the checkout refuses an order without a real districts row.
+            'district_id' => 'required|integer|exists:districts,id',
         ]);
         if (Cart::instance('shopping')->count() <= 0) {
             Toastr::error('Your shopping empty', 'Failed!');
@@ -435,6 +446,12 @@ class CustomerController extends Controller
         $shipping_area  = ShippingCharge::where('id', $request->area)->first();
         if (!$shipping_area) {
             Toastr::error('Invalid shipping area selected', 'Failed!');
+            return redirect()->back();
+        }
+
+        $district = District::query()->find((int) $request->input('district_id'));
+        if (!$district) {
+            Toastr::error('Invalid district selected', 'Failed!');
             return redirect()->back();
         }
         $shippingfee = (float) $shipping_area->amount;
@@ -528,6 +545,7 @@ class CustomerController extends Controller
                 'phone' => (string) $request->phone,
                 'address' => (string) $request->address,
                 'area' => $shipping_area->name,
+                'district_id' => (int) $district->id,
                 'payment_method' => (string) $request->payment_method,
             ],
             [

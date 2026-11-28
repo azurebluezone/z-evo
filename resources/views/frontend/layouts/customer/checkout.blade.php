@@ -549,6 +549,23 @@
         </div>
         
         <div class="bd-ck-form-group">
+          <label class="bd-ck-label">District / Area <span>*</span></label>
+          <select id="bdDistrictSelect" name="district_id" class="bd-ck-select @error('district_id') is-invalid @enderror" required>
+            <option value="" disabled {{ old('district_id') ? '' : 'selected' }}>Select District and Area</option>
+            @foreach (($districts ?? collect())->groupBy('district') as $districtName => $districtAreas)
+              <optgroup label="{{ $districtName }}">
+                @foreach ($districtAreas as $districtArea)
+                  <option value="{{ $districtArea->id }}" {{ (string) old('district_id') === (string) $districtArea->id ? 'selected' : '' }}>{{ $districtArea->area_name }}</option>
+                @endforeach
+              </optgroup>
+            @endforeach
+          </select>
+          @error('district_id')
+            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+          @enderror
+        </div>
+
+        <div class="bd-ck-form-group">
           <label class="bd-ck-label">Shipping Area <span>*</span></label>
           <select id="bdAreaSelect" name="area" class="bd-ck-select @error('area') is-invalid @enderror" required>
             <option value="" disabled {{ $shippingAreaId === 0 ? 'selected' : '' }}>Select Delivery Area</option>

@@ -246,6 +246,35 @@
                                     <p class="fm-co__error">@error('address') {{ $message }} @enderror</p>
                                 </div>
 
+                                {{-- ---- district / area ---- --}}
+                                {{-- The districts reference row carries both the
+                                     district and its division; the report layer
+                                     groups by this id, so it is required. --}}
+                                <div class="fm-co__field fm-co__field--wide">
+                                    <label class="fm-co__label" for="coDistrict">
+                                        District / Area <span class="req">*</span>
+                                    </label>
+                                    <select id="coDistrict"
+                                            name="district_id"
+                                            class="fm-co__select @error('district_id') is-invalid @enderror"
+                                            required>
+                                        <option value="" disabled {{ old('district_id') ? '' : 'selected' }}>
+                                            Select District and Area
+                                        </option>
+                                        @foreach (($districts ?? collect())->groupBy('district') as $coDistrictName => $coDistrictAreas)
+                                            <optgroup label="{{ $coDistrictName }}">
+                                                @foreach ($coDistrictAreas as $coDistrictArea)
+                                                    <option value="{{ $coDistrictArea->id }}"
+                                                        {{ (string) old('district_id') === (string) $coDistrictArea->id ? 'selected' : '' }}>
+                                                        {{ $coDistrictArea->area_name }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                    <p class="fm-co__error">@error('district_id') {{ $message }} @enderror</p>
+                                </div>
+
                                 {{-- ---- area ---- --}}
                                 <div class="fm-co__field fm-co__field--wide">
                                     <label class="fm-co__label" for="coArea">

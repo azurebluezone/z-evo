@@ -256,6 +256,7 @@ class Phase4TikTokWiringAndVariantStockGuardTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'Phase4 Address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
 

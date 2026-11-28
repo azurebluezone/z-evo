@@ -257,6 +257,7 @@ class CampaignCheckoutRevalidationTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'QA revalidation address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
     }

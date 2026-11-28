@@ -262,6 +262,7 @@ class Phase5OrderDetailsConsistencyTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'Phase5 Address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
         $response->assertStatus(302);
@@ -318,6 +319,7 @@ class Phase5OrderDetailsConsistencyTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'Phase5 Address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
         $response->assertStatus(302);
@@ -352,6 +354,7 @@ class Phase5OrderDetailsConsistencyTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'Phase5 Address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
         $response->assertStatus(302);
@@ -390,6 +393,7 @@ class Phase5OrderDetailsConsistencyTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'Phase5 Address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
         $response->assertStatus(302);

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\District;
 use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Payment;
@@ -95,6 +96,21 @@ class OrderPlacementService
         $shipping->phone = $customer['phone'];
         $shipping->address = $customer['address'];
         $shipping->area = $customer['area'];
+
+        // district_id is the geography the report layer groups by. When the
+        // caller supplies it, the division is copied from the same reference
+        // row so shippings.division can never disagree with its district. A
+        // caller that supplies no district leaves both NULL: no invented
+        // geography (the old rows are backfill-impossible by design).
+        if (!empty($customer['district_id'])) {
+            $district = District::query()->find((int) $customer['district_id']);
+
+            if ($district) {
+                $shipping->district_id = (int) $district->id;
+                $shipping->division = $district->division;
+            }
+        }
+
         $shipping->created_at = $placedAt;
         $shipping->updated_at = $placedAt;
         $shipping->save();

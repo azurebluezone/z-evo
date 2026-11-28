@@ -150,6 +150,7 @@ class CampaignEndToEndTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'QA campaign address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
         $checkout->assertStatus(302);

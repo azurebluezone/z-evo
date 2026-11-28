@@ -315,6 +315,7 @@ class ShopWorkflowAuditTest extends TestCase
             'phone' => '01712345678',
             'address' => '12 Audit Road, Barishal',
             'area' => 1,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'Cash On Delivery',
         ]);
         $checkout->assertRedirect();

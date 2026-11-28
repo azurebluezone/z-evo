@@ -181,6 +181,11 @@ class DistrictShippingSeeder extends Seeder
         $districtOrdinal = 0;
 
         foreach ($hierarchy as $division) {
+            // The dataset groups districts under a division; that top-level
+            // name is the only authoritative division source. shippings.division
+            // is copied from this row, never guessed at checkout.
+            $divisionName = trim((string) ($division['name'] ?? ''));
+
             foreach ($division['districts'] ?? [] as $district) {
                 $districtName = trim((string) ($district['name'] ?? ''));
 
@@ -198,6 +203,7 @@ class DistrictShippingSeeder extends Seeder
                     $rows[] = [
                         'area_name'     => $districtName,
                         'district'      => $districtName,
+                        'division'      => $divisionName !== '' ? $divisionName : null,
                         'area_id'       => $districtOrdinal,
                         'shippingfee'   => 0,
                         'partialpayment' => 0,
@@ -218,6 +224,7 @@ class DistrictShippingSeeder extends Seeder
                     $rows[] = [
                         'area_name'     => $areaName,
                         'district'      => $districtName,
+                        'division'      => $divisionName !== '' ? $divisionName : null,
                         'area_id'       => $districtOrdinal,
                         'shippingfee'   => 0,
                         'partialpayment' => 0,
@@ -236,7 +243,7 @@ class DistrictShippingSeeder extends Seeder
             DB::table('districts')->upsert(
                 $chunk,
                 ['district', 'area_name'],
-                ['area_id', 'updated_at']
+                ['area_id', 'division', 'updated_at']
             );
         }
 

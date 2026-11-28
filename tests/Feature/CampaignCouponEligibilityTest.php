@@ -170,6 +170,7 @@ class CampaignCouponEligibilityTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'QA coupon campaign address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
 
@@ -208,6 +209,7 @@ class CampaignCouponEligibilityTest extends TestCase
             'phone' => $customer->phone,
             'address' => 'QA coupon campaign address',
             'area' => $shippingChargeId,
+            'district_id' => (int) DB::table('districts')->value('id'),
             'payment_method' => 'cash',
         ]);
 
