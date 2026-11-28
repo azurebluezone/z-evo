@@ -97,7 +97,18 @@ class ReportMetricsService
             ->whereBetween('created_at', [$from, $to])
             ->sum('refund_amount');
 
-        $expense = $cogs + $courierCost + $refundPaid;
+        // Operating expenses are a date column, not a timestamp: an expense
+        // belongs to the day it was spent. Dictionary 3.2.
+        $businessExpenses = (float) DB::table('business_expenses')
+            ->whereDate('spent_at', '>=', $from->toDateString())
+            ->whereDate('spent_at', '<=', $to->toDateString())
+            ->sum('amount');
+
+        // Gross Profit is strictly Net Sales - COGS. Net Profit is the same
+        // number minus every other cost, so the two names never describe the
+        // same total (dictionary 3.2).
+        $grossProfit = $netSales - $cogs;
+        $expense = $cogs + $courierCost + $refundPaid + $businessExpenses;
         $profit = $revenue - $expense;
 
         $paid = (float) DB::table('payments')
@@ -128,8 +139,10 @@ class ReportMetricsService
             'product_sales' => $productSales,
             'aov' => $aov,
             'cogs' => $cogs,
+            'gross_profit' => $grossProfit,
             'courier_cost' => $courierCost,
             'refund_paid' => $refundPaid,
+            'business_expenses' => $businessExpenses,
             'expense' => $expense,
             'profit' => $profit,
             'paid' => $paid,
@@ -222,8 +235,10 @@ class ReportMetricsService
         $netSales = (float) $totals['net_sales'];
         $productSales = (float) $totals['product_sales'];
         $cogs = (float) $totals['cogs'];
+        $grossProfit = (float) $totals['gross_profit'];
         $courierCost = (float) $totals['courier_cost'];
         $refundPaid = (float) $totals['refund_paid'];
+        $businessExpenses = (float) $totals['business_expenses'];
         $expense = (float) $totals['expense'];
         $profit = (float) $totals['profit'];
         $paid = (float) $totals['paid'];
@@ -244,7 +259,7 @@ class ReportMetricsService
         $courierQuery = DB::table('courier_shipments')->whereBetween('created_at', [$from, $to]);
         $courierCount = (clone $courierQuery)->count();
         $courierDelivered = (clone $courierQuery)
-            ->whereRaw("LOWER(current_status) = 'delivered'")
+            ->where('status_normalized', 'delivered')
             ->count();
 
         $returnQuery = DB::table('order_returns')->whereBetween('created_at', [$from, $to]);
@@ -395,8 +410,10 @@ class ReportMetricsService
             'product_sales' => $productSales,
             'aov' => $aov,
             'cogs' => $cogs,
+            'gross_profit' => $grossProfit,
             'courier_cost' => $courierCost,
             'refund_paid' => $refundPaid,
+            'business_expenses' => $businessExpenses,
             'expense' => $expense,
             'profit' => $profit,
             'paid' => $paid,

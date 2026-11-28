@@ -164,13 +164,14 @@ Never label a number simply "revenue". Use one of these three names.
 | Metric | Formula | Grain | Source | Date basis | Status | Surfaces |
 |---|---|---|---|---|---|---|
 | COGS | `SUM(order_details.purchase_price * order_details.qty)` | order line | `order_details` | parent order `delivered_at` | `IMPLEMENTED` | Dashboard, Sales & Profit |
-| Gross Profit | `Net Sales - COGS` | order | derived | `delivered_at` | `PROPOSED` | no surface computes exactly this |
+| Gross Profit | `Net Sales - COGS` | order | derived | `delivered_at` | `IMPLEMENTED` | Dashboard KPI `gross_profit`, Sales & Profit arithmetic |
 | Shipping Revenue | `SUM(orders.shipping_charge)` where delivered | order | `orders` | `delivered_at` | `IMPLEMENTED` | Sales & Profit |
 | Courier Cost | `SUM(courier_shipments.shipping_cost)` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Dashboard, Sales & Profit, Courier |
 | Shipping Margin | `Shipping Revenue - Courier Cost` | order / shipment | derived | `delivered_at` | `IMPLEMENTED` | Sales & Profit |
-| Net Profit A (delivery-inclusive) | `Delivered Revenue - COGS - Courier Cost - Refund Paid` | order | derived | `delivered_at` | `IMPLEMENTED` | Dashboard "Net profit", Sales & Profit "Net profit A" |
+| Net Profit A (delivery-inclusive) | `Delivered Revenue - COGS - Courier Cost - Refund Paid - Business Expenses` | order | derived | `delivered_at` / expense `spent_at` | `IMPLEMENTED` | Dashboard "Estimated Net Profit", Sales & Profit "Net profit A" |
 | Net Profit B (product-only) | `Net Sales - COGS - Refund Paid` | order | derived | `delivered_at` | `IMPLEMENTED` | Sales & Profit "Net profit B" |
-| Expense (dashboard) | `COGS + Courier Cost + Refund Paid` | order | derived | `delivered_at` | `IMPLEMENTED` | Dashboard; excludes other business expenses |
+| Expense (dashboard) | `COGS + Courier Cost + Refund Paid + Business Expenses` | order | derived | `delivered_at` / expense `spent_at` | `IMPLEMENTED` | Dashboard |
+| Business Expenses | `SUM(business_expenses.amount)` | expense row | `business_expenses` | `spent_at` | `IMPLEMENTED` | Dashboard expense, Sales & Profit View A |
 | Refund Required | `SUM(order_returns.refund_amount) WHERE refund_required = 1` | return | `order_returns` | `created_at` | `IMPLEMENTED` | Dashboard, Returns, Sales & Profit |
 | Refund Paid | `SUM(order_returns.refund_amount) WHERE refunded = 1` | return | `order_returns` | `created_at` | `IMPLEMENTED` | Dashboard, Returns, Sales & Profit |
 | Refund Pending | `Refund Required - Refund Paid` | return | derived | `created_at` | `IMPLEMENTED` | Dashboard, Returns, Sales & Profit |
@@ -189,21 +190,25 @@ Never label a number simply "revenue". Use one of these three names.
 | Metric | Formula | Grain | Source | Date basis | Status | Surfaces |
 |---|---|---|---|---|---|---|
 | Shipments | `COUNT(courier_shipments.id)` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier |
-| Delivered Shipments | `COUNT(*) WHERE LOWER(current_status) = 'delivered'` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier |
-| Returned Shipments | `COUNT(*) WHERE LOWER(current_status) IN ('returned','cancelled','failed','return')` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier |
-| In-Transit Shipments | `Shipments - Delivered Shipments - Returned Shipments` | shipment | derived | `created_at` | `IMPLEMENTED` | Courier; unknown statuses can distort this number |
+| Delivered Shipments | `COUNT(*) WHERE status_normalized = 'delivered'` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier, Dashboard |
+| Returned Shipments | `COUNT(*) WHERE status_normalized IN ('returned','cancelled')` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier |
+| In-Transit Shipments | `COUNT(*) WHERE status_normalized = 'in_transit'` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier; unknown statuses are not counted as in transit |
 | Delivery Success Rate | `Delivered Shipments / Shipments * 100` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier, Dashboard |
 | Courier Average Cost | `Courier Cost / Shipments` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier |
-| COD Outstanding | `SUM(courier_shipments.cod_amount - courier_shipments.remitted_amount)` | shipment | `courier_shipments` | settlement date | `BLOCKED` | columns C11 and C13 do not exist |
+| COD Outstanding | `SUM(courier_shipments.cod_amount - courier_shipments.remitted_amount)` | shipment | `courier_shipments` | settlement date | `OPEN` | columns C11/C13 exist; aggregate and settlement UI still missing |
+
+**Status normalization rule.** `courier_shipments.status_normalized` is the only status a report reads. `CourierShipment` writes it on every save through `CourierStatusNormalizer::normalize()`, so the Pathao sender, the SteadFast sender, the webhook and the admin panel cannot drift. Unknown provider words keep their own lowercased slug rather than being forced into a bucket; that is why In-Transit is an explicit count, not `Shipments - Delivered - Returned`.
 
 ### 3.5 Returns and cancellations
 
 | Metric | Formula | Grain | Source | Date basis | Status | Surfaces |
 |---|---|---|---|---|---|---|
-| Return Rate (order) | `COUNT(DISTINCT order_returns.order_id) / COUNT(orders.id) * 100` | order | `order_returns` + `orders` | return `created_at` vs order `created_at` | `PARTIAL` | Returns page currently uses `COUNT(order_returns.id)` (return grain); fix required |
-| Return Rate (item) | `SUM(order_return_items.qty) / SUM(order_details.qty) * 100` | order line | `order_return_items` + `order_details` | return `created_at` | `PROPOSED` | data exists, no aggregate surface |
+| Return Rate (order) | `COUNT(DISTINCT order_returns.order_id) / COUNT(orders.id) * 100` | order | `order_returns` + `orders` | return `created_at` vs order `created_at` | `IMPLEMENTED` | Returns; one order with two returns counts once |
+| Return Rate (item) | `SUM(order_return_items.qty) / SUM(order_details.qty) * 100` | order line | `order_return_items` + `order_details` | return `created_at` vs parent order `created_at` | `IMPLEMENTED` | Returns |
 | Cancelled Orders | `COUNT(orders.id) WHERE order_status IN ('cancelled','5')` | order | `orders` | `created_at` | `IMPLEMENTED` | Returns |
 | Cancel Rate | `Cancelled Orders / Total Orders * 100` | order | `orders` | `created_at` | `IMPLEMENTED` | Returns |
+
+**Item Return Rate rule.** The numerator is every returned unit whose return was created in the range; the denominator is every unit placed on an order created in the range. The rate is therefore a ratio of two events in the same window, not a lifetime figure, and it uses `qty`, not return rows: three returned units on one line count as three.
 
 ### 3.6 Coupons
 
@@ -223,7 +228,7 @@ Never label a number simply "revenue". Use one of these three names.
 | Reserved | `SUM(variant_stocks.reserved)` | variant | `variant_stocks` | current | `IMPLEMENTED` | Stock Alerts |
 | Available | `SUM(variant_stocks.available)` | variant | `variant_stocks` | current | `IMPLEMENTED` | Stock Alerts |
 | Damaged | `SUM(variant_stocks.damaged)` | variant | `variant_stocks` | current | `IMPLEMENTED` | Stock Alerts |
-| Stock Status Buckets | out: `available <= 0`; low: `available <= stock_warning_threshold`; remaining: `available <= stock_remaining_threshold`; healthy: above; orphan: `sku IS NULL` | variant | `variant_stocks` + `report_settings` | current | `IMPLEMENTED` | Stock Alerts; per-variant `low_stock_threshold` is displayed but not applied |
+| Stock Status Buckets | out: `available <= 0`; low: `0 < available <= effective low line`; remaining: `effective low line < available <= max(stock_remaining_threshold, effective low line)`; healthy: above; orphan: `sku IS NULL`. Effective low line = `low_stock_threshold` when it is greater than zero, otherwise `stock_warning_threshold` | variant | `variant_stocks` + `report_settings` | current | `IMPLEMENTED` | Stock Alerts, navbar signal, dashboard |
 | Inventory Movement Count | `COUNT(inventory_movements.id)` | movement | `inventory_movements` | `created_at` | `IMPLEMENTED` | Stock Alerts |
 | Last Sold (variant) | `MAX(orders.delivered_at)` over delivered lines with that `order_details.variant_id` | variant | `order_details` + `orders` | lifetime | `IMPLEMENTED` | Stock Alerts |
 | Units Sold (30d, variant) | `SUM(order_details.qty)` where delivered and `orders.delivered_at >= now() - 30 days` | variant | `order_details` + `orders` | rolling 30 days | `IMPLEMENTED` | Stock Alerts (feeds Avg Daily Sold) |
@@ -236,14 +241,14 @@ Never label a number simply "revenue". Use one of these three names.
 
 | Surface | Route | Metrics shown | Date basis |
 |---|---|---|---|
-| Reports Dashboard | `/admin/reports/dashboard` | Orders placed, Delivered Revenue, Gross Product Sales, Net Sales, AOV, Top Products table, Expense, Net Profit A, previous-period %, Payment mix, Delivery Success Rate, Coupon metrics, Stock signal | mixed; each card states its basis |
+| Reports Dashboard | `/admin/reports/dashboard` | Orders placed, Delivered Revenue, Gross Product Sales, Net Sales, AOV, Gross Profit, Top Products table, Expense (incl. Business Expenses), Estimated Net Profit A, previous-period %, Payment mix, Delivery Success Rate, Coupon metrics, Stock signal | mixed; each card states its basis |
 | Sales Report | `/admin/order-report` | Gross Product Sales, COGS, order totals; delivered orders only; line view and order view toggle; summary cards (Filtered Delivered Orders, Order Discount, Shipping Charged, Order Total) | `orders.delivered_at`; summary cards use the page filter (`order_details.updated_at`) |
 | Product Report | `/admin/stock-report` | stock units, retail value, cost value, Product Units Sold, Product Revenue (delivered), Product COGS | `products.updated_at` for the product list; sales columns are lifetime delivered |
 | Report export | `/admin/report-export/{stock\|order}` | the source page's table plus a `TOTAL` row; `format=xlsx` (real workbook) or `format=csv`; Sales Report follows `view=line\|order` | same as the source page |
-| Sales & Profit | `/admin/reports/overview` | Order Value (placed), Delivered Revenue, COGS, Courier Cost, Shipping Margin, Refund Required/Paid/Pending, Net Profit A/B | `orders.created_at` and `orders.delivered_at` |
+| Sales & Profit | `/admin/reports/overview` | Order Value (placed), Delivered Revenue, COGS, Gross Profit, Courier Cost, Shipping Margin, Refund Required/Paid/Pending, Business Expenses, Net Profit A/B | `orders.created_at`, `orders.delivered_at` and `business_expenses.spent_at` |
 | Payment Methods | `/admin/reports/payments` | Collected Payment, Pending Payment, Payment Success Rate, Average Paid Payment | `payments.created_at` |
-| Courier Performance | `/admin/reports/couriers` | Shipments, Delivered/Returned/In-Transit, Courier Cost, Delivery Success Rate, Courier Average Cost | `courier_shipments.created_at` |
-| Returns & Cancellations | `/admin/reports/returns` | Return Rate (order) current return-grain, Refund Required/Paid/Pending, Cancelled Orders, Cancel Rate | `order_returns.created_at` and `orders.created_at` |
+| Courier Performance | `/admin/reports/couriers` | Shipments, Delivered/Returned/In-Transit, Courier Cost, Delivery Success Rate, Courier Average Cost | `courier_shipments.created_at`; status from `status_normalized` |
+| Returns & Cancellations | `/admin/reports/returns` | Return Rate (order, distinct orders), Return Rate (item), Refund Required/Paid/Pending, Cancelled Orders, Cancel Rate | `order_returns.created_at` and `orders.created_at` |
 | Coupon Impact | `/admin/reports/coupons` | Coupon Usage Count, Coupon Discount, Coupon Revenue, Coupon AOV | `coupon_usages.created_at` |
 | Stock Alerts | `/admin/reports/stock-alerts` | On Hand, Reserved, Available, Damaged, Stock Status Buckets, Inventory Movement Count, Last Sold, Avg Daily Sold (30d), Days Remaining | current and `inventory_movements.created_at`; velocity on `orders.delivered_at` (rolling 30 days) |
 | Report Health | `/admin/reports/health` | data-quality and access checks, not business metrics; the old `/admin/reports/summary` URL 301-redirects here | current |
@@ -254,18 +259,18 @@ Never label a number simply "revenue". Use one of these three names.
 
 | # | Item | Evidence | Impact | Next step |
 |---|---|---|---|---|
-| 1 | Return Rate (order) uses return rows, not distinct orders | `ReportAnalyticsController::returnsReport` computes `$returnCount = (clone $base)->count()` | one order with two returns inflates the order-level rate | change to `distinct()->count('order_id')` and add a regression test |
-| 2 | Gross Profit is not computed as `Net Sales - COGS` | overview `view_b` subtracts realised refunds; dashboard `profit` subtracts courier cost and refunds | the name Gross Profit cannot be used for either number | add a strict Gross Profit KPI, or keep the current numbers under their Net Profit names |
+| 1 | ~~Return Rate (order) used return rows, not distinct orders~~ resolved 2026-11-28 | `returnsReport` now runs `distinct()->count('order_id')`; `AdminReportReturnRateTest` gives one order two returns and asserts the rate counts it once | the rate now describes orders, not return paperwork | fixed |
+| 2 | ~~Gross Profit was not computed as `Net Sales - COGS`~~ resolved 2026-11-28 | `ReportMetricsService::kpiTotals` returns `gross_profit = net_sales - cogs`; the dashboard prints it as its own KPI and Sales & Profit prints it in the arithmetic table | the name now has exactly one formula; the Net Profit numbers keep their own names | fixed |
 | 3 | Global AOV is missing | ~~only Coupon Impact has `avg_order_value`~~ resolved 2026-11-28 | resolved | AOV is on the dashboard (`data-kpi="aov"`), `gc-mwzcuyey` |
 | 4 | Gross Product Sales has no KPI | ~~only the Sales Report line table sums `sale_price * qty`~~ resolved 2026-11-28 | resolved | Dashboard KPI `data-kpi="product_sales"`, order-line grain on parent `created_at`, `gc-mwzcuyey` |
-| 5 | Return Rate (item) is missing | `order_return_items.qty` and `order_details.qty` exist; no aggregate query | item-level return rate cannot be reported | add the rate to Returns & Cancellations |
-| 6 | COD Outstanding is blocked | `courier_shipments.cod_amount` and `remitted_amount` do not exist (C11, C13) | COD collection cannot be reconciled | add the columns in Wave 3, then implement |
-| 7 | Payment settlement metrics are blocked | `payments.gateway_fee`, `settled_amount`, `settlement_status`, `settled_at`, `settlement_reference` do not exist (C4-C8) | collected payment is visible; settled payment is not | add the columns and a `payment_settlements` table in Wave 3 |
-| 8 | Courier settlement metrics are blocked | C11-C14 columns do not exist | remittance and return charges cannot be reported | add the columns and a `courier_settlements` table in Wave 3 |
-| 9 | District and division reports are blocked | `shippings.district_id` and `shippings.division` do not exist; `districts` has 0 rows (C2, C3) | no district-level sales, returns or courier report | add the columns, seed `districts`, make district mandatory at checkout |
-| 10 | In-Transit Shipments is derived | `Shipments - Delivered - Returned` in `courierPerformance` | an unknown provider status is counted as in transit | add `status_normalized` (C9) and derive from it |
-| 11 | Stock status ignores the per-variant threshold | `ReportStockAlertController` reads `low_stock_threshold` but uses the global `stock_warning_threshold` | a variant-specific threshold has no effect | apply the variant threshold when it is greater than zero, otherwise use the global value |
-| 12 | Dashboard Net Profit excludes other business expenses | `ReportMetricsService::summary` expense = COGS + courier cost + refund paid | the number is not a full net profit | label it "Estimated Net Profit" and add a `business_expenses` table in Wave 3 |
+| 5 | ~~Return Rate (item) was missing~~ resolved 2026-11-28 | `returnsReport` sums `order_return_items.qty` over the return range and divides by placed `order_details.qty`; the Returns page shows `item-return-rate` | item-level return rate is now a real number | fixed |
+| 6 | COD Outstanding is not aggregated | `courier_shipments.cod_amount` and `remitted_amount` exist (`2026_11_27_000005`); no report reads them | COD collection cannot be reconciled | add the aggregate and a settlement entry UI in Wave 3 |
+| 7 | Payment settlement metrics are not aggregated | `payments.gateway_fee`, `settled_amount`, `settlement_status`, `settled_at`, `settlement_reference` exist (`2026_11_27_000004`) and `payment_settlements` exists (`2026_11_27_000009`); no report reads them | collected payment is visible; settled payment is not | add the aggregate and a settlement entry UI in Wave 3 |
+| 8 | Courier settlement metrics are not aggregated | C11-C14 columns exist (`2026_11_27_000005`) and `courier_settlements` exists (`2026_11_27_000009`); no report reads them | remittance and return charges cannot be reported | add the reconciliation view in Wave 3 |
+| 9 | District and division reports are not built | `shippings.district_id` and `shippings.division` exist (`2026_11_27_000003`); `districts` exists but has 0 rows | no district-level sales, returns or courier report | seed `districts`, make district mandatory at checkout, then add the report |
+| 10 | ~~In-Transit Shipments was derived~~ resolved 2026-11-28 | `CourierShipment` writes `status_normalized` on save via `CourierStatusNormalizer`; `courierPerformance` counts `status_normalized = 'in_transit'` and never subtracts | an unknown provider word is no longer counted as in transit | fixed |
+| 11 | ~~Stock status ignored the per-variant threshold~~ resolved 2026-11-28 | `ReportStockAlertController` and `StockAlertSignal` use `low_stock_threshold` when it is greater than zero, otherwise the global value; the remaining band is `max(global remaining, effective low line)` | a variant-specific threshold now changes the bucket | fixed |
+| 12 | ~~Dashboard Net Profit excluded other business expenses~~ resolved 2026-11-28 | `ReportMetricsService::kpiTotals` adds `SUM(business_expenses.amount)` by `spent_at`; the card is labelled "Estimated Net Profit" and the badge lists operating expenses | the number now covers the cost of running the business | fixed |
 | 13 | ~~Report Summary was a code audit page~~ resolved 2026-11-28 | `ReportHealthController` runs report registry and data-quality checks; old URL redirects | the name suggested a business summary | renamed to Report Health with a 301 from the old URL; the printable business report stays separate |
 
 ## 6. Change process
@@ -315,3 +320,4 @@ Never label a number simply "revenue". Use one of these three names.
 | 2026-11-28 | Stock Alerts gained variant Last Sold, Units Sold (30d), Avg Daily Sold and Days Remaining; one aggregate query over delivered lines on `orders.delivered_at` feeds all three columns | report-management-final section 8 item 8: a balance with no velocity cannot tell a dead variant from a fast mover | `gc-mwzuhrpj` |
 | 2026-11-28 | Product Report and Sales Report exports are real XLSX/CSV downloads over the whole filter (same query source as the page, `TOTAL` row, no pagination); the browser print dialog is the PDF path | report-management-final section 8 item 9: the Excel button downloaded a page-one CSV | `gc-mwzuqp6j` |
 | 2026-11-28 | Report Summary renamed to Report Health (`ReportHealthController`, `reports/health`, sidebar label); `/admin/reports/summary` keeps working as a 301 behind the same `report-sales-view` permission | report-management-final section 8 item 10: the page is a data-quality audit, and the name promised a business summary | `gc-mwzvfpfm` |
+| 2026-11-28 | Six metric-truth fixes: distinct-order Return Rate, Gross Profit = Net Sales - COGS, item Return Rate, `status_normalized` written on every shipment save and read by the Courier page, per-variant `low_stock_threshold`, and business expenses inside Estimated Net Profit. Section 5 #6-#9 corrected: the columns now exist, only the aggregates/UI are missing | the dictionary and the pages disagreed on six numbers; three "columns do not exist" sentences were stale after the Wave 1 migrations | `gc-mwzw7e3l` |

@@ -147,7 +147,9 @@
                             <tr data-variant-id="{{ $row['variant_id'] }}"
                                 data-last-sold="{{ $row['last_sold_at'] ?? '' }}"
                                 data-avg-daily="{{ number_format((float) $row['avg_daily'], 2) }}"
-                                data-days-left="{{ $row['days_remaining'] === null ? '' : $row['days_remaining'] }}">
+                                data-days-left="{{ $row['days_remaining'] === null ? '' : $row['days_remaining'] }}"
+                                data-status="{{ $row['status'] }}"
+                                data-threshold="{{ $row['threshold'] }}">
                                 <td>{{ $row['product_name'] !== '' ? $row['product_name'] : 'missing product' }}</td>
                                 <td class="small">{{ $row['sku'] !== '' ? $row['sku'] : 'missing variant' }}</td>
                                 <td class="small text-muted">{{ $row['title'] !== '' ? $row['title'] : '—' }}</td>

@@ -38,9 +38,10 @@
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <p class="text-muted mb-1 small">Returns</p>
-                    <h4 class="mb-1">{{ number_format($metrics['return_count'], 0) }}</h4>
-                    <span class="badge bg-label-warning">{{ number_format($metrics['return_rate'], 1) }}% of orders</span>
+                    <p class="text-muted mb-1 small">Returned orders</p>
+                    <h4 class="mb-1" data-metric="returned-orders">{{ number_format($metrics['return_count'], 0) }}</h4>
+                    <span class="badge bg-label-warning" data-metric="return-rate">{{ number_format($metrics['return_rate'], 1) }}% of orders</span>
+                    <span class="badge bg-label-info" data-metric="item-return-rate">{{ number_format($metrics['item_return_rate'], 1) }}% of units</span>
                 </div>
             </div>
         </div>
@@ -113,9 +114,14 @@
                                     <td class="text-end fw-bold">BDT {{ number_format($metrics['refund_pending'], 0) }}</td>
                                 </tr>
                                 <tr>
-                                    <td>Return rate</td>
-                                    <td><code>returns / orders</code></td>
+                                    <td>Return rate (order)</td>
+                                    <td><code>DISTINCT returned orders / orders placed</code></td>
                                     <td class="text-end">{{ number_format($metrics['return_rate'], 1) }}%</td>
+                                </tr>
+                                <tr>
+                                    <td>Return rate (item)</td>
+                                    <td><code>returned units / units placed</code></td>
+                                    <td class="text-end">{{ number_format($metrics['item_return_rate'], 1) }}%</td>
                                 </tr>
                                 <tr>
                                     <td>Cancellation rate</td>

@@ -15,11 +15,14 @@ use Illuminate\Support\Facades\DB;
  * answer two different questions:
  *
  *   View A (delivery-inclusive): what the customer paid, minus the courier's
- *   real cost, minus COGS, minus realised refunds.
+ *   real cost, minus COGS, minus realised refunds, minus operating expenses.
  *
  *   View B (product-only): the same, but with the shipping charge removed
  *   from revenue and the courier cost left out, so the margin belongs to the
  *   goods alone.
+ *
+ *   Gross Profit is the dictionary's strict Net Sales - COGS; it is a
+ *   different number from both Net Profit views and is labelled as such.
  *
  * orders.amount is the authoritative revenue: discount is already deducted
  * there, so orders.discount / order_details.product_discount are never
@@ -67,7 +70,16 @@ class ReportOverviewController extends Controller
             ->sum('r.refund_amount');
 
         $productRevenueNet = $collected - $shippingRevenue;
-        $viewA = $collected - $shippingCost - $cogs - $refundRealised;
+
+        $businessExpenses = (float) DB::table('business_expenses')
+            ->when($range !== null, function ($query) use ($range) {
+                $query->whereDate('spent_at', '>=', $range[0]->toDateString())
+                    ->whereDate('spent_at', '<=', $range[1]->toDateString());
+            })
+            ->sum('amount');
+
+        $grossProfit = $productRevenueNet - $cogs;
+        $viewA = $collected - $shippingCost - $cogs - $refundRealised - $businessExpenses;
         $viewB = $productRevenueNet - $cogs - $refundRealised;
 
         $metrics = [
@@ -80,13 +92,16 @@ class ReportOverviewController extends Controller
             'shipping_margin' => $shippingRevenue - $shippingCost,
             'free_shipping_value' => $freeShippingValue,
             'cogs' => $cogs,
+            'gross_profit' => $grossProfit,
             'refund_realised' => $refundRealised,
             'refund_pending' => $refundPending,
+            'business_expenses' => $businessExpenses,
             'product_revenue_net' => $productRevenueNet,
             'view_a' => $viewA,
             'view_b' => $viewB,
             'margin_a' => $collected > 0 ? round($viewA / $collected * 100, 1) : 0.0,
             'margin_b' => $productRevenueNet > 0 ? round($viewB / $productRevenueNet * 100, 1) : 0.0,
+            'margin_gross' => $productRevenueNet > 0 ? round($grossProfit / $productRevenueNet * 100, 1) : 0.0,
             'after_pending_refunds' => $viewA - $refundPending,
         ];
 

@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\DB;
 /**
  * The low-stock signal.
  *
- * A product is in the batch when `available <= stock_warning_threshold`.
- * With the default threshold of 0 that means out-of-stock only; raising the
- * threshold widens the batch.
+ * A variant joins the batch when its available quantity is at or below its
+ * effective low line: the per-variant `low_stock_threshold` when that is
+ * greater than zero, otherwise the global `stock_warning_threshold`. With a
+ * global threshold of 0 and no variant override that means out-of-stock only;
+ * raising either value widens the batch.
  *
  * The signal stays visible until the admin dismisses it. Dismissal stores a
  * signature of the batch (md5 of the sorted variant ids), so the signal comes
@@ -25,15 +27,21 @@ class StockAlertSignal
         $warning = (int) $settings->stock_warning_threshold;
         $remaining = (int) $settings->stock_remaining_threshold;
 
+        // The WHERE mirrors the per-row rule below: a variant qualifies when
+        // available <= max(variant threshold or global warning, global warning).
         $rows = DB::table('variant_stocks as s')
             ->leftJoin('product_variants as v', 'v.id', '=', 's.variant_id')
             ->leftJoin('products as p', 'p.id', '=', 'v.product_id')
-            ->where('s.available', '<=', $warning)
+            ->whereRaw(
+                's.available <= GREATEST(COALESCE(NULLIF(s.low_stock_threshold, 0), ?), ?)',
+                [$warning, $warning]
+            )
             ->orderBy('s.available')
             ->orderBy('s.variant_id')
             ->get([
                 's.variant_id',
                 's.available',
+                's.low_stock_threshold',
                 'v.sku',
                 'v.title',
                 'p.name as product_name',
@@ -47,16 +55,26 @@ class StockAlertSignal
         $low = 0;
 
         foreach ($rows as $row) {
-            if ((int) $row->available <= 0) {
+            $available = (int) $row->available;
+            $variantThreshold = (int) ($row->low_stock_threshold ?? 0);
+            $effective = $variantThreshold > 0 ? $variantThreshold : $warning;
+
+            if ($available <= 0) {
                 $out++;
-            } else {
+            } elseif ($available <= $effective) {
                 $low++;
             }
         }
 
-        $remainingCount = DB::table('variant_stocks')
-            ->where('available', '>', 0)
-            ->where('available', '<=', $remaining)
+        $remainingCount = DB::table('variant_stocks as s')
+            ->whereRaw(
+                's.available > GREATEST(COALESCE(NULLIF(s.low_stock_threshold, 0), ?), ?)',
+                [$warning, $warning]
+            )
+            ->whereRaw(
+                's.available <= GREATEST(?, COALESCE(NULLIF(s.low_stock_threshold, 0), ?))',
+                [$remaining, $warning]
+            )
             ->count();
 
         $items = $rows->take(5)->map(fn ($row) => [

@@ -14,13 +14,17 @@ use Illuminate\Support\Facades\DB;
  * for the history. products.stock is a dropped legacy column and is never
  * read here.
  *
- * The thresholds come from ReportSetting (the Settings form), so this page,
- * the navbar signal, the dashboard and the email all classify a variant the
- * same way:
- *   available <= 0                       -> out
- *   0 < available <= stock_warning_threshold   -> low
- *   warning < available <= stock_remaining_threshold -> remaining ("only N left")
- *   available > remaining threshold      -> healthy
+ * The thresholds come from ReportSetting (the Settings form) and from the
+ * per-variant `low_stock_threshold`:
+ *   effective low line = variant threshold when it is > 0, else stock_warning_threshold
+ *   effective remaining line = max(stock_remaining_threshold, effective low line)
+ *   available <= 0                                   -> out
+ *   0 < available <= effective low line              -> low
+ *   low line < available <= effective remaining line -> remaining ("only N left")
+ *   above                                            -> healthy
+ *
+ * This page, the navbar signal, the dashboard and the email all classify a
+ * variant the same way.
  *
  * Rows whose variant no longer exists are counted as orphan and shown instead
  * of being silently dropped by an inner join.
@@ -83,7 +87,14 @@ class ReportStockAlertController extends Controller
 
         foreach ($rows as $row) {
             $available = (int) $row->available;
-            $threshold = (int) $row->low_stock_threshold;
+            $variantThreshold = (int) $row->low_stock_threshold;
+
+            // Per-variant threshold wins when it is set (> 0); otherwise the
+            // global setting applies. The "remaining" band can never sit below
+            // the effective low-stock line, so the buckets stay ordered
+            // (docs/report-metrics.md 3.7).
+            $threshold = $variantThreshold > 0 ? $variantThreshold : $warning;
+            $remainingBand = max($remainingThreshold, $threshold);
 
             $sale = $velocity->get($row->variant_id);
             $units30 = (int) ($sale->units_30d ?? 0);
@@ -96,10 +107,10 @@ class ReportStockAlertController extends Controller
             } elseif ($available <= 0) {
                 $status = 'out';
                 $metrics['out']++;
-            } elseif ($available <= $warning) {
+            } elseif ($available <= $threshold) {
                 $status = 'low';
                 $metrics['low']++;
-            } elseif ($available <= $remainingThreshold) {
+            } elseif ($available <= $remainingBand) {
                 $status = 'remaining';
                 $metrics['remaining']++;
             } else {

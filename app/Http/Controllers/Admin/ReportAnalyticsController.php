@@ -148,8 +148,9 @@ class ReportAnalyticsController extends Controller
             ->select(
                 'provider',
                 DB::raw('COUNT(*) as shipments'),
-                DB::raw("SUM(CASE WHEN LOWER(current_status) = 'delivered' THEN 1 ELSE 0 END) as delivered"),
-                DB::raw("SUM(CASE WHEN LOWER(current_status) IN ('returned','cancelled','failed','return') THEN 1 ELSE 0 END) as returned"),
+                DB::raw("SUM(CASE WHEN status_normalized = 'delivered' THEN 1 ELSE 0 END) as delivered"),
+                DB::raw("SUM(CASE WHEN status_normalized IN ('returned','cancelled') THEN 1 ELSE 0 END) as returned"),
+                DB::raw("SUM(CASE WHEN status_normalized = 'in_transit' THEN 1 ELSE 0 END) as in_transit"),
                 DB::raw('SUM(shipping_cost) as cost'),
                 DB::raw('MAX(last_synced_at) as last_synced_at')
             )
@@ -160,13 +161,14 @@ class ReportAnalyticsController extends Controller
                 $shipments = (int) $row->shipments;
                 $delivered = (int) $row->delivered;
                 $returned = (int) $row->returned;
+                $inTransit = (int) $row->in_transit;
 
                 return [
                     'provider' => (string) $row->provider,
                     'shipments' => $shipments,
                     'delivered' => $delivered,
                     'returned' => $returned,
-                    'in_transit' => max(0, $shipments - $delivered - $returned),
+                    'in_transit' => $inTransit,
                     'cost' => (float) $row->cost,
                     'avg_cost' => $shipments > 0 ? round((float) $row->cost / $shipments, 2) : 0.0,
                     'delivery_rate' => $shipments > 0 ? round($delivered / $shipments * 100, 1) : 0.0,
@@ -177,11 +179,12 @@ class ReportAnalyticsController extends Controller
 
         $delivered = array_sum(array_column($rows, 'delivered'));
         $returned = array_sum(array_column($rows, 'returned'));
+        $inTransit = array_sum(array_column($rows, 'in_transit'));
 
         $metrics = [
             'shipments' => $shipments,
             'delivered' => $delivered,
-            'in_transit' => max(0, $shipments - $delivered - $returned),
+            'in_transit' => $inTransit,
             'returned' => $returned,
             'cost' => $cost,
             'avg_cost' => $shipments > 0 ? round($cost / $shipments, 2) : 0.0,
@@ -241,15 +244,33 @@ class ReportAnalyticsController extends Controller
             $base->whereBetween('created_at', $range);
         }
 
-        $returnCount = (clone $base)->count();
+        $returnCount = (clone $base)->distinct()->count('order_id');
         $refundRequired = (float) (clone $base)->where('refund_required', 1)->sum('refund_amount');
         $refunded = (float) (clone $base)->where('refunded', 1)->sum('refund_amount');
+
+        // Item-level return rate: returned units / units placed in the same
+        // range. The numerator follows the return's created_at (the return
+        // event) and the denominator follows the parent order's created_at,
+        // the same basis the order-level rate uses (docs/report-metrics.md
+        // 3.5). One return row can carry several items; qty is the unit.
+        $returnedUnits = (int) DB::table('order_return_items as i')
+            ->join('order_returns as r', 'r.id', '=', 'i.order_return_id')
+            ->when($range !== null, fn ($query) => $query->whereBetween('r.created_at', $range))
+            ->sum('i.qty');
+
+        $soldUnits = (int) DB::table('order_details as d')
+            ->join('orders as o', 'o.id', '=', 'd.order_id')
+            ->when($range !== null, fn ($query) => $query->whereBetween('o.created_at', $range))
+            ->sum('d.qty');
 
         $metrics = [
             'order_count' => $orderCount,
             'delivered_count' => $deliveredCount,
             'return_count' => $returnCount,
             'return_rate' => $orderCount > 0 ? round($returnCount / $orderCount * 100, 1) : 0.0,
+            'returned_units' => $returnedUnits,
+            'sold_units' => $soldUnits,
+            'item_return_rate' => $soldUnits > 0 ? round($returnedUnits / $soldUnits * 100, 1) : 0.0,
             'refund_required' => $refundRequired,
             'refunded' => $refunded,
             'refund_pending' => max(0.0, $refundRequired - $refunded),
@@ -297,6 +318,7 @@ class ReportAnalyticsController extends Controller
         $items = DB::table('order_return_items as i')
             ->leftJoin('order_details as d', 'd.id', '=', 'i.order_detail_id')
             ->leftJoin('order_returns as r', 'r.id', '=', 'i.order_return_id')
+            ->when($range !== null, fn ($query) => $query->whereBetween('r.created_at', $range))
             ->select(
                 'i.qty',
                 'i.refund_amount',

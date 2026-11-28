@@ -174,7 +174,38 @@ class AdminReportStockAlertVelocityTest extends TestCase
         );
     }
 
-    private function makeVariant(int $productId, string $title, int $available): int
+    public function test_per_variant_threshold_changes_the_bucket(): void
+    {
+        // Pin the global thresholds so the fixture proves the variant path,
+        // not whatever the live settings happen to be. Rolled back.
+        DB::table('report_settings')->update([
+            'stock_warning_threshold' => 0,
+            'stock_remaining_threshold' => 2,
+        ]);
+
+        $productId = (int) DB::table('products')->orderBy('id')->value('id');
+        $this->assertGreaterThan(0, $productId, 'The audit needs at least one product.');
+
+        // available 4 with a per-variant threshold of 5 must be "low"; the
+        // same balance with no override is above the global line and healthy.
+        $variantThreshold = $this->makeVariant($productId, 'Threshold fixture', 4, 5);
+        $globalVariant = $this->makeVariant($productId, 'Global fixture', 4, 0);
+
+        $html = $this->html(route('admin.reports.stock-alerts'));
+
+        $this->assertMatchesRegularExpression(
+            '/data-variant-id="'.$variantThreshold.'"[^>]*data-status="low"[^>]*data-threshold="5"/',
+            $html,
+            'STOCK_VELOCITY_OK: a variant threshold of 5 must classify available 4 as low.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/data-variant-id="'.$globalVariant.'"[^>]*data-status="healthy"[^>]*data-threshold="0"/',
+            $html,
+            'STOCK_VELOCITY_OK: without an override the global threshold must still apply.'
+        );
+    }
+
+    private function makeVariant(int $productId, string $title, int $available, int $threshold = 0): int
     {
         $variantId = (int) DB::table('product_variants')->insertGetId([
             'product_id' => $productId,
@@ -197,7 +228,7 @@ class AdminReportStockAlertVelocityTest extends TestCase
             'reserved' => 0,
             'available' => $available,
             'damaged' => 0,
-            'low_stock_threshold' => 0,
+            'low_stock_threshold' => $threshold,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

@@ -109,7 +109,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="text-muted mb-1 small">Net profit A — delivery inclusive</p>
+                            <p class="text-muted mb-1 small">Net profit A — delivery inclusive, after operating expenses</p>
                             <h4 class="mb-1">BDT {{ number_format($metrics['view_a'], 0) }}</h4>
                             <span class="badge bg-label-primary">margin {{ number_format($metrics['margin_a'], 1) }}%</span>
                         </div>
@@ -180,15 +180,25 @@
                             <td><code>order_returns.refund_amount</code> where <code>refunded = 1</code></td>
                             <td class="text-end text-danger">− BDT {{ number_format($metrics['refund_realised'], 0) }}</td>
                         </tr>
+                        <tr>
+                            <td>Business expenses</td>
+                            <td><code>business_expenses.amount</code> by <code>spent_at</code></td>
+                            <td class="text-end text-danger">− BDT {{ number_format($metrics['business_expenses'], 0) }}</td>
+                        </tr>
                         <tr class="table-primary">
                             <td class="fw-bold">View A — delivery inclusive</td>
-                            <td class="fw-bold">collected − courier cost − COGS − refunds</td>
+                            <td class="fw-bold">collected − courier cost − COGS − refunds − business expenses</td>
                             <td class="text-end fw-bold">BDT {{ number_format($metrics['view_a'], 0) }}</td>
                         </tr>
                         <tr>
                             <td>Product revenue net</td>
                             <td><code>orders.amount − orders.shipping_charge</code></td>
                             <td class="text-end">BDT {{ number_format($metrics['product_revenue_net'], 0) }}</td>
+                        </tr>
+                        <tr class="table-success">
+                            <td class="fw-bold">Gross Profit</td>
+                            <td class="fw-bold">Net Sales − COGS</td>
+                            <td class="text-end fw-bold" data-metric="gross-profit">BDT {{ number_format($metrics['gross_profit'], 0) }}</td>
                         </tr>
                         <tr class="table-info">
                             <td class="fw-bold">View B — product only</td>

@@ -56,8 +56,8 @@
             <div class="card h-100">
                 <div class="card-body">
                     <p class="text-muted mb-1 small">In transit</p>
-                    <h4 class="mb-1">{{ number_format($metrics['in_transit'], 0) }}</h4>
-                    <span class="badge bg-label-warning">{{ number_format($metrics['returned'], 0) }} returned</span>
+                    <h4 class="mb-1" data-metric="in-transit">{{ number_format($metrics['in_transit'], 0) }}</h4>
+                    <span class="badge bg-label-warning" data-metric="returned">{{ number_format($metrics['returned'], 0) }} returned</span>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@
     <div class="card mb-4">
         <div class="card-header border-bottom">
             <h5 class="card-title mb-0">Shipments by provider</h5>
-            <p class="text-muted small mb-0">Status is matched on <code>LOWER(current_status)</code>, so casing cannot hide a delivery.</p>
+            <p class="text-muted small mb-0">Status is read from <code>status_normalized</code>, so an unknown provider word is visible instead of being counted as in transit.</p>
         </div>
         <div class="card-body">
             <div id="courierChart" class="mb-4"></div>

@@ -84,7 +84,7 @@
             <div class="card-body">
                 <p class="text-muted mb-1 small">Expense</p>
                 <h4 class="mb-1" data-kpi="expense">BDT {{ number_format($summary['expense'], 0) }}</h4>
-                <span class="badge bg-label-warning">COGS + courier + refunds</span>
+                <span class="badge bg-label-warning">COGS + courier + refunds + operating expenses</span>
                 @include('backEnd.reports.partials.kpi-delta', ['key' => 'expense'])
             </div>
         </div>
@@ -92,7 +92,7 @@
     <div class="col-12 col-sm-6 col-xl-3">
         <div class="card h-100">
             <div class="card-body">
-                <p class="text-muted mb-1 small">Net profit</p>
+                <p class="text-muted mb-1 small">Estimated Net Profit</p>
                 <h4 class="mb-1 {{ $summary['profit'] < 0 ? 'text-danger' : '' }}" data-kpi="profit">BDT {{ number_format($summary['profit'], 0) }}</h4>
                 <span class="badge bg-label-{{ $summary['profit'] < 0 ? 'danger' : 'primary' }}">
                     margin {{ number_format($summary['revenue'] > 0 ? $summary['profit'] / $summary['revenue'] * 100 : 0, 1) }}%
@@ -114,7 +114,7 @@
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-12 col-sm-6 col-xl-4">
+    <div class="col-12 col-sm-6 col-xl-3">
         <div class="card h-100">
             <div class="card-body">
                 <p class="text-muted mb-1 small">Gross Product Sales</p>
@@ -124,7 +124,7 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-sm-6 col-xl-4">
+    <div class="col-12 col-sm-6 col-xl-3">
         <div class="card h-100">
             <div class="card-body">
                 <p class="text-muted mb-1 small">Average order value</p>
@@ -134,13 +134,23 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-sm-6 col-xl-4">
+    <div class="col-12 col-sm-6 col-xl-3">
         <div class="card h-100">
             <div class="card-body">
                 <p class="text-muted mb-1 small">Net sales</p>
                 <h4 class="mb-1" data-kpi="net_sales">BDT {{ number_format($summary['net_sales'], 0) }}</h4>
                 <span class="badge bg-label-secondary">delivered revenue less shipping</span>
                 @include('backEnd.reports.partials.kpi-delta', ['key' => 'net_sales'])
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1 small">Gross Profit</p>
+                <h4 class="mb-1" data-kpi="gross_profit">BDT {{ number_format($summary['gross_profit'], 0) }}</h4>
+                <span class="badge bg-label-secondary">Net Sales − COGS</span>
+                @include('backEnd.reports.partials.kpi-delta', ['key' => 'gross_profit'])
             </div>
         </div>
     </div>
