@@ -144,6 +144,14 @@ order.
 2. Attribution rows on `order_attributions` at order creation; one order has
    one primary attribution.
 3. ROAS / CPA / CAC blocks on the dashboard and a Marketing report.
+   ✅ done 2026-11-28, marker `MARKETING_REPORT_OK`, contract `gc-mx015bem`,
+   commit `a12cb65`.
+   - Evidence: `MarketingMetricsService` is the only definition; the dashboard
+     row and `reports/marketing` both read it;
+     `tests/Feature/MarketingReportTest.php` recomputes spend, attributed
+     revenue, ROAS, CPA, CAC and the unattributed gap with plain SQL over an
+     isolated range, and checks the dashboard shows the same ROAS. Definitions
+     are locked in `docs/report-metrics.md` section 3.8.
 4. Cohort retention by first delivered order month.
 5. Abandoned cart: a cart with no order after a configurable window, with
    recovery state stored, not inferred from logs.
