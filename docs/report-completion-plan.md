@@ -104,13 +104,34 @@ it.
      second run keeps 495 rows and leaves `shipping_charges` at 4; the dev
      table now has 495 rows.
 2. Make `shippings.district_id` mandatory at checkout; keep
-   `shippings.division` in sync.
+   `shippings.division` in sync. ✅ done 2026-11-28, markers
+   `SHIPPING_DISTRICT_OK` and `CHECKOUT_DISTRICT_OK`, commit `30e6ede`.
+   - Evidence: `OrderPlacementService` copies the chosen `districts` row into
+     `shippings.district_id` and `division`;
+     `tests/Feature/ShippingDistrictPersistenceTest.php` and
+     `tests/Feature/CheckoutDistrictRequirementTest.php` pin it.
 3. Add district/division breakdowns to Sales, Returns and Courier reports.
-   Date bases stay the same as their parent report.
+   Date bases stay the same as their parent report. ✅ done 2026-11-28,
+   marker `GEO_BREAKDOWN_OK`, contract `gc-mwzzn5yk`, commit `1fee4b9`.
+   - Evidence: `Admin\Concerns\BuildsGeoBreakdown` groups by division and
+     district with an explicit Unassigned bucket, so no order is dropped;
+     `tests/Feature/AdminReportGeoBreakdownTest.php` proves each report's
+     breakdown total equals its national total and that a 1990 range yields
+     0.00 on all three.
 4. Use `report_views` (table exists, 0 rows) for saved filter sets: name,
-   route, query string, owner, shared flag.
+   route, query string, owner, shared flag. ✅ done 2026-11-28,
+   marker `GEO_SAVED_VIEWS_OK`, contract `gc-mwzzqhro`, commit `93c0ba9`.
+   - Evidence: `ReportView::filterQuery()` restores the saved query string in a
+     fixed order even though MySQL reorders JSON keys;
+     `ReportViewController` stores a view and redirects to the same URL, delete
+     is owner-only; `tests/Feature/ReportSavedViewTest.php` covers restore,
+     sharing and delete.
 5. Done when a saved view restores the exact filter and the district totals
-   add up to the national total for the same range.
+   add up to the national total for the same range. ✅ satisfied by items 3 and
+   4.
+
+Phase 2 complete 2026-11-28 — all five items done, exit marker
+`GEO_SAVED_VIEWS_OK`.
 
 Exit marker: `GEO_SAVED_VIEWS_OK`.
 

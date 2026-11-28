@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\ReportViewController;
 use App\Http\Controllers\Admin\ReportExportController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ExpenseCategoryController;
+use App\Http\Controllers\Admin\MarketingSpendController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CourierDashboardController;
 use App\Http\Controllers\Admin\OrderCourierController;
@@ -1614,6 +1615,15 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
             ->name('admin.reports.expense-categories.toggle');
         Route::post('expense-categories/destroy', [ExpenseCategoryController::class, 'destroy'])
             ->name('admin.reports.expense-categories.destroy');
+
+        // Marketing spend entry, Phase 3 item 1. Same Admin-only group as
+        // expenses because spend is the denominator of ROAS.
+        Route::get('marketing-spends', [MarketingSpendController::class, 'index'])
+            ->name('admin.reports.marketing-spends.index');
+        Route::post('marketing-spends', [MarketingSpendController::class, 'store'])
+            ->name('admin.reports.marketing-spends.store');
+        Route::post('marketing-spends/destroy', [MarketingSpendController::class, 'destroy'])
+            ->name('admin.reports.marketing-spends.destroy');
     });
 
     // Both of these are AJAX endpoints: they read an `order_ids` array out of the
