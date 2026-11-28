@@ -82,6 +82,10 @@ class DatabaseSeeder extends Seeder
             // The CMS pages the footer and the register form link to
             // (/terms-and-conditions resolves through create_pages).
             StaticPageSeeder::class,
+
+            // Report permissions. Runs after the roles exist, is idempotent,
+            // and only adds links (never syncPermissions).
+            ReportPermissionSeeder::class,
         ]);
     }
 }

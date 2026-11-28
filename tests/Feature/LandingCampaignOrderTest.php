@@ -65,8 +65,31 @@ class LandingCampaignOrderTest extends TestCase
         }
 
         if (!empty($this->createdProductIds)) {
-            DB::table('productimages')->where('product_id', $this->createdProductIds)->delete();
-            DB::table('product_variants')->where('product_id', $this->createdProductIds)->delete();
+            DB::table('productimages')->whereIn('product_id', $this->createdProductIds)->delete();
+
+            // GrantsVariantStock inserted a variant_stocks row per variant, so
+            // the stock rows must go with the variants - otherwise the next run
+            // of the suite meets orphan stock rows and AdminReportsFinalTest
+            // fails its "orphan stock rows" check. The checkout also wrote an
+            // inventory_movements RESERVE line per order, and those lines point
+            // at a variant and an order this tearDown is about to delete.
+            // whereIn, not where: where('product_id', $array) compiles to
+            // `product_id = <first id>` and silently leaves the rest behind.
+            $variantIds = DB::table('product_variants')
+                ->whereIn('product_id', $this->createdProductIds)
+                ->pluck('id');
+
+            DB::table('variant_stocks')->whereIn('variant_id', $variantIds)->delete();
+            DB::table('inventory_movements')->whereIn('variant_id', $variantIds)->delete();
+
+            if (!empty($this->createdOrderIds)) {
+                DB::table('inventory_movements')
+                    ->where('ref_type', 'order')
+                    ->whereIn('ref_id', $this->createdOrderIds)
+                    ->delete();
+            }
+
+            DB::table('product_variants')->whereIn('product_id', $this->createdProductIds)->delete();
             DB::table('products')->whereIn('id', $this->createdProductIds)->delete();
         }
 

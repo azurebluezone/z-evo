@@ -592,6 +592,11 @@
                 <div>Reports &amp; Analytics</div>
             </a>
             <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('admin.reports.dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.dashboard') }}" class="menu-link">
+                        <div>Dashboard</div>
+                    </a>
+                </li>
                 <li class="menu-item {{ request()->routeIs('admin.order_report') ? 'active' : '' }}">
                     <a href="{{ route('admin.order_report') }}" class="menu-link">
                         <div>Sales Report</div>
@@ -602,13 +607,65 @@
                         <div>Product Report</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="javascript:void(0);" class="menu-link disabled" tabindex="-1" aria-disabled="true">
-                        <div>{!! $comingSoon('Customer Report') !!}</div>
+                <li class="menu-item {{ request()->routeIs('admin.reports.overview') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.overview') }}" class="menu-link">
+                        <div>Sales &amp; Profit</div>
                     </a>
                 </li>
+                @can('report-payment-view')
+                <li class="menu-item {{ request()->routeIs('admin.reports.payments') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.payments') }}" class="menu-link">
+                        <div>Payment Methods</div>
+                    </a>
+                </li>
+                @endcan
+                @can('report-courier-view')
+                <li class="menu-item {{ request()->routeIs('admin.reports.couriers') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.couriers') }}" class="menu-link">
+                        <div>Courier Performance</div>
+                    </a>
+                </li>
+                @endcan
+                @can('report-returns-view')
+                <li class="menu-item {{ request()->routeIs('admin.reports.returns') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.returns') }}" class="menu-link">
+                        <div>Returns &amp; Cancellations</div>
+                    </a>
+                </li>
+                @endcan
+                @can('report-coupon-view')
+                <li class="menu-item {{ request()->routeIs('admin.reports.coupons') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.coupons') }}" class="menu-link">
+                        <div>Coupon Impact</div>
+                    </a>
+                </li>
+                @endcan
+                @can('report-stock-view')
+                <li class="menu-item {{ request()->routeIs('admin.reports.stock-alerts') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.stock-alerts') }}" class="menu-link">
+                        <div>Stock Alerts</div>
+                    </a>
+                </li>
+                @endcan
+                @can('report-sales-view')
+                <li class="menu-item {{ request()->routeIs('admin.reports.health') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.health') }}" class="menu-link">
+                        <div>Report Health</div>
+                    </a>
+                </li>
+                @endcan
             </ul>
         </li>
+
+        <!-- Report Settings -->
+        @can('report-settings-manage')
+        <li class="menu-item {{ request()->routeIs('admin.reports.settings.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.reports.settings.edit') }}" class="menu-link">
+                <i class="menu-icon icon-base ri ri-settings-3-line"></i>
+                <div>Report Settings</div>
+            </a>
+        </li>
+        @endcan
 
         <!-- Communications -->
         <li class="menu-item">

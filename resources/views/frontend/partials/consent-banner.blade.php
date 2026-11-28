@@ -67,6 +67,16 @@
             if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
             banner = null;
             panel = null;
+            document.body.style.paddingBottom = '';
+            window.removeEventListener('resize', reserveSpace);
+        }
+
+        // The banner is position:fixed at the bottom, so it used to sit on top
+        // of the footer copyright when the page was scrolled to the end. Reserve
+        // its exact height as body padding while it is mounted.
+        function reserveSpace() {
+            if (!banner) return;
+            document.body.style.paddingBottom = banner.offsetHeight + 'px';
         }
 
         function node(tag, style, html) {
@@ -119,6 +129,8 @@
             row.appendChild(actions);
             banner.appendChild(row);
             document.body.appendChild(banner);
+            reserveSpace();
+            window.addEventListener('resize', reserveSpace);
         }
 
         function open() {

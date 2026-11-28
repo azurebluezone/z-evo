@@ -21,7 +21,7 @@ class VisitorsMasterDemoSeeder extends Seeder
         $isps = ['BTCL', 'Link3', 'AmberIT', 'Carnival', 'Banglalink'];
 
         for ($i = 0; $i < 10; $i++) {
-            VisitorMaster::create([
+            $visitor = VisitorMaster::create([
                 'visitor_id' => (string) Str::uuid(),
                 'ip' => implode('.', [random_int(1, 223), random_int(0, 255), random_int(0, 255), random_int(1, 254)]),
                 'user_agent' => $userAgents[array_rand($userAgents)],
@@ -31,6 +31,16 @@ class VisitorsMasterDemoSeeder extends Seeder
                 'status' => 1,
                 'user_id' => null,
             ]);
+
+            // Spread the demo visitors over three days. The analytics
+            // single-day filter test needs at least two non-empty days to
+            // prove that one `from` date selects that day and not a range.
+            $daysAgo = $i % 3;
+            if ($daysAgo > 0) {
+                $visitor->forceFill([
+                    'created_at' => now()->subDays($daysAgo)->setTime(8 + ($i % 10), ($i * 7) % 60),
+                ])->save();
+            }
         }
     }
 }

@@ -46,7 +46,7 @@
                                 </ul>
 
                                 @if(!empty($discountPercent))
-                                    <span class="badge bg-danger" style="position:absolute;top:10px;left:10px;z-index:2;">-{{ $discountPercent }}%</span>
+                                    <span class="badge badge--danger" style="position:absolute;top:10px;left:10px;z-index:2;">-{{ $discountPercent }}%</span>
                                 @endif
 
                                 @if(!$cardInStock)
@@ -95,20 +95,7 @@
                                     </div>
                                 </div>
 
-                                @if(!$cardInStock)
-                                    <button type="button" class="add-to-cart-btn" disabled>
-                                        <i class="las la-shopping-bag"></i> Out of Stock
-                                    </button>
-                                @elseif($cardHasVariants)
-                                    <a href="{{ $cardUrl }}" class="add-to-cart-btn">
-                                        <i class="las la-sliders-h"></i> Choose Options
-                                    </a>
-                                @else
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="button" class="addToCart add-to-cart-btn" data-id="{{ $product->id }}" data-product_type="{{ $product->product_type ?? 1 }}">
-                                    <i class="las la-shopping-bag"></i> Add to Cart
-                                </button>
-                                @endif
+                                @include('frontend.sections.partials._product-card-actions')
                             </div>
                         </div>
                     @endforeach

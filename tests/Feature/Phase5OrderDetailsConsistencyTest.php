@@ -39,6 +39,7 @@ class Phase5OrderDetailsConsistencyTest extends TestCase
         if (!empty($this->createdVariantIds)) {
             DB::table('variant_stocks')->whereIn('variant_id', $this->createdVariantIds)->delete();
             DB::table('inventory_movements')->whereIn('variant_id', $this->createdVariantIds)->delete();
+            DB::table('inventory_reservations')->whereIn('variant_id', $this->createdVariantIds)->delete();
             DB::table('product_variants')->whereIn('id', $this->createdVariantIds)->delete();
         }
 
@@ -68,6 +69,10 @@ class Phase5OrderDetailsConsistencyTest extends TestCase
                     ->where('data', 'like', '%"order_id":' . (int) $orderId . '%')
                     ->delete();
             }
+
+            // Order placement reserved inventory for these orders, and the
+            // reservation row points at an order this tearDown deletes.
+            DB::table('inventory_reservations')->whereIn('order_id', $orderIds)->delete();
 
             DB::table('orders')->whereIn('customer_id', $this->createdCustomerIds)->delete();
             DB::table('payments')->whereIn('customer_id', $this->createdCustomerIds)->delete();

@@ -81,6 +81,15 @@
 .DS_Store
 Thumbs.db
 
+# Local database safety copies. These can hold customer rows and are not
+# source, so they stay on the machine that made them.
+/backups/
+/database/seeders/.db-backup-*.sql.gz
+
+# One-off export scratch (LibreOffice/CSV probes) and generated table counts.
+/docs/.tmp-*/
+/verify/.table_counts.json
+
 # Another agent toolkit's scratch screenshots (2.6MB), not tests
 /tests/e2e/work/
 

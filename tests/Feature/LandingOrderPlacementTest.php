@@ -83,8 +83,8 @@ class LandingOrderPlacementTest extends TestCase
                 DB::table('inventory_reservations')->whereIn('variant_id', $variantIds)->delete();
             }
 
-            DB::table('productimages')->where('product_id', $this->createdProductIds)->delete();
-            DB::table('product_variants')->where('product_id', $this->createdProductIds)->delete();
+            DB::table('productimages')->whereIn('product_id', $this->createdProductIds)->delete();
+            DB::table('product_variants')->whereIn('product_id', $this->createdProductIds)->delete();
             DB::table('products')->whereIn('id', $this->createdProductIds)->delete();
         }
 

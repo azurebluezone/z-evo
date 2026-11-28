@@ -91,11 +91,19 @@
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center bg-white border-bottom py-3 no-print">
         <h5 class="mb-0 text-uppercase fw-bold">Stock Report</h5>
         <div class="d-flex flex-wrap gap-2">
-            <x-admin.button variant="outline-secondary" size="sm" type="button" id="print-report">
-                <i class="icon-base ri ri-printer-line me-1"></i>Print
+            <x-admin.button variant="outline-secondary" size="sm" type="button" id="print-report"
+                            title="Print the filtered table; the browser print dialog can save it as PDF">
+                <i class="icon-base ri ri-printer-line me-1"></i>Print / PDF
             </x-admin.button>
-            <x-admin.button variant="outline-primary" size="sm" type="button" id="export-report">
-                <i class="icon-base ri ri-file-excel-line me-1"></i>Export
+            <x-admin.button variant="outline-primary" size="sm"
+                            href="{{ route('admin.report_export', array_merge(request()->except('page'), ['report' => 'stock', 'format' => 'xlsx'])) }}"
+                            title="Download every filtered product as a real .xlsx file">
+                <i class="icon-base ri ri-file-excel-line me-1"></i>Excel
+            </x-admin.button>
+            <x-admin.button variant="outline-secondary" size="sm"
+                            href="{{ route('admin.report_export', array_merge(request()->except('page'), ['report' => 'stock', 'format' => 'csv'])) }}"
+                            title="Download every filtered product as CSV">
+                CSV
             </x-admin.button>
         </div>
     </div>
@@ -105,25 +113,34 @@
             <table class="table table-hover align-middle mb-0 w-100" id="stock-report-table">
                 <thead>
                     <tr>
-                        <th style="width:6%">SL</th>
-                        <th style="width:44%">Product Name</th>
-                        <th style="width:18%" class="text-end" title="Weighted average of the variant prices">Avg. Price</th>
-                        <th style="width:16%" class="text-end">Stock</th>
-                        <th style="width:16%" class="text-end">Total</th>
+                        <th style="width:4%">SL</th>
+                        <th style="width:28%">Product Name</th>
+                        <th style="width:10%" class="text-end" title="Weighted average of the variant prices">Avg. Price</th>
+                        <th style="width:9%" class="text-end">Stock</th>
+                        <th style="width:11%" class="text-end" title="On-hand units at the variant price">Stock Value</th>
+                        <th style="width:9%" class="text-end" title="Delivered orders, all time">Units Sold</th>
+                        <th style="width:14%" class="text-end" title="SUM(sale_price * qty) over delivered lines, all time">Revenue</th>
+                        <th style="width:15%" class="text-end" title="SUM(purchase_price * qty) over delivered lines, all time">COGS</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($products as $product)
-                        <tr>
+                        <tr data-product-id="{{ $product->id }}"
+                            data-units-sold="{{ (int) $product->units_sold }}"
+                            data-product-revenue="{{ number_format((float) $product->revenue, 2) }}"
+                            data-product-cogs="{{ number_format((float) $product->cogs, 2) }}">
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $product->name }}</td>
                             <td class="text-end">{{ number_format((float) ($product->unit_price ?? $product->new_price), 2) }}</td>
                             <td class="text-end">{{ number_format((float) $product->stock_on_hand) }}</td>
                             <td class="text-end fw-medium">{{ number_format((float) ($product->stock_value ?? ((float) $product->stock_on_hand * (float) $product->new_price)), 2) }}</td>
+                            <td class="text-end">{{ number_format((float) $product->units_sold) }}</td>
+                            <td class="text-end">{{ number_format((float) $product->revenue, 2) }}</td>
+                            <td class="text-end">{{ number_format((float) $product->cogs, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">No products found</td>
+                            <td colspan="8" class="text-center text-muted py-4">No products found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -141,6 +158,9 @@
         <span><span class="text-muted">Units:</span> <strong>{{ number_format((float) ($total_stock ?? 0)) }}</strong></span>
         <span><span class="text-muted">Stock value:</span> <strong>{{ number_format((float) ($total_price ?? 0), 2) }}</strong></span>
         <span><span class="text-muted">Stock cost:</span> <strong>{{ number_format((float) ($total_purchase ?? 0), 2) }}</strong></span>
+        <span><span class="text-muted">Units sold:</span> <strong data-report-total="units_sold">{{ number_format((float) ($total_units_sold ?? 0)) }}</strong></span>
+        <span><span class="text-muted">Revenue:</span> <strong data-report-total="revenue">{{ number_format((float) ($total_revenue ?? 0), 2) }}</strong></span>
+        <span><span class="text-muted">COGS:</span> <strong data-report-total="cogs">{{ number_format((float) ($total_cogs ?? 0), 2) }}</strong></span>
     </div>
 
     @if($products->hasPages())
@@ -158,7 +178,6 @@
 
 @push('script')
 <script src="{{ asset('admin/assets/js/admin-report-table.js') }}"
-        data-report-table="stock-report-table"
-        data-report-export="stock-report"></script>
+        data-report-table="stock-report-table"></script>
 @endpush
 @endsection

@@ -48,6 +48,10 @@ function initHomepageProductSliders() {
 		'.best-selling-slider',
 		'.discount-products-slider',
 		'.flash-sale-slider',
+		// Recommended + flash sale sections use this class. Owl's own CSS sets
+		// .owl-carousel{display:none}, so without an initialiser the products
+		// stay in the DOM but never become visible.
+		'.flash-sell-slider',
 		'.winter-sale-slider',
 		'.collections-products-slider'
 	];

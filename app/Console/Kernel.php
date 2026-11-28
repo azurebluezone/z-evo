@@ -27,6 +27,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:work --stop-when-empty --max-time=50 --tries=3')
             ->everyMinute()
             ->withoutOverlapping(10);
+
+        // The daily A-to-Z report. The command itself checks the configured
+        // send_time and last_sent_on, so this only has to tick every minute.
+        $schedule->command('reports:send-daily')
+            ->everyMinute()
+            ->withoutOverlapping(5);
     }
 
     /**

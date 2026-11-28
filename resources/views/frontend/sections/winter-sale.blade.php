@@ -56,7 +56,7 @@
                                             </ul>
 
                                             @if(!empty($discountPercent))
-                                                <span class="badge bg-danger" style="position:absolute;top:10px;left:10px;z-index:2;">-{{ $discountPercent }}%</span>
+                                                <span class="badge badge--danger" style="position:absolute;top:10px;left:10px;z-index:2;">-{{ $discountPercent }}%</span>
                                             @endif
 
                                             <a href="{{ route('product', $product->slug) }}">

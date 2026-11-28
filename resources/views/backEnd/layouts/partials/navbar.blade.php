@@ -104,6 +104,8 @@
             </li>
             <!--/ Notification -->
 
+            @include('backEnd.layouts.partials.stock-alert-signal')
+
             <!-- User -->
             @php
             $currentUser = auth()->user();

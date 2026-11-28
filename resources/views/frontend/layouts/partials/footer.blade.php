@@ -117,18 +117,26 @@
                 </form>
             </div>
 
+            @php
+                // An empty string in the contacts row is not null, so "??" never
+                // fell back and the column collapsed to the icon width (93px).
+                // Trim first, then choose the designed default.
+                $contactAddress = trim((string) ($contact->address ?? ''));
+                $contactPhone = trim((string) ($contact->phone ?? ''));
+                $contactEmail = trim((string) ($contact->email ?? ''));
+            @endphp
             <div class="widget-contact">
                 <h6 class="title">Contact Us</h6>
                 <ul>
-                    <li><i class="las la-map-marker"></i> {{ $contact->address ?? 'Z-Evo-Commerce, House 666, Road #5555' }}</li>
+                    <li><i class="las la-map-marker"></i> {{ $contactAddress !== '' ? $contact->address : 'Z-Evo-Commerce, House 666, Road #5555' }}</li>
                     <li>
-                        <a href="tel:{{ $contact->phone ?? '+001001001' }}">
-                            <i class="las la-phone"></i>{{ $contact->phone ?? '+ (001) 001 001' }}
+                        <a href="tel:{{ $contactPhone !== '' ? $contact->phone : '+001001001' }}">
+                            <i class="las la-phone"></i>{{ $contactPhone !== '' ? $contact->phone : '+ (001) 001 001' }}
                         </a>
                     </li>
                     <li>
-                        <a href="mailto:{{ $contact->email ?? 'info@z-evo-commerce.com' }}">
-                            <i class="las la-envelope"></i>{{ $contact->email ?? 'info@z-evo-commerce.com' }}
+                        <a href="mailto:{{ $contactEmail !== '' ? $contact->email : 'info@z-evo-commerce.com' }}">
+                            <i class="las la-envelope"></i>{{ $contactEmail !== '' ? $contact->email : 'info@z-evo-commerce.com' }}
                         </a>
                     </li>
                 </ul>
@@ -155,27 +163,30 @@
                 </div>
             @endforeach
 
-            <div class="footer-widget widget-link">
-                <h6 class="title">Top Categories</h6>
-                <ul>
-                    @if(isset($top_categories))
+            {{-- Only render a category column when the page actually supplies
+                 rows. Without this guard the widget printed its title over an
+                 empty list, which left two hollow columns in the grid. --}}
+            @if(isset($top_categories) && $top_categories->isNotEmpty())
+                <div class="footer-widget widget-link">
+                    <h6 class="title">Top Categories</h6>
+                    <ul>
                         @foreach($top_categories->take(6) as $category)
                             <li><a href="{{ route('products.category', $category->slug) }}">{{ $category->name }}</a></li>
                         @endforeach
-                    @endif
-                </ul>
-            </div>
+                    </ul>
+                </div>
+            @endif
 
-            <div class="footer-widget widget-link">
-                <h6 class="title">Trending</h6>
-                <ul>
-                    @if(isset($trending_categories))
+            @if(isset($trending_categories) && $trending_categories->isNotEmpty())
+                <div class="footer-widget widget-link">
+                    <h6 class="title">Trending</h6>
+                    <ul>
                         @foreach($trending_categories->take(6) as $category)
                             <li><a href="{{ route('products.category', $category->slug) }}">{{ $category->name }}</a></li>
                         @endforeach
-                    @endif
-                </ul>
-            </div>
+                    </ul>
+                </div>
+            @endif
         </div>
 
         {{-- Footer Copyright --}}

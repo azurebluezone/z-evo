@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Admin\Concerns\InteractsWithDataTable;
+use App\Http\Controllers\Admin\Concerns\BuildsReportQueries;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,7 @@ use App\Models\InventoryMovement;
 class OrderController extends Controller
 {
     use InteractsWithDataTable;
+    use BuildsReportQueries;
     private function posExtraDiscountTotal(): float
     {
         $manual = (float) (Session::get('pos_manual_discount') ?? 0);
@@ -1601,67 +1603,27 @@ public function order_status(Request $request)
      * product, because a variant override is what the shopper actually pays.
      */
     public function stock_report(Request $request){
-        $products = Product::query()->where('products.status', 1);
-        if ($request->keyword) {
-            $products->where('products.name', 'LIKE', '%' . $request->keyword . '%');
-        }
-        if ($request->category_id) {
-            $products->where('products.category_id', $request->category_id);
-        }
-        if ($request->start_date && $request->end_date) {
-            // The filter inputs are dates, so end_date must mean the end of
-            // that day; comparing against the raw string cut it at midnight.
-            $products->whereBetween('products.updated_at', [
-                \Carbon\Carbon::parse($request->start_date)->startOfDay(),
-                \Carbon\Carbon::parse($request->end_date)->endOfDay(),
-            ]);
-        }
+        $totals = $this->reportStockTotals($request);
+        $total_stock = $totals['units'];
+        $total_price = $totals['stock_value'];
+        $total_purchase = $totals['stock_cost'];
 
-        // Footer totals cover the whole filter, not the ten rows on this page.
-        $totals = (clone $products)
-            ->join('product_variants as v', function ($join) {
-                $join->on('v.product_id', '=', 'products.id')->where('v.status', 1);
-            })
-            ->join('variant_stocks as s', 's.variant_id', '=', 'v.id')
-            ->selectRaw('COALESCE(SUM(s.on_hand), 0) as units')
-            ->selectRaw('COALESCE(SUM(COALESCE(NULLIF(v.price_override, 0), products.new_price) * s.on_hand), 0) as stock_value')
-            ->selectRaw('COALESCE(SUM(COALESCE(NULLIF(v.purchase_price, 0), products.purchase_price) * s.on_hand), 0) as stock_cost')
-            ->first();
+        $salesTotals = $this->reportStockSalesTotals($request);
+        $total_units_sold = $salesTotals['units_sold'];
+        $total_revenue = $salesTotals['revenue'];
+        $total_cogs = $salesTotals['cogs'];
 
-        $total_stock = (int) ($totals->units ?? 0);
-        $total_price = (float) ($totals->stock_value ?? 0);
-        $total_purchase = (float) ($totals->stock_cost ?? 0);
-
-        $products = $products
-            ->select('products.id', 'products.name', 'products.new_price')
-            ->selectSub(function ($query) {
-                $query->from('product_variants as v')
-                    ->join('variant_stocks as s', 's.variant_id', '=', 'v.id')
-                    ->whereColumn('v.product_id', 'products.id')
-                    ->where('v.status', 1)
-                    ->selectRaw('COALESCE(SUM(s.on_hand), 0)');
-            }, 'variant_stock')
-            ->selectSub(function ($query) {
-                $query->from('product_variants as v')
-                    ->join('variant_stocks as s', 's.variant_id', '=', 'v.id')
-                    ->whereColumn('v.product_id', 'products.id')
-                    ->where('v.status', 1)
-                    ->selectRaw('COALESCE(SUM(COALESCE(NULLIF(v.price_override, 0), products.new_price) * s.on_hand), 0)');
-            }, 'variant_stock_value')
+        $products = $this->reportStockRows($request)
             ->paginate(10)
             ->withQueryString();
 
-        $products->getCollection()->transform(function ($product) {
-            $units = (int) ($product->variant_stock ?? 0);
-            $value = (float) ($product->variant_stock_value ?? 0);
-            $product->setAttribute('stock_on_hand', $units);
-            $product->setAttribute('stock_value', $value);
-            $product->setAttribute('unit_price', $units > 0 ? $value / $units : (float) ($product->new_price ?? 0));
-            return $product;
-        });
+        $this->castReportStockRows($products->getCollection());
 
         $categories = Category::where('status',1)->get();
-        return view('backEnd.reports.stock',compact('products','categories','total_purchase','total_stock','total_price'));
+        return view('backEnd.reports.stock',compact(
+            'products', 'categories', 'total_purchase', 'total_stock', 'total_price',
+            'total_units_sold', 'total_revenue', 'total_cogs'
+        ));
     }
     public function order_report(Request $request){
         $users = User::where('status',1)->get();
@@ -1683,46 +1645,53 @@ public function order_status(Request $request)
          *    searches the three things a user can actually see on a row:
          *    the product name, the invoice number and the customer name.
          */
-        $delivered = $this->resolveOrderStatusBySlug('delivered');
+        $orders = $this->reportOrderLineQuery($request);
 
-        $orders = OrderDetails::with('shipping','order')->whereHas('order', function ($query) use ($delivered) {
-                $query->where(function ($q) use ($delivered) {
-                    if ($delivered) {
-                        $q->where('order_status', $delivered->slug)
-                          ->orWhere('order_status', (string) $delivered->id)
-                          ->orWhere('order_status', $delivered->id);
-                    } else {
-                        $q->where('order_status', 'delivered');
-                    }
-                });
-            });
+        $lineTotals = $this->reportOrderLineTotals($orders);
+        $total_purchase = $lineTotals['purchase'];
+        $total_item = $lineTotals['items'];
+        $total_sales = $lineTotals['sales'];
 
-        if ($request->keyword) {
-            $keyword = '%' . $request->keyword . '%';
-            $orders = $orders->where(function ($q) use ($keyword) {
-                $q->where('product_name', 'LIKE', $keyword)
-                  ->orWhereHas('order', function ($oq) use ($keyword) {
-                      $oq->where('invoice_id', 'LIKE', $keyword);
-                  })
-                  ->orWhereHas('shipping', function ($sq) use ($keyword) {
-                      $sq->where('name', 'LIKE', $keyword)
-                        ->orWhere('phone', 'LIKE', $keyword);
-                  });
-            });
+        /*
+         * Summary cards are ORDER-grain (docs/report-metrics.md, "Sales Report
+         * summary rule"): take the order_ids this filter keeps, then aggregate
+         * `orders` over that DISTINCT set. Summing orders.discount across line
+         * rows would multiply it by the line count, and the live data has
+         * delivered orders with more than one line.
+         */
+        $filteredOrderIds = (clone $orders)->toBase()->distinct()->pluck('order_details.order_id')->all();
+        $summary = $this->reportOrderSummary($filteredOrderIds);
+
+        // Two grains, one filter: the line table the page has always had, and
+        // an order-level view (toggle in the card header) with one row per
+        // filtered delivered order - money from `orders`, status, payment and
+        // courier.
+        $reportView = $request->get('view') === 'order' ? 'order' : 'line';
+        $orderViewRows = collect();
+        if ($reportView === 'order') {
+            $allOrderRows = $this->reportOrderGrainRows($orders, $filteredOrderIds);
+
+            // Both grains paginate the same way - 10 rows a page, filters kept
+            // on the links - so switching views never drops the user onto an
+            // unpaginated list.
+            $orderPage = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+            $orderViewRows = new \Illuminate\Pagination\LengthAwarePaginator(
+                $allOrderRows->forPage($orderPage, 10)->values()->all(),
+                $allOrderRows->count(),
+                10,
+                $orderPage,
+                ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+            );
+            $orderViewRows->appends($request->query());
         }
-        if ($request->user_id) {
-            $orders = $orders->whereHas('order', function ($query) use ($request) {
-                $query->where('user_id', $request->user_id);
-            });
-        }
-        if ($request->start_date && $request->end_date) {
-            $orders =$orders->whereBetween('updated_at', [$request->start_date,$request->end_date]);
-        }
-        $total_purchase = $orders->sum(\DB::raw('purchase_price * qty'));
-        $total_item = $orders->sum('qty');
-        $total_sales = $orders->sum(\DB::raw('sale_price * qty'));
+
         $orders = $orders->paginate(10);
-        return view('backEnd.reports.order',compact('orders','users','total_purchase','total_item','total_sales'));
+        $pagination = $reportView === 'order' ? $orderViewRows : $orders;
+
+        return view('backEnd.reports.order', compact(
+            'orders', 'users', 'total_purchase', 'total_item', 'total_sales',
+            'summary', 'reportView', 'orderViewRows', 'pagination'
+        ));
     }
 
     public function order_create(){

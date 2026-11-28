@@ -8,6 +8,13 @@ use App\Http\Controllers\Frontend\CustomerController;
 use App\Http\Controllers\Frontend\BkashController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ReportOverviewController;
+use App\Http\Controllers\Admin\ReportAnalyticsController;
+use App\Http\Controllers\Admin\ReportStockAlertController;
+use App\Http\Controllers\Admin\ReportHealthController;
+use App\Http\Controllers\Admin\ReportDashboardController;
+use App\Http\Controllers\Admin\ReportSettingsController;
+use App\Http\Controllers\Admin\ReportExportController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CourierDashboardController;
 use App\Http\Controllers\Admin\OrderCourierController;
@@ -719,11 +726,11 @@ Route::group(['namespace' => 'Frontend', 'middleware' => ['ipcheck', 'check_refe
             });
         });
 
-        // The FM (modern) layout owns this page now: frontend/fm/pages/
-        // categories.blade.php, in the design of the product listing. The
-        // classic view (frontend/pages/categories.blade.php) is still on disk
-        // and is the fallback - change the name below to switch back.
-        return view('frontend.fm.pages.categories', compact('categories'));
+        // Resolve through the active template set instead of hardcoding the
+        // modern view: ThemeViewFinder rewrites frontend.pages.categories to
+        // frontend.fm.pages.categories only while the modern theme is live, so
+        // a classic site no longer renders the modern category tree.
+        return view('frontend.pages.categories', compact('categories'));
     })->name('categories.page');
 
     // B11: this used to be `return redirect()->route('home')` - but the header
@@ -1497,6 +1504,71 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
         ->name('admin.order.courier.store');
     Route::get('stock-report', [OrderController::class, 'stock_report'])->name('admin.stock_report');
     Route::get('order-report', [OrderController::class, 'order_report'])->name('admin.order_report');
+
+    // Real XLSX/CSV downloads for the two report pages. Same filters as the
+    // page (the query string minus `page`), same query source, no pagination.
+    Route::get('report-export/{report}', [ReportExportController::class, 'download'])
+        ->name('admin.report_export')
+        ->whereIn('report', ['stock', 'order']);
+    Route::get('reports/overview', [ReportOverviewController::class, 'index'])
+        ->name('admin.reports.overview')
+        ->middleware('permission:report-sales-view');
+
+    // Four analytics reports. Each one is guarded by its own permission so a
+    // support account cannot read money it has no business reading.
+    Route::get('reports/payments', [ReportAnalyticsController::class, 'paymentMethods'])
+        ->name('admin.reports.payments')
+        ->middleware('permission:report-payment-view');
+
+    Route::get('reports/couriers', [ReportAnalyticsController::class, 'courierPerformance'])
+        ->name('admin.reports.couriers')
+        ->middleware('permission:report-courier-view');
+
+    Route::get('reports/returns', [ReportAnalyticsController::class, 'returnsReport'])
+        ->name('admin.reports.returns')
+        ->middleware('permission:report-returns-view');
+
+    Route::get('reports/coupons', [ReportAnalyticsController::class, 'couponImpact'])
+        ->name('admin.reports.coupons')
+        ->middleware('permission:report-coupon-view');
+
+    Route::get('reports/stock-alerts', [ReportStockAlertController::class, 'index'])
+        ->name('admin.reports.stock-alerts')
+        ->middleware('permission:report-stock-view');
+
+    Route::get('reports/health', [ReportHealthController::class, 'index'])
+        ->name('admin.reports.health')
+        ->middleware('permission:report-sales-view');
+
+    // The page used to be called Report Summary. The old URL stays valid for
+    // bookmarks; the redirect sits behind the same permission gate.
+    Route::redirect('reports/summary', '/admin/reports/health', 301)
+        ->name('admin.reports.summary')
+        ->middleware('permission:report-sales-view');
+
+    Route::get('reports/dashboard', [ReportDashboardController::class, 'index'])
+        ->name('admin.reports.dashboard')
+        ->middleware('permission:report-sales-view');
+
+    Route::get('reports/final', [ReportDashboardController::class, 'finalReport'])
+        ->name('admin.reports.final')
+        ->middleware('permission:report-sales-view');
+
+    Route::get('reports/settings', [ReportSettingsController::class, 'edit'])
+        ->name('admin.reports.settings.edit')
+        ->middleware('permission:report-settings-manage');
+
+    Route::post('reports/settings', [ReportSettingsController::class, 'update'])
+        ->name('admin.reports.settings.update')
+        ->middleware('permission:report-settings-manage');
+
+    Route::post('reports/settings/test-mail', [ReportSettingsController::class, 'sendTest'])
+        ->name('admin.reports.settings.test')
+        ->middleware('permission:report-settings-manage');
+
+    Route::post('reports/stock-alerts/dismiss', [ReportSettingsController::class, 'dismissStockAlert'])
+        ->name('admin.reports.stock-alerts.dismiss')
+        ->middleware('permission:report-stock-view');
     // Both of these are AJAX endpoints: they read an `order_ids` array out of the
     // request body, and backEnd/order/index.blade.php posts to them with the CSRF
     // token. They were still declared GET, so every click on the Pathao button
