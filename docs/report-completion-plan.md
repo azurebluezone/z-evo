@@ -83,6 +83,13 @@ reported on the day it happened.
 
 Exit marker: `SETTLEMENT_TRUTH_OK`.
 
+Phase 1 exit: SETTLEMENT_TRUTH_OK (2026-11-28, contract `gc-mwzy8v6u`).
+One run proves all four items: `AdminExpenseEntryTest`,
+`AdminCodOutstandingTest`, `AdminPaymentSettlementTest`,
+`AdminCourierSettlementTest`, plus the `AdminReportAnalyticsTest` and
+`AdminReportCourierNormalizedTest` regressions. Dictionary items 6-8 are
+resolved in `docs/report-metrics.md` section 5.
+
 ## Phase 2 — Geography and saved views
 
 Goal: reports answer "where" and an admin can keep a filter without retyping
