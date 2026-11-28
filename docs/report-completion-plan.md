@@ -152,7 +152,15 @@ order.
      revenue, ROAS, CPA, CAC and the unattributed gap with plain SQL over an
      isolated range, and checks the dashboard shows the same ROAS. Definitions
      are locked in `docs/report-metrics.md` section 3.8.
-4. Cohort retention by first delivered order month.
+4. Cohort retention by first delivered order month. ✅ done 2026-11-28,
+   marker `COHORT_RETENTION_OK`, contract `gc-mx01cvgj`, commit `d419023`.
+   - Evidence: `CohortRetentionService` fixes the cohort as the month of a
+     customer's first delivered order and counts distinct customers per offset
+     M0..M6; `reports/cohorts` renders one row per cohort with counts and rates;
+     `tests/Feature/CohortRetentionTest.php` recomputes a cohort's month-1
+     repeat rate with plain SQL (2 customers, 1 repeat, 50.00%) and proves two
+     delivered orders in one month count once. Definitions are locked in
+     `docs/report-metrics.md` section 3.9.
 5. Abandoned cart: a cart with no order after a configurable window, with
    recovery state stored, not inferred from logs.
 6. Done when ROAS = attributed delivered revenue / spend for the same range,
