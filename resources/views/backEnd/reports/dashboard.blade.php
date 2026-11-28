@@ -156,6 +156,54 @@
     </div>
 </div>
 
+{{-- ==================== MARKETING EFFICIENCY ==================== --}}
+{{-- Same MarketingMetricsService the Marketing report uses, so the two
+     screens cannot disagree about ROAS for this range. --}}
+<div class="row g-4 mb-4" data-marketing-block>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1 small">Marketing spend</p>
+                <h4 class="mb-1" data-marketing-spend-total="{{ number_format($marketing['spend'], 2, '.', '') }}">BDT {{ number_format($marketing['spend'], 0) }}</h4>
+                <span class="badge bg-label-secondary"><code>spent_at</code> in range</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1 small">Attributed delivered revenue</p>
+                <h4 class="mb-1" data-marketing-revenue="{{ number_format($marketing['revenue'], 2, '.', '') }}">BDT {{ number_format($marketing['revenue'], 0) }}</h4>
+                <span class="badge bg-label-info">{{ number_format($marketing['orders'], 0) }} attributed delivered orders</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1 small">ROAS</p>
+                <h4 class="mb-1" data-roas="{{ $marketing['roas'] === null ? '' : number_format($marketing['roas'], 2, '.', '') }}">
+                    {{ $marketing['roas'] === null ? '-' : number_format($marketing['roas'], 2).'x' }}
+                </h4>
+                <span class="badge bg-label-secondary">revenue / spend</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1 small">CPA</p>
+                <h4 class="mb-1" data-cpa="{{ $marketing['cpa'] === null ? '' : number_format($marketing['cpa'], 2, '.', '') }}">
+                    {{ $marketing['cpa'] === null ? '-' : 'BDT '.number_format($marketing['cpa'], 0) }}
+                </h4>
+                <span class="badge bg-label-secondary" data-cac="{{ $marketing['cac'] === null ? '' : number_format($marketing['cac'], 2, '.', '') }}">
+                    CAC {{ $marketing['cac'] === null ? '-' : 'BDT '.number_format($marketing['cac'], 0) }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- DASHBOARD_CHARTS_V1 --}}
 <div class="row g-4 mb-4">
     <div class="col-12">

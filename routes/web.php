@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\ReportViewController;
 use App\Http\Controllers\Admin\ReportExportController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ExpenseCategoryController;
+use App\Http\Controllers\Admin\MarketingReportController;
 use App\Http\Controllers\Admin\MarketingSpendController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CourierDashboardController;
@@ -1624,6 +1625,10 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
             ->name('admin.reports.marketing-spends.store');
         Route::post('marketing-spends/destroy', [MarketingSpendController::class, 'destroy'])
             ->name('admin.reports.marketing-spends.destroy');
+
+        // Phase 3 item 3: spend against attributed delivered revenue.
+        Route::get('marketing', [MarketingReportController::class, 'index'])
+            ->name('admin.reports.marketing');
     });
 
     // Both of these are AJAX endpoints: they read an `order_ids` array out of the

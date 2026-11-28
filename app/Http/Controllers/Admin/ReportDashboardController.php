@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\Admin\MarketingMetricsService;
 use App\Services\Admin\ReportMetricsService;
 use Illuminate\Http\Request;
 
@@ -14,13 +15,14 @@ use Illuminate\Http\Request;
  */
 class ReportDashboardController extends Controller
 {
-    public function index(Request $request, ReportMetricsService $metrics)
+    public function index(Request $request, ReportMetricsService $metrics, MarketingMetricsService $marketing)
     {
         [$from, $to, $label] = $metrics->range($request->query('from'), $request->query('to'));
         $summary = $metrics->summary($from, $to);
 
         return view('backEnd.reports.dashboard', [
             'summary' => $summary,
+            'marketing' => $marketing->totals($from, $to),
             'label' => $label,
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),

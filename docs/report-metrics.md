@@ -239,6 +239,21 @@ Never label a number simply "revenue". Use one of these three names.
 
 **Stock Alerts velocity rule.** The three velocity columns are variant-grain and read delivered sales only (`['delivered','4']`) on `orders.delivered_at`, never on the order's creation date: a line sold today but delivered last week belongs to the week it was delivered. Lines whose `order_details.variant_id` is null cannot be attributed to a variant and are excluded from these columns. The window is the 30 days before the request (`now() - 30 days`) and the denominator is always 30, so a variant with 2 delivered units shows 0.07/day rather than 2/day. Last Sold is lifetime, not windowed. Days Remaining is an estimate: `floor(available / avg)`, 0 when `available <= 0`, and the page prints an em dash when there were no delivered sales in the window (a zero average has no days to divide by); it never prints infinity.
 
+### 3.8 Marketing efficiency
+
+| Metric | Formula | Grain | Source | Date basis | Status | Surfaces |
+|---|---|---|---|---|---|---|
+| Marketing Spend | `SUM(marketing_spends.spent)` | spend row | `marketing_spends` | `spent_at` | `IMPLEMENTED` | Marketing report, dashboard |
+| Attributed Delivered Revenue | `SUM(orders.amount)` where delivered and the order has an `order_attributions` row | order | `orders` + `order_attributions` | `orders.delivered_at` | `IMPLEMENTED` | Marketing report, dashboard |
+| Attributed Delivered Orders | `COUNT(orders.id)` over the same set | order | same | `orders.delivered_at` | `IMPLEMENTED` | Marketing report |
+| New Customers (attributed) | customers whose first-ever delivered order (`MIN(orders.delivered_at)` per customer) falls in the range, grouped by that order's `order_attributions.source` | customer | `orders` + `order_attributions` | `orders.delivered_at` | `IMPLEMENTED` | Marketing report |
+| ROAS | `Attributed Delivered Revenue / Marketing Spend`; null when spend is 0 | range | derived | spend `spent_at`, revenue `delivered_at` | `IMPLEMENTED` | Marketing report, dashboard |
+| CPA | `Marketing Spend / Attributed Delivered Orders`; null when there are no orders | range | derived | same | `IMPLEMENTED` | Marketing report, dashboard |
+| CAC | `Marketing Spend / New Customers`; null when there are no new customers | range | derived | same | `IMPLEMENTED` | Marketing report, dashboard |
+| Unattributed Delivered Revenue | `SUM(orders.amount)` for delivered orders in range with no `order_attributions` row | order | `orders` | `orders.delivered_at` | `IMPLEMENTED` | Marketing report footer |
+
+**Marketing efficiency rule.** Spend and revenue are counted on two different clocks by nature: `marketing_spends.spent_at` is the day the money left, `orders.delivered_at` is the day the revenue became real, and the report states both. An order has exactly one primary attribution (`order_attributions.order_id` is unique, migration `2026_11_28_000002`), so the revenue join cannot multiply an order. Delivered revenue without an attribution row is never divided by spend: it is reported as Unattributed Delivered Revenue, because attributing it to a channel would invent a return. A channel with spend but no delivered order prints "-" for ROAS and CAC rather than 0 or infinity. Both the dashboard and the Marketing report read `MarketingMetricsService`, so they cannot show different numbers for the same range.
+
 ## 4. Surface map
 
 | Surface | Route | Metrics shown | Date basis |
@@ -323,3 +338,4 @@ Never label a number simply "revenue". Use one of these three names.
 | 2026-11-28 | Product Report and Sales Report exports are real XLSX/CSV downloads over the whole filter (same query source as the page, `TOTAL` row, no pagination); the browser print dialog is the PDF path | report-management-final section 8 item 9: the Excel button downloaded a page-one CSV | `gc-mwzuqp6j` |
 | 2026-11-28 | Report Summary renamed to Report Health (`ReportHealthController`, `reports/health`, sidebar label); `/admin/reports/summary` keeps working as a 301 behind the same `report-sales-view` permission | report-management-final section 8 item 10: the page is a data-quality audit, and the name promised a business summary | `gc-mwzvfpfm` |
 | 2026-11-28 | Six metric-truth fixes: distinct-order Return Rate, Gross Profit = Net Sales - COGS, item Return Rate, `status_normalized` written on every shipment save and read by the Courier page, per-variant `low_stock_threshold`, and business expenses inside Estimated Net Profit. Section 5 #6-#9 corrected: the columns now exist, only the aggregates/UI are missing | the dictionary and the pages disagreed on six numbers; three "columns do not exist" sentences were stale after the Wave 1 migrations | `gc-mwzw7e3l` |
+| 2026-11-28 | Marketing efficiency locked in section 3.8: Marketing Spend, Attributed Delivered Revenue, ROAS, CPA, CAC and Unattributed Delivered Revenue, all from `MarketingMetricsService`; dashboard blocks and the Marketing report share it | Phase 3 item 3 needed one written definition of ROAS before two screens could show it | `gc-mx015bem` |
