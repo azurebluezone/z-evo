@@ -95,7 +95,14 @@ resolved in `docs/report-metrics.md` section 5.
 Goal: reports answer "where" and an admin can keep a filter without retyping
 it.
 
-1. Seed `districts` (the table exists and has 0 rows).
+1. Seed `districts` (the table exists and has 0 rows). ✅ done 2026-11-28,
+   marker `DISTRICTS_SEEDED_OK`, contract `gc-mwzybqlt`.
+   - Evidence: `DistrictShippingSeeder::districtsOnly()` reads the vendored
+     `database/data/bangladesh-geo.json` and upserts on
+     `(district, area_name)`; `DatabaseSeeder` runs it after
+     `DevShippingChargeSeeder`; `tests/Feature/DistrictsSeedTest.php` proves a
+     second run keeps 495 rows and leaves `shipping_charges` at 4; the dev
+     table now has 495 rows.
 2. Make `shippings.district_id` mandatory at checkout; keep
    `shippings.division` in sync.
 3. Add district/division breakdowns to Sales, Returns and Courier reports.

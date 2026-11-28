@@ -46,6 +46,12 @@ class DatabaseSeeder extends Seeder
             DevShippingChargeSeeder::class,
         ]);
 
+        // 3b. The districts table was empty, so the district/area dropdowns and
+        // the Phase 2 geography reports had no reference data. Districts only:
+        // DevShippingChargeSeeder above stays the single owner of the delivery
+        // rates, so this pass never writes shipping_charges.
+        (new DistrictShippingSeeder())->districtsOnly()->run();
+
         // 4. Storefront decoration only (banners, services, homepage switches,
         // theme). DevCatalogSeeder is the single owner of products and
         // categories, so this pass must not seed a second catalog.

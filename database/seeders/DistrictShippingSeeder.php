@@ -102,6 +102,22 @@ class DistrictShippingSeeder extends Seeder
         ['name' => 'Barishal Division',         'fee' => 150, 'districts' => ['Barishal', 'Patuakhali', 'Bhola', 'Pirojpur', 'Jhalokathi', 'Barguna']],
     ];
 
+    /**
+     * Seed the geography only and leave shipping_charges to its own owner.
+     *
+     * Phase 2 item 1 needs the districts table populated while
+     * DevShippingChargeSeeder stays the single owner of the delivery rates, so
+     * this mode never calls seedZones().
+     */
+    private bool $districtsOnly = false;
+
+    public function districtsOnly(): self
+    {
+        $this->districtsOnly = true;
+
+        return $this;
+    }
+
     public function run(): void
     {
         $hierarchy = $this->loadHierarchy();
@@ -113,6 +129,16 @@ class DistrictShippingSeeder extends Seeder
         }
 
         $districtCount = $this->seedDistricts($hierarchy);
+
+        if ($this->districtsOnly) {
+            $this->command?->info(sprintf(
+                'Districts: %d district/area rows (shipping_charges untouched)',
+                $districtCount
+            ));
+
+            return;
+        }
+
         $zoneCount     = $this->seedZones();
 
         $this->command?->info(sprintf(
