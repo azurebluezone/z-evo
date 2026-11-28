@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\ReportSettingsController;
 use App\Http\Controllers\Admin\ReportViewController;
 use App\Http\Controllers\Admin\ReportExportController;
 use App\Http\Controllers\Admin\CohortRetentionController;
+use App\Http\Controllers\Admin\AbandonedCartController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ExpenseCategoryController;
 use App\Http\Controllers\Admin\MarketingReportController;
@@ -1525,6 +1526,16 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
     // spend or profit.
     Route::get('reports/cohorts', [CohortRetentionController::class, 'index'])
         ->name('admin.reports.cohorts')
+        ->middleware('permission:report-sales-view');
+
+    // Phase 3 item 5: the stored cart lifecycle. Reading the funnel and
+    // marking a cart recovered both need the sales permission; the cart holds
+    // customer contact details, not profit figures.
+    Route::get('reports/abandoned-carts', [AbandonedCartController::class, 'index'])
+        ->name('admin.reports.abandoned-carts')
+        ->middleware('permission:report-sales-view');
+    Route::post('reports/abandoned-carts/{id}/recovered', [AbandonedCartController::class, 'markRecovered'])
+        ->name('admin.reports.abandoned-carts.recovered')
         ->middleware('permission:report-sales-view');
 
     // Four analytics reports. Each one is guarded by its own permission so a

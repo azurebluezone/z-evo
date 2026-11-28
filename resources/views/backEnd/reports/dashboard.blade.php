@@ -6,6 +6,7 @@
     <h4 class="mb-0">Report Dashboard</h4>
     <div class="d-flex flex-wrap gap-2">
         <a href="{{ route('admin.reports.cohorts') }}" class="btn btn-sm btn-outline-secondary">Cohorts</a>
+        <a href="{{ route('admin.reports.abandoned-carts') }}" class="btn btn-sm btn-outline-secondary">Abandoned carts</a>
         <a href="{{ route('admin.reports.final', ['from' => $from, 'to' => $to]) }}" class="btn btn-sm btn-outline-secondary">Final report</a>
         <a href="{{ route('admin.reports.settings.edit') }}" class="btn btn-sm btn-outline-secondary">Settings</a>
     </div>

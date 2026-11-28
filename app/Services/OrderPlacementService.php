@@ -149,6 +149,28 @@ class OrderPlacementService
             ]);
         }
 
+        // Phase 3 item 5: a cart that produced an order is not abandoned. The
+        // cart key is the session the shopping cart lives in; the state change
+        // is stored, so the report never has to infer it from logs. A failure
+        // must never fail a paid order.
+        try {
+            $cartKey = $options['cart_key'] ?? null;
+
+            if (!is_string($cartKey) || $cartKey === '') {
+                $cartKey = app(\App\Services\Analytics\CartActivityRecorder::class)->currentCartKey();
+            }
+
+            if (is_string($cartKey) && $cartKey !== '') {
+                app(\App\Services\Analytics\CartActivityRecorder::class)
+                    ->markConverted($cartKey, (int) $order->id, $placedAt);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Cart conversion record failed', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         // The single stock path: a hold in the ledger plus one row in
         // inventory_reservations. writeDetails() only writes the line rows.
         app(InventoryLedger::class)->reserveOrder(

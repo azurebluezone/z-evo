@@ -265,6 +265,20 @@ Never label a number simply "revenue". Use one of these three names.
 
 **Cohort retention rule.** A customer's cohort is fixed by history — the month of their first delivered order — and never moves. Only delivered orders (`order_status IN ('delivered','4')`) count, on `orders.delivered_at`: a placed order that never shipped is not a customer relationship. Every cell is a distinct-customer count, so two delivered orders in one month count the customer once. The date filter selects which cohort months are listed; a listed cohort still shows its later activity even when that activity falls outside the filter, because retention is a property of the cohort, not of the window. The page shows M0 to M6 (`CohortRetentionService::MAX_OFFSET`), and the totals row sums per-cohort cells, which is valid because a customer belongs to exactly one cohort.
 
+### 3.10 Cart lifecycle (abandoned carts)
+
+| Metric | Formula | Grain | Source | Date basis | Status | Surfaces |
+|---|---|---|---|---|---|---|
+| Cart Snapshot | `item_count`, `subtotal` of the session cart, refreshed on every cart mutation | cart lifecycle | `abandoned_carts` | `last_activity_at` | `IMPLEMENTED` | Abandoned Carts |
+| Last Activity | the moment of the latest cart mutation for that cart key | cart lifecycle | `abandoned_carts` | `last_activity_at` | `IMPLEMENTED` | Abandoned Carts |
+| Abandoned Cart | a cart whose stored status is `abandoned`: it was `open` and idle longer than the configured window | cart lifecycle | `abandoned_carts` | `abandoned_at` | `IMPLEMENTED` | Abandoned Carts |
+| Abandoned Value | `SUM(abandoned_carts.subtotal)` over rows with status `abandoned` | cart lifecycle | `abandoned_carts` | stored subtotal | `IMPLEMENTED` | Abandoned Carts |
+| Recovered Cart | a cart an admin marked recovered; `recovered_at` is written at that moment | cart lifecycle | `abandoned_carts` | `recovered_at` | `IMPLEMENTED` | Abandoned Carts |
+| Converted Cart | a cart that produced an order; `order_id` and `converted_at` are written by `OrderPlacementService::place()` | cart lifecycle | `abandoned_carts` | `converted_at` | `IMPLEMENTED` | Abandoned Carts |
+| Abandoned Window | `config('reports.abandoned_cart_window_hours')`, default 24, override `ABANDONED_CART_WINDOW_HOURS` | configuration | `config/reports.php` | not a date | `IMPLEMENTED` | Abandoned Carts, `carts:mark-abandoned` |
+
+**Cart lifecycle rule.** The shopping cart itself is session-backed (`hardevine/shoppingcart`), so it leaves no durable evidence on its own. `abandoned_carts` is that evidence: one row per cart key (the session id), written by `CartActivityRecorder` on every cart mutation and read by the report. Statuses are stored, never inferred: `open` means items are in the cart, `abandoned` is written by `carts:mark-abandoned` for `open` rows idle past the window, `converted` is written by `OrderPlacementService::place()` together with the `order_id`, and `recovered` is written by the admin action together with `recovered_at`. An empty cart creates no row; a converted cart that sees new items in the same session reopens as a new lifecycle, because the previous conversion already lives on its order.
+
 ## 4. Surface map
 
 | Surface | Route | Metrics shown | Date basis |
@@ -351,3 +365,4 @@ Never label a number simply "revenue". Use one of these three names.
 | 2026-11-28 | Six metric-truth fixes: distinct-order Return Rate, Gross Profit = Net Sales - COGS, item Return Rate, `status_normalized` written on every shipment save and read by the Courier page, per-variant `low_stock_threshold`, and business expenses inside Estimated Net Profit. Section 5 #6-#9 corrected: the columns now exist, only the aggregates/UI are missing | the dictionary and the pages disagreed on six numbers; three "columns do not exist" sentences were stale after the Wave 1 migrations | `gc-mwzw7e3l` |
 | 2026-11-28 | Marketing efficiency locked in section 3.8: Marketing Spend, Attributed Delivered Revenue, ROAS, CPA, CAC and Unattributed Delivered Revenue, all from `MarketingMetricsService`; dashboard blocks and the Marketing report share it | Phase 3 item 3 needed one written definition of ROAS before two screens could show it | `gc-mx015bem` |
 | 2026-11-28 | Cohort retention locked in section 3.9: cohort = month of first delivered order, size, Repeat(k) and Retention(k) for M0-M6, from `CohortRetentionService`; the cohort report is the only surface | Phase 3 item 4 needed the cohort definition written before a second screen could invent a different retention number | `gc-mx01cvgj` |
+| 2026-11-28 | Cart lifecycle locked in section 3.10: `abandoned_carts` stores one row per session cart with item count, subtotal, last activity and a status of open/abandoned/recovered/converted; `carts:mark-abandoned` applies the configurable window and `OrderPlacementService` stores the conversion | Phase 3 item 5 requires the recovery state to be stored, not inferred from logs | `gc-mx02ch15` |

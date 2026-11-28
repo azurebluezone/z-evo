@@ -15,6 +15,7 @@ use App\Models\PaymentGateway;
 use App\Models\GeneralSetting;
 use App\Services\GuestCheckoutAccountService;
 use App\Services\OrderPlacementService;
+use App\Services\Analytics\CartActivityRecorder;
 use App\Services\SmsGatewayService;
 use Illuminate\Support\Facades\Log;
 use Toastr;
@@ -148,6 +149,25 @@ class ShoppingController extends Controller
             });
         } catch (\Throwable $e) {
             return 0;
+        }
+    }
+
+    /**
+     * Phase 3 item 5: store the current session cart so an abandoned cart is a
+     * row with a real status, not something a later report has to infer from
+     * logs. Never allowed to break a cart action.
+     */
+    private function recordCartActivity(): void
+    {
+        try {
+            $cart = Cart::instance('shopping');
+            $subtotal = (float) str_replace(',', '', (string) $cart->subtotal());
+
+            app(CartActivityRecorder::class)->record($this->cartQuantitySum(), $subtotal);
+        } catch (\Throwable $e) {
+            Log::warning('Cart activity record failed', [
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
@@ -310,6 +330,8 @@ class ShoppingController extends Controller
             'quantity' => $qty,
         ]);
 
+        $this->recordCartActivity();
+
         return response()->json([
             'rowId' => $cartinfo->rowId ?? null,
             'id' => (int) ($cartinfo->id ?? $productInfo->id),
@@ -433,6 +455,8 @@ class ShoppingController extends Controller
             'price' => $product->new_price,
             'quantity' => $requestQty,
         ]);
+
+        $this->recordCartActivity();
         
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -751,12 +775,15 @@ class ShoppingController extends Controller
             'quantity' => (int) $request->qty,
         ]);
 
+        $this->recordCartActivity();
+
         return redirect()->route('customer.checkout');
     }
 
     public function cart_remove(Request $request)
     {
         Cart::instance('shopping')->update($request->id, 0);
+        $this->recordCartActivity();
         if ($request->wantsJson() || $request->ajax()) {
             $cartHtml = view('frontend.layouts.ajax.cart')->render();
             return response()->json([
@@ -802,6 +829,8 @@ class ShoppingController extends Controller
 
         Cart::instance('shopping')->update($request->id, $qty);
 
+        $this->recordCartActivity();
+
         if ($request->wantsJson() || $request->ajax()) {
             $cartHtml = view('frontend.layouts.ajax.cart')->render();
             return response()->json([
@@ -819,6 +848,7 @@ class ShoppingController extends Controller
         $item = Cart::instance('shopping')->get($request->id);
         $qty = $item->qty - 1;
         Cart::instance('shopping')->update($request->id, $qty);
+        $this->recordCartActivity();
 
         if ($request->wantsJson() || $request->ajax()) {
             $cartHtml = view('frontend.layouts.ajax.cart')->render();
