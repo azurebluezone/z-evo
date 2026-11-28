@@ -43,7 +43,8 @@ class OrderPlacementService
      * $options: shipping_fee, discount, fraud_source (checkout | landing),
      *   invoice_id, placed_at, payment_status, shipping_is_free,
      *   shipping_list_price, reservation_ttl_minutes, fraud_check, source,
-     *   user_id, notify (default true; seeders pass false)
+     *   user_id, notify (default true; seeders pass false), visitor_id,
+     *   attribution_channel.
      *
      * The money is computed here from the line prices, never from the request.
      * The dev order seeder is the reason for the deterministic options: it must
@@ -126,6 +127,27 @@ class OrderPlacementService
         $payment->save();
 
         $this->writeDetails($order, $lines, $placedAt);
+
+        // Phase 3 item 2: one primary attribution row per order, written on the
+        // same path that writes the order. The visitor's first-touch channel
+        // already lives on visitors_master (VisitorIdentify), so nothing is
+        // guessed from the request body here. A failure must never fail a paid
+        // order, so it is logged and the order stands.
+        try {
+            app(\App\Services\Analytics\OrderAttributionRecorder::class)->record(
+                $order,
+                $placedAt,
+                [
+                    'visitor_id' => $options['visitor_id'] ?? null,
+                    'channel' => $options['attribution_channel'] ?? null,
+                ]
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Order attribution record failed', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         // The single stock path: a hold in the ledger plus one row in
         // inventory_reservations. writeDetails() only writes the line rows.
