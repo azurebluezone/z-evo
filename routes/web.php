@@ -1533,6 +1533,13 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'lock', 'check_re
         ->name('admin.reports.couriers')
         ->middleware('permission:report-courier-view');
 
+    // One remittance entry for a shipment. The row lands in
+    // courier_settlements and the shipment's remitted_amount is recomputed
+    // from those rows, so the shortfall moves without a manual edit.
+    Route::post('reports/couriers/settlement', [ReportAnalyticsController::class, 'storeCourierSettlement'])
+        ->name('admin.reports.couriers.settlement')
+        ->middleware('permission:report-courier-view');
+
     Route::get('reports/returns', [ReportAnalyticsController::class, 'returnsReport'])
         ->name('admin.reports.returns')
         ->middleware('permission:report-returns-view');

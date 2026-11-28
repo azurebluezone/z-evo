@@ -229,6 +229,10 @@ class ReportAnalyticsController extends Controller
                 DB::raw("SUM(CASE WHEN status_normalized = 'in_transit' THEN 1 ELSE 0 END) as in_transit"),
                 DB::raw('SUM(shipping_cost) as cost'),
                 DB::raw('SUM(cod_amount - remitted_amount) as cod_outstanding'),
+                DB::raw('SUM(cod_amount) as cod_expected'),
+                DB::raw('SUM(remitted_amount) as remitted'),
+                DB::raw('SUM(return_charge) as return_charge'),
+                DB::raw('SUM(cod_amount - remitted_amount - return_charge) as shortfall'),
                 DB::raw("SUM(CASE WHEN settlement_status IS NULL OR settlement_status NOT IN ('pending','remitted','settled') THEN 1 ELSE 0 END) as settlement_unknown"),
                 DB::raw('MAX(last_synced_at) as last_synced_at')
             )
@@ -249,6 +253,10 @@ class ReportAnalyticsController extends Controller
                     'in_transit' => $inTransit,
                     'cost' => (float) $row->cost,
                     'cod_outstanding' => round((float) $row->cod_outstanding, 2),
+                    'cod_expected' => round((float) $row->cod_expected, 2),
+                    'remitted' => round((float) $row->remitted, 2),
+                    'return_charge' => round((float) $row->return_charge, 2),
+                    'shortfall' => round((float) $row->shortfall, 2),
                     'settlement_unknown' => (int) $row->settlement_unknown,
                     'avg_cost' => $shipments > 0 ? round((float) $row->cost / $shipments, 2) : 0.0,
                     'delivery_rate' => $shipments > 0 ? round($delivered / $shipments * 100, 1) : 0.0,
@@ -270,6 +278,10 @@ class ReportAnalyticsController extends Controller
             'returned' => $returned,
             'cost' => $cost,
             'cod_outstanding' => $codOutstanding,
+            'cod_expected' => round((float) array_sum(array_column($rows, 'cod_expected')), 2),
+            'remitted' => round((float) array_sum(array_column($rows, 'remitted')), 2),
+            'return_charge' => round((float) array_sum(array_column($rows, 'return_charge')), 2),
+            'courier_shortfall' => round((float) array_sum(array_column($rows, 'shortfall')), 2),
             'settlement_unknown' => $settlementUnknown,
             'avg_cost' => $shipments > 0 ? round($cost / $shipments, 2) : 0.0,
             'delivery_rate' => $shipments > 0 ? round($delivered / $shipments * 100, 1) : 0.0,
@@ -302,7 +314,66 @@ class ReportAnalyticsController extends Controller
             'events' => $events,
             'charts' => $charts,
             'filters' => $this->filters($request),
+            'settlementTargets' => DB::table('courier_shipments')
+                ->orderByDesc('id')
+                ->limit(50)
+                ->get(['id', 'order_id', 'provider', 'cod_amount', 'remitted_amount']),
         ]);
+    }
+
+    /**
+     * Record one courier remittance for a shipment.
+     *
+     * The entry is a row in courier_settlements; the matching shipment's
+     * remitted_amount is then recomputed from the settlement rows, so the
+     * shipment row is a projection and the shortfall moves without a manual
+     * edit. settlement_status is left alone: the report already surfaces an
+     * unknown value instead of guessing one.
+     */
+    public function storeCourierSettlement(Request $request)
+    {
+        $data = $request->validate([
+            'shipment_id' => ['required', 'integer', 'exists:courier_shipments,id'],
+            'amount' => ['required', 'numeric', 'min:0'],
+            'remitted_at' => ['nullable', 'date'],
+            'reference' => ['nullable', 'string', 'max:64'],
+            'note' => ['nullable', 'string', 'max:191'],
+        ]);
+
+        $shipmentId = (int) $data['shipment_id'];
+        $amount = round((float) $data['amount'], 2);
+        $remittedAt = $data['remitted_at'] ?? now()->toDateString();
+        $reference = $data['reference'] ?? null;
+
+        DB::transaction(function () use ($shipmentId, $amount, $remittedAt, $reference, $data): void {
+            $shipment = DB::table('courier_shipments')->where('id', $shipmentId)->lockForUpdate()->first();
+            abort_if($shipment === null, 404, 'The shipment does not exist.');
+
+            DB::table('courier_settlements')->insert([
+                'order_id' => $shipment->order_id,
+                'provider' => $shipment->provider,
+                'consignment_id' => $shipment->consignment_id,
+                'amount' => $amount,
+                'status' => 'settled',
+                'remitted_at' => $remittedAt,
+                'reference' => $reference,
+                'note' => $data['note'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $remitted = (float) DB::table('courier_settlements')
+                ->where('order_id', $shipment->order_id)
+                ->where('provider', $shipment->provider)
+                ->sum('amount');
+
+            DB::table('courier_shipments')->where('id', $shipmentId)->update([
+                'remitted_amount' => round($remitted, 2),
+                'updated_at' => now(),
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Courier remittance recorded.');
     }
 
     /* ------------------------------------------------------------------ */

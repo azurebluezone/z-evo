@@ -63,7 +63,8 @@ reported on the day it happened.
      `tests/Feature/AdminPaymentSettlementTest.php` (3 tests, 22 assertions)
      compares the page gap with `SUM(amount - gateway_fee - settled_amount)`
      and proves Support is denied.
-4. Courier settlement.
+4. Courier settlement. ✅ done 2026-11-28, marker `COURIER_SETTLEMENT_OK`,
+   contract `gc-mwzy4hc3`.
    - Sources: `cod_amount`, `return_charge`, `remitted_amount`,
      `settlement_status` (`2026_11_27_000005`) and `courier_settlements`
      (`2026_11_27_000009`).
@@ -71,6 +72,14 @@ reported on the day it happened.
      charge.
    - Done when a remittance row updates the shortfall without editing the
      shipment row by hand.
+   - Evidence: `POST admin.reports.couriers.settlement` writes one
+     `courier_settlements` row and recomputes `courier_shipments.remitted_amount`
+     from all settlement rows for that order and provider; the Courier page
+     shows a reconciliation table and shortfall card
+     (`data-metric="courier-shortfall"`, shortfall = expected - remitted -
+     return charge); `tests/Feature/AdminCourierSettlementTest.php` (3 tests,
+     23 assertions) proves the page shortfall equals an independent SQL sum
+     and that Support is denied.
 
 Exit marker: `SETTLEMENT_TRUTH_OK`.
 

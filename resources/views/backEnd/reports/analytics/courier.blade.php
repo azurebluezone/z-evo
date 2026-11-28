@@ -84,6 +84,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1 small">Courier shortfall</p>
+                    <h4 class="mb-1" data-metric="courier-shortfall">BDT {{ number_format($metrics['courier_shortfall'], 2) }}</h4>
+                    <span class="badge bg-label-secondary">expected BDT {{ number_format($metrics['cod_expected'], 2) }}, remitted BDT {{ number_format($metrics['remitted'], 2) }}, return charge BDT {{ number_format($metrics['return_charge'], 2) }}</span>
+                    <p class="text-muted small mb-0 mt-1">expected COD - remitted - return charge</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card mb-4">
@@ -181,6 +191,97 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header border-bottom">
+            <h5 class="card-title mb-0">COD reconciliation by provider</h5>
+            <p class="text-muted small mb-0">Expected COD from <code>cod_amount</code>, remitted from <code>remitted_amount</code>, return charge from <code>return_charge</code>; shortfall = expected - remitted - return charge.</p>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Provider</th>
+                            <th class="text-end">Expected COD</th>
+                            <th class="text-end">Remitted</th>
+                            <th class="text-end">Return charge</th>
+                            <th class="text-end">Shortfall</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($rows as $row)
+                            <tr>
+                                <td class="fw-semibold">{{ $row['provider'] }}</td>
+                                <td class="text-end">BDT {{ number_format($row['cod_expected'], 2) }}</td>
+                                <td class="text-end">BDT {{ number_format($row['remitted'], 2) }}</td>
+                                <td class="text-end">BDT {{ number_format($row['return_charge'], 2) }}</td>
+                                <td class="text-end fw-semibold" data-courier-shortfall="{{ $row['provider'] }}">BDT {{ number_format($row['shortfall'], 2) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-primary">
+                            <th>Total</th>
+                            <th class="text-end">BDT {{ number_format($metrics['cod_expected'], 2) }}</th>
+                            <th class="text-end">BDT {{ number_format($metrics['remitted'], 2) }}</th>
+                            <th class="text-end">BDT {{ number_format($metrics['return_charge'], 2) }}</th>
+                            <th class="text-end">BDT {{ number_format($metrics['courier_shortfall'], 2) }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header border-bottom">
+            <h5 class="card-title mb-0">Record a courier remittance</h5>
+            <p class="text-muted small mb-0">Writes one <code>courier_settlements</code> row, then recomputes the shipment's <code>remitted_amount</code> from all settlement rows for that order and provider.</p>
+        </div>
+        <div class="card-body">
+            @if ($errors->any())
+                <div class="alert alert-danger py-2">
+                    <ul class="mb-0 small">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <form method="POST" action="{{ route('admin.reports.couriers.settlement') }}" class="row g-3">
+                @csrf
+                <div class="col-12 col-md-5">
+                    <label class="form-label" for="courierSettlementShipment">Shipment</label>
+                    <select class="form-select" id="courierSettlementShipment" name="shipment_id" required>
+                        <option value="">Choose a shipment</option>
+                        @foreach ($settlementTargets as $target)
+                            <option value="{{ $target->id }}">#{{ $target->id }} order {{ $target->order_id }} {{ $target->provider }} COD BDT {{ number_format((float) $target->cod_amount, 2) }}, remitted BDT {{ number_format((float) $target->remitted_amount, 2) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" for="courierSettlementAmount">Amount</label>
+                    <input type="number" step="0.01" min="0" class="form-control" id="courierSettlementAmount" name="amount" required>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" for="courierSettlementDate">Remitted at</label>
+                    <input type="date" class="form-control" id="courierSettlementDate" name="remitted_at" value="{{ now()->toDateString() }}">
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label" for="courierSettlementReference">Reference</label>
+                    <input type="text" maxlength="64" class="form-control" id="courierSettlementReference" name="reference">
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="courierSettlementNote">Note</label>
+                    <input type="text" maxlength="191" class="form-control" id="courierSettlementNote" name="note">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Record remittance</button>
+                </div>
+            </form>
         </div>
     </div>
 
