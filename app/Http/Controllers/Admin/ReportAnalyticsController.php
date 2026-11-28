@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\BuildsGeoBreakdown;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -23,6 +24,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ReportAnalyticsController extends Controller
 {
+    use BuildsGeoBreakdown;
+
     private const DELIVERED = ['delivered', '4'];
     private const CANCELLED = ['cancelled', '5'];
 
@@ -308,11 +311,26 @@ class ReportAnalyticsController extends Controller
             ];
         }
 
+        // Same courier_shipments.created_at base as the totals above.
+        $geo = $this->geoBreakdown(
+            'courier_shipments',
+            'order_id',
+            'created_at',
+            $range,
+            'COUNT(*)',
+            [
+                'delivered' => "SUM(CASE WHEN t.status_normalized = 'delivered' THEN 1 ELSE 0 END)",
+                'cost' => 'SUM(t.shipping_cost)',
+            ]
+        );
+
         return view('backEnd.reports.analytics.courier', [
             'metrics' => $metrics,
             'rows' => $rows,
             'events' => $events,
             'charts' => $charts,
+            'geo' => $geo,
+            'geoTotal' => round((float) $geo->sum('cost'), 2),
             'filters' => $this->filters($request),
             'settlementTargets' => DB::table('courier_shipments')
                 ->orderByDesc('id')
@@ -396,7 +414,7 @@ class ReportAnalyticsController extends Controller
 
         $base = DB::table('order_returns');
         if ($range !== null) {
-            $base->whereBetween('created_at', $range);
+            $base->whereBetween('order_returns.created_at', $range);
         }
 
         $returnCount = (clone $base)->distinct()->count('order_id');
@@ -497,11 +515,26 @@ class ReportAnalyticsController extends Controller
             ];
         }
 
+        // Same order_returns.created_at base as the refund totals above.
+        $geo = $this->geoBreakdown(
+            'order_returns',
+            'order_id',
+            'created_at',
+            $range,
+            'COUNT(*)',
+            [
+                'refund_required' => 'SUM(CASE WHEN t.refund_required = 1 THEN t.refund_amount ELSE 0 END)',
+                'refunded' => 'SUM(CASE WHEN t.refunded = 1 THEN t.refund_amount ELSE 0 END)',
+            ]
+        );
+
         return view('backEnd.reports.analytics.returns', [
             'metrics' => $metrics,
             'rows' => $rows,
             'items' => $items,
             'charts' => $charts,
+            'geo' => $geo,
+            'geoTotal' => round((float) $geo->sum('refund_required'), 2),
             'filters' => $this->filters($request),
         ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\BuildsGeoBreakdown;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -30,6 +31,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ReportOverviewController extends Controller
 {
+    use BuildsGeoBreakdown;
+
     private const DELIVERED_STATUSES = ['delivered', '4'];
 
     public function index(Request $request)
@@ -105,10 +108,24 @@ class ReportOverviewController extends Controller
             'after_pending_refunds' => $viewA - $refundPending,
         ];
 
+        // Same delivered_at base as the collected total above, so the district
+        // rows always add up to the national number for this range.
+        $geo = $this->geoBreakdown(
+            'orders',
+            'id',
+            'delivered_at',
+            $range,
+            'COUNT(DISTINCT t.id)',
+            ['amount' => 'SUM(t.amount)'],
+            fn ($query) => $query->whereIn('t.order_status', self::DELIVERED_STATUSES)
+        );
+
         return view('backEnd.reports.overview', [
             'metrics' => $metrics,
             'trend' => $this->trend($orderedQuery, $deliveredQuery),
             'paymentMix' => $this->paymentMix(),
+            'geo' => $geo,
+            'geoTotal' => round((float) $geo->sum('amount'), 2),
             'filters' => [
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),

@@ -268,6 +268,47 @@
 
     <div class="d-none" data-report-overview="{{ json_encode(['trend' => $trend, 'payments' => $paymentMix]) }}"></div>
 @endif
+
+{{-- ==================== GEOGRAPHY ==================== --}}
+<div class="card mb-4">
+    <div class="card-header border-bottom">
+        <h5 class="card-title mb-0">Delivered orders by division and district</h5>
+        <p class="text-muted small mb-0">Same <code>delivered_at</code> base as the collected total. Orders without a district stay visible as Unassigned.</p>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Division</th>
+                        <th>District</th>
+                        <th class="text-end">Orders</th>
+                        <th class="text-end">Delivered amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($geo as $row)
+                        <tr>
+                            <td>{{ $row->division }}</td>
+                            <td>{{ $row->district }}</td>
+                            <td class="text-end">{{ number_format((int) $row->row_count, 0) }}</td>
+                            <td class="text-end">BDT {{ number_format((float) $row->amount, 0) }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4" class="text-muted">No delivered order in this range.</td></tr>
+                    @endforelse
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2">Total</th>
+                        <th class="text-end">{{ number_format((int) $geo->sum('row_count'), 0) }}</th>
+                        <th class="text-end" data-geo-total="{{ number_format($geoTotal, 2, '.', '') }}">BDT {{ number_format($geoTotal, 0) }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('script')
