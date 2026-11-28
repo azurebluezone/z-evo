@@ -152,6 +152,8 @@ class ReportAnalyticsController extends Controller
                 DB::raw("SUM(CASE WHEN status_normalized IN ('returned','cancelled') THEN 1 ELSE 0 END) as returned"),
                 DB::raw("SUM(CASE WHEN status_normalized = 'in_transit' THEN 1 ELSE 0 END) as in_transit"),
                 DB::raw('SUM(shipping_cost) as cost'),
+                DB::raw('SUM(cod_amount - remitted_amount) as cod_outstanding'),
+                DB::raw("SUM(CASE WHEN settlement_status IS NULL OR settlement_status NOT IN ('pending','remitted','settled') THEN 1 ELSE 0 END) as settlement_unknown"),
                 DB::raw('MAX(last_synced_at) as last_synced_at')
             )
             ->groupBy('provider')
@@ -170,6 +172,8 @@ class ReportAnalyticsController extends Controller
                     'returned' => $returned,
                     'in_transit' => $inTransit,
                     'cost' => (float) $row->cost,
+                    'cod_outstanding' => round((float) $row->cod_outstanding, 2),
+                    'settlement_unknown' => (int) $row->settlement_unknown,
                     'avg_cost' => $shipments > 0 ? round((float) $row->cost / $shipments, 2) : 0.0,
                     'delivery_rate' => $shipments > 0 ? round($delivered / $shipments * 100, 1) : 0.0,
                     'last_synced_at' => $row->last_synced_at,
@@ -180,6 +184,8 @@ class ReportAnalyticsController extends Controller
         $delivered = array_sum(array_column($rows, 'delivered'));
         $returned = array_sum(array_column($rows, 'returned'));
         $inTransit = array_sum(array_column($rows, 'in_transit'));
+        $codOutstanding = round((float) array_sum(array_column($rows, 'cod_outstanding')), 2);
+        $settlementUnknown = (int) array_sum(array_column($rows, 'settlement_unknown'));
 
         $metrics = [
             'shipments' => $shipments,
@@ -187,6 +193,8 @@ class ReportAnalyticsController extends Controller
             'in_transit' => $inTransit,
             'returned' => $returned,
             'cost' => $cost,
+            'cod_outstanding' => $codOutstanding,
+            'settlement_unknown' => $settlementUnknown,
             'avg_cost' => $shipments > 0 ? round($cost / $shipments, 2) : 0.0,
             'delivery_rate' => $shipments > 0 ? round($delivered / $shipments * 100, 1) : 0.0,
         ];

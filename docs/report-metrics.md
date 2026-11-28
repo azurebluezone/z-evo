@@ -195,7 +195,7 @@ Never label a number simply "revenue". Use one of these three names.
 | In-Transit Shipments | `COUNT(*) WHERE status_normalized = 'in_transit'` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier; unknown statuses are not counted as in transit |
 | Delivery Success Rate | `Delivered Shipments / Shipments * 100` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier, Dashboard |
 | Courier Average Cost | `Courier Cost / Shipments` | shipment | `courier_shipments` | `created_at` | `IMPLEMENTED` | Courier |
-| COD Outstanding | `SUM(courier_shipments.cod_amount - courier_shipments.remitted_amount)` | shipment | `courier_shipments` | settlement date | `OPEN` | columns C11/C13 exist; aggregate and settlement UI still missing |
+| COD Outstanding | `SUM(courier_shipments.cod_amount - courier_shipments.remitted_amount)` | shipment | `courier_shipments` | settlement date, `created_at` until a settlement date exists | `IMPLEMENTED` | Courier card and per-provider column; `AdminCodOutstandingTest` proves the page total equals an independent SQL sum; a `settlement_status` outside pending/remitted/settled is counted as unknown, never folded into a guess |
 
 **Status normalization rule.** `courier_shipments.status_normalized` is the only status a report reads. `CourierShipment` writes it on every save through `CourierStatusNormalizer::normalize()`, so the Pathao sender, the SteadFast sender, the webhook and the admin panel cannot drift. Unknown provider words keep their own lowercased slug rather than being forced into a bucket; that is why In-Transit is an explicit count, not `Shipments - Delivered - Returned`.
 

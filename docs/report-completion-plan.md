@@ -34,13 +34,18 @@ reported on the day it happened.
    - Reuse the existing `report-profit-view` permission.
    - Done when a saved expense changes the dashboard Expense and Estimated
      Net Profit on the same page load, proven by an independent SQL test.
-2. COD Outstanding.
+2. COD Outstanding. ✅ done 2026-11-28, marker `COD_OUTSTANDING_OK`,
+   contract `gc-mwzxs9g5`.
    - Source: `courier_shipments.cod_amount - remitted_amount`; both columns
      exist (`2026_11_27_000005`).
    - Add a Courier report card and a per-provider table column, date basis
      `courier_shipments.created_at` until a settlement date is chosen.
    - Done when the page number equals an independent SQL sum and an unknown
      settlement state is shown, not guessed.
+   - Evidence: `tests/Feature/AdminCodOutstandingTest.php` (2 tests, 15
+     assertions) compares `metrics['cod_outstanding']` with a raw
+     `SUM(cod_amount - remitted_amount)` and counts a `mystery_state`
+     settlement row as unknown.
 3. Payment settlement.
    - Sources: `payments.gateway_fee`, `settled_amount`,
      `settlement_status`, `settled_at`, `settlement_reference`

@@ -70,6 +70,20 @@
                 </div>
             </div>
         </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1 small">COD outstanding</p>
+                    <h4 class="mb-1" data-metric="cod-outstanding">BDT {{ number_format($metrics['cod_outstanding'], 2) }}</h4>
+                    @if ($metrics['settlement_unknown'] > 0)
+                        <span class="badge bg-label-danger" data-metric="settlement-unknown">{{ number_format($metrics['settlement_unknown'], 0) }} unknown settlement state</span>
+                    @else
+                        <span class="badge bg-label-secondary" data-metric="settlement-unknown">no unknown settlement state</span>
+                    @endif
+                    <p class="text-muted small mb-0 mt-1">cod_amount - remitted_amount, date basis shipment created_at</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card mb-4">
@@ -91,6 +105,7 @@
                             <th class="text-end">Delivery rate</th>
                             <th class="text-end">Total cost</th>
                             <th class="text-end">Avg cost</th>
+                            <th class="text-end">COD outstanding</th>
                             <th>Last sync</th>
                         </tr>
                     </thead>
@@ -105,6 +120,12 @@
                                 <td class="text-end">{{ number_format($row['delivery_rate'], 1) }}%</td>
                                 <td class="text-end fw-semibold">BDT {{ number_format($row['cost'], 0) }}</td>
                                 <td class="text-end">BDT {{ number_format($row['avg_cost'], 0) }}</td>
+                                <td class="text-end fw-semibold" data-cod-provider="{{ $row['provider'] }}">
+                                    BDT {{ number_format($row['cod_outstanding'], 2) }}
+                                    @if ($row['settlement_unknown'] > 0)
+                                        <span class="d-block small text-danger">{{ number_format($row['settlement_unknown'], 0) }} unknown settlement state</span>
+                                    @endif
+                                </td>
                                 <td class="small text-muted">{{ $row['last_synced_at'] ? \Illuminate\Support\Carbon::parse($row['last_synced_at'])->format('d M Y H:i') : '—' }}</td>
                             </tr>
                         @endforeach
@@ -119,6 +140,7 @@
                             <th class="text-end">{{ number_format($metrics['delivery_rate'], 1) }}%</th>
                             <th class="text-end">BDT {{ number_format($metrics['cost'], 0) }}</th>
                             <th class="text-end">BDT {{ number_format($metrics['avg_cost'], 0) }}</th>
+                            <th class="text-end">BDT {{ number_format($metrics['cod_outstanding'], 2) }}</th>
                             <th></th>
                         </tr>
                     </tfoot>
